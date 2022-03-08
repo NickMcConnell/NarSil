@@ -5031,7 +5031,6 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_SAVE);
 	validate_dir(ANGBAND_DIR_PANIC);
 	validate_dir(ANGBAND_DIR_SCORES);
-	validate_dir(ANGBAND_DIR_INFO);
 
 	/* Build the filename */
 	path_build(path, sizeof(path), ANGBAND_DIR_SCREENS, "news.txt");
