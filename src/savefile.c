@@ -408,6 +408,8 @@ bool savefile_save(const char *path)
 			character_saved = false;
 		}
 		file_close(file);
+	} else {
+		character_saved = false;
 	}
 
 	if (character_saved) {
