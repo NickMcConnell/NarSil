@@ -940,10 +940,10 @@ void play_game(enum game_mode_type mode)
 		cleanup_angband();
 		init_display();
 		init_angband();
-		textui_init();
 		if (reinit_hook != NULL) {
 			(*reinit_hook)();
 		}
+		textui_init();
 		mode = GAME_SELECT;
 	}
 }
