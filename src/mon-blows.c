@@ -219,8 +219,9 @@ static void steal_player_item(melee_effect_handler_context_t *context)
 			split = true;
 
 		/* Message */
-		msg("%s %s (%c) was stolen!", (split ? "One of your" : "Your"), o_name,
-			I2A(index));
+		msg("%s %s (%c) was stolen!",
+			(split ? "One of your" : "Your"), o_name,
+			gear_to_label(context->p, obj));
 
 		/* Steal and carry */
 		stolen = gear_object_for_use(context->p, obj, 1,

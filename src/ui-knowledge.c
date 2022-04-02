@@ -769,16 +769,11 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	int wid, hgt;
 	int i;
 	int prev_g = -1;
-
-	int omode = OPT(player, angband_keyset);
 	ui_event ke;
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
 	browser_rows = hgt - 8;
-
-	/* Disable the roguelike commands for the duration */
-	OPT(player, angband_keyset) = false;
 
 	/* Determine if using tiles or not */
 	if (tiles) tiles = (current_graphics_mode->grafID != 0);
@@ -1056,9 +1051,6 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 			redraw = true;
 		}
 	}
-
-	/* Restore roguelike option */
-	OPT(player, angband_keyset) = omode;
 
 	/* Prompt */
 	if (!grp_cnt)
@@ -2072,10 +2064,10 @@ static const char *feat_prompt(int oid)
 {
 	(void)oid;
 		switch (f_uik_lighting) {
-				case LIGHTING_LIT:  return ", 'l/L' for lighting (lit)";
-                case LIGHTING_TORCH: return ", 'l/L' for lighting (torch)";
-				case LIGHTING_LOS:  return ", 'l/L' for lighting (LOS)";
-				default:	return ", 'l/L' for lighting (dark)";
+				case LIGHTING_LIT:  return ", 't/T' for lighting (lit)";
+                case LIGHTING_TORCH: return ", 't/T' for lighting (torch)";
+				case LIGHTING_LOS:  return ", 't/T' for lighting (LOS)";
+				default:	return ", 't/T' for lighting (dark)";
 		}		
 }
 
@@ -2085,14 +2077,14 @@ static const char *feat_prompt(int oid)
 static void f_xtra_act(struct keypress ch, int oid)
 {
 	/* XXX must be a better way to cycle this */
-	if (ch.code == 'l') {
+	if (ch.code == 't') {
 		switch (f_uik_lighting) {
 				case LIGHTING_LIT:  f_uik_lighting = LIGHTING_TORCH; break;
                 case LIGHTING_TORCH: f_uik_lighting = LIGHTING_LOS; break;
 				case LIGHTING_LOS:  f_uik_lighting = LIGHTING_DARK; break;
 				default:	f_uik_lighting = LIGHTING_LIT; break;
 		}		
-	} else if (ch.code == 'L') {
+	} else if (ch.code == 'T') {
 		switch (f_uik_lighting) {
 				case LIGHTING_DARK:  f_uik_lighting = LIGHTING_LOS; break;
                 case LIGHTING_LOS: f_uik_lighting = LIGHTING_TORCH; break;
@@ -2257,7 +2249,7 @@ static void trap_lore(int oid)
 static const char *trap_prompt(int oid)
 {
 	(void)oid;
-	return ", 'l' to cycle lighting";
+	return ", 't' to cycle lighting";
 }
 
 /**
@@ -2266,14 +2258,14 @@ static const char *trap_prompt(int oid)
 static void t_xtra_act(struct keypress ch, int oid)
 {
 	/* XXX must be a better way to cycle this */
-	if (ch.code == 'l') {
+	if (ch.code == 't') {
 		switch (t_uik_lighting) {
 				case LIGHTING_LIT:  t_uik_lighting = LIGHTING_TORCH; break;
                 case LIGHTING_TORCH: t_uik_lighting = LIGHTING_LOS; break;
 				case LIGHTING_LOS:  t_uik_lighting = LIGHTING_DARK; break;
 				default:	t_uik_lighting = LIGHTING_LIT; break;
 		}		
-	} else if (ch.code == 'L') {
+	} else if (ch.code == 'T') {
 		switch (t_uik_lighting) {
 				case LIGHTING_DARK:  t_uik_lighting = LIGHTING_LOS; break;
                 case LIGHTING_LOS: t_uik_lighting = LIGHTING_TORCH; break;
@@ -2355,7 +2347,7 @@ void textui_knowledge_init(void)
 	menu_setpriv(menu, N_ELEMENTS(knowledge_actions), knowledge_actions);
 
 	menu->title = "Display current knowledge";
-	menu->selections = lower_case;
+	menu->selections = all_letters_nohjkl;
 	/* Shortcuts to get the contents of the stores by number; does prevent
 	 * the normal use of 4 and 6 to go to the previous or next menu */
 	menu->cmd_keys = "12345678";
@@ -2573,21 +2565,25 @@ void do_cmd_messages(void)
 
 				case ARROW_LEFT:
 				case '4':
+				case 'h':
 					q = (q >= wid / 2) ? (q - wid / 2) : 0;
 					break;
 
 				case ARROW_RIGHT:
 				case '6':
+				case 'l':
 					q = q + wid / 2;
 					break;
 
 				case ARROW_UP:
 				case '8':
+				case 'k':
 					if (i + 1 < n) i += 1;
 					break;
 
 				case ARROW_DOWN:
 				case '2':
+				case 'j':
 				case KC_ENTER:
 					i = (i >= 1) ? (i - 1) : 0;
 					break;

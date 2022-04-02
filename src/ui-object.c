@@ -242,7 +242,7 @@ static void build_obj_list(int last, struct object **list, item_tester tester,
 		/* Acceptable items get a label */
 		if (object_test(tester, obj))
 			strnfmt(items[num_obj].label, sizeof(items[num_obj].label), "%c) ",
-					I2A(i));
+				all_letters_nohjkl[i]);
 
 		/* Unacceptable items are still sometimes shown */
 		else if ((!obj && show_empty) || in_term)
@@ -623,7 +623,8 @@ static void menu_header(void)
 		/* List choices */
 		if (i1 <= i2) {
 			/* Build the header */
-			strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,", I2A(i1), I2A(i2));
+			strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,",
+				all_letters_nohjkl[i1], all_letters_nohjkl[i2]);
 
 			/* Append */
 			my_strcat(out_val, tmp_val, sizeof(out_val));
@@ -646,7 +647,8 @@ static void menu_header(void)
 		/* List choices */
 		if (e1 <= e2) {
 			/* Build the header */
-			strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,", I2A(e1), I2A(e2));
+			strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,",
+				all_letters_nohjkl[e1], all_letters_nohjkl[e2]);
 
 			/* Append */
 			my_strcat(out_val, tmp_val, sizeof(out_val));
@@ -669,7 +671,8 @@ static void menu_header(void)
 		/* List choices */
 		if (throwing_num) {
 			/* Build the header */
-			strnfmt(tmp_val, sizeof(tmp_val),  " a-%c,", I2A(throwing_num - 1));
+			strnfmt(tmp_val, sizeof(tmp_val),  " a-%c,",
+				all_letters_nohjkl[throwing_num - 1]);
 
 			/* Append */
 			my_strcat(out_val, tmp_val, sizeof(out_val));
@@ -692,7 +695,8 @@ static void menu_header(void)
 		/* List choices */
 		if (f1 <= f2) {
 			/* Build the header */
-			strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,", I2A(f1), I2A(f2));
+			strnfmt(tmp_val, sizeof(tmp_val), " %c-%c,",
+				all_letters_nohjkl[f1], all_letters_nohjkl[f2]);
 
 			/* Append */
 			my_strcat(out_val, tmp_val, sizeof(out_val));
@@ -810,7 +814,7 @@ static struct object *item_menu(cmd_code cmd, int prompt_size, int mode)
 
 	/* Set up the menu */
 	menu_setpriv(m, num_obj, items);
-	m->selections = lower_case;
+	m->selections = all_letters_nohjkl;
 	m->switch_keys = "/|-";
 	m->flags = (MN_PVT_TAGS | MN_INSCRIP_TAGS);
 
