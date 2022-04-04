@@ -49,8 +49,13 @@ static bool get_pref_path(const char *what, int row, char *buf, size_t max)
 	screen_save();
 
 	/* Prompt */
+	if (row > 0) {
+		prt("", row - 1, 0);
+	}
 	prt(format("%s to a pref file", what), row, 0);
+	prt("", row + 1, 0);
 	prt("File: ", row + 2, 0);
+	prt("", row + 3, 0);
 
 	/* Get the filesystem-safe name and append .prf */
 	player_safe_name(ftmp, sizeof(ftmp), player->full_name, true);
@@ -1037,7 +1042,7 @@ static bool askfor_aux_numbers(char *buf, size_t buflen, size_t *curs, size_t *l
 /**
  * Set base delay factor
  */
-static void do_cmd_delay(const char *name, int row)
+static void do_cmd_delay(const char *name, int unused)
 {
 	char tmp[4] = "";
 	int msec = player->opts.delay_factor;
@@ -1047,10 +1052,11 @@ static void do_cmd_delay(const char *name, int row)
 	screen_save();
 
 	/* Prompt */
+	prt("", 19, 0);
 	prt("Command: Base Delay Factor", 20, 0);
-
-	prt(format("Current base delay factor: %d msec", msec), 22, 0);
 	prt("New base delay factor (0-255): ", 21, 0);
+	prt(format("Current base delay factor: %d msec", msec), 22, 0);
+	prt("", 23, 0);
 
 	/* Ask for a numeric value */
 	if (askfor_aux(tmp, sizeof(tmp), askfor_aux_numbers)) {
@@ -1064,7 +1070,7 @@ static void do_cmd_delay(const char *name, int row)
 /**
  * Set sidebar mode
  */
-static void do_cmd_sidebar_mode(const char *name, int row)
+static void do_cmd_sidebar_mode(const char *name, int unused)
 {
 	char tmp[20] = "";	
 	const char *names[SIDEBAR_MAX] = {"Left", "Top", "None"};
@@ -1078,11 +1084,11 @@ static void do_cmd_sidebar_mode(const char *name, int row)
 		my_strcpy(tmp, names[SIDEBAR_MODE % SIDEBAR_MAX], sizeof(tmp));
 
 		/* Prompt */
+		prt("", 19, 0);
 		prt("Command: Sidebar Mode", 20, 0);
-
-		prt("ESC: go back, other: cycle", 22, 0);
-
 		prt(format("Current mode: %s", tmp), 21, 0);
+		prt("ESC: go back, other: cycle", 22, 0);
+		prt("", 23, 0);
 
 		/* Get a command */
 		cx = inkey();
@@ -1101,7 +1107,7 @@ static void do_cmd_sidebar_mode(const char *name, int row)
 /**
  * Set hitpoint warning level
  */
-static void do_cmd_hp_warn(const char *name, int row)
+static void do_cmd_hp_warn(const char *name, int unused)
 {
 	bool res;
 	char tmp[4] = "";
@@ -1112,11 +1118,13 @@ static void do_cmd_hp_warn(const char *name, int row)
 	screen_save();
 
 	/* Prompt */
+	prt("", 19, 0);
 	prt("Command: Hitpoint Warning", 20, 0);
-
-	prt(format("Current hitpoint warning: %d (%d%%)",
-			   player->opts.hitpoint_warn, player->opts.hitpoint_warn * 10), 22, 0);
 	prt("New hitpoint warning (0-9): ", 21, 0);
+	prt(format("Current hitpoint warning: %d (%d%%)",
+		player->opts.hitpoint_warn, player->opts.hitpoint_warn * 10),
+		22, 0);
+	prt("", 23, 0);
 
 	/* Ask the user for a string */
 	res = askfor_aux(tmp, sizeof(tmp), askfor_aux_numbers);
@@ -1139,7 +1147,7 @@ static void do_cmd_hp_warn(const char *name, int row)
 /**
  * Set "lazy-movement" delay
  */
-static void do_cmd_lazymove_delay(const char *name, int row)
+static void do_cmd_lazymove_delay(const char *name, int unused)
 {
 	bool res;
 	char tmp[4] = "";
@@ -1149,11 +1157,13 @@ static void do_cmd_lazymove_delay(const char *name, int row)
 	screen_save();
 
 	/* Prompt */
+	prt("", 19, 0);
 	prt("Command: Movement Delay Factor", 20, 0);
-
-	prt(format("Current movement delay: %d (%d msec)",
-			   player->opts.lazymove_delay, player->opts.lazymove_delay * 10), 22, 0);
 	prt("New movement delay: ", 21, 0);
+	prt(format("Current movement delay: %d (%d msec)",
+		player->opts.lazymove_delay, player->opts.lazymove_delay * 10),
+		22, 0);
+	prt("", 23, 0);
 
 	/* Ask the user for a string */
 	res = askfor_aux(tmp, sizeof(tmp), askfor_aux_numbers);
@@ -1185,10 +1195,13 @@ static void do_cmd_pref_file_hack(long row)
 	screen_save();
 
 	/* Prompt */
+	if (row > 0) {
+		prt("", row - 1, 0);
+	}
 	prt("Command: Load a user pref file", row, 0);
-
-	/* Prompt */
+	prt("", row + 1, 0);
 	prt("File: ", row + 2, 0);
+	prt("", row + 3, 0);
 
 	/* Get the filesystem-safe name and append .prf */
 	player_safe_name(ftmp, sizeof(ftmp), player->full_name, true);
