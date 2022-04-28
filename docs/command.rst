@@ -426,13 +426,53 @@ Display abilities (``TAB``)
 
 Check knowledge (``~``)
   This command allows you to ask about the knowledge possessed by your
-  character. Currently, this includes being able to list all known
-  "artefacts", "uniques", and "objects". The "uniques" are special "unique"
-  monsters which can only be killed once per game. Certain "objects" come in
-  "flavors", and you must determine the effect of each "flavor" once for each
-  such type of object, and this command will allow you to display all "known"
-  flavors. Inscribing items in this list will cause you to similarly inscribe
-  all similar items you find from this point on.
+  character. Information that you can look up is:
+
+  objects
+    Will display which objects your character is familiar with. For each
+    type of object, allows you to change whether or not it is ignored,
+    the representation of that type on the screen, or the inscription
+    automatically applied to all objects of that type. Some types of
+    objects your character will be familiar with from the start of the game.
+    Others come in "flavors", and your character must determine the effect
+    of each "flavor" once for each such type of object. For a type of object
+    with a known "flavor", you be also be able to display a summary of
+    what the object can do.
+
+  artifacts
+    Will display all artifacts that your character has encountered. Normally,
+    once an artifact is "generated" and "lost", it can never again be found,
+    and will become "known" to the player.
+
+  special items
+    Will display the "egos" your character has encountered.  Each "ego" is
+    a collection of enchantments that can appear on an object.  "Egos" are
+    often restricted to only a few specific types of objects.
+
+  monsters
+    Displays the kinds of monsters your current or previous characters have
+    encountered. For each kind of monster, allows you to change its
+    representation on the screen. Some monsters are "uniques" which can be
+    only be killed once per game. For a "unique" that your current or
+    previous characters have encountered, this will display whether that
+    "unique" is still alive in this game.
+
+  features
+    Displays the types of map grids that can appear in the game.  For each
+    type, allows you to change its representation on the screen and how
+    that representation changes depending on the amount of light present.
+
+  traps
+    Displays the types of traps that can appear in the game.  For each type,
+    allows you to change its representation on the screen and how that
+    representation changes depending on the amount of light present.
+
+  hall of fame
+    Displays a list of current and past characters, sorted by how far they
+    progressed.
+
+  character history
+    Displays a summary of what your current character has done.
 
 Saving and Exiting Commands
 ===========================
