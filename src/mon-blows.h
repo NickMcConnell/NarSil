@@ -52,8 +52,8 @@ extern struct blow_method *blow_methods;
  * any initializers. Ideally, this should eventually used named initializers.
  */
 typedef struct melee_effect_handler_context_s {
-	struct player * const p;
-	struct monster * const mon;
+	struct player * const p;	/* Target (if player) */
+	struct monster * const mon;	/* Attacker */
 	const int rlev;
 	const struct blow_method *method;
 	const char *ddesc;
