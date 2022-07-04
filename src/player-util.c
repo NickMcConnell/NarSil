@@ -1180,7 +1180,7 @@ bool player_resting_is_special(int16_t count)
 /**
  * Return true if the player is resting.
  */
-bool player_is_resting(struct player *p)
+bool player_is_resting(const struct player *p)
 {
 	return (p->upkeep->resting > 0 ||
 			player_resting_is_special(p->upkeep->resting));
@@ -1189,7 +1189,7 @@ bool player_is_resting(struct player *p)
 /**
  * Return the remaining number of resting turns.
  */
-int16_t player_resting_count(struct player *p)
+int16_t player_resting_count(const struct player *p)
 {
 	return p->upkeep->resting;
 }
@@ -1243,7 +1243,7 @@ void player_resting_cancel(struct player *p, bool disturb)
  * Return true if the player should get a regeneration bonus for the current
  * rest.
  */
-bool player_resting_can_regenerate(struct player *p)
+bool player_resting_can_regenerate(const struct player *p)
 {
 	return player_turns_rested >= REST_REQUIRED_FOR_REGEN ||
 		player_resting_is_special(p->upkeep->resting);
@@ -1338,7 +1338,7 @@ void player_set_resting_repeat_count(struct player *p, int16_t count)
 /**
  * Check if the player resists (or better) an element
  */
-bool player_resists(struct player *p, int element)
+bool player_resists(const struct player *p, int element)
 {
 	return (p->state.el_info[element].res_level > 0);
 }
