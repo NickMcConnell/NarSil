@@ -871,7 +871,7 @@ static void floor_carry_fail(struct chunk *c, struct object *drop, bool broke)
 		msg("The %s %s.", o_name, verb);
 	}
 	delist_object(c, drop);
-	object_delete(cave, &drop);
+	object_delete(c, &drop);
 }
 
 /**
