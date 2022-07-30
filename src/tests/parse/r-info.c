@@ -350,6 +350,14 @@ static int test_messagevis0(void *state) {
 	ok;
 }
 
+static int test_messagevis_bad0(void *state) {
+	enum parser_error r = parser_parse(state,
+		"message-vis:XYZZY:{name} waves its tentacles menacingly.");
+
+	eq(r, PARSE_ERROR_INVALID_SPELL_NAME);
+	ok;
+}
+
 static int test_messageinvis0(void *state) {
 	enum parser_error r = parser_parse(state,
 		"message-invis:ARROW1");
@@ -359,6 +367,14 @@ static int test_messageinvis0(void *state) {
 	mr = parser_priv(state);
 	require(mr);
 	require(has_alternate_message(mr, RSF_ARROW1, MON_ALTMSG_UNSEEN, ""));
+	ok;
+}
+
+static int test_messageinvis_bad0(void *state) {
+	enum parser_error r = parser_parse(state,
+		"message-invis:XYZZY:Something whispers.");
+
+	eq(r, PARSE_ERROR_INVALID_SPELL_NAME);
 	ok;
 }
 
@@ -385,6 +401,8 @@ struct test tests[] = {
 	{ "spell-power0", test_spell_power0 },
 	{ "spells0", test_spells0 },
 	{ "message-vis0", test_messagevis0 },
+	{ "message-vis-bad0", test_messagevis_bad0 },
 	{ "message-invis0", test_messageinvis0 },
+	{ "message-invis-bad0", test_messageinvis_bad0 },
 	{ NULL, NULL }
 };
