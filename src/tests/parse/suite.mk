@@ -1,4 +1,6 @@
 TESTPROGS += parse/a-info \
+	parse/blowe \
+	parse/blowm \
 	parse/e-info \
 	parse/f-info \
 	parse/flavor \
