@@ -1714,10 +1714,6 @@ static enum parser_error parse_monster_spells(struct parser *p) {
 		s = strtok(NULL, " |");
 	}
 
-	/* Add the "base monster" flags to the monster */
-	if (r->base)
-		rsf_union(r->spell_flags, r->base->spell_flags);
-
 	mem_free(flags);
 	return ret;
 }
@@ -2254,7 +2250,6 @@ static errr finish_parse_lore(struct parser *p) {
 		/* Base flag knowledge */
 		if (r->base) {
 			rf_union(l->flags, r->base->flags);
-			rsf_union(l->spell_flags, r->base->spell_flags);
 		}
 
 		/* Remove blows data for non-blows */
