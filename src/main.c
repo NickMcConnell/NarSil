@@ -35,10 +35,10 @@
 /**
  * locale junk
  */
-#include "locale.h"
+#include <locale.h>
 
 #if !defined(WINDOWS)
-#include "langinfo.h"
+#include <langinfo.h>
 #endif
 
 /**
