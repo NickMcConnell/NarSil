@@ -191,9 +191,10 @@ projection.txt
   affecting player, monsters, objects, and/or terrain.  In particular, this
   file defines details of the effects of elemental attacks (such as fire or
   cold) and the effectiveness of corresponding player resistance.  New
-  projections have to be included in src/list-projections.h, and the code to
-  implement their effects put in other source files - src/project-obj.c for
-  effects on objects, and other similarly-named files.
+  projections have to be either included in src/list-elements.h (for elemental
+  attacks) or included in src/list-projections.h (for all other projections),
+  and the code to implement their effects put in other source files -
+  src/project-obj.c for effects on objects, and other similarly-named files.
 
 summon.txt
   This contains definitions for the types of monsters that can be summoned.
