@@ -233,12 +233,12 @@ int effect_subtype(int index, const char *type)
 	return val;
 }
 
-static int effect_value_base_zero(void)
+static int32_t effect_value_base_zero(void)
 {
 	return 0;
 }
 
-static int effect_value_base_spell_power(void)
+static int32_t effect_value_base_spell_power(void)
 {
 	int power = 0;
 
@@ -252,27 +252,27 @@ static int effect_value_base_spell_power(void)
 	return power;
 }
 
-static int effect_value_base_dungeon_level(void)
+static int32_t effect_value_base_dungeon_level(void)
 {
 	return cave->depth;
 }
 
-static int effect_value_base_max_sight(void)
+static int32_t effect_value_base_max_sight(void)
 {
 	return z_info->max_sight;
 }
 
-static int effect_value_base_player_hp(void)
+static int32_t effect_value_base_player_hp(void)
 {
 	return player->chp;
 }
 
-static int effect_value_base_player_max_hp(void)
+static int32_t effect_value_base_player_max_hp(void)
 {
 	return player->mhp;
 }
 
-static int effect_value_base_player_will(void)
+static int32_t effect_value_base_player_will(void)
 {
 	int will = player->state.skill_use[SKILL_WILL];
 	if (player_active_ability(player, "Channeling")) {
@@ -281,12 +281,12 @@ static int effect_value_base_player_will(void)
 	return will;
 }
 
-static int effect_value_base_player_cut(void)
+static int32_t effect_value_base_player_cut(void)
 {
 	return player->timed[TMD_CUT];
 }
 
-static int effect_value_base_player_pois(void)
+static int32_t effect_value_base_player_pois(void)
 {
 	return player->timed[TMD_POISONED];
 }
