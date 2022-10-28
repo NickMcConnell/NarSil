@@ -492,6 +492,10 @@ static size_t FontBrowserRootSz = 0;
  */
 static char *FontBrowserLastDir = NULL;
 /*
+ * Value for the length of the root portion of FontBrowserLastDir
+ */
+static size_t FontBrowserLastRootSz = 0;
+/*
  * Array of the unabbreviated directory names in the current directory being
  * browsed by the 'Font Browser' panel
  */
@@ -1856,6 +1860,7 @@ static void HelpFontBrowserClose(void)
 	/* Remember the directory where the browser was. */
 	string_free(FontBrowserLastDir);
 	FontBrowserLastDir = FontBrowserCurDir;
+	FontBrowserLastRootSz = FontBrowserRootSz;
 	FontBrowserCurDir = NULL;
 	FontBrowserRootSz = 0;
 
@@ -2896,6 +2901,7 @@ static void ActivateFontBrowser(sdl_Button *sender)
 		}
 	} else if (FontBrowserLastDir) {
 		FontBrowserCurDir = string_make(FontBrowserLastDir);
+		FontBrowserRootSz = FontBrowserLastRootSz;
 	}
 	if (!FontBrowserCurDir) {
 		size_t sz1, sz2;
