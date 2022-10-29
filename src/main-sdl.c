@@ -3214,10 +3214,6 @@ static void term_data_link_sdl(term_window *win)
 	/* Use a "software" cursor */
 	t->soft_cursor = true;
 
-	/* Erase with "white space" */
-	t->attr_blank = COLOUR_WHITE;
-	t->char_blank = ' ';
-
 	/* Never refresh one row */
 	t->never_frosh = true;
 
