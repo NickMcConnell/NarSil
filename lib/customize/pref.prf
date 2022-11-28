@@ -532,11 +532,6 @@ keymap-act:+5
 keymap-input:2:,
 keymap-input:2:^Z
 
-# Hack -- Commit suicide
-keymap-act:Q
-keymap-input:0:^C
-keymap-input:2:^C
-
 
 ##### Roguelike Keyset Mappings #####
 
@@ -615,11 +610,6 @@ keymap-input:3:U
 
 # No altering/tunneling keymaps tied to control + rogue keys since some
 # of those (^B, ^K, ^L, ^N, and ^U) are used to access commands.
-
-# Hack -- Commit suicide
-keymap-act:Q
-keymap-input:1:^C
-keymap-input:3:^C
 
 # Message colors
 %:message.prf
