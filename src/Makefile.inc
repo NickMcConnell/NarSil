@@ -626,7 +626,7 @@ depgen:
  obj-tval.h obj-util.h player-abilities.h player-calcs.h player-history.h \
  list-history-types.h player-quest.h player-timed.h list-player-timed.h \
  player-util.h project.h list-projections.h trap.h list-trap-flags.h \
- songs.h z-set.h
+ songs.h
 ./obj-chest.o: obj-chest.c angband.h h-basic.h z-bitflag.h z-form.h \
  z-virt.h z-color.h z-util.h z-rand.h config.h game-event.h source.h \
  z-type.h message.h list-message.h player.h guid.h obj-properties.h \
@@ -1668,7 +1668,6 @@ depgen:
  list-parser-errors.h
 ./z-queue.o: z-queue.c z-queue.h h-basic.h
 ./z-rand.o: z-rand.c z-rand.h h-basic.h
-./z-set.o: z-set.c z-set.h h-basic.h z-rand.h z-virt.h
 ./z-textblock.o: z-textblock.c z-color.h h-basic.h z-textblock.h z-file.h \
  z-util.h z-virt.h z-form.h
 ./z-type.o: z-type.c z-rand.h h-basic.h z-type.h z-virt.h

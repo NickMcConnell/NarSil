@@ -52,7 +52,6 @@
 #include "project.h"
 #include "trap.h"
 #include "songs.h"
-#include "z-set.h"
 
 /**
  * ------------------------------------------------------------------------
