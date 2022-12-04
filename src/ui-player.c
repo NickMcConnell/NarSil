@@ -586,7 +586,7 @@ void write_character_dump(ang_file *fff)
 	 */
 	if (player->self_made_arts) {
 		file_putf(fff, "  [Artefact label]\n\n");
-		file_putf(fff, "%08x\n\n", seed_randart);
+		file_putf(fff, "%08lx\n\n", (unsigned long)seed_randart);
 	}
 }
 

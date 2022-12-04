@@ -263,7 +263,7 @@ void build_score(struct high_score *entry, const struct player *p,
 	strnfmt(entry->what, sizeof(entry->what), "%s", buildid);
 
 	/* Save the current turn */
-	strnfmt(entry->turns, sizeof(entry->turns), "%9u", p->turn);
+	strnfmt(entry->turns, sizeof(entry->turns), "%9ld", (long)p->turn);
 
 	/* Time of death */
 	if (death_time)
