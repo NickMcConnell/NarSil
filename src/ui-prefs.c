@@ -986,8 +986,16 @@ static enum parser_error parse_prefs_color(struct parser *p)
 	if (d->bypass) return PARSE_ERROR_NONE;
 
 	idx = parser_getuint(p, "idx");
-	if (idx > MAX_COLORS)
-		return PARSE_ERROR_OUT_OF_BOUNDS;
+	if (idx >= MAX_COLORS) {
+		/*
+		 * Silently ignore indices that would have been in bounds when
+		 * the color table had 256 entries for backwards compatibility
+		 * with existing preference files.  Flag indices that would be
+		 * out of bounds even with the bigger color table.
+		 */
+		return (idx < 256) ?
+			PARSE_ERROR_NONE : PARSE_ERROR_OUT_OF_BOUNDS;
+	}
 
 	angband_color_table[idx][0] = parser_getint(p, "k");
 	angband_color_table[idx][1] = parser_getint(p, "r");
