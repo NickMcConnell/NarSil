@@ -499,6 +499,15 @@ static int test_flags0(void *state) {
 	ok;
 }
 
+static int test_flags_bad0(void *state) {
+	struct parser *p = (struct parser*) state;
+	/* Check that an unknown flag generates an appropriate error. */
+	enum parser_error r = parser_parse(p, "flags:XYZZY");
+
+	eq(r, PARSE_ERROR_INVALID_FLAG);
+	ok;
+}
+
 static int test_desc0(void *state) {
 	enum parser_error r = parser_parse(state, "desc:foo bar ");
 	enum parser_error s = parser_parse(state, "desc: baz");
@@ -567,6 +576,15 @@ static int test_spells0(void *state) {
 	rsf_on(eflags, RSF_BR_DARK);
 	rsf_on(eflags, RSF_SNG_BIND);
 	require(rsf_is_equal(mr->spell_flags, eflags));
+	ok;
+}
+
+static int test_spells_bad0(void *state) {
+	struct parser *p = (struct parser*) state;
+	/* Check that an unknown spell generates an appropriate error. */
+	enum parser_error r = parser_parse(p, "spells:XYZZY");
+
+	eq(r, PARSE_ERROR_INVALID_FLAG);
 	ok;
 }
 
@@ -718,11 +736,13 @@ struct test tests[] = {
 	{ "blow1", test_blow1 },
 	{ "blow_bad0", test_blow_bad0 },
 	{ "flags0", test_flags0 },
+	{ "flags_bad0", test_flags_bad0 },
 	{ "desc0", test_desc0 },
 	{ "ranged-freq0", test_ranged_freq0 },
 	{ "ranged-freq_bad0", test_ranged_freq_bad0 },
 	{ "spell-power0", test_spell_power0 },
 	{ "spells0", test_spells0 },
+	{ "spells_bad0", test_spells_bad0 },
 	{ "message-vis0", test_messagevis0 },
 	{ "message-vis-bad0", test_messagevis_bad0 },
 	{ "message-invis0", test_messageinvis0 },

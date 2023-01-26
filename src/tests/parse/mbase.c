@@ -283,6 +283,15 @@ static int test_flags0(void *state) {
 	ok;
 }
 
+static int test_flags_bad0(void *state) {
+	struct parser *p = (struct parser*) state;
+	/* Check that an unknown flag generates an appropriate error. */
+	enum parser_error r = parser_parse(p, "flags:XYZZY");
+
+	eq(r, PARSE_ERROR_INVALID_FLAG);
+	ok;
+}
+
 static int test_desc0(void *state) {
 	struct parser *p = (struct parser*) state;
 	enum parser_error r = parser_parse(p, "desc:something");
@@ -357,6 +366,7 @@ struct test tests[] = {
 	{ "warning0", test_warning0 },
 	{ "warning_bad0", test_warning_bad0 },
 	{ "flags0", test_flags0 },
+	{ "flags_bad0", test_flags_bad0 },
 	{ "desc0", test_desc0 },
 	{ "combined0", test_combined0 },
 	{ NULL, NULL }
