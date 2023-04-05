@@ -33,11 +33,12 @@ backslash (``\``) plus the "underlying command" key. You may enter
 
 Some commands allow an optional "repeat count", which allows you to tell
 the game that you wish to do the command multiple times, unless you press a
-key or are otherwise disturbed. To enter a "repeat count", type ``0``,
-followed by the numerical count, followed by the command. You must type
-'space' before entering certain commands. Skipping the numerical count
-yields a count of 99. An option allows certain commands (open, disarm,
-alter, etc) to auto-repeat.
+key or are otherwise disturbed. To enter a "repeat count", type ``R`` if
+you are using the original keyset or ``0`` if you are using the Angband-
+like keyset, followed by the numerical count, followed by the command.  You
+must type 'space' before entering certain commands. Skipping the numerical
+count yields a count of 99 for the open, tunnel, disarm, bash, alter, and
+close commands. All other commands do not repeat unless requested.
 
 Some commands will prompt for extra information, such as a direction, an
 inventory or equipment item, a spell, a textual inscription, the symbol of
@@ -261,10 +262,13 @@ being attacked. Thus, a counted command doesn't work to attack another
 creature. While the command is being repeated, the number of times left to
 be repeated will flash by on the line at the bottom of the screen.
 
-To give a count to a command, type 0, the repeat count, and then the
-command. If you want to give a movement command and you are using the
-original command set (where the movement commands are digits), press space
-after the count and you will be prompted for the command.
+To give a count to a command, type ``R`` if you are using the original
+keyset or ``0`` if you are using the Angband-like keyset, the repeat count,
+and then the command. If you want to give a movement command and you are not
+using hjkl movement (where the movement commands are digits), press space
+after the count and you will be prompted for the command.  The open, tunnel,
+disarm, bash, alter, and close commands default to having a repeat count of
+99; all other commands default to not repeating at all.
  
 Counted commands are very useful for time consuming commands, as they
 automatically terminate on success, or if you are attacked. You may also
@@ -273,10 +277,6 @@ character. This character is ignored, but it is safest to use a 'SPACE'
 or 'ESCAPE' which are always ignored as commands in case you type the
 command just after the count expires.
 
-You can tell NarSil to automatically use a repeat count of 99 with
-commands you normally want to repeat (open, disarm, tunnel, bash, alter,
-etc) by setting the 'always_repeat' option.
-  
 Selection of Objects
 ====================
  
