@@ -1154,7 +1154,8 @@ static bool get_move_retreat(struct monster *mon, struct loc *tgrid)
 
 		/* Look for adjacent hiding places */
 		for (i = start; i < 8 + start; i++) {
-			grid = loc_sum(mon->grid, ddgrid_ddd[i]);
+			grid = loc_sum(mon->grid,
+				ddgrid_ddd[i % (int)N_ELEMENTS(ddgrid_ddd)]);
 
 			/* Check Bounds */
 			if (!square_in_bounds(cave, grid)) continue;
