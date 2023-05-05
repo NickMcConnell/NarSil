@@ -22,6 +22,7 @@
 #include "game-input.h"
 #include "game-world.h"
 #include "init.h"
+#include "tutorial.h"
 #include "ui-command.h"
 #include "ui-display.h"
 #include "ui-game.h"
@@ -2484,7 +2485,7 @@ static errr sdl_HandleEvent(SDL_Event *event)
 			bool really = true;
 
 			/* We are playing a game with an active character */
-			if (character_generated && inkey_flag) {
+			if (character_generated && inkey_flag && !in_tutorial()) {
 				/* Hack -- Forget messages */
 				msg_flag = false;
 				

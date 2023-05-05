@@ -259,6 +259,8 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClCompile Include="src\store.c" />
     <ClCompile Include="src\target.c" />
     <ClCompile Include="src\trap.c" />
+    <ClCompile Include="src\tutorial.c" />
+    <ClCompile Include="src\tutorial-init.c" />
     <ClCompile Include="src\ui-birth.c" />
     <ClCompile Include="src\ui-command.c" />
     <ClCompile Include="src\ui-context.c" />
@@ -296,6 +298,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClCompile Include="src\ui-store.c" />
     <ClCompile Include="src\ui-target.c" />
     <ClCompile Include="src\ui-term.c" />
+    <ClCompile Include="src\ui-tutorial.c" />
     <ClCompile Include="src\ui-visuals.c" />
     <ClCompile Include="src\ui-wizard.c" />
     <ClCompile Include="src\win\readdib.c" />
@@ -308,6 +311,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClCompile Include="src\z-bitflag.c" />
     <ClCompile Include="src\z-color.c" />
     <ClCompile Include="src\z-dice.c" />
+    <ClCompile Include="src\z-dict.c" />
     <ClCompile Include="src\z-expression.c" />
     <ClCompile Include="src\z-file.c" />
     <ClCompile Include="src\z-form.c" />
@@ -370,6 +374,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClInclude Include="src\list-stats.h" />
     <ClInclude Include="src\list-terrain-flags.h" />
     <ClInclude Include="src\list-trap-flags.h" />
+    <ClInclude Include="src\list-tutorial-sym.h" />
     <ClInclude Include="src\list-tvals.h" />
     <ClInclude Include="src\list-ui-entry-renderers.h" />
     <ClInclude Include="src\message.h" />
@@ -432,6 +437,8 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClInclude Include="src\store.h" />
     <ClInclude Include="src\target.h" />
     <ClInclude Include="src\trap.h" />
+    <ClInclude Include="src\tutorial.h" />
+    <ClInclude Include="src\tutorial-init.h" />
     <ClInclude Include="src\ui-birth.h" />
     <ClInclude Include="src\ui-command.h" />
     <ClInclude Include="src\ui-context.h" />
@@ -470,6 +477,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClInclude Include="src\ui-store.h" />
     <ClInclude Include="src\ui-target.h" />
     <ClInclude Include="src\ui-term.h" />
+    <ClInclude Include="src\ui-tutorial.h" />
     <ClInclude Include="src\ui-visuals.h" />
     <ClInclude Include="src\ui-wizard.h" />
     <ClInclude Include="src\win\include\png.h" />
@@ -484,6 +492,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClInclude Include="src\z-color.h" />
     <ClInclude Include="src\z-debug.h" />
     <ClInclude Include="src\z-dice.h" />
+    <ClInclude Include="src\z-dict.h" />
     <ClInclude Include="src\z-expression.h" />
     <ClInclude Include="src\z-file.h" />
     <ClInclude Include="src\z-form.h" />
@@ -604,6 +613,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <Text Include="lib\gamedata\summon.txt" />
     <Text Include="lib\gamedata\terrain.txt" />
     <Text Include="lib\gamedata\trap.txt" />
+    <Text Include="lib\gamedata\tutorial.txt" />
     <Text Include="lib\gamedata\ui_entry.txt" />
     <Text Include="lib\gamedata\ui_entry_base.txt" />
     <Text Include="lib\gamedata\ui_entry_renderer.txt" />

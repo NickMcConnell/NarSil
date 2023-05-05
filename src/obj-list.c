@@ -319,9 +319,9 @@ void object_list_sort(object_list_t *list,
  * \param entry is the object list entry to display.
  * \return a term attribute for the object entry.
  */
-uint8_t object_list_entry_line_attribute(const object_list_entry_t *entry)
+int object_list_entry_line_attribute(const object_list_entry_t *entry)
 {
-	uint8_t attr;
+	int attr;
 	struct object *base_obj;
 
 	if (entry == NULL || entry->object == NULL || entry->object->kind == NULL)

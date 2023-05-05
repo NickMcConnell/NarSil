@@ -30,6 +30,7 @@ struct expression_s {
 	size_t operation_count;
 	size_t operations_size;
 	expression_operation_t *operations;
+	int32_t fixed_base;
 };
 
 /**
@@ -129,7 +130,7 @@ static expression_input_t expression_input_for_operator(expression_operator_t op
  */
 expression_t *expression_new(void)
 {
-	expression_t *expression = mem_zalloc(sizeof(expression_t));
+	expression_t *expression = mem_alloc(sizeof(expression_t));
 
 	if (expression == NULL)
 		return NULL;
@@ -137,8 +138,9 @@ expression_t *expression_new(void)
 	expression->base_value = NULL;
 	expression->operation_count = 0;
 	expression->operations_size = EXPRESSION_ALLOC_SIZE;
-	expression->operations = mem_zalloc(expression->operations_size *
-										sizeof(expression_operation_t));
+	expression->operations = mem_zalloc(expression->operations_size
+		* sizeof(expression_operation_t));
+	expression->fixed_base = 0;
 
 	if (expression->operations == NULL) {
 		mem_free(expression);
@@ -178,6 +180,7 @@ expression_t *expression_copy(const expression_t *source)
 	copy->base_value = source->base_value;
 	copy->operation_count = source->operation_count;
 	copy->operations_size = source->operations_size;
+	copy->fixed_base = source->fixed_base;
 
 	if (copy->operations_size == 0) {
 		copy->operations = NULL;
@@ -201,6 +204,15 @@ expression_t *expression_copy(const expression_t *source)
 }
 
 /**
+ * Set a fixed value for the base that'll be used if a function is not
+ * provided with expression_set_base_value().
+ */
+void expression_set_fixed_base(expression_t *expression, int32_t value)
+{
+	expression->fixed_base = value;
+}
+
+/**
  * Set the base value function that the operations operate on.
  */
 void expression_set_base_value(expression_t *expression,
@@ -216,7 +228,7 @@ void expression_set_base_value(expression_t *expression,
 int32_t expression_evaluate(expression_t const * const expression)
 {
 	size_t i;
-	int32_t value = 0;
+	int32_t value = expression->fixed_base;
 
 	if (expression->base_value != NULL)
 		value = expression->base_value();
@@ -402,6 +414,7 @@ bool expression_test_copy(const expression_t *a, const expression_t *b)
 	success &= (a->operation_count == b->operation_count);
 	success &= (a->operations_size == b->operations_size);
 	success &= (a->operations != b->operations);
+	success &= (a->fixed_base == b->fixed_base);
 
 	if (a->operation_count != b->operation_count)
 		return false;

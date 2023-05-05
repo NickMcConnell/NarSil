@@ -467,7 +467,7 @@ static const char *lore_pronoun_possessive(monster_sex_t sex, bool title_case)
  * \param conjunction is a string that is added before the last item.
  * \param end is a string that is added after the last item.
  */
-static void lore_append_clause(textblock *tb, bitflag *f, uint8_t attr,
+static void lore_append_clause(textblock *tb, bitflag *f, int attr,
 							   const char *start, const char *conjunction,
 							   const char *end)
 {

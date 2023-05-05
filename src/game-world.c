@@ -40,6 +40,7 @@
 #include "source.h"
 #include "target.h"
 #include "trap.h"
+#include "tutorial.h"
 #include "z-queue.h"
 
 uint16_t daycount = 0;
@@ -1030,7 +1031,13 @@ void run_game_loop(void)
 			if (character_dungeon) {
 				on_leave_level();
 			}
-			prepare_next_level(player);
+			if (!in_tutorial()) {
+				prepare_next_level(player);
+			} else {
+				tutorial_prepare_section(
+					tutorial_get_next_section(player),
+					player);
+			}
 			on_new_level();
 			player->upkeep->generate_level = false;
 		}

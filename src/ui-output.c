@@ -99,7 +99,7 @@ bool region_inside(const region *loc, const ui_event *key)
 /**
  * Utility function
  */
-static void display_area(const wchar_t *text, const uint8_t *attrs,
+static void display_area(const wchar_t *text, const int *attrs,
 		size_t *line_starts, size_t *line_lengths,
 		size_t n_lines,
 		region area, size_t line_from)
@@ -245,7 +245,7 @@ struct keypress textui_textblock_show(textblock *tb, region orig_area, const cha
  * This function will correctly handle any width up to the maximum legal
  * value of 256, though it works best for a standard 80 character width.
  */
-void text_out_to_screen(uint8_t a, const char *str)
+void text_out_to_screen(int a, const char *str)
 {
 	int x, y;
 

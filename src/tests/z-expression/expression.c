@@ -142,6 +142,10 @@ static int test_evaluate(void *state)
 	expression_add_operations_string(new, "n / 3");
 	require(expression_evaluate(new) == 3);
 
+	/* Evaluate with a fixed non-zero base. */
+	expression_set_fixed_base(new, 12);
+	require(expression_evaluate(new) == 11);
+
 	/* Evaluate with base value function. */
 	expression_set_base_value(new, base_value_2);
 	require(expression_evaluate(new) == 9);

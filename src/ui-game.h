@@ -32,12 +32,13 @@ enum game_mode_type {
 				of the character in savefile; new game will
 				be stored with the name in savefile unless it
 				is empty */
-	GAME_SELECT	/* have the player select with a menu what to do; if
+	GAME_SELECT,	/* have the player select with a menu what to do; if
 				savefile is set and exists that will be the
 				default option in the menu for loading; if
 				savefile is not empty and does not exist,
 				it'll be the file used if the player selects
 				the menu option for a new game */
+	GAME_TUTORIAL	/* start the tutorial rather than a game */
 };
 
 /*

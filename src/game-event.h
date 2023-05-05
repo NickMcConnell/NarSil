@@ -21,6 +21,7 @@
 
 #include "source.h"
 #include "z-type.h"
+struct textblock;
 
 /**
  * The various events we can send signals about.
@@ -248,7 +249,14 @@ typedef union
 
 	struct
 	{
+		/*
+		 * Either load the text from a file if filename is not NULL
+		 * (filename is assumed to be relative to ANGBAND_DIR_GAMEDATA
+		 * and has been stripped of a ".txt" extension) or get it from
+		 * the given textblock.
+		 */
 		const char *filename;
+		struct textblock *text;
 		int row, col;
 	} verse;
 } game_event_data;
@@ -318,5 +326,6 @@ void event_signal_combat_damage(game_event_type type, int dd, int ds, int dam,
 								int dam_type, bool melee);
 void event_signal_poem(game_event_type type, const char *name, int row,
 					   int col);
-
+void event_signal_poem_textblock(game_event_type type, struct textblock *tb,
+					   int row, int col);
 #endif /* INCLUDED_GAME_EVENT_H */

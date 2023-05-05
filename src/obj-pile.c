@@ -398,8 +398,8 @@ bool object_similar(const struct object *obj1, const struct object *obj2,
 	if (obj1->artifact || obj2->artifact) return false;
 
 	/* Analyze the items */
-	if (tval_is_chest(obj1)) {
-		/* Chests never stack */
+	if (tval_is_chest(obj1) || tval_is_note(obj1)) {
+		/* Chests and notes never stack */
 		return false;
 	} else if (tval_is_edible(obj1) || tval_is_potion(obj1) ||
 			   tval_is_horn(obj1)) {

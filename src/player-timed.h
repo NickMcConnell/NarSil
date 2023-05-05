@@ -96,7 +96,9 @@ extern struct timed_effect_data timed_effects[TMD_MAX];
 
 int timed_name_to_idx(const char *name);
 int player_timed_decrement_amount(struct player *p, int idx);
-bool player_timed_grade_eq(struct player *p, int idx, const char *match);
+bool player_timed_grade_eq(const struct player *p, int idx, const char *match);
+bool player_timed_grade_gt(const struct player *p, int idx, const char *match);
+bool player_timed_grade_lt(const struct player *p, int idx, const char *match);
 bool player_set_timed(struct player *p, int idx, int v, bool notify);
 bool player_saving_throw(struct player *p, struct monster *mon, int resistance);
 bool player_inc_check(struct player *p, int idx, bool lore);

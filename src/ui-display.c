@@ -1538,21 +1538,22 @@ static void pause_with_text(game_event_type type, game_event_data *data,
 {
 	ang_file *fp;
 	char buf[1024];
-	int i = 0;
 	int row = data->verse.row;
 	int col = data->verse.col;
 	int msec = 50;
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_GAMEDATA, format("%s.txt",
-													   data->verse.filename));
+	if (data->verse.filename) {
+		/* Build the filename */
+		path_build(buf, 1024, ANGBAND_DIR_GAMEDATA, format("%s.txt",
+			data->verse.filename));
 
-	/* Open the file */
-	fp = file_open(buf, MODE_READ, FTYPE_TEXT);
+		/* Open the file */
+		fp = file_open(buf, MODE_READ, FTYPE_TEXT);
 
-	/* Failed */
-	if (!fp) {
-		return;
+		/* Failed */
+		if (!fp) {
+			return;
+		}
 	}
 
 	/* Save screen */
@@ -1561,12 +1562,43 @@ static void pause_with_text(game_event_type type, game_event_data *data,
 	/* Clear screen */
 	Term_clear();
 
-	/* Read each line and display */
-	while (file_getl(fp, buf, 80)) {
-		c_put_str(COLOUR_WHITE, buf, row + i, col);
-		Term_xtra(TERM_XTRA_DELAY, msec);
-		Term_fresh();
-		i++;
+	if (data->verse.filename) {
+		/* Read each line and display */
+		int i = 0;
+
+		while (file_getl(fp, buf, 80)) {
+			c_put_str(COLOUR_WHITE, buf, row + i, col);
+			Term_xtra(TERM_XTRA_DELAY, msec);
+			Term_fresh();
+			i++;
+		}
+	} else if (data->verse.text) {
+		size_t *line_starts = NULL, *line_lengths = NULL;
+		const wchar_t *txt;
+		size_t n_lines;
+		int w, h, i, nln_lim;
+
+		Term_get_size(&w, &h);
+		if (w <= col || h <= row) {
+			return;
+		}
+		n_lines = textblock_calculate_lines(data->verse.text,
+			&line_starts, &line_lengths, MIN(80, w - col));
+		nln_lim = (n_lines < (size_t)w - (size_t)row) ?
+			(int)n_lines : w - row;
+		txt = textblock_text(data->verse.text);
+		for (i = 0; i < nln_lim; ++i) {
+			int j;
+
+			for (j = 0; j < (int)line_lengths[i]; ++j) {
+				Term_putch(col + j, row + i,
+					COLOUR_WHITE, txt[line_starts[i] + j]);
+			}
+			Term_xtra(TERM_XTRA_DELAY, msec);
+			Term_fresh();
+		}
+		mem_free(line_starts);
+		mem_free(line_lengths);
 	}
 
 	/* Keypress means done */
@@ -1576,7 +1608,9 @@ static void pause_with_text(game_event_type type, game_event_data *data,
 	event_signal(EVENT_MESSAGE_FLUSH);
 
 	/* Close the file */
-	file_close(fp);
+	if (data->verse.filename) {
+		file_close(fp);
+	}
 
 	/* Load screen */
 	screen_load();

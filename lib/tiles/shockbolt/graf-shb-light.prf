@@ -689,6 +689,10 @@ object:gold:emeralds:0x87:0x91
 object:gold:mithril:0x87:0x8A
 object:gold:adamantite:0x87:0x8B
 
+##### Notes #####
+
+object:note:*:0x86:0xF3
+
 ##### "Morgoth Artifacts" #####
 
 object:hafted:Mighty Hammer:0x8A:0xE4

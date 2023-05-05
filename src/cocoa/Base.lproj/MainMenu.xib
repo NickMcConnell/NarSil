@@ -79,6 +79,12 @@
                                     <action selector="openGame:" target="Voe-Tx-rLC" id="jEH-BF-Jsu"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Tutorial" id="jAH-Xd-0Cc">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="startTutorial:" target="Voe-Tx-rLC" id="zsg-Eg-8x9"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
                             <menuItem title="Save" keyEquivalent="s" id="pxx-59-PXV">
                                 <connections>

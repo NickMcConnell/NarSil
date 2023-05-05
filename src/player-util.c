@@ -48,6 +48,7 @@
 #include "score.h"
 #include "target.h"
 #include "trap.h"
+#include "tutorial.h"
 #include "songs.h"
 
 static const char *skill_names[] = {
@@ -522,6 +523,12 @@ void player_falling_damage(struct player *p, bool stun)
  */
 void player_fall_in_chasm(struct player *p)
 {
+	/* Special handling for the tutorial */
+	if (in_tutorial()) {
+		tutorial_leave_section(p);
+		return;
+	}
+
 	/* Several messages so the player has a chance to see it happen */
 	msg("You fall into the darkness!");
 	event_signal(EVENT_MESSAGE_FLUSH);
@@ -776,7 +783,7 @@ void player_blast_floor(struct player *p)
 
 	/* Skill check of Will vs 10 */
 	if (skill_check(source_player(), will, 10, source_none()) > 0) {
-		if (p->depth < z_info->dun_depth - 1) {
+		if (p->depth < z_info->dun_depth - 1 && !in_tutorial()) {
 			msg("The floor crumbles beneath you!");
 			event_signal(EVENT_MESSAGE_FLUSH);
 			msg("You fall through...");
@@ -1028,6 +1035,16 @@ bool player_can_debug_prereq(void)
 		return true;
 	}
 	return false;
+}
+
+
+/**
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * its use in ui-game.c.
+ */
+bool player_can_save_prereq(void)
+{
+	return !in_tutorial();
 }
 
 

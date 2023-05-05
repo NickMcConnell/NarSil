@@ -25,6 +25,7 @@
 #include "mon-make.h"
 #include "mon-util.h"
 #include "monster.h"
+#include "tutorial.h"
 
 /**
  * Allocate a new monster group
@@ -321,7 +322,7 @@ void monster_group_new_wandering_flow(struct chunk *c, struct monster *mon,
 
 	/* Territorial monsters target their creation location; same with
 	 * the tutorial */
-	if (rf_has(race->flags, RF_TERRITORIAL) || (player->game_type < 0)) {
+	if (rf_has(race->flags, RF_TERRITORIAL) || in_tutorial()) {
 		/* They only pick a new location on creation.  Detect this using the
 		 * fact that speed hasn't been determined yet on creation */
 		if (mon->mspeed == 0) {

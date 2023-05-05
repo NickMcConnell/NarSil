@@ -106,7 +106,7 @@ static BOOL game_is_finished = NO;
 static int frames_per_second;
 
 /* Force a new game or not? */
-static bool new_game = false;
+static enum game_mode_type game_mode = GAME_LOAD;
 
 @class AngbandView;
 
@@ -5786,7 +5786,7 @@ static void cocoa_reinit(void)
 {
     /* Game is in progress */
     game_in_progress = YES;
-    new_game = true;
+    game_mode = GAME_NEW;
 }
 
 - (IBAction)editFont:sender
@@ -5915,6 +5915,13 @@ static void cocoa_reinit(void)
     }
 }
 
+- (IBAction)startTutorial:sender
+{
+    /* Game is in progress */
+    game_in_progress = YES;
+    game_mode = GAME_TUTORIAL;
+}
+
 - (IBAction)saveGame:sender
 {
     /* Hack -- Forget messages */
@@ -6027,8 +6034,8 @@ static void cocoa_reinit(void)
 	Term_flush();
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]",
-	    (Term->hgt - 23) / 5 + 23, (Term->wid - 45) / 2);
+	prt("[Choose 'New', 'Open', or 'Tutorial' from the 'File' menu]",
+	    (Term->hgt - 23) / 5 + 23, (Term->wid - 58) / 2);
 	Term_fresh();
     }
 
@@ -6040,11 +6047,11 @@ static void cocoa_reinit(void)
     }
 
     /*
-     * Play a game -- "new_game" is set by "new", "open" or the open document
-     * even handler as appropriate
+     * Play a game -- "game_mode" is set by "new", "open", "tutorial", or the
+     * open document event handler as appropriate
      */
     Term_fresh();
-    play_game((new_game) ? GAME_NEW : GAME_LOAD);
+    play_game(game_mode);
 
     /* Free resources */
     textui_cleanup();
@@ -6093,6 +6100,10 @@ static void cocoa_reinit(void)
     {
         return ! game_in_progress;
     }
+    else if (sel == @selector(startTutorial:))
+    {
+        return ! game_in_progress;
+    }
     else if (sel == @selector(setRefreshRate:) &&
 	     [[menuItem parentItem] tag] == 150)
     {
@@ -6106,14 +6117,22 @@ static void cocoa_reinit(void)
         [menuItem setState: (tag == requestedGraphicsMode)];
         return YES;
     }
-    else if( sel == @selector(sendAngbandCommand:) ||
-	     sel == @selector(saveGame:) )
+    else if (sel == @selector(sendAngbandCommand:))
     {
         /*
          * we only want to be able to send commands during an active game
          * after the birth screens
          */
         return !!game_in_progress && character_generated;
+    }
+    else if (sel == @selector(saveGame:))
+    {
+        /*
+         * Saving is much like sending commands, but also disable when in
+         * the tutorial.
+         */
+        return !!game_in_progress && character_generated
+            && game_mode != GAME_TUTORIAL;
     }
     else return YES;
 }
@@ -6426,6 +6445,7 @@ static void cocoa_reinit(void)
          */
         wakeup_event_loop();
         quit_when_ready = YES;
+        play_again = false;
         /*
          * Must return Cancel, not Later, because we need to get out of the
          * run loop and back to Angband's loop

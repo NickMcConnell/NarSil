@@ -206,6 +206,9 @@ summon.txt
   Adding a new summon type is not yet possible, because the summon spells are
   hard-coded in src/list-mon-spells.h.
 
+tutorial.txt
+  This defines the contents of the tutorial.
+
 ui_entry.txt
   Defines entries that will be displayed in the second part of the character
   sheet and in the knowledge menu's equipable comparison.  You can modify
@@ -376,18 +379,19 @@ If changing data files is not enough for you, you will need to change actual
 game code and recompile it.  The first place to look is in the compiled data
 files, some of which have already been mentioned:
 
-=====================  =======================  ===========================
-list-dun-profiles.h    list-mon-spells.h        list-projections.h
-list-effects.h         list-mon-temp-flags.h    list-randart-properties.h
-list-elements.h        list-mon-timed.h         list-rooms.h
-list-equip-slots.h     list-object-flags.h      list-room-flags.h
-list-history-types.h   list-object-modifiers.h  list-square-flags.h
-list-ignore-types.h    list-options.h           list-stats.h
-list-kind-flags.h      list-origins.h           list-terrain-flags.h
-list-message.h         list-parser-errors.h     list-trap-flags.h
-list-mon-message.h     list-player-flags.h      list-tvals.h
-list-mon-race-flags.h  list-player-timed.h      list-ui-entry-renderers.h
-=====================  =======================  ===========================
+=====================  =========================  =========================
+list-dun-profiles.h    list-mon-temp-flags.h      list-rooms.h
+list-effects.h         list-mon-timed.h           list-room-flags.h
+list-elements.h        list-object-flags.h        list-square-flags.h
+list-equip-slots.h     list-object-modifiers.h    list-stats.h
+list-history-types.h   list-options.h             list-terrain-flags.h
+list-ignore-types.h    list-origins.h             list-trap-flags.h
+list-kind-flags.h      list-parser-errors.h       list-tutorial-sym.h
+list-message.h         list-player-flags.h        list-tvals.h
+list-mon-message.h     list-player-timed.h        list-ui-entry-renderers.h
+list-mon-race-flags.h  list-projections.h
+list-mon-spells.h      list-randart-properties.h
+=====================  =========================  =========================
 
 Beyond this, you will have to have some knowledge of the C programming
 language, and can start making changes to the way the game runs or appears.

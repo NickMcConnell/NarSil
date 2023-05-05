@@ -1,0 +1,1148 @@
+# File: tutorial.txt
+
+
+# This file is used to define the tutorial sections for the game.  The related
+# source code for parsing this file and implementing tutorial mode is in
+# tutorial.c, tutorial-init.c, and ui-tutorial.c.  The primary way the rest of
+# the game interacts with the tutorial mode is by calling start_tutorial() or
+# in_tutorial().  start_tutorial() will load the tutorial section marked as
+# the default in this file.  If no section has been marked as the default,
+# start_tutorial() will load the first section in this file.
+
+# Modifications to this file should only impact the tutorial mode and have
+# no effect on the rest of the game or savefiles.
+
+# Like vault.txt, the "spacing" in the "D:" lines is very important!
+
+# === Basic Syntax ===
+
+# archetype:name
+# race:name
+# class:name
+# name:character_name
+# sex:character_sex
+# history:text
+# experience:unspent_amount
+# stats: ...
+# skills: ...
+# abilities: ...
+# object:tval:sval:number:equipped
+# complex-object:tval:sval:number:equipped:special:properties:modifiers
+# artifact:name:equipped
+# flags: ...
+
+# note:name
+# text: ...
+
+# trigger:name
+# condition:expression
+# death-note:name
+# text: ...
+
+# section:section name
+# rows:number of rows
+# columns:number of columns
+# area-flag:c-upper-left:r-upper-left:c-lower-right:r-lower-right:flags
+# clear-area-flag:c-upper-left:r-upper-left:c-lower-right:r-lower-right:flags
+# start-note:name
+# death-note:name
+# place-note:symbol:name
+# place-trigger:symbol:name
+# gate:symbol:destination:terrain to use
+# forge:symbol:uses:type
+# place-object:symbol:tval:sval:number
+# place-complex-object:symbol:tval:sval:number:special:properties:modifiers
+# place-artifact:symbol:name
+# monster:symbol:race:alertness:note
+# trap:symbol:name:flags
+# door:symbol:flags
+# flags: ...
+# D:lines giving the layout of the section
+
+# === Archetype ==
+
+# An archetype defines a character to be used in the tutorial.  When entering
+# the tutorial mode, the character will be set to the archetype marked as the
+# default, or if none has been marked as the default, the first archetype
+# defined in this file.  If there are no archetypes defined, the character
+# used for the tutorial will come from the first race and house for that race,
+# have a random name and history, no investment in skills beyond the base
+# values, no abilities, and the default starting experience.  The description
+# of an archetype begins with an "archetype:" line and continues until the
+# next "archetype:", "note:", "trigger:" or "section:" line.  The ability to
+# have multiple archetypes is a holdover from a design that would allow the
+# character to be switched out between tutorial sections.  As that's not
+# implemented, you really should define only one archetype.
+
+# The lines defining an archetype are:
+
+# archetype:name
+# Sets the name of the archetype to be what appears after the first colon.
+# That name must not match the name of one of the other archetypes.
+
+# race:name
+# (Optional) Is the name of the race, from race.txt, to use for characters
+# of this archetype.  If name is "*", a random race will be selected each time
+# a character of this archetype is created.  If there is no "race:" line,
+# the first available race will be used.
+
+# house:name
+# (Optional) Is the short name of the house, from house.txt, to use for
+# characters of this archetype.  If name is "*", a random house will be
+# selected each time a character of this archetype is created.  If there
+# is no "house:" line, the first available house will be used.
+
+# name:character_name
+# (Optional) Is the name to use for characters of this archetype.  If the name
+# is "*" or no "name:" line is given, a random name will be generated each
+# time a character of this archetype is created for the tutorial.
+
+# sex:character_sex
+# (Optional) Is the sex to use for characters of this archetype.  What follows
+# after the colon must be "Male", "Female", or "*".  If the sex is "*" or no
+# "sex:" line is given, a random sex will be generated each time a character
+# of this archetype is created for the tutorial.
+
+# experience:unspent_amount
+# (Optional) Is the amount of unused experience that character of this
+# archetype will start with.  The amount must be an integer greater than or
+# equal to zero.  If no "experience:" line is given, characters of this
+# archetype will start with whatever experience remains after buying the
+# skills and abilities given by the "skills:" and "abilities:" directives.
+
+# stats: ...
+# (Optional) Sets the amount to add to one or more of the core statistics
+# for characters of this archetype.  What follows the colon should be one
+# or more names of statistics (the name must be one of the names from
+# list-stats.h) where the names are separated by whitespace or '|' and
+# immediately following each name is the amount to add to the statistic in
+# brackets.  More than one "stats:" lines may be given:  all the adjustments
+# from those lines will be applied to characters of this archetype.
+
+# skills: ...
+# (Optional) Sets the amount to add to one or more of the skills for
+# characters of this archetype.  What follows the colon should be one
+# or more names of skills (a name must be the first argument to one of the
+# SKILL() macros in list-skills.h) where the names are separated by whitespace
+# or '|'s and immediately following each name is the amount to add to the
+# skill in brackets.  More than one "skills:" line may be given:  all the skill
+# adjustments from those lines will be applied to characters of this archetype.
+
+# abilities: ...
+# (Optional) Sets the abilities that characters of this archetype should
+# start out knowing.  What follows the colon should be one or more
+# names of skills (a name must be the first argument to one of the SKILL()
+# macros in list-skills.h) where the names are separated by whitespace or
+# '|'s and immediately following each skill name is the name of the ability
+# to know (name must be one of those given in the "Name:" directives in
+# ability.txt) from that skill enclosed in brackets.  More than one "abilities:"
+# line may be given:  all the abilities from those lines will be applied to
+# characters of this archetype.  The abilities are applied in the order they
+# appear.  Prequisite abilities for an ability are not automatically added so
+# those prequisites must appear in the list before the ability that depends on
+# them.
+
+# history:text
+# (Optional) Is the history to use for characters of this archetype.  Multiple
+# history lines for the same archetype will be concatenated.  If the history
+# is "*" or no "history:" line is given, a random history will be generated
+# each time a character of this archetype is created for the tutorial.
+
+# object:tval:sval:number:equipped
+# (Optional) Adds a stack to the starting kit for characters of this
+# archetype.  tval is the class of object to add (i.e. the name of one of
+# the classes in object_base.txt).  sval is the name of a type of object in
+# object.txt that belongs to that class.  number is a dice expression for
+# the number to appear in the stack.  equipped should be yes or no.  If yes,
+# an item from the stack will be equipped, if possible.  You may specify as
+# many object lines as you wish to add multiple stacks to the starting kit.
+# If adding a stack would exceed the character's pack size, the stack will be
+# ignored.
+
+# complex-object:tval:sval:number:equipped:special:properties:modifiers
+# (Optional) Adds a stack to the starting kit for characters of this
+# archetype.  Allows more control (mostly for objects the can be worn or
+# ammunition) for the properties of the object in the stack.  tval is the
+# class of object to add (i.e. the name of one of the classes in
+# object_base.txt).  sval is the name of a type of object in object.txt that
+# belongs to that class.  number is a dice expression for the number to appear
+# in the stack.  equipped should be yes or no.  If yes, an item from the stack
+# will be equipped, if possible.  special is NONE or the name of an enchantment
+# from special.txt to apply to the objects in the stack. properties is a list
+# of names, separated by whitespace or |, for properties to apply to the stack.
+# A recognized property name will be one of the following:
+#   a) NONE
+#   b) a code value (for instance, PROT_FEAR) for a property of type flag, slay
+#      or brand in object_property.txt
+#   c) IGNORE_ prepended to an element name from list-elements.h.
+#   d) HATES_ prepended to an element name from list-elements.h.
+# modifiers is a list of names, separated by whitepace or |, for modifiers
+# to apply to the stack.  Each name in the list is a string identifying the
+# modifier to change followed by [dice] where dice is a dice expression for
+# the value of the modifier.  For the special case of the PVAL modifier, the
+# dice expression can include $N which will be replaced by the number of
+# objects in the stack.  A recognized identifier for a modifier will be one
+# of the following:
+#   a) NONE
+#   b) PVAL to modify the pval for the objects.
+#   c) a code value (for instance, STR) for a property of type stat, skill,
+#      or mod in object_property.txt.
+#   d) RES_ prepended to an element name from list-elements.h.  The modifier
+#      value for those should correspond to the desired resistance level:  -1
+#      for vulnerable or 1 for resistant.
+# You may specify as many complex-object lines as you wish to add multiple
+# stacks to the starting kit.  If adding a stack would exceed the character's
+# pack size, the stack will be ignored.
+
+# artifact:name:equipped
+# (Optional) Adds an artifact to the starting kit for characters of this
+# archetype.  name is the name, from artifact.txt, for the artifact to add.
+# equipped should be yes or no; if yes, the artifact will be equipped, if
+# possible.  You may specify as many artifact lines as you wish to add
+# multiple stacks to the starting kit.  If adding a stack would exceed the
+# character's pack size, the stack will be ignored.  artifact lines are not
+# allowed to break the restriction that only one copy of an artifact can
+# exist per game.  So, if an artifact has already been created since the
+# tutorial was started, it will not be allowed to be created again.
+#
+# flags: ...
+# (Optional) Is a list of flag names, separated by whitespace or |, to apply
+# to this archetype.  The flag names currently understood are:
+# DEFAULT
+#   Mark this archetype as the default.  If no archetypes are marked as default
+#   the first one that appears in tutorial.txt will implicitly be the default.
+# PURGE_NORMAL_KIT
+#   Remove the normal starting kit (from race.txt) before adding the items
+#   specified for the archetype.
+
+# === Note ===
+
+# A note is a special object with a tval of "note", sval of "tutorial note",
+# and a pval that serves as an index for message lookup.  Because a pval is
+# used for message lookup, at most 32767 distinct kinds of notes are possible.
+# In the tutorial, moving the character to the grid containing an object
+# whose base kind is the note will cause a message to appear.  It would be
+# cleaner to specify a note directly in each tuturial section that uses it,
+# but describing it separately allows for the note's text to be split over
+# multiple lines in this file.  The description of a note begins with a
+# "note:" line and continues until the next "note:", "archetype:", "trigger:",
+# or "section:" line.
+
+# The lines defining a note are:
+
+# note:name
+# Sets the name of the note to be the text that appears after the colon.
+# A tutorial section will refer to a note by specifying its name.
+
+# text: ...
+# Appends what appears after the colon to the text for the note.  You may
+# specify more than one text line.  They will be appended in the order they
+# appear.  Within the text, these expressions (left bracket, followed by a name
+# specifying the expression type, then the arguments, if any, each preceded by
+# a colon, and then a right bracket) are expanded:
+#   {command:name}
+#   {commanding:name}
+#   {Command:name}
+#   {Commanding:name}
+#      Is replaced by a brief phrase (like "press 'd'") describing how to
+#      invoke the command with the given name.  For the textui interface,
+#      the command names are those listed ui-game.c.  The first two forms
+#      start the phrase with a lowercase letter.  The last two forms
+#      capitalize the first letter.  The "commanding" and "Commanding" forms
+#      use a gerund phrase, so something like "pressing 'd'".
+#   {direction:name}
+#   {directioning:name}
+#   {Direction:name}
+#   {Directioning:name}
+#      Is replaced by a brief phrase describing how to move in the given
+#      direction.  The directions understood are north (i.e. vertically
+#      towards the top edge of the screen), northeast, east (i.e.
+#      horizontally towards the right edge of the screen), southeast,
+#      south (i.e. vertically towards the bottom edge of the screen),
+#      southwest, west (i.e. horizontally towards the left edge of the
+#      screen), northwest, and stay (don't move).  The first two forms
+#      start the phrase with a lowercase letter.  The last two forms
+#      capitalize the first letter.  The "directioning" and "Directioning"
+#      forms use a gerund phrase.
+#   {direction-rose}
+#      Is replaced by a description of how to move in all directions.
+#   {feature:name}
+#      If possible, is replaced by the symbol ("('+')" for a closed
+#      door as an example) for a dungeon feature.  The feature should
+#      be one of those described in terrain.txt.
+#   {house} or {House}
+#      Is replaced by the name of the character's house.  The first form
+#      starts the house with a lowercase letter.  The latter capitalizes
+#      the first letter.
+#   {name}
+#      Is replaced by the character's full name.
+#   {monster:name}
+#      If possible, is replaced by the symbol ("('o')" for an orc as an
+#      example) for a monster.  The monster's race should be one of those
+#      described in monster.txt.
+#   {object:tval:sval}
+#      Is replaced by the symbol ("('~')" for a torch as an example)
+#      for an object.  The tval should be a name of a class of objects
+#      in object_base.txt.  The sval should be the name, from object.txt,
+#      for a type of object from that class or * to use the first object
+#      type of that class.
+#   {paragraphbreak}
+#      Is replaced by two newlines (one to end the current line and one
+#      to leave space between that line and what follows).
+#   {race}
+#   {Race}
+#      Is replaced by the name of the character's race.  The first form
+#      starts the race with a lowercase letter.  The latter capitalizes
+#      the first letter.
+# If you want a colon that is not to be interpreted as an argument separator
+# or a right bracket that is not to be interpreted as the end of an argument
+# list, escape it with a backslash.  If you want a backslash, repeat it.
+# If you want to use one of those expressions without having it expanded, place
+# a backslash immediately before the left bracket: \{feature... for instance.
+
+# === Trigger ===
+
+# A trigger allows a message to be displayed when the character enters a grid
+# if some condition is met.  If that condition is met, it will, optionally,
+# change the message that will be displayed if the character dies in the
+# tutorial.  Unlike a note, a trigger is not an object and won't be visible to
+# the player.  It would be cleaner to specify a trigger directly in each
+# tuturial section that uses it, but describing it separately allows for the
+# trigger's text to be split over multiple lines in this file.  The description
+# of a trigger begins with a "trigger:" line and continues until the next
+# "trigger:", "archetype:", "note:", or "section:" line.
+
+# The lines describing a trigger are:
+
+# trigger:name
+# Sets the name of the trigger to be the text that appears after the colon.
+# A tutorial section will refer to a trigger by specifying its name.
+
+# condition:expression
+# Defines the condition that has to be true for the text to be displayed.
+# The expression after the colon is a series of boolean expressions joined
+# by and, xor, or or and grouped by parentheses.  Allowed boolean expressions
+# are:
+#     not <another expression>
+#         Is true if <another expression> is false and false if
+#         <another expression> is true.
+#     {ability:skill_name:ability_name}
+#         Is true if the player has the ability with the given name in the
+#         given skill; otherwise, it is false.
+#     {carried:tval:sval}
+#         Is true if the character has an item in the pack, quiver, or equipped
+#         whose tval and sval and sval matches the names given; otherwise, it is
+#         false.  tval can be any of the names for object categories in
+#         object_base.txt.  sval can be *, to match any possible object type
+#         the given tval, or the name of one of the object types in object.txt.
+#     {drained:name}
+#         Is true if the named quantity for the character is at less than the
+#         maximum; otherwise, it is false.  name may be HEALTH, VOICE, or one
+#         of the statistic names in list-stats.h.
+#     {equipped:tval:sval}
+#         Is true if the character has an item equipped whose tval and sval
+#         matches the names given; otherwise, it is false.  tval and sval have
+#         the same meaning as for {carried}.
+#     {false}
+#         Always evaluates to false.
+#     {timed:name}, {timed:name:above:grade}, {timed:name:below:grade}
+#         The first form is true if the character is subject to the timed
+#         effect given by the name; otherwise, it is false.  The name should
+#         match one of the names in player_timed.txt.  The second form is
+#         true if character is subject to a gradation of the given timed
+#         that is greater than the grade given after "above:".  The grade
+#         should be a name that is a third argument to one of the "grade:"
+#         directives in player_timed.txt for the timed effect.  The third form
+#         is true if character is subject to a gradation of the given timed
+#         effect that is less than the grade given after "below:".
+#     {true}
+#         Always evaluates to be true.
+# A colon that you do want to be interpreted as an argument separator or a
+# right bracket that you don't want to be interpreted as the end of an argument
+# list can be escaped with a backslash.  To include a backslash, repeat it.
+
+# text:...
+# (Optional) Appends what appears after the colon to the text that will be
+# displayed when the trigger's condition is true.  You may specify more than
+# one text line.  They will be appended in the order they appear.  Within the
+# text, the same expressions as for notes will be expanded.  See the description
+# of notes for mote details about those expressions.
+
+# death-note:name
+# (Optional) If specified and the trigger's condition is true, changes the
+# message displayed when the character dies in the tutorial to be the message
+# for the note with the given name.  If the name is not given, no message will
+# be displayed when the character dies in the tutorial.
+
+# === Section ===
+
+# Describes one section of the tutorial.  The description of a section begins
+# with a "section:" line and continues until the next "section:",
+# "archetype:", or "note:" line.
+
+# The lines defining a section are:
+
+# section:name
+# Creates a new tutorial section.  What appears after the colon is the name
+# that can be used to refer to this section of the tutorial.  That name must
+# not be EXIT, which is reserved.
+
+# rows:number of rows
+# Sets the number of rows to expect in the description ("D:") lines.  The
+# number must be a positive integer.  If it is more than world:dungeon-hgt
+# minus two from constants.txt, the section can not be loaded when the game
+# is in tutorial mode.  Note, that what is described in the description lines
+# is automatically enclosed in a one grid thick boundary of permanent rock
+# so you do not have to include such a barrier.
+
+# columns:number of columns
+# Sets the number of columns to expect in the description ("D:") lines. The
+# number must be a positive integer.  If it is more than world:dungeon-wid
+# minus two from constants.txt, the section can not be loaded when the game
+# is in tutorial mode.  Note, that what is described in the description lines
+# is automatically enclosed in a one grid thick boundary of permanent rock
+# so you do not have to include such a barrier.
+
+# area-flag:c-upper-left:r-upper-left:c-lower-right:r-lower-right:flags
+# (Optional) Marks an area of the tutorial with one or more of the flags
+# from list-square-flags.h.  c-upper-left and r-upper-left are the horizontal
+# (i.e. column) and vertical (i.e. row), respectively, coordinates for the
+# upper left corner of the area.  c-lower-right and r-lower-right are the
+# horizontal and vertical, respectively, coordinates for the lower right corner
+# of the area.  Horizontal coordinates are integers between -1 (that corresponds
+# to the automatically-generated permanent rock just before the first column
+# in the description) and the number of columns set in the "columns:" line (that
+# corresponds to the automatically-generated permanent rock just after the
+# last column in the description).  A horizontal coordinate of zero
+# corresponds to the first column in the description, and a horizontal
+# coordinate equal to the number of columns minus one corresponds to the last
+# column in the description.  Vertical coordinates are integers between -1
+# (that corresponds to the automatically-generated permanent rock just before
+# the first row in the description) and the number of rows set in the
+# "rows:" line (that corresponds to the automatically-generated permanent rock
+# immediately after the last row in the description).  A vertical coordinate
+# of zero corresponds to the first column in the description, and a vertical
+# coordinate equal to the number of rows minus one corresponds to the last
+# row in the description.  flags is a list of names, separated by whitespace
+# or |, for the square flags to apply to the area.  Each name must be one
+# of the first arguments to SQUARE() in list-square-flags.h (for instance,
+# GLOW and ROOM are useful).  Note that some flags (TRAP and INVIS, for
+# instance) can interfere with other tutorial features.  You may use as many
+# area-flag lines as you wish to specify multiple, possibly overlapping, areas
+# to mark.
+
+# clear-area-flag:c-upper-left:r-upper-left:c-lower-right:r-lower-right:flags
+# (Optional) This is essentially identical to an area-flag line, but instead
+# of setting the given flags for the area, it removes those flags if they are
+# already set.
+
+# start-note:name
+# (Optional) Sets the note, by its name, that will be at the starting
+# location ('0' in the description) for the character in this section of
+# the tutorial.
+
+# death-note:name
+# (Optional) Sets the note, by its name, that will be displayed (unless
+# it was replaced by the character passing over a trigger) when the character
+# dies while in this section of the tutorial.
+
+# place-note:symbol:name
+# (Optional) Causes a note, looked up by name, to be placed at a location the
+# description marks with the given symbol.  symbol must either be a single
+# character (you can use any single Unicode code point except those used
+# for the predefined symbols mentioned for the "D:" lines, encoded in UTF-8, if
+# you wish) or a single character (again any single Unicode code point except
+# those with predefined meanings for "D:" lines is allowed) followed by (c,r)
+# where c and r are integer coordinates using the same system as described for
+# the area-flag line.  The latter format, for instance F(10,12), says that the
+# F at column 10 and row 12 in the description will use the given note.  The
+# other format, say F, says that all occurences of 'F' in the description will
+# use the given note unless they have been assigned a note by the more
+# specific format.
+
+# place-trigger:symbol:name
+# (Optional) Causes a trigger, looked up by name, to be placed at a location
+# the description marks with the given symbol.  symbol has the same meaning
+# as it does for "place-note:" lines:  it defines the symbol in the
+# description where the trigger will be placed.
+
+# gate:symbol:destination:terrain to use:note
+# Creates a gateway that either leads to another section of the tutorial or
+# causes the player to exit tutorial mode.  Every tutorial section must have
+# at least one gateway, and can have more than one.  symbol has the same meaning
+# as it does for "place-note:" lines:  it defines the symbol in the description
+# where the gate will be placed.  destination is either EXIT, which will cause
+# the player to leave the tutorial when the player's character enters the
+# gateway, or the name of the tutorial section that is target for the gateway.
+# terrain to use is the name of the terrain type to use for the gateway.  It
+# must be one of the terrain types in terrain.txt.  The usual, and highly
+# recommended choices, for the terrain type are "up staircase" and "down
+# staircase" where the player can trigger the gateway by using the command
+# to use the staircase.  If there are other terrain types that act like stairs
+# (entering the terrain automatically triggers a level change or a given
+# command issued when on that terrain triggers a level change) those could
+# also be used.  note is optional.  It is the name of a note whose message
+# will be displayed when the player uses the gateway.
+
+# forge:symbol:uses:type
+# (Optional) Causes a forge to be placed at a location the description marks
+# with the given symbol.  symbol has the same meaning as it does for
+# "place-note:" lines:  it defines the symbol in the description where the
+# forge will be placed.  uses is the number of times the forge can be used.
+# type must either be NORMAL, ENCHANTED, or UNIQUE.
+
+# place-object:symbol:tval:sval:number
+# (Optional) Causes a stack of objects to be placed at a location the
+# description marks with the given symbol.  symbol has the same meaning as it
+# does for "place-note:" lines:  it defines the symbol in the description where
+# the stack will be placed.  tval is the name of the object category, from
+# object_base.txt, for the type of objects in the stack.  sval is the name
+# of the specific object kind, from object.txt, for the type of objects in the
+# stack.  number is a dice expression for the number of objects in the stack.
+
+# place-complex-object:symbol:tval:sval:number:special:properties:modifiers
+# (Optional) Causes a stack of objects to be placed at a location the
+# description marks with the given symbol.  Allows more control of the object
+# properties than "place-object:".  symbol has the same meaning as it does for
+# "place-note:" lines:  it defines the symbol in the description where the
+# the stack will be placed.  tval is the name of the object category, from
+# object_base.txt, for the type of objects in the stack.  sval is the name
+# of the specific object kind, from object.txt, for the type of objects in the
+# stack.  number is a dice expression for the number of objects in the stack.
+# special is NONE or the name of an enchantment from special.txt to apply to the
+# objects in the stack. properties is a list of names, separated by whitespace
+# or |, for properties to apply to the stack.  A recognized property name will
+# be one of the following:
+#   a) NONE
+#   b) a code value (for instance, PROT_FEAR) for a property of type flag, slay
+#      or brand in object_property.txt
+#   c) IGNORE_ prepended to an element name from list-elements.h.
+#   d) HATES_ prepended to an element name from list-elements.h.
+# modifiers is a list of names, separated by whitepace or |, for modifiers
+# to apply to the stack.  Each name in the list is a string identifying the
+# modifier to change followed by [dice] where dice is a dice expression for
+# the value of the modifier.  For the special case of the PVAL modifier, the
+# dice expression can include $N which will be replaced by the number of objects
+# in the stack.  A recognized identifier for a modifier will be
+# one of the following:
+#   a) NONE
+#   b) PVAL to modify the pval for the objects.
+#   c) a code value (for instance, STR) for a property of type stat, skill or
+#      mod in object_property.txt.
+#   d) RES_ prepended to an element name from list-elements.h.  The modifier
+#      value for those should correspond to the desired resistance level:  -1
+#      for vulnerable or 1 for resistant.
+
+# place-artifact:symbol:name
+# (Optional) Causes an artifact to be placed at a location the description
+# marks with the given symbol.  symbol has the same meaning as it does for
+# "place-note:" lines:  it defines the symbol in the description where the
+# the artifact will be placed.  The artifact used is the one with the given
+# name from artefact.txt.  If the artifact has already been created, it
+# will not be placed at the given symbol.
+
+# monster:symbol:race:alertness:note
+# (Optional) Causes a monster to be placed at a location the description
+# marks with the given symbol.  symbol has the same meaning as it does for
+# "place-note:" lines:  it defines the symbol in the description where the
+# the monster will be placed.  race specifies the type of monster to place.
+# It must be one of the types named in monster.txt.  Using a unique monster
+# may not work:  if that monster is already present in the tutorial section
+# or was killed earlier in the tutorial, it will not be placed.  alertness
+# specifies how awake the monster is when the character enters the tutorial.
+# It may be ALERT, ASLEEP (at the default random sleepiness specified by the
+# monsters race), or a numeric value between -20 (very asleep) to 20 (most
+# alert.  note is optional (you may omit it and the preceding colon).  If
+# present, it names the tutorial note that will be placed in the monster's
+# inventory, to be dropped when the monster dies.
+
+# trap:symbol:name:flags
+# (Optional) Causes a trap to be placed at a location the description marks
+# with the given symbol.  symbol has the same meaning as it does for
+# "place-note:" lines:  it defines the symbol in the description where the
+# trap will be placed.  name specifies the type of trap to place.  It must
+# match one of the short description strings in trap.txt; note that some
+# traps (like trap doors) will be silently ignored in the tutorial.  flags
+# is optional and consists of one or more of the following, separated by
+# whitespace or |, to control the visibility of the trap:
+# NONE
+#     Does not modify the trap; you can use it you don't want to omit the
+#     flags field but want the default trap visibility.
+# VISIBLE
+#     The trap will start out visible and does not need to be detected by the
+#     player.
+# INVISIBLE
+#     Makes the trap so it won't be detected by merely observing the trap's
+#     location.  Does not affect the action of trap detection spells or
+#     devices.
+
+# door:symbol:flags
+# (Optional) Causes a door to be placed at a location the description marks
+# with the given symbol.  By default, the door is closed and not locked.
+# symbol has the same meaning as it does for "place-note:" lines:  it defines
+# the symbol in the description where the door will be placed.  flags is
+# optional and consists of one or more of the following, separated by
+# whitespace or |, to control the aspects of the door:
+# NONE:
+#     Does not modify the door; you can use it you don't want to omit the
+#     flags field but want a default closed and unlocked door.
+# BROKEN:
+#     Specifies a broken door.  Incompatible with NONE, OPEN, CLOSED, SECRET,
+#     LOCK_*, and STUCK_*.
+# OPEN:
+#     Specifies an open door.  Incompatible with NONE, BROKEN, CLOSED, SECRET,
+#     LOCK_*, and STUCK_*.
+# CLOSED:
+#     Specifies a closed, but not secret door.  Incompatible with BROKEN,
+#     OPEN, and SECRET.
+# SECRET:
+#     Specifies a secret door.  Incompatible with NONE, BROKEN, OPEN, CLOSED,
+#     LOCK_*, and STUCK_*.
+# LOCK_1, LOCK_2, LOCK_5, LOCK_10, LOCK_20, LOCK_50:
+#     Marks the door as locked and sets the difficulty for opening it.
+#     Incompatible with BROKEN, OPEN, SECRET, and STUCK_*.  The difficulty
+#     accumulates so a door with LOCK_1 | LOCK_2 | LOCK_5 | LOCK_10 | LOCK_20
+#     would have a strength of 38.  Note that traditional Sil has lock
+#     difficulties between 1 and 7, inclusive.
+# STUCK_1, STUCK_2, STUCK_5, STUCK_10, STUCK_20, STUCK_50:
+#     Marks the door as stuck and sets the difficulty for opening it.
+#     Incompatible with BROKEN, OPEN, SECRET, and STUCK_*.  The difficulty
+#     accumulates so a door with STUCK_1 | STUCK_2 | STUCK_5 | STUCK_10 |
+#     would have a strength of 38.  Note that traditional Sil has stuck
+#     difficulties between 1 and 7, inclusive.
+# Note, using custom doors is likely unnecessary unless you want broken,
+# locked, or stuck doors:  there are predefined symbols to get open, closed and
+# unlocked, or secret and unlocked doors.
+
+# flags: ...
+# (Optional) Is a list of flag names, separated by whitespace or |, to apply
+# to this section.  The flag names currently understood are:
+# DEFAULT
+#   Mark this section as the default.  If no sections are marked as default
+#   the first one that appears in tutorial.txt will implicitly be the default.
+
+# D:line of tutorial layout
+# Describes one row of a section's dungeon.  The lines are used in the order
+# of their appearance, describing the section's dungeon from the top to the
+# bottom.  All such lines must appear after the "rows:" and "columns:" lines
+# for the section.  The number of those lines must match the number of rows
+# set for the tutorial section.  The text following "D:" up to the end of the
+# line is expected to have exactly as many characters as the number of columns
+# specified for the section.  Each character may be one of the symbols
+# declared by the "place-note:", "gate:", "forge:", "object:",
+# "complex-object:", "artifact:", "monster:" or "trap:" lines.  A character
+# may also be one of these, many of which have the same meaning as they do
+# in the description lines in vault.txt or room_template.txt:
+#     0 - Is the starting location for the player's character in the tutorial.
+#         Must appear exactly once in all the description lines for the
+#         section.
+#     . open floor
+#     # or space - granite
+#     @ - impenetrable rock
+#     : - impassable rubble
+#     + - Is a closed door.  For this and the other door types, custom-defined
+#         symbols set by "door:" lines could be used to allow locking of a
+#         closed or secret door or to specify a broken door.
+#     , - open door
+#     s - secret door
+#     ^ - Is a randomly generated trap.  To include a trap but with more
+#         control over it, use a "trap:" line and then include the symbol
+#         declared there in the layout.
+
+archetype:Laurilfea
+name:Laurilfea
+sex:Female
+race:Noldor
+house:Finarfin
+experience:1000
+stats: STR[2] | DEX[3] | CON[2] | GRA[1]
+skills: MELEE[4] | ARCHERY[4] | EVASION[4] | STEALTH[4] | SMITHING[5] | SONG[6]
+abilities: SMITHING[Armoursmith] | SMITHING[Enchantment]
+abilities: SONG[Song of Slaying] | SONG[Song of the Trees]
+flags:DEFAULT
+
+note:welcome note
+text:Welcome to Sil. The game is set within a vast dungeon called Angband.
+text: You have journeyed far into the north to reach Angband, and at
+text: great cost have found your way in. You plan to descend 1,000 ft
+text: into the earth, to find the dark enemy Morgoth and to cut a
+text: Silmaril from his crown, so that its light might once again be free.
+text:{paragraphbreak}As with many other Roguelike games, Sil's graphics are
+text: represented by text: you are the {monster:<player>}, the
+text: {feature:closed door} is a door, the {object:note:tutorial note} is
+text: a note and the {feature:granite wall} are walls. Try moving around with
+text: the keypad or arrow keys to reach the note. (You may need to press
+text: Numlock if your keypad doesn't work).
+
+note:default death note
+text:You have been slain.
+text:{paragraphbreak}A key feature of Sil (and all Roguelike games) is that
+text: you cannot use savepoints: if you die, that's it! It is thus a
+text: challenging game where you need to really *think*.
+text:{paragraphbreak}However, it is a bit frustrating to die before the end of
+text: the tutorial, so we evidently made it a bit too deadly.
+text:{paragraphbreak}Just restart the tutorial and you should be back to where
+text: you were in a couple of minutes. Remember that if combat is not going
+text: your way, you can try to escape and heal, then either come back again
+text: to defeat your adversary or simply ignore it.
+
+note:advanced death note
+text:Congratulations you have finished the tutorial.
+text:{paragraphbreak}You have also just been through a rite of passage: dying.
+text: Remember that a key feature of Sil (and all Roguelike games)
+text: is that you cannot use savepoints: if you die, that's it.
+text: It is thus a challenging game where you need to really *think*.
+text: You will die many times. When you do: reflect on what to learn
+text: from that death, see if you set a high score, then think about
+text: all the things you want to do differently with the next character...
+text:{paragraphbreak}You are now more than ready to create a character and
+text: start playing.
+text:{paragraphbreak}Don't let the choices overwhelm you the first time.
+text: Just start with the default Race and House, then invest most
+text: of your starting experience in Melee and Evasion.
+text: Once the game begins, finding some weapons and armour should
+text: be your top priority.
+
+note:door note
+text:To proceed, you will need to go through that door. To open a door, just
+text: try to move into it. Some doors are locked, in which case you will
+text: need to try multiple times in order to pick the lock. Alternatively,
+text: you could try bashing down the door by {commanding:Bash a door}.
+text: Some doors are stuck, in which case bashing them down is the only way
+text: past.
+
+note:object note
+text:There are many different types of objects, which are represented
+text: by punctuation symbols. For example the {object:sword:Curved Sword} is
+text: a sword text: and the {object:soft armor:Leather Armour} is a piece of
+text: armour. To pick them up, walk onto them and {command:Pick up objects}.
+text: To drop an object, {command:Drop an item}.
+
+note:inventory note
+text:Once you have got the items, they will be in your inventory.
+text: Your inventory is displayed in a window to the right of the main map.
+text: If you cannot see this window, you can also view the inventory
+text: by {commanding:Display inventory listing}.
+
+note:equipment note
+text:Now that you can view your inventory, try equipping your
+text: sword and armour. To do this, {command:Wear/wield an item}
+text: to equip an item, followed by the inventory letter of the
+text: item you wish to equip. When you have equipped both sword
+text: and armour, they will disappear from your inventory and
+text: appear in your equipment list (in a window to the right).
+text: You can also {command:Display equipment listing} to view
+text: the equipment list.
+
+note:combat note
+text:You are now ready to try some combat. Creatures in Sil are usually
+text: represented by letters of the alphabet. In the next room
+text: lies the least fearsome enemy in the game: the tanglethorn.
+text: It cannot move, so simply walk up to it and move into it
+text: to attack. However, remember that in Sil death is final.
+text: If things start going badly, you can always retreat.
+
+note:combat manual note
+text:To find out everything else you need to know about combat,
+text: you should read the appropriate pages in the manual
+text: that comes with the game. This is not essential for
+text: your first few games, but will help you explore the
+text: rich tactical combat sytem in Sil.
+
+note:secret door note
+text:There is no obvious way out of this room, but there might be a
+text: secret door somewhere. {Commanding:Stand still} or {directioning:stay}
+text: waits a single turn and also increases your natural searching
+text: ability. Try walking around the wall of the room and searching
+text: for a secret door. You can also rest until healed by
+text: {commanding:Rest for a while}. That might be useful after that
+text: fight.
+
+note:bow note
+text:The {object:bow:*} here is a bow, and the {object:arrow:*} is a set
+text: of arrows. Pick them up by {commanding:Pick up objects}, then wield
+text: them both by {commanding:Wear/wield an item}. You can now fire arrows
+text: by {commanding:Fire your missile weapon}. Try this in the next room.
+
+note:running note
+text:If you want to move a long distance, hold down Shift while you
+text: move (or {command:Start running} before moving). This moves you
+text: continuously until something happens which needs your attention.
+text: It can even run around corners in corridors. Try it.
+
+note:light note
+text:Corridors and some rooms like this one are not lit, forcing you
+text: to rely on your torch or lantern for light. Darkness and light
+text: are major themes in Sil.
+
+note:weapon values note
+text:You have found a shortsword. Note that it is listed as a Shorsword
+text: (+0,1d7) [+1]. The numbers given in round brackets are attack values,
+text: and those in square brackets are defence. This shortsword gives no
+text: bonus to hit, does a single seven sided die of damage and gives a
+text: +1 bonus to evasion. In contrast, your curved sword has -1 to attack,
+text: does two five sided dice of damage and has the same bonus to evasion.
+text:{paragraphbreak}This shortsword is also marked \{special}. This means
+text: that it bears some unknown enchantment. You will have to discover what
+text: that is. For now try wielding it: {command:Wear/wield an item}.
+
+note:armor values note
+text:Here is a set of Gauntlets (-1) [+0,1d1]. This means that they
+text: give a penalty of -1 to your attacks, they have no bonus to evasion
+text: and they absorb 1 point of damage (a one sided die worth...).
+text: In contrast, your Leather Armor [-1,1d4] has a -1 penalty to evasion
+text: and absorbs one four sided die of damage. As you can see, armour and
+text: weapons in Sil come with trade-offs between attack (chance of hitting;
+text: damage), and defence (chance of evading hits; damage reduction).
+text: Which pieces of equipment are best will depend on the circumstances.
+
+note:Gondolin note
+text:If you were wielding the shortsword, you would have noticed it glow
+text: brightly in the presence of the orc, indicating to the perceptive player
+text: that it bears an enchantment agaist orcs. This means that it does an
+text: extra die of damage against orcs, making its 1d7 into 2d7: a large bonus.
+
+note:trap note
+text:The dungeons of Angband are littered with many traps. Near here is a
+text: caltrop trap which temporarily slows you. Like most traps, it can be
+text: disarmed by holding down Control while attempting to move into it
+text: (or {commanding:Alter a grid} before moving). This also has a chance
+text: of triggering the trap. Since it is not too dangerous, try to disarm
+text: it until you succeed.
+
+note:statistics note
+text:Your character has four main statistics: Strength, Dexterity,
+text: Constitution, and Grace. These are represented at the left of
+text: the screen. The numbers can be positive or negative, with zero
+text: representing the average for the humans of this age (the Edain).
+
+note:strength note
+text:Your Strength mainly affects the damage you deal. You can get an
+text: extra side on each damage die for each point of Strength. Your
+text: strength is 2, so you do 2d7 damage with the curved sword instead
+text: of 2d5. You only do 1d8 damage with the shortsword though, as you
+text: can get at most 1 extra side for each lb the weapon weighs.
+text: Your abilities with your current weapon/bow/armour are listed on the
+text: left of the screen too. Try switching weapons to see what happens.
+
+note:constitution note
+text:Your Constitution increases your maximum health. Unlike many other
+text: games, in Sil it is the only thing that affects maximum health.
+text: To survive the more challenging opponents, you will need to
+text: get better at avoiding their attacks or absorbing the damage with armour.
+
+note:dexterity note
+text:As well as your Statistics, you have 8 skills open to you.
+text: Your Dexterity affects the first four of these: Melee, Archery,
+text: Evasion, and Stealth.
+
+note:grace note
+text:As well as your Statistics, you have 8 skills open to you.
+text: Your Grace affects the last four of these: Perception, Will,
+text: Smithing, and Song. It also increases your 'Voice' which is
+text: a measure of how long you can keep singing a song of power.
+
+note:character sheet note
+text:To have a look at your character sheet, {command:Character description}.
+text: This will show all of your Skills and much more. To exit just press
+text: 'Escape' (which exits any menu or screen in Sil).
+
+note:experience note
+text:In Sil, your character gains experience from encountering enemies,
+text: killing enemies, identifying items, and reaching new depths in
+text: the dungeon. You can use the experience you have earned to increase
+text: your Skills via the character sheet, but don't do so right now.
+
+note:look note
+text:Sometimes you won't know what a character on the screen represents.
+text: To find out, {command:Look around}, which allows you to look at objects.
+
+note:examine note
+text:Sometimes you will have identified an item but still won't know exactly
+text: what it does. You can find out more by {commanding:Examine an item} to
+text: examine it.
+
+note:help note
+text:Sometimes you will forget which key does what or need a new command.
+text: You can see a list of all the key commands by {commanding:Help}.
+
+note:first part note
+text:You now know more than enough to start playing Sil and can probably
+text: pick up most things as you go along, with occasional references to the
+text: manual if you want to know exactly how things work. If you'd like to
+text: continue with the tutorial, just take the door to the north. If you'd
+text: like to start a proper game, then go through the passage to the east.
+text: If you want to skip this part of the tutorial next time, there is a
+text: secret door to the south between the first room and this room.
+
+note:staircase note
+text:To use the staircase, {command:Go down staircase} when standing on it.
+
+note:alertness note
+text:Enemies in Sil have three levels of alertness. They can be asleep, unwary
+text: or alert. When they are asleep, they don't move, and their Evasion score
+text: is set to [-5]. When they are unwary, they move around oblivious to you,
+text: and their evasion is halved. Remaining unnoticed can be a great advantage
+text: in Sil. You can try to avoid all enemies, avoid only those you cannot
+text: handle, or kill them in their sleep. It is even possible to play the game
+text: without any combat if you are very careful.
+
+note:stealth note
+text:Your chance to remain unseen is primarily affected by your Stealth skill.
+text: Enemies get a penalty to notice you based on how far away they are, with
+text: closed doors counting as five squares.{paragraphbreak}
+text:If you are within sight of an unwary enemy, it receives a bonus
+text: to notice you, and this effect is increased for each floor square around
+text: you. It thus pays to remain out of sight and behind closed doors, or
+text: (if you must be in sight) to hide near the walls and corners of rooms.
+text: Finally, there is a penalty for making loud noises, such as being
+text: involved in combat.
+
+note:stealth mode note
+text:If it is critical to avoid attracting attention, you get a bonus for
+text: staying still, or for moving slowly (Stealth mode). To switch this on
+text: or off, {command:Toggle stealth mode}. Using Stealth mode and sticking
+text: to the walls, see if you can evade thse Orc soldiers. If not, don't
+text: despair -- stealth is not always easy.
+
+note:diagonal note
+text:It looks like there has been a cave-in here. To get through
+text: you will need to move diagonally. This is easy with a keypad, but harder
+text: on a laptop. To move diagonally, use the 1 3 7 9 keys at the top of the
+text: keyboard. This can be a little tricky to learn, but it is often
+text: convenient and sometimes essential. If you are very familiar with the
+text: hjkl movement keys there is an option to use them instead in the options
+text: menu ({command:Interact with options} to open that).
+
+note:digging note
+text:The corridor ahead is completely blocked, but there is a shovel here.
+text: If you are carrying a shovel, you can press Control (or
+text: {command:Alter a grid}) before moving into the blocked area to tunnel
+text: through it. Deeper down you might find mattocks which can dig through
+text: quartz veins and even some ways to dig through granite. It is strongly
+text: recommended that you carry some means of digging when you venture down
+text: into the depths, or you could become trapped.
+
+note:singing note
+text:Some characters learn to sing songs of power, which can
+text: have great effect upon you, your enemies or even your environment.
+text: Your character knows two songs: the Song of Slaying, which provides
+text: a bonus to attack which gets larger the more creatures you kill, and
+text: the Song of the Trees, which increases your light radius. Behind this
+text: door you will find use for both of them. {Command:Change song} to begin
+text: or end singing.
+
+note:smithing note
+text:Some characters master Smithing and create enchanted items.
+text: To do so requires you to find a forge and when standing in it,
+text: to {command:Smith an item}. Your character knows how to forge armour
+text: and how to enchant it. Find the forge through this door and
+text: create a set of boots of speed. As with most enchantments, you
+text: have to lend a piece of yourself to make these, in this case the
+text: price is 500 experience points.
+
+note:post singing and smithing note
+text:When you have learnt about Song and Smithing, go through this door.
+
+note:abilities note
+text:Each of the eight skills has a set of special Abilities tied to it.
+text: Each type of song is an Ability for the Song skill. Armour Smithing
+text: and Enchantment are Abilities for the Smithing skill. The boots of
+text: quickness you made grant an Ability called Sprinting, linked to the
+text: Evasion skill. They make you move more quickly if you spend several
+text: turns moving in roughly the same direction.
+
+note:using experience note
+text:To look through the available Abilities, {command:Abilities list}. You
+text: will see that each one has a required number of points in that Skill and
+text: possibly some pre-requisite Abilities. Typically the first ability
+text: in a skill costs 500 experience, then 1000, 1500, etc. You will have to
+text: find the right balance between spending experience on Skill points
+text: and on abilities. Now might be a good time to spend any experience
+text: you have on Skills or Abilities.
+
+note:final note
+text:That's it. You know enough about Sil to really get started.
+text: If you need to know any more, then have a look through the manual.
+text: Through here lies your final challenge, and one that will
+text: almost certainly mean your demise. See if you an make it past the
+text: challenge and reach the staircase, using it by
+text: {commanding:Go up staircase}.
+
+note:easy exit note
+text:You have finished the first half of the tutorial and are ready to
+text: create a new character.
+text:{paragraphbreak}Don't let the choices overwhelm you the first time.
+text: Just start with the default Race and House, then invest most of your
+text: starting experience in Melee and Evasion. Once the game begins,
+text: finding some weapons and armour should be your top priority.
+text:{paragraphbreak}Remember that a key feature of Sil (and all Roguelike
+text: games is that you cannot use savepoints: if you die, that's it.
+text: It is thus a challenging game where you need to really *think*.
+text: You will die many times. When you do: reflect on what to learn
+text: from that death, see if you set a high score, then think about
+text: all the things you want to do differently with the next character...
+
+note:hard exit note
+text:Congratulations. You have survived a fire-drake (usually found at
+text: 900 ft!), and have finished the tutorial in fine form. You are
+text: more than ready to create a new character.
+text:{paragraphbreak}Don't let the choices overwhelm you the first time.
+text: Just start with the default Race and House, then invest most of your
+text: starting experience in Melee and Evasion. Once the game begins,
+text: finding some weapons and armour should be your top priority.
+text:{paragraphbreak}Remember that a key feature of Sil (and all Roguelike
+text: games is that you cannot use savepoints: if you die, that's it.
+text: It is thus a challenging game where you need to really *think*.
+text: You will die many times. When you do: reflect on what to learn
+text: from that death, see if you set a high score, then think about
+text: all the things you want to do differently with the next character...
+
+trigger:final showdown trigger
+condition:{true}
+death-note:advanced death note
+
+section:start
+rows:30
+columns:59
+start-note:welcome note
+death-note:default death note
+place-note:N(5,26):door note
+place-note:N(14,26):object note
+place-note:N(18,26):inventory note
+place-note:N(22,24):equipment note
+place-note:N(23,28):combat note
+place-note:N(33,23):bow note
+place-note:N(47,23):running note
+place-note:N(54,18):light note
+place-note:N(54,14):weapon values note
+place-note:N(46,15):armor values note
+place-note:N(38,18):Gondolin note
+place-note:N(35,18):trap note
+place-note:N(32,18):statistics note
+place-note:N(31,17):strength note
+place-note:N(31,19):constitution note
+place-note:N(29,17):dexterity note
+place-note:N(29,19):grace note
+place-note:N(24,18):character sheet note
+place-note:N(22,18):experience note
+place-note:N(17,18):combat manual note
+place-note:N(15,17):look note
+place-note:N(15,19):examine note
+place-note:N(13,18):help note
+place-note:N(3,21):first part note
+place-note:N(8,22):staircase note
+place-note:N(1,16):alertness note
+place-note:N(3,15):stealth note
+place-note:N(5,14):stealth mode note
+place-note:N(10,1):diagonal note
+place-note:N(17,1):digging note
+place-note:N(18,7):singing note
+place-note:N(21,10):smithing note
+place-note:N(24,7):post singing and smithing note
+place-note:N(31,7):abilities note
+place-note:N(32,7):using experience note
+place-note:N(35,7):final note
+place-object:O(16,25):sword:Curved Sword:1
+place-object:O(16,27):soft armor:Leather Armour:1
+place-object:O(33,22):bow:Shortbow:1
+place-object:O(33,24):arrow:Arrow:24
+place-complex-object:O(54,15):sword:Shortsword:1:of Gondolin:NONE:NONE[0]
+place-object:O(47,15):gloves:Set of Gauntlets:1
+place-object:O(15,16):herb:Rage:1
+place-object:O(15,20):polearm:Battle Axe:1
+place-object:O(10,4):shield:Round Shield:1
+place-object:O(18,1):digger:Shovel:1
+place-object:O(34,13):potion:Quickness:1
+place-complex-object:O(51,8):mail:Mail Corslet:1:of Protection:NONE:NONE[0]
+place-object:O(52,8):potion:Dexterity:1
+place-complex-object:O(50,9):crown:Crown:1:of Defiance:NONE:NONE[0]
+place-object:O(51,9):ring:Damage:1
+place-object:O(52,9):amulet:Adornment:1
+place-complex-object:O(51,10):arrow:Arrow:48:(Poisoned):NONE:NONE[0]
+gate:G(9,22):EXIT:down staircase:easy exit note
+gate:G(54,8):EXIT:up staircase:hard exit note
+forge:f:1:NORMAL
+place-trigger:T:final showdown trigger
+monster:M(28,24):Tanglethorn:ALERT:secret door note
+monster:S:Orc soldier:ASLEEP
+monster:W:Wolf:ASLEEP
+monster:M(13,14):Nightthorn:ALERT
+monster:A:Orc archer:ASLEEP
+monster:M(50,6):Fire-drake hatchling:ASLEEP
+monster:M(52,6):Fire-drake hatchling:ASLEEP
+monster:M(50,8):Young fire-drake:ASLEEP
+door:d(12,26):LOCK_1
+trap:t(36,18):caltrops:NONE
+area-flag:0:24:7:29:ROOM | GLOW
+area-flag:12:23:20:29:ROOM | GLOW
+area-flag:20:23:25:29:ROOM | GLOW
+area-flag:26:21:30:27:ROOM | GLOW
+area-flag:30:21:36:25:ROOM | GLOW
+area-flag:31:20:35:20:ROOM | GLOW
+area-flag:31:26:35:26:ROOM | GLOW
+area-flag:36:20:49:26:ROOM | GLOW
+area-flag:50:13:58:19:ROOM
+area-flag:45:13:50:17:ROOM | GLOW
+area-flag:37:16:45:20:ROOM
+area-flag:33:16:37:20:ROOM | GLOW
+area-flag:28:16:32:20:ROOM | GLOW
+area-flag:19:15:27:21:ROOM | GLOW
+area-flag:11:16:19:20:ROOM | GLOW
+area-flag:14:15:16:15:ROOM | GLOW
+area-flag:14:21:16:21:ROOM | GLOW
+area-flag:0:17:6:24:ROOM | GLOW
+area-flag:6:20:11:24:ROOM | GLOW
+area-flag:0:13:6:17:ROOM | GLOW
+area-flag:1:5:9:13:ROOM | GLOW
+area-flag:9:0:15:5:ROOM | GLOW
+area-flag:19:2:23:12:ROOM | GLOW
+area-flag:16:5:26:9:ROOM | GLOW
+area-flag:10:5:16:10:ROOM | GLOW
+area-flag:10:10:16:15:ROOM | GLOW
+area-flag:26:11:32:15:ROOM
+area-flag:27:10:31:10:ROOM
+area-flag:27:16:31:16:ROOM
+area-flag:32:11:36:15:ROOM
+area-flag:29:4:34:10:ROOM | GLOW
+area-flag:34:4:40:10:ROOM | GLOW
+area-flag:40:6:56:9:ROOM | GLOW
+area-flag:41:5:46:5:ROOM | GLOW
+area-flag:49:5:55:5:ROOM | GLOW
+area-flag:42:10:56:10:ROOM | GLOW
+area-flag:46:11:55:11:ROOM | GLOW
+area-flag:48:12:52:12:ROOM | GLOW
+##000000000011111111112222222222333333333344444444445555555555
+##012345678901234567890123456789012345678901234567890123456789
+D:###########################################################
+D:##########N:::.+.NO:..#####################################
+D:#####....+.::.:######+#####################################
+D:#####.####:.::.#####...####################################
+D:#####.####O:..:#####...####################################
+D:#####+##############...#######....#....A###################
+D:##.......##.WWWW#.........####.##T#.....##....####M.M..####
+D:##.#...#.##W....+.N.....N.+..+.NNT+N....................###
+D:##...S...##..W..#.........####.##T#....A#.........MOO.G.###
+D:##.#.S.#.##.....####...#######....#.....###.......OOO...###
+D:##.......####+######.N.########################....O...####
+D:##.#.S.#.##.....####...#####...##################...#######
+D:##.......##.....#####+#####.....#...#######################
+D:#####+#####.....#####........f..s.O.#######################
+D:#....N#####..M..###########.....#...##########....+...N...#
+D:#..N..######################...###############NO..#...O...#
+D:#N....#########O####.......###################....#.......#
+D:#+##########...N...#.#.#.#.##N#N##...#.......####,#.......#
+D:#.....+....+.N...N.+..N.N..+....N+.Nt+N......####.#...N...#
+D:#.....######...N...#.#.#.#.##N#N##...#.S.....+....####+####
+D:#.....#########O####.......###########################.####
+D:#..N..#....#####################...##............#####.####
+D:#.......NG.################...#..O..#.........S..#####.####
+D:#.....#....################...s..N..+..........N.+.....####
+D:#s###########.......+.N..##.M.#..O..#.........S..##########
+D:#......######...O...#....##...##...##............##########
+D:#....N.+....d.N...N.#....##...#############################
+D:#.0....######...O...#....###+##############################
+D:#......######.......#..N.+...##############################
+D:###########################################################
+##000000000011111111112222222222333333333344444444445555555555
+##012345678901234567890123456789012345678901234567890123456789

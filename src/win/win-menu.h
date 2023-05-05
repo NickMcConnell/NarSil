@@ -19,6 +19,7 @@
 
 #define IDM_FILE_NEW			100
 #define IDM_FILE_OPEN			101
+#define IDM_FILE_TUTORIAL		102
 #define IDM_FILE_SAVE			110
 #define IDM_FILE_EXIT			130
 

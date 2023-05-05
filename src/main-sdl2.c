@@ -33,6 +33,7 @@
 #include "player-calcs.h"
 #include "ui-output.h"
 #include "game-world.h"
+#include "tutorial.h"
 #include "ui-input.h"
 #include "ui-prefs.h"
 #include "grafmode.h"
@@ -3604,7 +3605,7 @@ static void wait_anykey(void)
 static void handle_quit(void)
 {
 	/* XXX copied from main-sdl.c */
-	if (character_generated && inkey_flag) {
+	if (character_generated && inkey_flag && !in_tutorial()) {
 		/* no idea what that does :) */
 		msg_flag = false;
 		save_game();

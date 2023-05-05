@@ -97,7 +97,7 @@ static void object_list_format_section(const object_list_t *list,
 	for (entry_index = 0; entry_index < total && line_count < lines_to_display;
 		 entry_index++) {
 		char location[20] = { '\0' };
-		uint8_t line_attr;
+		int line_attr;
 		size_t full_width;
 		const char *direction_y = (list->entries[entry_index].dy <= 0) ? "N" : "S";
 		const char *direction_x = (list->entries[entry_index].dx <= 0) ? "W" : "E";

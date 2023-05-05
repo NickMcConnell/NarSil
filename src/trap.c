@@ -31,6 +31,7 @@
 #include "player-util.h"
 #include "songs.h"
 #include "trap.h"
+#include "tutorial.h"
 
 /**
  * ------------------------------------------------------------------------
@@ -847,6 +848,10 @@ void place_trap(struct chunk *c, struct loc grid, int t_idx, int trap_level)
 
 	/* Failure */
 	if (t_idx < 0) return;
+	/* Don't allow trap doors in the tutorial. */
+	if (in_tutorial() && trf_has(trap_info[t_idx].flags, TRF_DOWN)) {
+		return;
+	}
 
 	/* Allocate a new trap for this grid (at the front of the list) */
 	new_trap = mem_zalloc(sizeof(*new_trap));

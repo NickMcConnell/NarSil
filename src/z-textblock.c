@@ -32,7 +32,7 @@
 
 struct textblock {
 	wchar_t *text;
-	uint8_t *attrs;
+	int *attrs;
 
 	size_t strlen;
 	size_t size;
@@ -48,8 +48,8 @@ textblock *textblock_new(void)
 	textblock *tb = mem_zalloc(sizeof *tb);
 
 	tb->size = TEXTBLOCK_LEN_INITIAL;
-	tb->text = mem_zalloc(tb->size * sizeof *tb->text);
-	tb->attrs = mem_zalloc(tb->size);
+	tb->text = mem_zalloc(tb->size * sizeof(*tb->text));
+	tb->attrs = mem_zalloc(tb->size * sizeof(*tb->attrs));
 
 	return tb;
 }
@@ -78,17 +78,18 @@ static void textblock_resize_if_needed(textblock *tb, size_t additional_size)
 	/* If we need more room, reallocate it */
 	if (remaining < additional_size) {
 		tb->size = TEXTBLOCK_LEN_INCR(tb->strlen + additional_size);
-		tb->text = mem_realloc(tb->text, tb->size * sizeof *tb->text);
-		tb->attrs = mem_realloc(tb->attrs, tb->size);
+		tb->text = mem_realloc(tb->text, tb->size * sizeof(*tb->text));
+		tb->attrs = mem_realloc(tb->attrs, tb->size
+			* sizeof(*tb->attrs));
 	}
 }
 
-static void textblock_vappend_c(textblock *tb, uint8_t attr, const char *fmt,
+static void textblock_vappend_c(textblock *tb, int attr, const char *fmt,
 		va_list vp)
 {
 	size_t temp_len = TEXTBLOCK_LEN_INITIAL;
 	char *temp_space = mem_zalloc(temp_len);
-	int new_length;
+	int new_length, i;
 
 	/* We have to format the incoming string in native (external) format
 	 * re-allocating the temporary space as necessary. Once it's been
@@ -117,7 +118,9 @@ static void textblock_vappend_c(textblock *tb, uint8_t attr, const char *fmt,
 
 	/* Convert to wide chars, into the text block buffer */
 	text_mbstowcs(tb->text + tb->strlen, temp_space, tb->size - tb->strlen);
-	memset(tb->attrs + tb->strlen, attr, new_length);
+	for (i = 0; i < new_length; ++i) {
+		tb->attrs[i + tb->strlen] = attr;
+	}
 	tb->strlen += new_length;
 	mem_free(temp_space);
 }
@@ -125,7 +128,7 @@ static void textblock_vappend_c(textblock *tb, uint8_t attr, const char *fmt,
 /**
  * Add a graphics tile to a text block.
  */
-void textblock_append_pict(textblock *tb, uint8_t attr, int c)
+void textblock_append_pict(textblock *tb, int attr, int c)
 {
 	textblock_resize_if_needed(tb, 1);
 	tb->text[tb->strlen] = (wchar_t)c;
@@ -144,7 +147,8 @@ void textblock_append_textblock(textblock *tb, const textblock *tba)
 	textblock_resize_if_needed(tb, tba->strlen);
 	(void) memcpy(tb->text + tb->strlen, tba->text,
 		tba->strlen * sizeof(*tb->text));
-	(void) memcpy(tb->attrs + tb->strlen, tba->attrs, tba->strlen);
+	(void) memcpy(tb->attrs + tb->strlen, tba->attrs,
+		tba->strlen * sizeof(*tb->attrs));
 	tb->strlen += tba->strlen;
 }
 
@@ -165,7 +169,7 @@ void textblock_append(textblock *tb, const char *fmt, ...)
 /**
  * Add coloured text to a text block, formatted.
  */
-void textblock_append_c(textblock *tb, uint8_t attr, const char *fmt, ...)
+void textblock_append_c(textblock *tb, int attr, const char *fmt, ...)
 {
 	va_list vp;
 	va_start(vp, fmt);
@@ -187,7 +191,7 @@ const wchar_t *textblock_text(textblock *tb)
 /**
  * Return a pointer to the text attrs.
  */
-const uint8_t *textblock_attrs(textblock *tb)
+const int *textblock_attrs(textblock *tb)
 {
 	return tb->attrs;
 }
@@ -357,7 +361,7 @@ void textblock_to_file(textblock *tb, ang_file *f, int indent, int wrap_at)
 /**
  * Function hook to output (colored) text to the screen or to a file.
  */
-void (*text_out_hook)(uint8_t a, const char *str);
+void (*text_out_hook)(int a, const char *str);
 
 /**
  * Hack -- Where to wrap the text when using text_out().  Use the default
@@ -395,7 +399,7 @@ ang_file *text_out_file = NULL;
  * You must be careful to end all file output with a newline character
  * to "flush" the stored line position.
  */
-void text_out_to_file(uint8_t a, const char *str)
+void text_out_to_file(int a, const char *str)
 {
 	const char *s;
 	char buf[1024];
@@ -527,7 +531,7 @@ void text_out(const char *fmt, ...)
  * Output text to the screen (in color) or to a file depending on the
  * selected hook.
  */
-void text_out_c(uint8_t a, const char *fmt, ...)
+void text_out_c(int a, const char *fmt, ...)
 {
 	char buf[1024];
 	va_list vp;

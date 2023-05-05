@@ -302,7 +302,7 @@ void monster_list_sort(monster_list_t *list,
  * \param entry is the monster list entry to display.
  * \return a color for the monster entry.
  */
-uint8_t monster_list_entry_line_color(const monster_list_entry_t *entry)
+int monster_list_entry_line_color(const monster_list_entry_t *entry)
 {
 	/* Display uniques in a special colour */
 	if (rf_has(entry->race->flags, RF_UNIQUE))

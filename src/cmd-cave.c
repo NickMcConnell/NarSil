@@ -55,6 +55,7 @@
 #include "project.h"
 #include "songs.h"
 #include "trap.h"
+#include "tutorial.h"
 
 /**
  * Determines whether a staircase is 'trapped' like a false floor trap.
@@ -105,6 +106,13 @@ static void do_cmd_go_up_aux(void)
 	/* Verify stairs */
 	if (!square_isupstairs(cave, player->grid)) {
 		msg("You see no up staircase here.");
+		return;
+	}
+
+	/* Special handling for the tutorial */
+	if (in_tutorial()) {
+		player->upkeep->energy_use = z_info->move_energy;
+		tutorial_leave_section(player);
 		return;
 	}
 
@@ -219,21 +227,13 @@ static void do_cmd_go_down_aux(void)
 		return;
 	}
 
-	/* Special message for tutorial */
-	if (player->game_type == -1) {
-		/* Display the tutorial leaving text */
-		if (square_isdownstairs(cave, player->grid)) {
-			event_signal_poem(EVENT_POEM, "tutorial_leave_text", 5, 10);
-		} else {
-			event_signal_poem(EVENT_POEM, "tutorial_win_text", 5, 10);
-		}
-
-		player->is_dead = true;
+	/* Special handling for the tutorial */
+	if (in_tutorial()) {
 		player->upkeep->energy_use = z_info->move_energy;
-		player->upkeep->playing = false;
+		tutorial_leave_section(player);
 		return;
 	}
-	
+
 	/* Do not descend from the Gates */
 	if (player->depth == 0) {
 		msg("You have made it to the very gates of Angband and can once more taste the freshness on the air.");
@@ -1834,11 +1834,6 @@ void move_player(int dir, bool disarm)
 				hit_trap(grid);
 			} else if (square_ischasm(cave, grid)) {
 				player_fall_in_chasm(player);
-			}
-
-			// Read any notes the player stumbles upon
-			if (obj && tval_is_note(obj)) {
-				;//TODO note_info_screen(obj);
 			}
 
 			/* Update view */

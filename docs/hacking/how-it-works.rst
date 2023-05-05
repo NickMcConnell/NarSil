@@ -70,6 +70,7 @@ layer provides:
 ``z-color``         Colors
 ``z-debug``         Debugging annotations
 ``z-dice``          Dice expressions
+``z-dict``          Dictionaries
 ``z-expression``    Mathematical expressions
 ``z-file``          File I/O
 ``z-form``          String formatting

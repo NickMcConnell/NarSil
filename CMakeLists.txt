@@ -237,6 +237,8 @@ ADD_LIBRARY(OurCoreLib OBJECT
         src/source.c
         src/target.c
         src/trap.c
+        src/tutorial.c
+        src/tutorial-init.c
         src/ui-abilities.c
         src/ui-birth.c
         src/ui-combat.c
@@ -271,6 +273,7 @@ ADD_LIBRARY(OurCoreLib OBJECT
         src/ui-spoil.c
         src/ui-target.c
         src/ui-term.c
+        src/ui-tutorial.c
         src/ui-visuals.c
         src/ui-wizard.c
         src/wiz-debug.c
@@ -279,6 +282,7 @@ ADD_LIBRARY(OurCoreLib OBJECT
         src/z-bitflag.c
         src/z-color.c
         src/z-dice.c
+        src/z-dict.c
         src/z-expression.c
         src/z-file.c
         src/z-form.c

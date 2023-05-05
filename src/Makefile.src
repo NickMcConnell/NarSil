@@ -44,6 +44,7 @@ ZFILES = \
 	z-bitflag.o \
 	z-color.o \
 	z-dice.o \
+	z-dict.o \
 	z-expression.o \
 	z-file.o \
 	z-form.o \
@@ -171,6 +172,8 @@ ANGFILES = \
 	source.o \
 	target.o \
 	trap.o \
+	tutorial.o \
+	tutorial-init.o \
 	ui-abilities.o \
 	ui-birth.o \
 	ui-combat.o \
@@ -205,6 +208,7 @@ ANGFILES = \
 	ui-spoil.o \
 	ui-target.o \
 	ui-term.o \
+	ui-tutorial.o \
 	ui-visuals.o \
 	ui-wizard.o \
 	wiz-debug.o \

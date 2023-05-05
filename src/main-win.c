@@ -62,6 +62,7 @@
 #include "grafmode.h"
 #include "init.h"
 #include "savefile.h"
+#include "tutorial.h"
 #include "ui-command.h"
 #include "ui-display.h"
 #include "ui-game.h"
@@ -2854,6 +2855,8 @@ static void setup_menus(void)
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_FILE_OPEN,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+	EnableMenuItem(hm, IDM_FILE_TUTORIAL,
+	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_FILE_SAVE,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_FILE_EXIT,
@@ -2869,12 +2872,17 @@ static void setup_menus(void)
 
 		/* Menu "File", Item "Open" */
 		EnableMenuItem(hm, IDM_FILE_OPEN, MF_BYCOMMAND | MF_ENABLED);
+
+		/* Menu "File", Item "Tutorial" */
+		EnableMenuItem(hm, IDM_FILE_TUTORIAL, MF_BYCOMMAND | MF_ENABLED);
 	}
 
 	/* A character available */
 	if (game_in_progress && character_generated && inkey_flag) {
 		/* Menu "File", Item "Save" */
-		EnableMenuItem(hm, IDM_FILE_SAVE, MF_BYCOMMAND | MF_ENABLED);
+		if (!in_tutorial()) {
+			EnableMenuItem(hm, IDM_FILE_SAVE, MF_BYCOMMAND | MF_ENABLED);
+		}
 		/* Allow accessing the window options */
 		EnableMenuItem(hm, IDM_WINDOW_OPT, MF_BYCOMMAND | MF_ENABLED);
 	}
@@ -3280,10 +3288,26 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
+		/* Enter the tutorial */
+		case IDM_FILE_TUTORIAL:
+		{
+			if (!initialized) {
+				plog("You cannot do that yet...");
+			} else if (game_in_progress) {
+				plog("You can't start the tutorial while you're still playing!");
+			} else {
+				game_in_progress = true;
+				Term_fresh();
+				play_game(GAME_TUTORIAL);
+				quit(NULL);
+			}
+			break;
+		}
 		/* Save game */
 		case IDM_FILE_SAVE:
 		{
-			if (game_in_progress && character_generated && inkey_flag) {
+			if (game_in_progress && character_generated
+					&& inkey_flag && !in_tutorial()) {
 				/* Hack -- Forget messages */
 				msg_flag = false;
 
@@ -3299,7 +3323,8 @@ static void process_menus(WORD wCmd)
 		/* Exit */
 		case IDM_FILE_EXIT:
 		{
-			if (game_in_progress && character_generated) {
+			if (game_in_progress && character_generated
+					&& !in_tutorial()) {
 				/* Paranoia */
 				if (!inkey_flag) {
 					plog("You may not do that right now.");
@@ -4311,7 +4336,8 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_QUERYENDSESSION:
 		case WM_QUIT: {
-			if (game_in_progress && character_generated) {
+			if (game_in_progress && character_generated
+					&& !in_tutorial()) {
 				if (uMsg == WM_QUERYENDSESSION && !inkey_flag) {
 					plog("Please exit any open menus before closing the game.");
 					return false;
@@ -4329,7 +4355,8 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_CLOSE:
 		{
-			if (game_in_progress && character_generated) {
+			if (game_in_progress && character_generated
+					&& !in_tutorial()) {
 				if (!inkey_flag) {
 					plog("Please exit any open menus before closing the game.");
 					return 0;
@@ -5210,8 +5237,8 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	check_for_save_file(lpCmdLine);
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]",
-		(Term->hgt - 23) / 5 + 23, (Term->wid - 45) / 2);
+	prt("[Choose 'New', 'Open', or 'Tutorial' from the 'File' menu]",
+		(Term->hgt - 23) / 5 + 23, (Term->wid - 58) / 2);
 	Term_fresh();
 
 	/* Process messages forever */

@@ -55,6 +55,7 @@
 #include "project.h"
 #include "songs.h"
 #include "trap.h"
+#include "tutorial.h"
 
 
 /**
@@ -560,8 +561,8 @@ static bool get_move_wander(struct monster *mon, struct loc *tgrid)
 		/* Treasure-hoarding territorial monsters stay still at their hoard...*/
 		if (rf_has(race->flags, RF_TERRITORIAL) && hoarder && (dist == 0)) {
 			/* Very occasionally fall asleep */
-			if (one_in_(100) && (player->game_type >= 0) &&
-				!rf_has(race->flags, RF_NO_SLEEP)) {
+			if (one_in_(100) && !in_tutorial() &&
+					!rf_has(race->flags, RF_NO_SLEEP)) {
 				set_alertness(mon, rand_range(ALERTNESS_MIN,
 											  ALERTNESS_UNWARY - 1));
 			}
@@ -2524,6 +2525,15 @@ static void process_move_grab_objects(struct monster *mon, const char *m_name,
 	struct monster_lore *lore = get_lore(mon->race);
 	struct object *obj = square_object(cave, new);
 	bool visible = monster_is_visible(mon);
+
+	/*
+	 * Don't allow item pickup or smashing in the tutorial:  items on the
+	 * floor are likely specially placed and having them disappear
+	 * because a monster happened by is inconvenient.
+	 */
+	if (in_tutorial()) {
+		return;
+	}
 
 	/* Abort if can't pickup */
 	if (!rf_has(mon->race->flags, RF_TAKE_ITEM)) return;

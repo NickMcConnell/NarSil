@@ -516,10 +516,10 @@ static void player_timed_end_effect(int idx)
 /**
  * Return true if the player timed effect matches the given string
  */
-bool player_timed_grade_eq(struct player *p, int idx, const char *match)
+bool player_timed_grade_eq(const struct player *p, int idx, const char *match)
 {
 	if (p->timed[idx]) {
-		struct timed_grade *grade = timed_effects[idx].grade;
+		const struct timed_grade *grade = timed_effects[idx].grade;
 		while (p->timed[idx] > grade->max) {
 			grade = grade->next;
 		}
@@ -527,6 +527,51 @@ bool player_timed_grade_eq(struct player *p, int idx, const char *match)
 	}
 
 	return false;
+}
+
+/**
+ * Return true if the player timed effect is at a gradation above the given
+ * string.
+ */
+bool player_timed_grade_gt(const struct player *p, int idx, const char *match)
+{
+	if (p->timed[idx]) {
+		const struct timed_grade *grade = timed_effects[idx].grade;
+		while (1) {
+			if (!grade) {
+				break;
+			}
+			if (grade->name && streq(grade->name, match)) {
+				return p->timed[idx] > grade->max;
+			}
+			grade = grade->next;
+		}
+	}
+	return false;
+}
+
+/**
+ * Return true if the player timed effect is not set or is at a gradation below
+ * the given string.
+ */
+bool player_timed_grade_lt(const struct player *p, int idx, const char *match)
+{
+	if (p->timed[idx]) {
+		const struct timed_grade *grade = timed_effects[idx].grade;
+		const struct timed_grade *prev_grade = NULL;
+		while (1) {
+			if (!grade) {
+				return false;
+			}
+			if (grade->name && streq(grade->name, match)) {
+				return prev_grade
+					&& p->timed[idx] <= prev_grade->max;
+			}
+			prev_grade = grade;
+			grade = grade->next;
+		}
+	}
+	return true;
 }
 
 /**

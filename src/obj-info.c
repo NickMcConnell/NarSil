@@ -36,6 +36,7 @@
 #include "player-attack.h"
 #include "player-calcs.h"
 #include "project.h"
+#include "tutorial.h"
 #include "z-textblock.h"
 
 /**
@@ -780,7 +781,17 @@ static void describe_flavor_text(textblock *tb, const struct object *obj,
 	/* Display the known artifact or object description */
 	if (obj->artifact && obj->artifact->text) {
 		textblock_append(tb, "%s\n\n", obj->artifact->text);
+	} else if (obj->kind->tval == TV_NOTE
+			&& streq(obj->kind->name, "tutorial note")) {
+		/*
+		 * Tutorial notes don't have a static description
+		 * available in obj->kind->text.  Use
+		 * tutorial_expand_message() instead.
+		 */
+		textblock *note_tb = tutorial_expand_message(obj->pval);
 
+		textblock_append_textblock(tb, note_tb);
+		textblock_free(note_tb);
 	} else if (object_flavor_is_aware(obj) || ego || smith) {
 		bool did_desc = false;
 

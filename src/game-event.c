@@ -357,8 +357,20 @@ void event_signal_poem(game_event_type type, const char *name, int row, int col)
 	game_event_data data;
 
 	data.verse.filename = name;
+	data.verse.text = NULL;
 	data.verse.row = row;
 	data.verse.col = col;
 	game_event_dispatch(type, &data);
 }
 
+void event_signal_poem_textblock(game_event_type type, struct textblock *tb,
+		int row, int col)
+{
+	game_event_data data;
+
+	data.verse.filename = NULL;
+	data.verse.text = tb;
+	data.verse.row = row;
+	data.verse.col = col;
+	game_event_dispatch(type, &data);
+}

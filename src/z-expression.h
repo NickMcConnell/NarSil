@@ -37,8 +37,9 @@ typedef int32_t (*expression_base_value_f)(void);
 expression_t *expression_new(void);
 void expression_free(expression_t *expression);
 expression_t *expression_copy(const expression_t *source);
+void expression_set_fixed_base(expression_t *expression, int32_t value);
 void expression_set_base_value(expression_t *expression,
-							   expression_base_value_f function);
+	expression_base_value_f function);
 int32_t expression_evaluate(expression_t const * const expression);
 int16_t expression_add_operations_string(expression_t *expression,
 									  const char *string);

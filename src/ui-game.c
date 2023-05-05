@@ -35,6 +35,7 @@
 #include "player-util.h"
 #include "savefile.h"
 #include "target.h"
+#include "tutorial.h"
 #include "ui-abilities.h"
 #include "ui-birth.h"
 #include "ui-command.h"
@@ -58,6 +59,7 @@
 #include "ui-skills.h"
 #include "ui-spoil.h"
 #include "ui-target.h"
+#include "ui-tutorial.h"
 #include "ui-wizard.h"
 #include "z-file.h"
 #include "z-util.h"
@@ -187,7 +189,7 @@ struct cmd_info cmd_util[] =
 {
 	{ "Interact with options", { 'O', 'O', '=', '=' }, CMD_NULL, do_cmd_xxx_options, NULL, 0, NULL, NULL, NULL, 0 },
 
-	{ "Save and don't quit", { KTRL('S') }, CMD_NULL, save_game, NULL, 0, NULL, NULL, NULL, 0 },
+	{ "Save and don't quit", { KTRL('S') }, CMD_NULL, save_game, player_can_save_prereq, 0, NULL, NULL, NULL, 0 },
 	{ "Save and quit", { KTRL('X') }, CMD_NULL, textui_quit, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Kill character and quit", { 'Q' }, CMD_NULL, textui_cmd_suicide, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Redraw the screen", { KTRL('R') }, CMD_NULL, do_cmd_redraw, NULL, 0, NULL, NULL, NULL, 0 },
@@ -727,24 +729,24 @@ static void cleanup_savefile_selection_strings(char **entries, int count)
  *
  * \param retry flags that this is a repeated call because the savefile selected
  * by an earlier one could not be loaded.
- * \param new_game points to a boolean.  The pointed to value at entry is not
- * used.  At exit *new_game will be true if the user selected to start a new
- * game.  Otherwise, it will be false.
+ * \return GAME_NEW if starting a new game, GAME_LOAD if loading a savefile
+ * or GAME_TUTORIAL if starting the tutorial.
  */
-static void select_savefile(bool retry, bool *new_game)
+static enum game_mode_type select_savefile(bool retry)
 {
 	/* Build the list of selections. */
 	savefile_getter g = NULL;
 	/*
-	 * Leave the first entry for selecting a new game.  Will fill in the
-	 * label later.
+	 * Leave the first two entries for selecting a new game or the
+	 * tutorial.  Will fill in the labels later.
 	 */
-	int count = 1, allocated = 16;
+	int count = 2, allocated = 16;
 	char **entries = mem_zalloc(allocated * sizeof(*entries));
 	char **names = mem_zalloc(allocated * sizeof(*names));
 	int default_entry = 0;
 	struct region m_region = { 0, 3, 0, 0 };
-	bool allow_new_game = true;
+	int new_game_ind = 0, tutorial_ind = 1;
+	enum game_mode_type result = GAME_LOAD;
 	bool failed;
 	struct menu *m;
 	ui_event selection;
@@ -770,25 +772,25 @@ static void select_savefile(bool retry, bool *new_game)
 		names[count] = string_make(details->fnam);
 		if (suffix(savefile, details->fnam)) {
 			/*
-			 * Matches what's in savefile; put it second in the
+			 * Matches what's in savefile; put it third in the
 			 * the list and mark it as the default entry.  If
 			 * not forcing the name, clear savefile and arg_name
 			 * so the new game option won't be set up to overwrite
 			 * an existing savefile.
 			 */
-			if (count != 1) {
+			if (count != 2) {
 				char *hold_entry = entries[count];
 				char *hold_name = names[count];
 				int i;
 
-				for (i = count; i > 1; --i) {
+				for (i = count; i > 2; --i) {
 					entries[i] = entries[i - 1];
 					names[i] = names[i - 1];
 				}
-				entries[1] = hold_entry;
-				names[1] = hold_name;
+				entries[2] = hold_entry;
+				names[2] = hold_name;
 			}
-			default_entry = 1;
+			default_entry = 2;
 			if (!arg_force_name) {
 				savefile[0] = '\0';
 				arg_name[0] = '\0';
@@ -797,7 +799,8 @@ static void select_savefile(bool retry, bool *new_game)
 		++count;
 	}
 	if (got_savefile_dir(g)) {
-		assert(allocated > 0 && !entries[0]);
+		assert(allocated > 1 && !entries[0] && !names[0]
+			&& !entries[1] && !names[1]);
 		if (default_entry && arg_force_name) {
 			/*
 			 * Name set by front end is already in use and name's
@@ -805,17 +808,18 @@ static void select_savefile(bool retry, bool *new_game)
 			 */
 			int i;
 
-			assert(!entries[0] && !names[0]);
-			for (i = 0; i < count - 1; ++i) {
+			for (i = 1; i < count - 1; ++i) {
 				entries[i] = entries[i + 1];
 				names[i] = names[i + 1];
 			}
 			--default_entry;
 			--count;
-			allow_new_game = false;
+			new_game_ind = -1;
+			tutorial_ind = 0;
 		} else {
-			entries[0] = string_make("New game");
+			entries[new_game_ind] = string_make("New game");
 		}
+		entries[tutorial_ind] = string_make("Tutorial");
 		failed = false;
 	} else {
 		failed = true;
@@ -843,11 +847,13 @@ static void select_savefile(bool retry, bool *new_game)
 	screen_load();
 
 	if (selection.type == EVT_SELECT) {
-		if (m->cursor == 0 && allow_new_game) {
-			*new_game = true;
+		if (m->cursor == new_game_ind) {
+			result = GAME_NEW;
+		} else if (m->cursor == tutorial_ind) {
+			result = GAME_TUTORIAL;
 		} else {
-			*new_game = false;
-			assert(m->cursor > 0 && m->cursor < count);
+			assert(m->cursor > 0 && m->cursor < count
+				&& names[m->cursor]);
 			path_build(savefile, sizeof(savefile),
 				ANGBAND_DIR_SAVE, names[m->cursor]);
 		}
@@ -860,6 +866,8 @@ static void select_savefile(bool retry, bool *new_game)
 	if (selection.type == EVT_ESCAPE) {
 		quit(NULL);
 	}
+
+	return result;
 }
 
 /**
@@ -868,6 +876,8 @@ static void select_savefile(bool retry, bool *new_game)
 void play_game(enum game_mode_type mode)
 {
 	while (1) {
+		enum game_mode_type next_mode = GAME_NEW;
+
 		play_again = false;
 
 		/* Load a savefile or birth a character, or both */
@@ -881,16 +891,31 @@ void play_game(enum game_mode_type mode)
 
 		case GAME_SELECT:
 			{
-				bool new_game = false, retry = false;
+				bool retry = false;
 
+				next_mode = GAME_SELECT;
 				while (1) {
-					select_savefile(retry, &new_game);
-					if (start_game(new_game)) {
+					mode = select_savefile(retry);
+					if (mode == GAME_LOAD
+							|| mode == GAME_NEW) {
+						if (start_game(mode == GAME_NEW)) {
+							break;
+						}
+						retry = true;
+					} else {
+						assert(mode == GAME_TUTORIAL);
+						play_again = true;
+						start_tutorial();
 						break;
 					}
-					retry = true;
 				}
 			}
+			break;
+
+		case GAME_TUTORIAL:
+			next_mode = GAME_SELECT;
+			play_again = true;
+			start_tutorial();
 			break;
 
 		default:
@@ -919,9 +944,7 @@ void play_game(enum game_mode_type mode)
 		if (reinit_hook != NULL) {
 			(*reinit_hook)();
 		}
-		if (mode == GAME_LOAD) {
-			mode = GAME_NEW;
-		}
+		mode = next_mode;
 	}
 }
 
@@ -1087,36 +1110,40 @@ void close_game(bool prompt_failed_save)
 	deactivate_randart_file();
 
 	/* Handle death or life */
-	if (player->is_dead) {
-		death_knowledge(player);
-		death_screen();
+	if (!in_tutorial()) {
+		if (player->is_dead) {
+			death_knowledge(player);
+			death_screen();
 
-		/* Save dead player */
-		while (prompting && !savefile_save(savefile)) {
-			if (!prompt_failed_save
-					|| !get_check("Saving failed.  Try again? ")) {
-				prompting = false;
-				msg("death save failed!");
-				event_signal(EVENT_MESSAGE_FLUSH);
+			/* Save dead player */
+			while (prompting && !savefile_save(savefile)) {
+				if (!prompt_failed_save
+						|| !get_check("Saving failed.  Try again? ")) {
+					prompting = false;
+					msg("death save failed!");
+					event_signal(EVENT_MESSAGE_FLUSH);
+				}
+			}
+		} else {
+			/* Save the game */
+			while (prompting && !save_game_checked()) {
+				if (!prompt_failed_save
+						|| !get_check("Saving failed.  Try again? ")) {
+					prompting = false;
+				}
+			}
+
+			if (Term->mapped_flag) {
+				struct keypress ch;
+
+				prt("Press Return (or Escape).", 0, 40);
+				ch = inkey();
+				if (ch.code != ESCAPE)
+					predict_score(false);
 			}
 		}
-	} else {
-		/* Save the game */
-		while (prompting && !save_game_checked()) {
-			if (!prompt_failed_save
-					|| !get_check("Saving failed.  Try again? ")) {
-				prompting = false;
-			}
-		}
-
-		if (Term->mapped_flag) {
-			struct keypress ch;
-
-			prt("Press Return (or Escape).", 0, 40);
-			ch = inkey();
-			if (ch.code != ESCAPE)
-				predict_score(false);
-		}
+	} else if (player->is_dead) {
+		tutorial_display_death_note(player);
 	}
 
 	/* Wipe the monster list */

@@ -18,6 +18,7 @@ SUITES = \
 	player/suite.mk \
 	trivial/suite.mk \
 	z-dice/suite.mk \
+	z-dict/suite.mk \
 	z-expression/suite.mk \
 	z-quark/suite.mk \
 	z-textblock/suite.mk \

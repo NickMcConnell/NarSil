@@ -1990,6 +1990,7 @@ extern struct init_module store_module;
 extern struct init_module messages_module;
 extern struct init_module options_module;
 extern struct init_module ui_equip_cmp_module;
+extern struct init_module tutorial_module;
 
 static struct init_module *modules[] = {
 	&z_quark_module,
@@ -2001,6 +2002,7 @@ static struct init_module *modules[] = {
 	&ignore_module,
 	&mon_make_module,
 	&options_module,
+	&tutorial_module,
 	NULL
 };
 
