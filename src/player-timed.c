@@ -146,7 +146,6 @@ static enum parser_error parse_player_timed_change_increase(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
 	struct timed_change *current = t->increase;
-	struct timed_change *l = mem_zalloc(sizeof(*l));
 	assert(t);
 
 	/* Make a zero change structure if there isn't one */
@@ -174,7 +173,6 @@ static enum parser_error parse_player_timed_change_increase(struct parser *p)
 static enum parser_error parse_player_timed_change_decrease(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	struct timed_change *l = mem_zalloc(sizeof(*l));
 	assert(t);
 
 	t->decrease.max = parser_getint(p, "max");

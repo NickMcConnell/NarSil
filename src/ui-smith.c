@@ -110,7 +110,10 @@ static bool pval_included = false;
 static void include_pval(struct object *obj)
 {
 	int i;
-	if (!pval_included) object_copy(smith_obj_backup, smith_obj);
+	if (!pval_included) {
+		object_wipe(smith_obj_backup);
+		object_copy(smith_obj_backup, smith_obj);
+	}
 	if (pval) {
 		if (ABS(obj->pval) <= 1) obj->pval *= pval;
 		for (i = 0; i < OBJ_MOD_MAX; i++) {
@@ -122,7 +125,10 @@ static void include_pval(struct object *obj)
 
 static void exclude_pval(struct object *obj)
 {
-	if (pval_included) object_copy(smith_obj, smith_obj_backup);
+	if (pval_included) {
+		object_wipe(smith_obj);
+		object_copy(smith_obj, smith_obj_backup);
+	}
 	pval_included = false;
 }
 
@@ -132,6 +138,7 @@ static void wipe_smithing_objects(void)
 	object_wipe(smith_obj_backup);
 	mem_free(smith_art->slays);
 	mem_free(smith_art->brands);
+	release_ability_list(smith_art->abilities);
 	memset(smith_art, 0, sizeof(*smith_art));
 }
 
@@ -141,6 +148,7 @@ static void reset_smithing_objects(struct object_kind *kind)
 	object_wipe(smith_obj_backup);
 	mem_free(smith_art->slays);
 	mem_free(smith_art->brands);
+	release_ability_list(smith_art->abilities);
 	memset(smith_art, 0, sizeof(*smith_art));
 	create_base_object(kind, smith_obj);
 	object_know(smith_obj);
@@ -406,6 +414,7 @@ static void sval_display(struct menu *menu, int oid, bool cursor, int row,
 	create_base_object(choice[oid], obj);
 	object_know(obj);
 	if (cursor) {
+		object_wipe(smith_obj_backup);
 		object_copy(smith_obj_backup, smith_obj);
 	}
 	include_pval(obj);
@@ -747,6 +756,7 @@ static void skill_display(struct menu *menu, int oid, bool cursor, int row,
 		if (!chosen) {
 			remove_ability(&smith_obj->abilities, choice[oid]);
 		}
+		object_wipe(smith_obj);
 		object_copy(smith_obj, &backup);
 		(void) smith_affordable(smith_obj, &current_cost);
 		exclude_pval(smith_obj);
@@ -1080,6 +1090,7 @@ static void numbers_set_validity(void)
 			/* Restore the object */
 			pval = old_pval;
 			exclude_pval(smith_obj);
+			object_wipe(smith_obj);
 			object_copy(smith_obj, &backup);
 		}
 	}

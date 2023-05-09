@@ -321,7 +321,7 @@ void update_flow(struct chunk *c, struct flow *flow, struct monster *mon)
 	struct loc next = flow->centre;
 	int y, x, d;
 	int value = 0;
-    struct queue *queue = q_new(c->height * c->width);
+	struct queue *queue = q_new(c->height * c->width);
 
 	/* Set all the grids to maximum */
 	for (y = 1; y < c->height - 1; y++) {
@@ -388,6 +388,8 @@ void update_flow(struct chunk *c, struct flow *flow, struct monster *mon)
 		}
 		value++;
 	}
+
+	q_free(queue);
 }
 
 /**

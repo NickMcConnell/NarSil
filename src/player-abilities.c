@@ -201,6 +201,13 @@ static errr finish_parse_ability(struct parser *p) {
 		}
 	}
 
+	/* Done with prereq_list so release the resources allocated for it. */
+	while (prereq_num > 1) {
+		--prereq_num;
+		string_free((char*)prereq_list[prereq_num].name);
+		prereq_list[prereq_num].name = NULL;
+	}
+
 	parser_destroy(p);
 	return 0;
 }
@@ -491,4 +498,48 @@ bool player_gain_ability(struct player *p, struct ability *ability)
 	return true;
 }
 
+/**
+ * Release a linked list of abilities where each entry in the list is a
+ * shallow copy, except for the next field, of an entry in the global abilities
+ * list.
+ *
+ * \param head points to the first entry in the list.
+ */
+void release_ability_list(struct ability *head)
+{
+	while (head) {
+		struct ability *tgt = head;
 
+		head = head->next;
+		mem_free(tgt);
+	}
+}
+
+/**
+ * Copy a linked list of abilities where each entry in the list is a
+ * shallow copy, except for the next field, of an entry in the global abilities
+ * list.
+ *
+ * \param head points to the first entry in the list.
+ * \return the pointer to the first entry in the copied list.
+ */
+struct ability *copy_ability_list(const struct ability *head)
+{
+	struct ability *dest_head, *dest_tail;
+
+	if (!head) {
+		return NULL;
+	}
+
+	dest_head = mem_alloc(sizeof(*dest_head));
+	memcpy(dest_head, head, sizeof(*dest_head));
+	dest_tail = dest_head;
+	while (head->next) {
+		head = head->next;
+		dest_tail->next = mem_alloc(sizeof(*(dest_tail->next)));
+		dest_tail = dest_tail->next;
+		memcpy(dest_tail, head, sizeof(*dest_tail));
+	}
+	dest_tail->next = NULL;
+	return dest_head;
+}

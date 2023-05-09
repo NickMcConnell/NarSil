@@ -495,6 +495,10 @@ static void cleanup_trap(void)
 		mem_free(trap_info[i].text);
 		string_free(trap_info[i].desc);
 		string_free(trap_info[i].msg);
+		string_free(trap_info[i].msg2);
+		string_free(trap_info[i].msg3);
+		string_free(trap_info[i].msg_vis);
+		string_free(trap_info[i].msg_silence);
 		string_free(trap_info[i].msg_good);
 		string_free(trap_info[i].msg_bad);
 		string_free(trap_info[i].msg_xtra);

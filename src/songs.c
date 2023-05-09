@@ -181,11 +181,15 @@ static void cleanup_song(void)
 		struct alt_song_desc *alt = s->alt_desc;
 		next = s->next;
 		while (alt) {
-			string_free(alt->desc);
+			struct alt_song_desc *alt_tgt = alt;
 			alt = alt->next;
+			string_free(alt_tgt->desc);
+			mem_free(alt_tgt);
 		}
 		free_effect(s->effect);
+		string_free(s->msg);
 		string_free(s->desc);
+		string_free(s->verb);
 		string_free(s->name);
 		mem_free(s);
 		s = next;

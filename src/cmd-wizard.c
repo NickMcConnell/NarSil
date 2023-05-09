@@ -33,6 +33,7 @@
 #include "obj-pile.h"
 #include "obj-tval.h"
 #include "obj-util.h"
+#include "player-abilities.h"
 #include "player-calcs.h"
 #include "player-timed.h"
 #include "player-util.h"
@@ -1666,11 +1667,13 @@ void do_cmd_wiz_play_item(struct command *cmd)
 			struct object *prev = obj->prev;
 			struct object *next = obj->next;
 
-			/* Free slays, brands, and curses by hand. */
+			/* Free slays, brands, and abilities by hand. */
 			mem_free(obj->slays);
 			obj->slays = NULL;
 			mem_free(obj->brands);
 			obj->brands = NULL;
+			release_ability_list(obj->abilities);
+			obj->abilities = NULL;
 
 			object_copy(obj, orig_obj);
 			obj->prev = prev;
@@ -2118,11 +2121,15 @@ void do_cmd_wiz_reroll_item(struct command *cmd)
 		bitflag notice = obj->notice;
 		bool marked = obj->marked;
 
-		/* Free slays, brands, and curses on the old object by hand. */
+		/*
+		 * Free slays, brands, and abilities on the old object by hand.
+		 */
 		mem_free(obj->slays);
 		obj->slays = NULL;
 		mem_free(obj->brands);
 		obj->brands = NULL;
+		release_ability_list(obj->abilities);
+		obj->abilities = NULL;
 
 		/* Copy over; pile information needs to be restored. */
 		object_copy(obj, new);

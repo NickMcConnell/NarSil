@@ -994,6 +994,9 @@ static void cleanup_feat(void) {
 		string_free(f_info[idx].look_in_preposition);
 		string_free(f_info[idx].look_prefix);
 		string_free(f_info[idx].confused_msg);
+		string_free(f_info[idx].str_msg);
+		string_free(f_info[idx].fail_msg);
+		string_free(f_info[idx].dig_msg);
 		string_free(f_info[idx].die_msg);
 		string_free(f_info[idx].hurt_msg);
 		string_free(f_info[idx].run_msg);
@@ -1533,6 +1536,7 @@ static void cleanup_race(void)
 			item = item_next;
 		}
 		string_free((char *)r->name);
+		string_free((char *)r->desc);
 		mem_free(r);
 		r = next;
 	}
@@ -1685,7 +1689,10 @@ static void cleanup_house(void)
 
 	while (h) {
 		next = h->next;
-		mem_free((char *)h->name);
+		string_free((char *)h->name);
+		string_free((char *)h->alt_name);
+		string_free((char *)h->short_name);
+		string_free((char *)h->desc);
 		mem_free(h);
 		h = next;
 	}
@@ -1877,6 +1884,7 @@ static void cleanup_flavor(void)
 	f = flavors;
 	while(f) {
 		next = f->next;
+		string_free(f->text);
 		mem_free(f);
 		f = next;
 	}

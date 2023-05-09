@@ -232,6 +232,7 @@ static void cleanup_chest_trap(void)
 		string_free(trap->name);
 		string_free(trap->msg);
 		string_free(trap->msg_save);
+		string_free(trap->msg_bad);
 		string_free(trap->msg_death);
 		free_effect(trap->effect);
 		trap = trap->next;

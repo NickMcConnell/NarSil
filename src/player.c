@@ -21,6 +21,7 @@
 #include "init.h"
 #include "obj-pile.h"
 #include "obj-util.h"
+#include "player-abilities.h"
 #include "player-birth.h"
 #include "player-calcs.h"
 #include "player-history.h"
@@ -377,6 +378,8 @@ void player_cleanup_members(struct player *p)
 	}
 	string_free(p->body.name);
 	string_free(p->history);
+	release_ability_list(p->abilities);
+	release_ability_list(p->item_abilities);
 }
 
 

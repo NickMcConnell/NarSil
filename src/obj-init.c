@@ -683,6 +683,8 @@ static void cleanup_object_base(void)
 	int idx;
 	for (idx = 0; idx < TV_MAX; idx++) {
 		string_free(kb_info[idx].name);
+		mem_free(kb_info[idx].smith_slays);
+		mem_free(kb_info[idx].smith_brands);
 	}
 	mem_free(kb_info);
 }
@@ -1579,6 +1581,7 @@ static void cleanup_object(void)
 		string_free(kind->effect_msg);
 		mem_free(kind->brands);
 		mem_free(kind->slays);
+		release_ability_list(kind->abilities);
 		free_effect(kind->effect);
 		free_effect(kind->thrown_effect);
 		mem_free(kind->alloc);
@@ -2123,6 +2126,7 @@ static void cleanup_ego(void)
 		string_free(ego->name);
 		mem_free(ego->brands);
 		mem_free(ego->slays);
+		release_ability_list(ego->abilities);
 
 		poss = ego->poss_items;
 		while (poss) {
@@ -2491,6 +2495,7 @@ static void cleanup_artifact(void)
 		string_free(art->text);
 		mem_free(art->brands);
 		mem_free(art->slays);
+		release_ability_list(art->abilities);
 	}
 	mem_free(a_info);
 	mem_free(aup_info);

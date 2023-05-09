@@ -37,6 +37,7 @@
 #include "obj-slays.h"
 #include "obj-tval.h"
 #include "obj-util.h"
+#include "player-abilities.h"
 #include "player-calcs.h"
 #include "player-history.h"
 #include "player-util.h"
@@ -293,6 +294,7 @@ void object_free(struct object *obj)
 {
 	mem_free(obj->slays);
 	mem_free(obj->brands);
+	release_ability_list(obj->abilities);
 	mem_free(obj);
 }
 
@@ -580,6 +582,7 @@ void object_wipe(struct object *obj)
 	/* Free slays and brands */
 	mem_free(obj->slays);
 	mem_free(obj->brands);
+	release_ability_list(obj->abilities);
 
 	/* Wipe the structure */
 	memset(obj, 0, sizeof(*obj));
@@ -601,6 +604,9 @@ void object_copy(struct object *dest, const struct object *src)
 	if (src->brands) {
 		dest->brands = mem_zalloc(z_info->brand_max * sizeof(bool));
 		memcpy(dest->brands, src->brands, z_info->brand_max * sizeof(bool));
+	}
+	if (src->abilities) {
+		dest->abilities = copy_ability_list(src->abilities);
 	}
 
 	/* Detach from any pile */

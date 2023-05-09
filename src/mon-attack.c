@@ -356,6 +356,7 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 	int net_dam = 0;
 
 	char *act = NULL;
+	bool act_allocated = false;
 
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, sizeof(m_name), mon, MDESC_STANDARD);
@@ -401,6 +402,7 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 
 		/* Describe the attack method */
 		act = monster_blow_method_action(method, -1);
+		act_allocated = true;
 		do_cut = method->cut;
 		do_stun = method->stun;
 		do_prt = method->prt;
@@ -408,7 +410,11 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 
 		/* Special case */
 		if (streq(method->name, "HIT") && streq(effect->name, "BATTER")) {
+			if (act_allocated) {
+				string_free(act);
+			}
 			act = (char *) "batters you";
+			act_allocated = false;
 		}
 
 		/* Hack -- assume all attacks are obvious */
@@ -449,6 +455,9 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 			}
                 
 			msgt(sound_msg, "%s %s%s", m_name, act, punctuation);
+			if (act_allocated) {
+				string_free(act);
+			}
 		}
 
 		/* Perform the actual effect. */

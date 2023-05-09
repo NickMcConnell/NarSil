@@ -56,6 +56,8 @@ bool player_has_prereq_abilities(struct player *p, struct ability *ability);
 int player_ability_cost(struct player *p, struct ability *ability);
 bool player_can_gain_ability(struct player *p, struct ability *ability);
 bool player_gain_ability(struct player *p, struct ability *ability);
+void release_ability_list(struct ability *head);
+struct ability *copy_ability_list(const struct ability *head);
 
 extern struct file_parser ability_parser;
 

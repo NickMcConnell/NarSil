@@ -1046,6 +1046,9 @@ void create_special(struct object *obj, struct ego_item *ego)
 	struct object_kind *kind = obj->kind;
 	if (obj->slays) mem_free(obj->slays);
 	if (obj->brands) mem_free(obj->brands);
+	if (obj->abilities) {
+		release_ability_list(obj->abilities);
+	}
 	create_base_object(kind, obj);
 
 	/* Set its 'special' type to reflect the chosen type */
@@ -1064,6 +1067,7 @@ void artefact_copy(struct artifact *a_dst, struct artifact *a_src)
 {
 	mem_free(a_dst->slays);
 	mem_free(a_dst->brands);
+	release_ability_list(a_dst->abilities);
 
 	/* Copy the structure */
 	memcpy(a_dst, a_src, sizeof(struct artifact));
@@ -1071,6 +1075,7 @@ void artefact_copy(struct artifact *a_dst, struct artifact *a_src)
 	a_dst->next = NULL;
 	a_dst->slays = NULL;
 	a_dst->brands = NULL;
+	a_dst->abilities = NULL;
 
 	if (a_src->slays) {
 		a_dst->slays = mem_zalloc(z_info->slay_max * sizeof(bool));
@@ -1079,6 +1084,9 @@ void artefact_copy(struct artifact *a_dst, struct artifact *a_src)
 	if (a_src->brands) {
 		a_dst->brands = mem_zalloc(z_info->brand_max * sizeof(bool));
 		memcpy(a_dst->brands, a_src->brands, z_info->brand_max * sizeof(bool));
+	}
+	if (a_src->abilities) {
+		a_dst->abilities = copy_ability_list(a_src->abilities);
 	}
 }
 
@@ -1339,6 +1347,7 @@ static void create_smithing_item(struct object *obj, struct smithing_cost *cost)
 		a_info = mem_realloc(a_info, z_info->a_max * sizeof(struct artifact));
 		aup_info = mem_realloc(aup_info, z_info->a_max * sizeof(*aup_info));
 
+		memset(&a_info[aidx], 0, sizeof(a_info[aidx]));
 		artefact_copy(&a_info[aidx], (struct artifact *) obj->artifact);
 		a_info[aidx].name = string_make(a_info[aidx].name);
 		player->self_made_arts++;
