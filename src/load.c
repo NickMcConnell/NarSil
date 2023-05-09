@@ -50,13 +50,6 @@
 #include "ui-term.h"
 
 /**
- * Setting this to 1 and recompiling gives a chance to recover a savefile 
- * where the object list has become corrupted.  Don't forget to reset to 0
- * and recompile again as soon as the savefile is viable again.
- */
-#define OBJ_RECOVER 0
-
-/**
  * Dungeon constants
  */
 static uint8_t square_size = 0;

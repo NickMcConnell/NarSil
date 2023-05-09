@@ -878,15 +878,15 @@ void inven_wield(struct object *obj, int slot)
 
 	/* Handle split objects; messy, but avoids re-ID and ensuing messages */
 	if (split) {
-		int num = obj->number;
+		int snum = obj->number;
 		int oidx = obj->oidx;
 		struct object *prev = obj->prev, *next = obj->next;
 		struct loc grid = obj->grid;
-		assert(num);
+		assert(snum);
 		object_copy(obj, wielded);
 		obj->prev = prev;
 		obj->next = next;
-		obj->number = num;
+		obj->number = snum;
 		obj->oidx = oidx;
 		obj->grid = grid;
 	}

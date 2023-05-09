@@ -818,7 +818,7 @@ static bool twall(struct loc grid)
 /**
  * Print a message when the player doesn't have the required digger for terrain.
  */
-void fail_message(struct feature *terrain, char *name)
+static void fail_message(struct feature *terrain, char *name)
 {
 	char buf[1024] = "\0";
 

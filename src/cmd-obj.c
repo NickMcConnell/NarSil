@@ -252,7 +252,6 @@ void do_cmd_wield(struct command *cmd)
 
 		/* Warn about dropping item in left hand */
 		if (!object_is_carried(player, obj) && pack_is_full()) {
-			const char *thing = shield ? "shield" : "off-hand weapon";
 			/* Flush input */
 			event_signal(EVENT_INPUT_FLUSH);
 
