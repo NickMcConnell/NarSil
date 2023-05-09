@@ -122,13 +122,15 @@ void display_single_score(const struct high_score *score, int row, int place,
 	if ((*when == '@') && strlen(when) == 9) {
 		char month[4];
 
-		sprintf(month,"%.2s", when + 5);
+		strnfmt(month, sizeof(month), "%.2s", when + 5);
 		atomonth(atoi(month), month, sizeof(month));
 
 		if (*(when + 7) == '0') {
-			sprintf(tmp_val, "%.1s %.3s %.4s", when + 8, month, when + 1);
+			strnfmt(tmp_val, sizeof(tmp_val), "%.1s %.3s %.4s",
+				when + 8, month, when + 1);
 		} else {
-			sprintf(tmp_val, "%.2s %.3s %.4s", when + 7, month, when + 1);
+			strnfmt(tmp_val, sizeof(tmp_val), "%.2s %.3s %.4s",
+				when + 7, month, when + 1);
 		}	
 		when = tmp_val;
 	}

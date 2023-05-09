@@ -366,7 +366,7 @@ static void prt_song(int row, int col)
 
 	/* Show the slaying score */
 	if (slaying_bonus > 0) {
-		sprintf(buf, "+%d", slaying_bonus);
+		strnfmt(buf, sizeof(buf), "+%d", slaying_bonus);
 		if (song1 == slaying) {
 			c_put_str(COLOUR_L_BLUE, buf, row, col + 8);
 		} else if (song2 == slaying) {
