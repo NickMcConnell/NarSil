@@ -96,7 +96,6 @@ void monster_remove_from_group(struct chunk *c, struct monster *mon)
 			/* If it's the only monster, remove the group */
 			monster_group_free(c, group);
 			c->monster_groups[mon->group_info.index] = NULL;
-			return;
 		} else {
 			/* Otherwise remove the first entry */
 			group->member_list = list_entry->next;
@@ -105,6 +104,7 @@ void monster_remove_from_group(struct chunk *c, struct monster *mon)
 				monster_group_remove_leader(c, mon, group);
 			}
 		}
+		return;
 	}
 
 	/* Check - necessary? */
