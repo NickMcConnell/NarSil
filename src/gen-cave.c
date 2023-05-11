@@ -129,6 +129,7 @@ static void flood_access(struct chunk *c, struct loc grid, bool **access,
 static bool check_connectivity(struct chunk *c)
 {
 	struct loc grid;
+	bool result = false;
 
 	/* Set the array used for checking connectivity */
 	bool **access = mem_zalloc(c->height * sizeof(bool*));
@@ -141,7 +142,7 @@ static bool check_connectivity(struct chunk *c)
 	for (grid.y = 0; grid.y < c->height; grid.y++) {
 		for (grid.x = 0; grid.x < c->width; grid.x++) {
 			if (player_pass(c, grid, true) && !access[grid.y][grid.x]) {
-				return false;
+				goto CLEANUP;
 			}
 		}
 	}
@@ -158,12 +159,19 @@ static bool check_connectivity(struct chunk *c)
 	for (grid.y = 0; grid.y < c->height; grid.y++) {
 		for (grid.x = 0; grid.x < c->width; grid.x++) {
 			if (access[grid.y][grid.x] && square_isstairs(c, grid)) {
-				return true;
+				result = true;
+				goto CLEANUP;
 			}
 		}
 	}
-	
-	return false;
+
+CLEANUP:
+	for (grid.y = 0; grid.y < c->height; grid.y++) {
+		mem_free(access[grid.y]);
+	}
+	mem_free(access);
+
+	return result;
 }
 
 /**
@@ -994,6 +1002,8 @@ struct chunk *cave_gen(struct player *p)
 			p->upkeep->force_forge = false;
 			if (OPT(p, cheat_room)) msg("failed.");
 			uncreate_artifacts(c);
+			wipe_mon_list(c, p);
+			cave_free(c);
 			return NULL;
 		}
 
@@ -1036,6 +1046,8 @@ struct chunk *cave_gen(struct player *p)
 	if (dun->cent_n < z_info->level_room_min) {
 		if (OPT(p, cheat_room)) msg("Not enough rooms.");
 		uncreate_artifacts(c);
+		wipe_mon_list(c, p);
+		cave_free(c);
 		return NULL;
 	}
 
@@ -1044,6 +1056,8 @@ struct chunk *cave_gen(struct player *p)
 	if (!connect_rooms_stairs(c)) {
 		if (OPT(p, cheat_room)) msg("Couldn't connect the rooms.");
 		uncreate_artifacts(c);
+		wipe_mon_list(c, p);
+		cave_free(c);
 		return NULL;
 	}
 	
@@ -1075,6 +1089,8 @@ struct chunk *cave_gen(struct player *p)
 	if (!check_connectivity(c)) {
 		if (OPT(p, cheat_room)) msg("Failed connectivity.");
 		uncreate_artifacts(c);
+		wipe_mon_list(c, p);
+		cave_free(c);
 		return NULL;
 	}
 
