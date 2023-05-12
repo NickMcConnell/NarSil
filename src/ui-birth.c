@@ -1507,9 +1507,11 @@ int textui_do_birth(void)
 
 				if (current_stage > BIRTH_RACE_CHOICE) {
 					menu_refresh(&race_menu, false);
-					setup_house_menu(player->race);
-					menu = &house_menu;
-					command = CMD_CHOOSE_HOUSE;
+					if (current_stage == BIRTH_HOUSE_CHOICE) {
+						setup_house_menu(player->race);
+						menu = &house_menu;
+						command = CMD_CHOOSE_HOUSE;
+					}
 				}
 
 				if (current_stage > BIRTH_HOUSE_CHOICE) {
@@ -1521,7 +1523,9 @@ int textui_do_birth(void)
 				next = menu_question(current_stage, menu, command);
 
 				if (next == BIRTH_BACK) {
-					if (current_stage == BIRTH_HOUSE_CHOICE) {
+					if (current_stage == BIRTH_HOUSE_CHOICE
+							|| current_stage
+							== BIRTH_SEX_CHOICE) {
 						free_birth_menu(&house_menu);
 					}
 					next = current_stage - 1;
