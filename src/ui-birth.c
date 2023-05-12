@@ -281,7 +281,7 @@ static void race_help(int i, void *db, const region *l)
 	}
 
 	Term_gotoxy(RACE_AUX_COL, HIST_INSTRUCT_ROW);
-	text_out_c(COLOUR_L_WHITE, r->desc);
+	text_out_c(COLOUR_L_WHITE, "%s", r->desc);
 
 	/* Reset text_out() indentation */
 	text_out_indent = 0;

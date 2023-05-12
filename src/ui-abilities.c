@@ -174,7 +174,7 @@ static void ability_browser(int oid, void *data, const region *loc)
 
 	/* Print the description of the current ability */
 	if (current->desc) {
-		text_out_c(COLOUR_L_WHITE, current->desc);
+		text_out_c(COLOUR_L_WHITE, "%s", current->desc);
 	}
 
 	/* Print more info if you don't have the skill */
@@ -201,7 +201,7 @@ static void ability_browser(int oid, void *data, const region *loc)
 			} else {
 				attr = COLOUR_L_DARK;
 			}
-			text_out_c(attr, prereq->name);
+			text_out_c(attr, "%s", prereq->name);
 			prereq = prereq->next;
 			line++;
 			if (prereq) {
