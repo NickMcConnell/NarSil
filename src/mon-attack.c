@@ -450,7 +450,11 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 				/* Remember that the monster can do this */
 				if (monster_is_visible(mon)) {
 					rf_on(lore->flags, RF_CHARGE);
+					if (act_allocated) {
+						string_free(act);
+					}
 					act = (char *) "charges you";
+					act_allocated = false;
                 }
 			}
                 
