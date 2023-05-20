@@ -813,7 +813,7 @@ static bool connect_room_to_corridor(struct chunk *c, int r)
 				struct loc grid2 = vert ? loc(grid.x, grid.y - (delta * 2))
 					: loc(grid.x - (delta * 2), grid.y);
 				if (tunnel_ok(c, grid1, grid2, true, 1)) {
-					(void) build_tunnel(c, r, r1, grid1, grid2, false);
+					(void) build_tunnel(c, r, r1, grid1, grid, false);
 
 					/* Mark the new room connections */
 					dun->connection[r][r1] = true;
