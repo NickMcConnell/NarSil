@@ -780,13 +780,12 @@ static bool connect_room_to_corridor(struct chunk *c, int r)
 
 	/* Go down/right half the time, up/left the other half */
 	int delta = one_in_(2) ? 1 : -1;
+	/* Go horizontal half the time, vertical the other half */
+	bool vert = one_in_(2);
 		
 	/* Start at the centre and look for a tunnel */
 	grid = cent;
 	while (!done) {
-		/* Go horizontal half the time, vertical the other half */
-		bool vert = one_in_(2);
-
 		if (vert) {
 			grid.y += delta;
 		} else {
