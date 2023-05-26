@@ -24,7 +24,6 @@
 #include "cave.h"
 #include "datafile.h"
 #include "effects.h"
-#include "math.h"
 #include "game-event.h"
 #include "generate.h"
 #include "init.h"

@@ -100,7 +100,7 @@ CFLAGS := -std=c99 \
 	-DMSYS2_ENCODING_WORKAROUND
 
 # Linker flags
-LDFLAGS := -lm
+LDFLAGS :=
 
 # Frontends to compile
 MODULES := $(VIDEO_sdl2)
