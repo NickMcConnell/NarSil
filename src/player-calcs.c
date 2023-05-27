@@ -1148,6 +1148,9 @@ static void update_bonuses(struct player *p)
 		p->upkeep->redraw |= (PR_ARMOR);
 	}
 
+	memcpy(&p->state, &state, sizeof(state));
+	memcpy(&p->known_state, &known_state, sizeof(known_state));
+
 	/* Propagate knowledge */
 	update_player_object_knowledge(p);
 	if (player_active_ability(p, "Lore-Keeper")) {
@@ -1158,9 +1161,6 @@ static void update_bonuses(struct player *p)
 	if (character_dungeon) {
 		id_known_specials();
 	}
-
-	memcpy(&p->state, &state, sizeof(state));
-	memcpy(&p->known_state, &known_state, sizeof(known_state));
 }
 
 
