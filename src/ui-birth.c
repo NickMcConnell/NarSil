@@ -1507,6 +1507,7 @@ int textui_do_birth(void)
 
 				if (current_stage > BIRTH_RACE_CHOICE) {
 					menu_refresh(&race_menu, false);
+					free_birth_menu(&house_menu);
 					setup_house_menu(player->race);
 					menu = &house_menu;
 					command = CMD_CHOOSE_HOUSE;
@@ -1521,9 +1522,6 @@ int textui_do_birth(void)
 				next = menu_question(current_stage, menu, command);
 
 				if (next == BIRTH_BACK) {
-					if (current_stage == BIRTH_HOUSE_CHOICE) {
-						free_birth_menu(&house_menu);
-					}
 					next = current_stage - 1;
 				}
 
