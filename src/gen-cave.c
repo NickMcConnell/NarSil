@@ -657,8 +657,12 @@ static bool build_tunnel(struct chunk *c, int r1, int r2, struct loc grid1,
 
 	/* Horizontal or vertical */
 	if ((grid1.y == grid2.y) || (grid1.x == grid2.x)) {
-		/* Check validity, tunnel and we're done */
-		if (tunnel_ok(c, grid1, grid2, tentative, 2)) {
+		/*
+		 * Check validity (room to corridor tunnels have already been
+		 * checked), tunnel and we're done
+		 */
+		if (t == TUNNEL_ROOM_TO_CORRIDOR
+				|| tunnel_ok(c, grid1, grid2, tentative, 2)) {
 			nver = lay_tunnel(c, grid1, grid2, r1, r2);
 			nhor = 0;
 			if (grid1.y == grid2.y) {
