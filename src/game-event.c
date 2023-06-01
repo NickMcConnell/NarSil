@@ -305,17 +305,15 @@ void event_signal_size(game_event_type type, int h, int w)
 	game_event_dispatch(type, &data);
 }
 
-void event_signal_tunnel(game_event_type type, int nstep, int npierce, int ndug,
-		int dstart, int dend, bool early)
+void event_signal_tunnel(game_event_type type, tunnel_type t,
+		tunnel_direction_type dir, int vlength, int hlength)
 {
 	game_event_data data;
 
-	data.tunnel.nstep = nstep;
-	data.tunnel.npierce = npierce;
-	data.tunnel.ndug = ndug;
-	data.tunnel.dstart = dstart;
-	data.tunnel.dend = dend;
-	data.tunnel.early = early;
+	data.tunnel.t = t;
+	data.tunnel.dir = dir;
+	data.tunnel.vlength = vlength;
+	data.tunnel.hlength = hlength;
 	game_event_dispatch(type, &data);
 }
 

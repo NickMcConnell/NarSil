@@ -1554,8 +1554,10 @@ static void calc_cave_distances(int **cave_dist)
 }
 
 struct tunnel_instance {
-	int nstep, npierce, ndug, dstart, dend;
-	bool early;
+	tunnel_type t;
+	tunnel_direction_type dir;
+	int vlength, hlength;
+	bool room_to_corridor;
 };
 
 struct covar_n {
@@ -1573,6 +1575,8 @@ struct covar_n {
 	int n;
 };
 
+/* Used in Vanilla Angband but not here, at least for now. */
+#if 0
 static void initialize_covar(struct covar_n *cv, int n)
 {
 	int i;
@@ -1675,6 +1679,7 @@ static void dump_covar_var(const struct covar_n *cv, ang_file* fo)
 		file_put(fo, "\n");
 	}
 }
+#endif /* if 0 */
 
 /* Assumes the count of terms in the sum is maintained elsewhere. */
 struct i_sum_sum2 {
@@ -1730,98 +1735,201 @@ static double stddev_d_sum_sum2(struct d_sum_sum2 s, int count)
 
 struct tunnel_aggregate {
 	/*
-	 * Hold the sums for for the normalized number of steps, number of
-	 * wall piercings, normalized number of grids excavated, normalized
-	 * starting distance, and normalized final distance.  The first
-	 * includes all tunnels, the second only those that had early
-	 * terminations, the third only those without early termination, and
-	 * the fourth only those that did not reach their destination.
+	 * Holds the sums for unnormalized lengths. u_sums[i][j][0] is a sum
+	 * for the total length, u_sums[i][j][1] is a sum for the vertical
+	 * length, and u_sums[i][j][2] is a sum for the horizontal length.
+	 * The first dimension of the array corresponds to the type of the
+	 * tunnel:  0 is for all tunnels, 1 is for non-desperate room-to-room
+	 * tunnels, 2 is for room-to-corridor tunnels, and 3 is for desperate
+	 * room-to-room tunnels.  The second dimension of the array corresponds
+	 * to the tunnel direction:  0 is for all directions, 1 is for vertical
+	 * tunnels, 2 is for horizontal tunnels, and 3 is for bent tunnels.
 	 */
-	struct covar_n cv_all, cv_early, cv_noearly, cv_fail;
+	struct d_sum_sum2 u_sums[4][4][3];
 	/*
-	 * As above but drops the normalized final distance since that is
-	 * always zero for tunnels that reach their destinations.
+	 * Holds the minimum and maximum unnormalized lengths for the tunnels.
+	 * The dimensions to the arrays have the same meanings as for u_sums.
 	 */
-	struct covar_n cv_success;
+	int u_min[4][4][3];
+	int u_max[4][4][3];
 	/*
-	 * Hold the sums for the fraction of tunnels with early termination
-	 * and successful termination.
+	 * Holds the sums for the per-level counts of the tunnels.  The two
+	 * dimensions of the array have the same meaning as the first two
+	 * dimensions of u_sums.
 	 */
-	struct d_sum_sum2 early_frac, success_frac;
+	struct i_sum_sum2 level_counts[4][4];
 };
 
 static void initialize_tunnel_aggregate(struct tunnel_aggregate *ta)
 {
-	initialize_covar(&ta->cv_all, 5);
-	initialize_covar(&ta->cv_early, 5);
-	initialize_covar(&ta->cv_noearly, 5);
-	initialize_covar(&ta->cv_fail, 5);
-	initialize_covar(&ta->cv_success, 4);
-	initialize_d_sum_sum2(&ta->early_frac);
-	initialize_d_sum_sum2(&ta->success_frac);
-}
+	int i;
 
-static void cleanup_tunnel_aggregate(struct tunnel_aggregate *ta)
-{
-	cleanup_covar(&ta->cv_success);
-	cleanup_covar(&ta->cv_fail);
-	cleanup_covar(&ta->cv_noearly);
-	cleanup_covar(&ta->cv_early);
-	cleanup_covar(&ta->cv_all);
+	for (i = 0; i < 4; ++i) {
+		int j;
+
+		for (j = 0; j < 4; ++j) {
+			initialize_d_sum_sum2(&ta->u_sums[i][j][0]);
+			initialize_d_sum_sum2(&ta->u_sums[i][j][1]);
+			initialize_d_sum_sum2(&ta->u_sums[i][j][2]);
+			ta->u_min[i][j][0] = INT_MAX;
+			ta->u_min[i][j][1] = INT_MAX;
+			ta->u_min[i][j][2] = INT_MAX;
+			ta->u_max[i][j][0] = 0;
+			ta->u_max[i][j][1] = 0;
+			ta->u_max[i][j][2] = 0;
+			ta->level_counts[i][j].sum = 0;
+			ta->level_counts[i][j].sum2_lo = 0;
+			ta->level_counts[i][j].sum2_hi = 0;
+		}
+	}
 }
 
 static void add_to_tunnel_aggregate(struct tunnel_aggregate *ta,
 		const struct tunnel_instance *ti, int ntunnel,
 		const struct chunk *c)
 {
-	/*
-	 * Normalize the number of steps taken, number of grids excavated,
-	 * starting distance, and final distance by the sum of the dimensions
-	 * of the cave - that has the correct units (grids) and should allow
-	 * reasonable aggregation of tunneling results from caves with
-	 * different sizes.
-	 */
-	double length_norm = c->width + c->height;
-	int early_count = 0, success_count = 0, i;
-
-	assert(c->width > 0 && c->height > 0);
+	int counts[4][4] = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 } };
+	int i;
 
 	for (i = 0; i < ntunnel; ++i) {
-		double normed[5] = {
-			ti[i].nstep / length_norm,
-			ti[i].npierce,
-			ti[i].ndug / length_norm,
-			ti[i].dstart / length_norm,
-			ti[i].dend / length_norm
-		};
+		int length = ti[i].vlength + ti[i].hlength;
+		int ind0, ind1;
 
-		add_to_covar(&ta->cv_all, normed[0], normed[1], normed[2],
-			normed[3], normed[4]);
+		switch (ti[i].t) {
+		case TUNNEL_ROOM_TO_ROOM:
+			ind0 = 1;
+			break;
 
-		if (ti[i].early) {
-			add_to_covar(&ta->cv_early, normed[0], normed[1],
-				normed[2], normed[3], normed[4]);
-			++early_count;
-		} else {
-			add_to_covar(&ta->cv_noearly, normed[0], normed[1],
-				normed[2], normed[3], normed[4]);
+		case TUNNEL_ROOM_TO_CORRIDOR:
+			ind0 = 2;
+			break;
+
+		case TUNNEL_DESPERATE:
+			ind0 = 3;
+			break;
+
+		default:
+			assert(0);
+			break;
 		}
 
-		if (ti[i].dend == 0) {
-			add_to_covar(&ta->cv_success, normed[0], normed[1],
-				normed[2], normed[3]);
-			++success_count;
-		} else {
-			add_to_covar(&ta->cv_fail, normed[0], normed[1],
-				normed[2], normed[3], normed[4]);
+		switch (ti[i].dir) {
+		case TUNNEL_VER:
+			ind1 = 1;
+			break;
+
+		case TUNNEL_HOR:
+			ind1 = 2;
+			break;
+
+		case TUNNEL_BENT:
+			ind1 = 3;
+			break;
+
+		default:
+			assert(0);
+			break;
 		}
+
+		add_to_d_sum_sum2(&ta->u_sums[0][0][0], length);
+		add_to_d_sum_sum2(&ta->u_sums[0][0][1], ti[i].vlength);
+		add_to_d_sum_sum2(&ta->u_sums[0][0][2], ti[i].hlength);
+		add_to_d_sum_sum2(&ta->u_sums[0][ind1][0], length);
+		add_to_d_sum_sum2(&ta->u_sums[0][ind1][1], ti[i].vlength);
+		add_to_d_sum_sum2(&ta->u_sums[0][ind1][2], ti[i].hlength);
+		add_to_d_sum_sum2(&ta->u_sums[ind0][0][0], length);
+		add_to_d_sum_sum2(&ta->u_sums[ind0][0][1], ti[i].vlength);
+		add_to_d_sum_sum2(&ta->u_sums[ind0][0][2], ti[i].hlength);
+		add_to_d_sum_sum2(&ta->u_sums[ind0][ind1][0], length);
+		add_to_d_sum_sum2(&ta->u_sums[ind0][ind1][1], ti[i].vlength);
+		add_to_d_sum_sum2(&ta->u_sums[ind0][ind1][2], ti[i].hlength);
+		if (ta->u_min[0][0][0] > length) {
+			ta->u_min[0][0][0] = length;
+		}
+		if (ta->u_min[0][ind1][0] > length) {
+			ta->u_min[0][ind1][0] = length;
+		}
+		if (ta->u_min[ind0][0][0] > length) {
+			ta->u_min[ind0][0][0] = length;
+		}
+		if (ta->u_min[ind0][ind1][0] > length) {
+			ta->u_min[ind0][ind1][0] = length;
+		}
+		if (ta->u_min[0][0][1] > ti[i].vlength) {
+			ta->u_min[0][0][1] = ti[i].vlength;
+		}
+		if (ta->u_min[0][ind1][1] > ti[i].vlength) {
+			ta->u_min[0][ind1][1] = ti[i].vlength;
+		}
+		if (ta->u_min[ind0][0][1] > ti[i].vlength) {
+			ta->u_min[ind0][0][1] = ti[i].vlength;
+		}
+		if (ta->u_min[ind0][ind1][1] > ti[i].vlength) {
+			ta->u_min[ind0][ind1][1] = ti[i].vlength;
+		}
+		if (ta->u_min[0][0][2] > ti[i].hlength) {
+			ta->u_min[0][0][2] = ti[i].hlength;
+		}
+		if (ta->u_min[0][ind1][2] > ti[i].hlength) {
+			ta->u_min[0][ind1][2] = ti[i].hlength;
+		}
+		if (ta->u_min[ind0][0][2] > ti[i].hlength) {
+			ta->u_min[ind0][0][2] = ti[i].hlength;
+		}
+		if (ta->u_min[ind0][ind1][2] > ti[i].hlength) {
+			ta->u_min[ind0][ind1][2] = ti[i].hlength;
+		}
+		if (ta->u_max[0][0][0] < length) {
+			ta->u_max[0][0][0] = length;
+		}
+		if (ta->u_max[0][ind1][0] < length) {
+			ta->u_max[0][ind1][0] = length;
+		}
+		if (ta->u_max[ind0][0][0] < length) {
+			ta->u_max[ind0][0][0] = length;
+		}
+		if (ta->u_max[ind0][ind1][0] < length) {
+			ta->u_max[ind0][ind1][0] = length;
+		}
+		if (ta->u_max[0][0][1] < ti[i].vlength) {
+			ta->u_max[0][0][1] = ti[i].vlength;
+		}
+		if (ta->u_max[0][ind1][1] < ti[i].vlength) {
+			ta->u_max[0][ind1][1] = ti[i].vlength;
+		}
+		if (ta->u_max[ind0][0][1] < ti[i].vlength) {
+			ta->u_max[ind0][0][1] = ti[i].vlength;
+		}
+		if (ta->u_max[ind0][ind1][1] < ti[i].vlength) {
+			ta->u_max[ind0][ind1][1] = ti[i].vlength;
+		}
+		if (ta->u_max[0][0][2] < ti[i].hlength) {
+			ta->u_max[0][0][2] = ti[i].hlength;
+		}
+		if (ta->u_max[0][ind1][2] < ti[i].hlength) {
+			ta->u_max[0][ind1][2] = ti[i].hlength;
+		}
+		if (ta->u_max[ind0][0][2] < ti[i].hlength) {
+			ta->u_max[ind0][0][2] = ti[i].hlength;
+		}
+		if (ta->u_max[ind0][ind1][2] < ti[i].hlength) {
+			ta->u_max[ind0][ind1][2] = ti[i].hlength;
+		}
+		++counts[0][0];
+		++counts[0][ind1];
+		++counts[ind0][0];
+		++counts[ind0][ind1];
 	}
 
-	if (ntunnel > 0) {
-		add_to_d_sum_sum2(&ta->early_frac,
-			early_count / (double) ntunnel);
-		add_to_d_sum_sum2(&ta->success_frac,
-			success_count / (double) ntunnel);
+	assert(ntunnel == counts[0][0]);
+	for (i = 0; i < 4; ++i) {
+		int j;
+
+		for (j = 0; j < 4; ++j) {
+			add_to_i_sum_sum2(&ta->level_counts[i][j],
+				counts[i][j]);
+		}
 	}
 }
 
@@ -2087,12 +2195,10 @@ static void cgenstat_handle_tunnel(game_event_type et, game_event_data *ed,
 		gs->curr_tunn = mem_realloc(gs->curr_tunn,
 			gs->alloc_curr_tunn * sizeof(*gs->curr_tunn));
 	}
-	gs->curr_tunn[gs->n_curr_tunn].nstep = ed->tunnel.nstep;
-	gs->curr_tunn[gs->n_curr_tunn].npierce = ed->tunnel.npierce;
-	gs->curr_tunn[gs->n_curr_tunn].ndug = ed->tunnel.ndug;
-	gs->curr_tunn[gs->n_curr_tunn].dstart = ed->tunnel.dstart;
-	gs->curr_tunn[gs->n_curr_tunn].dend = ed->tunnel.dend;
-	gs->curr_tunn[gs->n_curr_tunn].early = ed->tunnel.early;
+	gs->curr_tunn[gs->n_curr_tunn].t = ed->tunnel.t;
+	gs->curr_tunn[gs->n_curr_tunn].dir = ed->tunnel.dir;
+	gs->curr_tunn[gs->n_curr_tunn].vlength = ed->tunnel.vlength;
+	gs->curr_tunn[gs->n_curr_tunn].hlength = ed->tunnel.hlength;
 	++gs->n_curr_tunn;
 }
 
@@ -2189,9 +2295,6 @@ static void cleanup_generation_stats(struct cgen_stats *gs)
 	}
 	mem_free(gs->ga);
 
-	for (i = 0; i < z_info->profile_max; ++i) {
-		cleanup_tunnel_aggregate(&gs->ta[i]);
-	}
 	mem_free(gs->ta);
 
 	for (i = 0; i < z_info->profile_max; ++i) {
@@ -2209,6 +2312,10 @@ static void cleanup_generation_stats(struct cgen_stats *gs)
 
 static void dump_generation_stats(ang_file *fo, const struct cgen_stats *gs)
 {
+	const char *tunnel_type_labels[] = { "all", "room-to-room",
+		"room-to-corridor", "desperate" };
+	const char *tunnel_dir_labels[] = { "any", "vertical", "horizontal",
+		"bent" };
 	int i;
 
 	file_put(fo, "Number of Successful Levels::\n");
@@ -2374,54 +2481,83 @@ static void dump_generation_stats(ang_file *fo, const struct cgen_stats *gs)
 		}
 		file_put(fo, "\n");
 
-		file_putf(fo, "\"%s\" Tunneling Total Number, Success Rate, Early Termination Rate::\n", name);
-		file_putf(fo, "%lu\t%.6f\t%.6f\t%.6f\t%.6f\n\n",
-			gs->ta[i].cv_all.count,
-			gs->ta[i].success_frac.sum /
-			gs->level_counts[0][i], stddev_d_sum_sum2(
-			gs->ta[i].success_frac, gs->level_counts[0][i]),
-			gs->ta[i].early_frac.sum /
-			gs->level_counts[0][i], stddev_d_sum_sum2(
-			gs->ta[i].early_frac, gs->level_counts[0][i]));
+		file_putf(fo, "\"%s\" Tunneling Counts per Level, Average and Std. Deviation::\n", name);
+		for (j = 0; j < 4; ++j) {
+			int k;
 
-		file_putf(fo, "\"%s\" Tunneling Scaled Averages (all tunnels; steps, wall piercings, excavated, start distance, final distance)::\n", name);
-		dump_covar_averages(&gs->ta[i].cv_all, fo);
-		file_put(fo, "\n\n");
-
-		file_putf(fo, "\"%s\" Tunneling Scaled Covariances (all tunnels; steps, wall piercings, excavated, start distance, final distance)::\n", name);
-		dump_covar_var(&gs->ta[i].cv_all, fo);
+			for (k = 0; k < 4; ++k) {
+				file_putf(fo, "%s\t%s\t%.6f\t%.6f\n",
+					tunnel_type_labels[j],
+					tunnel_dir_labels[k],
+					gs->ta[i].level_counts[j][k].sum /
+						(double)gs->level_counts[0][i],
+					stddev_i_sum_sum2(gs->ta[i].level_counts[j][k],
+						gs->level_counts[0][i]));
+			}
+		}
 		file_put(fo, "\n");
 
-		file_putf(fo, "\"%s\" Tunneling Scaled Averages (tunnels terminated early; steps, wall piercings, excavated, start distance, final distance)::\n", name);
-		dump_covar_averages(&gs->ta[i].cv_early, fo);
-		file_put(fo, "\n\n");
+		file_putf(fo, "\"%s\" Tunneling Lengths, Average, Std. Deviation, Minimum and Maximum::\n", name);
+		for (j = 0; j < 4; ++j) {
+			int k;
 
-		file_putf(fo, "\"%s\" Tunneling Scaled Covariances (tunnels terminated early; steps, wall piercings, excavated, start distance, final distance)::\n", name);
-		dump_covar_var(&gs->ta[i].cv_early, fo);
-		file_put(fo, "\n");
+			for (k = 0; k < 4; ++k) {
+				uint32_t c = gs->ta[i].level_counts[j][k].sum;
+				int ic = (c > (uint32_t)INT_MAX) ?
+					INT_MAX : (int)c;
+				double m[3], s[3];
+				int mi[3], ma[3];
 
-		file_putf(fo, "\"%s\" Tunneling Scaled Averages (tunnels not terminated early; steps, wall piercings, excavated, start distance, final distance)::\n", name);
-		dump_covar_averages(&gs->ta[i].cv_noearly, fo);
-		file_put(fo, "\n\n");
-
-		file_putf(fo, "\"%s\" Tunneling Scaled Covariances (tunnels not terminated early; steps, wall piercings, excavated, start distance, final distance)::\n", name);
-		dump_covar_var(&gs->ta[i].cv_noearly, fo);
-		file_put(fo, "\n");
-
-		file_putf(fo, "\"%s\" Tunneling Scaled Averages (tunnels that reached their destinations; steps, wall piercings, excavated, start distance)::\n", name);
-		dump_covar_averages(&gs->ta[i].cv_success, fo);
-		file_put(fo, "\n\n");
-
-		file_putf(fo, "\"%s\" Tunneling Scaled Covariances (tunnels that reached their destinations; steps, wall piercings, excavated, start distance)::\n", name);
-		dump_covar_var(&gs->ta[i].cv_success, fo);
-		file_put(fo, "\n");
-
-		file_putf(fo, "\"%s\" Tunneling Scaled Averages (tunnels that did not reach their destinations; steps, wall piercings, excavated, start distance, final distance)::\n", name);
-		dump_covar_averages(&gs->ta[i].cv_fail, fo);
-		file_put(fo, "\n\n");
-
-		file_putf(fo, "\"%s\" Tunneling Scaled Covariances (tunnels that did not reach their destinations; steps, wall piercings, excavated, start distance, final distance)::\n", name);
-		dump_covar_var(&gs->ta[i].cv_fail, fo);
+				if (c > 0) {
+					m[0] = gs->ta[i].u_sums[j][k][0].sum
+						/ c;
+					s[0] = stddev_d_sum_sum2(
+						gs->ta[i].u_sums[j][k][0], ic);
+					m[1] = gs->ta[i].u_sums[j][k][1].sum
+						/ c;
+					s[1] = stddev_d_sum_sum2(
+						gs->ta[i].u_sums[j][k][1], ic);
+					m[2] = gs->ta[i].u_sums[j][k][2].sum
+						/ c;
+					s[2] = stddev_d_sum_sum2(
+						gs->ta[i].u_sums[j][k][2], ic);
+					mi[0] = gs->ta[i].u_min[j][k][0];
+					mi[1] = gs->ta[i].u_min[j][k][1];
+					mi[2] = gs->ta[i].u_min[j][k][2];
+					ma[0] = gs->ta[i].u_max[j][k][0];
+					ma[1] = gs->ta[i].u_max[j][k][1];
+					ma[2] = gs->ta[i].u_max[j][k][2];
+				} else {
+					m[0] = 0.0;
+					s[0] = 0.0;
+					m[1] = 0.0;
+					s[1] = 0.0;
+					m[2] = 0.0;
+					s[2] = 0.0;
+					mi[0] = 0;
+					mi[1] = 0;
+					mi[2] = 0;
+					ma[0] = 0;
+					ma[1] = 0;
+					ma[2] = 0;
+				}
+				file_putf(fo,
+					"%s\t%s\tlength\t%.6f\t%.6f\t%d\t%d\n",
+					tunnel_type_labels[j],
+					tunnel_dir_labels[k],
+					m[0], s[0], mi[0], ma[0]);
+				file_putf(fo,
+					"%s\t%s\tver. part\t%.6f\t%.6f\t%d\t%d\n",
+					tunnel_type_labels[j],
+					tunnel_dir_labels[k],
+					m[1], s[1], mi[1], ma[1]);
+				file_putf(fo,
+					"%s\t%s\thor. part\t%.6f\t%.6f\t%d\t%d\n",
+					tunnel_type_labels[j],
+					tunnel_dir_labels[k],
+					m[2], s[2], mi[2], ma[2]);
+			}
+		}
 		file_put(fo, "\n");
 	}
 

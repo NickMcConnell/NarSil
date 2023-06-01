@@ -587,10 +587,13 @@ static bool tunnel_ok(struct chunk *c, struct loc grid1, struct loc grid2,
 
 /**
  * Lay the tunnel grids of a straight tunnel between two rooms
+ *
+ * \return the number of walls converted to floors or doors.
  */
-static void lay_tunnel(struct chunk *c, struct loc grid1, struct loc grid2,
+static int lay_tunnel(struct chunk *c, struct loc grid1, struct loc grid2,
 					   int r1, int r2)
 {
+        int ncnvt = 0;
 	int x, y;
 	struct loc grid_lo, grid_hi;
 	bool vert = true;
@@ -607,7 +610,7 @@ static void lay_tunnel(struct chunk *c, struct loc grid1, struct loc grid2,
 			grid_hi = grid1;
 		} else {
 			/* Same grid, no tunnel (should be unnecessary) */
-			return;
+			return ncnvt;
 		}
 	} else {
 		/* Vertical */
@@ -627,13 +630,16 @@ static void lay_tunnel(struct chunk *c, struct loc grid1, struct loc grid2,
 		if (square_iswall_outer(c, grid)) {
 			/* All doors get randomised later */
 			square_set_feat(c, grid, FEAT_CLOSED);	
+			++ncnvt;
 		} else if (square_iswall_solid(c, grid)) {
 			square_set_feat(c, grid, FEAT_FLOOR);
 			dun->tunn1[y][x] = r1;
 			dun->tunn2[y][x] = r2;
+			++ncnvt;
 		}
-
 	}
+
+	return ncnvt;
 }
 
 /**
@@ -643,15 +649,29 @@ static void lay_tunnel(struct chunk *c, struct loc grid1, struct loc grid2,
  * tunnel, randomly horizontal or vertical first
  */
 static bool build_tunnel(struct chunk *c, int r1, int r2, struct loc grid1,
-						 struct loc grid2, bool tentative)
+		struct loc grid2, bool tentative, enum tunnel_type t)
 {
 	struct loc grid_mid;
+	tunnel_direction_type dir;
+	int nver, nhor;
 
 	/* Horizontal or vertical */
 	if ((grid1.y == grid2.y) || (grid1.x == grid2.x)) {
 		/* Check validity, tunnel and we're done */
 		if (tunnel_ok(c, grid1, grid2, tentative, 2)) {
-			lay_tunnel(c, grid1, grid2, r1, r2);
+			nver = lay_tunnel(c, grid1, grid2, r1, r2);
+			nhor = 0;
+			if (grid1.y == grid2.y) {
+				int tmp = nver;
+
+				nver = nhor;
+				nhor = tmp;
+				dir = TUNNEL_HOR;
+			} else {
+				dir = TUNNEL_VER;
+			}
+			event_signal_tunnel(EVENT_GEN_TUNNEL_FINISHED, t, dir,
+				nver, nhor);
 			return true;
 		} else {
 			return false;
@@ -659,9 +679,11 @@ static bool build_tunnel(struct chunk *c, int r1, int r2, struct loc grid1,
 	} else if (one_in_(2)) {
 		/* Horizontal, then vertical */
 		grid_mid = loc(grid2.x, grid1.y);
+		dir = TUNNEL_BENT;
 	} else {
 		/* Vertical, then horizontal */
 		grid_mid = loc(grid1.x, grid2.y);
+		dir = TUNNEL_BENT;
 	}
 
 	/* Check validity */
@@ -669,8 +691,15 @@ static bool build_tunnel(struct chunk *c, int r1, int r2, struct loc grid1,
 	if (!tunnel_ok(c, grid_mid, grid2, tentative, 1)) return false;
 
 	/* Lay tunnel */
-	lay_tunnel(c, grid1, grid_mid, r1, r2);
-	lay_tunnel(c, grid_mid, grid2, r1, r2);
+	nver = lay_tunnel(c, grid1, grid_mid, r1, r2);
+	nhor = lay_tunnel(c, grid_mid, grid2, r1, r2);
+	if (grid_mid.y == grid1.y) {
+		int tmp = nver;
+
+		nver = nhor;
+		nhor = tmp;
+	}
+	event_signal_tunnel(EVENT_GEN_TUNNEL_FINISHED, t, dir, nver, nhor);
 
 	return true;
 }
@@ -729,7 +758,8 @@ static bool connect_two_rooms(struct chunk *c, int r1, int r2, bool tentative,
 			return false;
 		}
 
-		success = build_tunnel(c, r1, r2, grid1, grid2, tentative);
+		success = build_tunnel(c, r1, r2, grid1, grid2, tentative,
+			(desperate) ? TUNNEL_DESPERATE : TUNNEL_ROOM_TO_ROOM);
 	} else if ((top_left1.y <= bottom_right2.y) &&
 			   (top_left2.y <= bottom_right1.y)) {
 		/* If horizontal overlap */
@@ -738,7 +768,8 @@ static bool connect_two_rooms(struct chunk *c, int r1, int r2, bool tentative,
 		struct loc grid1 = loc(cent1.x, y);
 		struct loc grid2 = loc(cent2.x, y);
 
-		success = build_tunnel(c, r1, r2, grid1, grid2, tentative);
+		success = build_tunnel(c, r1, r2, grid1, grid2, tentative,
+			(desperate) ? TUNNEL_DESPERATE : TUNNEL_ROOM_TO_ROOM);
 	} else {
 		/* Otherwise, make an L shaped corridor between their centres;
 		 * this must fail if any of the tunnels would be too long */
@@ -759,7 +790,8 @@ static bool connect_two_rooms(struct chunk *c, int r1, int r2, bool tentative,
 			return false;
 		}
 
-		success = build_tunnel(c, r1, r2, cent1, cent2, tentative);
+		success = build_tunnel(c, r1, r2, cent1, cent2, tentative,
+			(desperate) ? TUNNEL_DESPERATE : TUNNEL_ROOM_TO_ROOM);
 	}
 	
 	if (success) {
@@ -812,7 +844,9 @@ static bool connect_room_to_corridor(struct chunk *c, int r)
 				struct loc grid2 = vert ? loc(grid.x, grid.y - (delta * 2))
 					: loc(grid.x - (delta * 2), grid.y);
 				if (tunnel_ok(c, grid1, grid2, true, 1)) {
-					(void) build_tunnel(c, r, r1, grid1, grid, false);
+					(void) build_tunnel(c, r, r1, grid1,
+						grid, false,
+						TUNNEL_ROOM_TO_CORRIDOR);
 
 					/* Mark the new room connections */
 					dun->connection[r][r1] = true;
