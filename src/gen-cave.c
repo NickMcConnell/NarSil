@@ -1079,7 +1079,8 @@ struct chunk *cave_gen(struct player *p)
 	if ((c->depth >= 10) && one_in_(2)) {
 		rubble_gen += blocks * blocks * 2;
 	}
-	alloc_object(c, SET_BOTH, TYP_RUBBLE, rubble_gen, false);
+	alloc_object(c, SET_BOTH, TYP_RUBBLE, rubble_gen, c->depth,
+		ORIGIN_FLOOR);
 
 	/* Place the player */
 	new_player_spot(c, p);
@@ -1104,7 +1105,8 @@ struct chunk *cave_gen(struct player *p)
 	/* Put some objects in rooms */
 	obj_room_gen = 3 * mon_gen / 4;
 	if (obj_room_gen > 0) {
-		alloc_object(c, SET_ROOM, TYP_OBJECT, obj_room_gen, false);
+		alloc_object(c, SET_ROOM, TYP_OBJECT, obj_room_gen, c->depth,
+			ORIGIN_FLOOR);
 	}
 	
     /* Place the traps */

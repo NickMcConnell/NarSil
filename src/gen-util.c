@@ -725,25 +725,27 @@ void place_traps(struct chunk *c)
 }
 
 /**
- * Allocates a single random object in the dungeon.
+ * Allocates zero or more random objects in the dungeon.
  * \param c the current chunk
  * \param set where the entity is placed (corridor, room or either)
  * \param typ what is placed (rubble, trap, gold, item)
+ * \param num is the number of objects to allocate
  * \param depth generation depth
  * \param origin item origin (if appropriate)
+ * \return the number of objects actually placed
  *
  * 'set' controls where the object is placed (corridor, room, either).
  * 'typ' conrols the kind of object (rubble, trap, gold, item).
  */
-bool alloc_object(struct chunk *c, int set, int typ, int depth,
+int alloc_object(struct chunk *c, int set, int typ, int num, int depth,
 						 uint8_t origin)
 {
-	bool placed = false;
+	int nrem = num;
 	int *state = cave_find_init(loc(1, 1),
 		loc(c->width - 2, c->height - 2));
 	struct loc grid;
 
-	while (!placed && cave_find_get_grid(&grid, state)) {
+	while (nrem > 0 && cave_find_get_grid(&grid, state)) {
 		/*
 		 * If we're ok with a corridor and we're in one, we're done.
 		 * If we are ok with a room and we're in one, we're done
@@ -760,12 +762,12 @@ bool alloc_object(struct chunk *c, int set, int typ, int depth,
 				place_object(c, grid, depth, false, false, origin, 0);
 				break;
 			}
-			placed = true;
+			--nrem;
 		}
 	}
 
 	mem_free(state);
-	return placed;
+	return num - nrem;
 }
 
 /**
