@@ -397,14 +397,14 @@ bool square_isimpassable(struct chunk *c, struct loc grid) {
 }
 
 /**
- * True if the the player knows the terrain of the square
+ * True if the player knows the terrain of the square
  */
 bool square_isknown(struct chunk *c, struct loc grid) {
 	return square_ismark(cave, grid);
 }
 
 /**
- * True if the the player's knowledge of the terrain of the square is wrong
+ * True if the player's knowledge of the terrain of the square is wrong
  * or missing
  */
 bool square_isnotknown(struct chunk *c, struct loc grid) {

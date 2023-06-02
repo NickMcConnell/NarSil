@@ -1007,7 +1007,7 @@ static bool stats_monster(struct monster *mon, int i)
 
 
 /**
- * Print heading infor for the file
+ * Print heading info for the file
  */
 static void print_heading(void)
 {
