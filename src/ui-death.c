@@ -266,7 +266,6 @@ void death_screen(void)
 	/* Get time of death, prepare score */
 	(void)time(&death_time);
 	build_score(&score, player, player->died_from, &death_time);
-	enter_score(player, &death_time);
 
 	/* Tombstone */
 	clear_from(0);
