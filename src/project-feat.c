@@ -256,20 +256,25 @@ static void project_feature_handler_KILL_DOOR(project_feature_handler_context_t 
 		if (result <= 0) {
 			/* Do nothing */
 		} else if (result <= 5) {
-			/* Unlock the door */
-			square_unlock_door(cave, grid);
-			msg("You hear a 'click'.");
-		} else if (result <= 10) {
-			/* Open the door */
-			square_open_door(cave, grid);
-			context->obvious = true;
-			/* Message */
-			if (square_isseen(cave, grid)) {
-				msg("The door flies open.");
-			} else {
-				msg("You hear a door burst open.");
+			if (square_islockeddoor(cave, grid)) {
+				/* Unlock the door */
+				square_unlock_door(cave, grid);
+				msg("You hear a 'click'.");
 			}
-		} else {
+		} else if (result <= 10) {
+			if (!square_isopendoor(cave, grid)
+					&& !square_isbrokendoor(cave, grid)) {
+				/* Open the door */
+				square_open_door(cave, grid);
+				context->obvious = true;
+				/* Message */
+				if (square_isseen(cave, grid)) {
+					msg("The door flies open.");
+				} else {
+					msg("You hear a door burst open.");
+				}
+			}
+		} else if (!square_isbrokendoor(cave, grid)) {
 			/* Break the door */
 			square_smash_door(cave, grid);
 			context->obvious = true;
