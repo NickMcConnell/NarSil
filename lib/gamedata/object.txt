@@ -1701,8 +1701,7 @@ attack:0:0d0
 defence:0:0d0
 alloc:10:6
 effect:BEAM:SOUND
-dice:4d4
-dice:m$M
+dice:4d4m$M
 expr:M:PLAYER_WILL: + 0
 effect:NOISE:PLAYER
 dice:-20
@@ -1738,7 +1737,6 @@ attack:0:0d0
 defence:0:0d0
 alloc:13:6
 effect:BEAM:KILL_WALL:0:1
-dice:4d4
 dice:m$M
 expr:M:PLAYER_WILL: + 0
 effect:NOISE:PLAYER
