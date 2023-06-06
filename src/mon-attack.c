@@ -128,7 +128,7 @@ static int choose_ranged_attack(struct monster *mon)
 	if (best_spell) return best_spell;
 
 	/* Use full AI */
-	for (i = FLAG_START; i < RSF_MAX; i = rsf_next(mon->race->spell_flags, i)) {
+	for (i = FLAG_START; i != FLAG_END; i = rsf_next(mon->race->spell_flags, i + 1)) {
 		int spell_range, cur_spell_rating;
 		const struct monster_spell *spell;
 
@@ -142,9 +142,12 @@ static int choose_ranged_attack(struct monster *mon)
 
 		/* Penalty for range if attack drops off in power */
 		if (spell_range) {
-			while (mon->cdis > spell_range) {
+			int cur_range = mon->cdis;
+
+			while (cur_range > spell_range) {
 				cur_spell_rating *= spell->use_past_range;
 				cur_spell_rating /= 100;
+				--cur_range;
 			}
 		}
 
