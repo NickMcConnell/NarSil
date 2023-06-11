@@ -394,7 +394,6 @@ void player_sing(struct player *p)
 
 	for (i = 0; i < SONG_MAX; i++) {
 		struct song *song = p->song[i];
-		bool dummy;
 		if (!song) continue;
 
 		/* Cost */
@@ -404,6 +403,8 @@ void player_sing(struct player *p)
 
 		/* Song effects */
 		if (song->effect) {
+			bool dummy = false;
+
 			effect_do(song->effect, source_player(), NULL, &dummy, true,
 					  DIR_NONE, NULL);
 		}

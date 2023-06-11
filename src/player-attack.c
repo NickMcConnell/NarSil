@@ -569,9 +569,8 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 				/* Heal with a vampiric weapon */
 				if (obj && of_has(obj->flags, OF_VAMPIRIC) && living) {
 					if (p->chp < p->mhp) {
-						bool dummy;
 						effect_simple(EF_HEAL_HP, source_player(), "m7", 0, 0,
-									  0, &dummy);
+									  0, NULL);
 						ident_weapon_by_use(obj, m_name, OF_VAMPIRIC, 0, 0, p);
 					}
 				}

@@ -477,7 +477,6 @@ int player_timed_decrement_amount(struct player *p, int idx)
  */
 static void player_timed_end_effect(int idx)
 {
-	bool fake;
 	switch (idx) {
 		case TMD_ENTRANCED: {
 			player->upkeep->was_entranced = true;
@@ -489,22 +488,22 @@ static void player_timed_end_effect(int idx)
 		}
 		case TMD_STR: {
 			effect_simple(EF_DRAIN_STAT, source_none(), "3", STAT_STR, 0, 0,
-						  &fake);
+						  NULL);
 			break;
 		}
 		case TMD_DEX: {
 			effect_simple(EF_DRAIN_STAT, source_none(), "3", STAT_DEX, 0, 0,
-						  &fake);
+						  NULL);
 			break;
 		}
 		case TMD_CON: {
 			effect_simple(EF_DRAIN_STAT, source_none(), "3", STAT_CON, 0, 0,
-						  &fake);
+						  NULL);
 			break;
 		}
 		case TMD_GRA: {
 			effect_simple(EF_DRAIN_STAT, source_none(), "3", STAT_GRA, 0, 0,
-						  &fake);
+						  NULL);
 			break;
 		}
 		default: break;
