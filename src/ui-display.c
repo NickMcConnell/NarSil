@@ -2509,7 +2509,8 @@ static void see_floor_items(game_event_type type, game_event_data *data,
 		/* Message */
 		event_signal(EVENT_MESSAGE_FLUSH);
 		/* Arms and armour show weight */
-		if (tval_is_weapon(obj) || tval_is_armor(obj)) {
+		if ((tval_is_weapon(obj) && !tval_is_ammo(obj))
+				|| tval_is_armor(obj)) {
 			int wgt = obj->weight;
 			msg("You %s %s %d.%1d lb.", p, o_name, wgt / 10, wgt % 10);
 		} else {
