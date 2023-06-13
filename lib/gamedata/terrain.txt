@@ -166,7 +166,7 @@ desc:A door that appears like a granite wall to untrained eyes.
 name:pile of rubble
 graphics:::s
 priority:13
-flags:WALL | ROCK | NO_SCENT | NO_FLOW | INTERESTING | TORCH
+flags:ROCK | NO_SCENT | NO_FLOW | INTERESTING | TORCH
 info:0:1:0
 confused-msg:bumps into some rocks
 dig-msg:You clear the rubble.
