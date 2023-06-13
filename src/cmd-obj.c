@@ -265,7 +265,8 @@ void do_cmd_wield(struct command *cmd)
 
 	/* Deal with wielding of shield or second weapon when already wielding
 	 * a two handed weapon */
-	if ((slot == shield_slot) && of_has(weapon->flags, OF_TWO_HANDED)) {
+	if ((slot == shield_slot) && weapon
+			&& of_has(weapon->flags, OF_TWO_HANDED)) {
 		if (object_is_cursed(weapon)) {
 			msg("You would need to remove your weapon, but cannot bear to part with it.");
 
