@@ -591,6 +591,38 @@ struct object *gear_object_for_use(struct player *p, struct object *obj,
 }
 
 /**
+ * Handle curse checks and messaging for dropping, removing or throwing an
+ * item that may be equipped and may be cursed.
+ *
+ * \param p is the player trying to drop, remove, or throw the object in
+ * question.
+ * \param obj is the object the player is trying to drop, remove, or throw.
+ * \param return true if the object is equipped but can not be dropped, removed,
+ * or thrown (it is cursed and the player has no ability to counteract the
+ * stickiness).  Return false if the object can be dropped, removed, or thrown.
+ */
+bool handle_stickied_removal(struct player *p, struct object *obj)
+{
+	if (!object_is_equipped(player->body, obj)
+			|| !obj_has_flag(obj, OF_CURSED)) {
+		/*
+		 * There's no problem and no messaging needed if the item is
+		 * not equipped or is equipped but not cursed.
+		 */
+		return false;
+	}
+
+	if (player_active_ability(player, "Curse Breaking")) {
+		msg("With a great strength of will, you break the curse!");
+		uncurse_object(obj);
+		return false;
+	}
+
+	msg("You cannot bear to part with it.");
+	return true;
+}
+
+/**
  * Calculate how much of an item is can be carried in the inventory or quiver.
  */
 int inven_carry_num(const struct player *p, const struct object *obj)

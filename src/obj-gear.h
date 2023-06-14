@@ -54,6 +54,7 @@ struct object *gear_last_item(struct player *p);
 void gear_insert_end(struct player *p, struct object *obj);
 struct object *gear_object_for_use(struct player *p, struct object *obj,
 	int num, bool message, bool *none_left);
+bool handle_stickied_removal(struct player *p, struct object *obj);
 int inven_carry_num(const struct player *p, const struct object *obj);
 bool inven_carry_okay(const struct object *obj);
 void inven_item_charges(struct object *obj);

@@ -575,10 +575,11 @@ bool obj_can_refuel(const struct object *obj)
 	return false;
 }
 
-/* Can only take off non-cursed items */
+/* Can only take off cursed items in special circumstances */
 bool obj_can_takeoff(const struct object *obj)
 {
-	return !obj_has_flag(obj, OF_CURSED);
+	return !obj_has_flag(obj, OF_CURSED)
+		|| player_active_ability(player, "Curse Breaking");
 }
 
 /* Can only put on wieldable items */

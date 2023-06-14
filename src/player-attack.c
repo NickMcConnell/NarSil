@@ -1585,6 +1585,9 @@ void do_cmd_throw(struct command *cmd) {
 
 	if (object_is_equipped(player->body, obj)) {
 		assert(obj_can_takeoff(obj) && tval_is_melee_weapon(obj));
+		if (handle_stickied_removal(player, obj)) {
+			return;
+		}
 		inven_takeoff(obj);
 	}
 

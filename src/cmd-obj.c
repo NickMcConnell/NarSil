@@ -183,6 +183,11 @@ void do_cmd_takeoff(struct command *cmd)
 			/* Choice */ USE_EQUIP) != CMD_OK)
 		return;
 
+	/* Cannot take off stickied items without special measures. */
+	if (handle_stickied_removal(player, obj)) {
+		return;
+	}
+
 	inven_takeoff(obj);
 	combine_pack(player);
 	pack_overflow(obj);
@@ -361,6 +366,11 @@ void do_cmd_wield(struct command *cmd)
 		if (!get_check(format("Really take off %s? ", o_name))) return;
 	}
 
+	/* Replacing an equipped cursed item requires special measures. */
+	if (handle_stickied_removal(player, equip_obj)) {
+		return;
+	}
+
 	inven_takeoff(equip_obj);
 	inven_wield(obj, slot);
 }
@@ -381,19 +391,9 @@ void do_cmd_drop(struct command *cmd)
 			/* Choice */ USE_EQUIP | USE_INVEN | USE_QUIVER) != CMD_OK)
 		return;
 
-	/* Cannot remove stickied items */
-	if (object_is_equipped(player->body, obj) && !obj_can_takeoff(obj)) {
-		if (player_active_ability(player, "Curse Breaking")) {
-			/* Message */
-			msg("With a great strength of will, you break the curse!");
-
-			/* Uncurse the object */
-			uncurse_object(obj);
-		} else {
-			/* Oops */
-			msg("You cannot bear to part with it.");
-			return;
-		}
+	/* Cannot remove equipped stickied items without special measures. */
+	if (handle_stickied_removal(player, obj)) {
+		return;
 	}
 
 	if (cmd_get_quantity(cmd, "quantity", &amt, obj->number) != CMD_OK)
