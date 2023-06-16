@@ -149,13 +149,7 @@ void display_player_stat_info(void)
 			put_str(stat_names[i], row+i, col);
 
 		/* Resulting "modified" maximum value */
-		if (!player->body.name) {
-			/* Hack to display correct pre-birth stats */
-			strnfmt(buf, sizeof(buf), "%2d", player->state.stat_use[i] +
-					player->race->stat_adj[i] + player->house->stat_adj[i]);
-		} else {
-			strnfmt(buf, sizeof(buf), "%2d", player->state.stat_use[i]);
-		}
+		strnfmt(buf, sizeof(buf), "%2d", player->state.stat_use[i]);
 		if (player->stat_drain[i] < 0)
 			c_put_str(COLOUR_YELLOW, buf, row + i, col + 5);
 		else

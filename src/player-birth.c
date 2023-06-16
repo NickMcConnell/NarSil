@@ -765,7 +765,6 @@ void do_cmd_choose_race(struct command *cmd)
 	cmd_get_arg_choice(cmd, "choice", &choice);
 	player_generate(player, player_id2race(choice), NULL, NULL, false);
 
-	reset_stats(stats, points_spent, points_inc, &points_left, false);
 	init_skills(true, true);
 }
 
@@ -775,7 +774,6 @@ void do_cmd_choose_house(struct command *cmd)
 	cmd_get_arg_choice(cmd, "choice", &choice);
 	player_generate(player, NULL, player_house_from_count(choice), NULL, false);
 
-	reset_stats(stats, points_spent, points_inc, &points_left, false);
 	init_skills(true, true);
 }
 
@@ -785,7 +783,6 @@ void do_cmd_choose_sex(struct command *cmd)
 	cmd_get_arg_choice(cmd, "choice", &choice);
 	player_generate(player, NULL, NULL, player_id2sex(choice), false);
 
-	reset_stats(stats, points_spent, points_inc, &points_left, false);
 	init_skills(true, true);
 }
 

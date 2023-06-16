@@ -934,6 +934,11 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	for (i = 0; i < STAT_MAX; i++) {
 		state->stat_use[i] = p->stat_base[i] + state->stat_equip_mod[i]
 			+ p->stat_drain[i] + state->stat_misc_mod[i];
+		/* Hack for correct calculations during pre-birth */
+		if (!p->body.name) {
+			state->stat_use[i] += p->race->stat_adj[i]
+				+ p->house->stat_adj[i];
+		}
 
 		/* Cap to -9 and 20 */
 		state->stat_use[i] = MIN(state->stat_use[i], BASE_STAT_MAX);

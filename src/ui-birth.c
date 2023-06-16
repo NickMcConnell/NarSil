@@ -123,6 +123,12 @@ static enum birth_stage textui_birth_quickstart(void)
 		
 		if (ke.code == 'N' || ke.code == 'n') {
 			cmdq_push(CMD_BIRTH_RESET);
+			/*
+			 * If the player rejects the quickstart, also reset
+			 * the stat buy that was used for the previous
+			 * character.
+			 */
+			cmdq_push(CMD_RESET_STATS);
 			next = BIRTH_RACE_CHOICE;
 		} else if (ke.code == KTRL('X')) {
 			quit(NULL);
