@@ -103,11 +103,11 @@ chart:17:18:100
 phrase: Prince.
 
 chart:18:57:10
-phrase:You are the black sheep of the family.
+phrase: You are the black sheep of the family.
 chart:18:57:85
-phrase:You are a credit to the family.
+phrase: You are a credit to the family.
 chart:18:57:100
-phrase:You were a well liked child.
+phrase: You were a well liked child.
 
 
 
@@ -137,11 +137,11 @@ phrase: of a prince.
 
 
 chart:23:25:10
-phrase:You are the black sheep of the family.
+phrase: You are the black sheep of the family.
 chart:23:25:80
-phrase:You are a credit to the family.
+phrase: You are a credit to the family.
 chart:23:25:100
-phrase:You were a well liked child.
+phrase: You were a well liked child.
 
 
 # Edain Description
