@@ -266,9 +266,9 @@ bool square_ismineral(struct chunk *c, struct loc grid)
  */
 bool square_isrubble(struct chunk *c, struct loc grid)
 {
-    return (tf_has(f_info[square(c, grid)->feat].flags, TF_WALL) &&
-			!tf_has(f_info[square(c, grid)->feat].flags, TF_QUARTZ) &&
-			!tf_has(f_info[square(c, grid)->feat].flags, TF_GRANITE));
+    return (tf_has(f_info[square(c, grid)->feat].flags, TF_ROCK) &&
+			!tf_has(f_info[square(c, grid)->feat].flags, TF_DOOR_ANY) &&
+			!tf_has(f_info[square(c, grid)->feat].flags, TF_WALL));
 }
 
 /**

@@ -1437,7 +1437,7 @@ static void do_cmd_alter_aux(int dir)
 	} else if (square_iscloseddoor(cave, grid)) {
 		/* Open closed doors */
 		more = do_cmd_open_aux(grid);
-	} else if (square_iswall(cave, grid)) {
+	} else if (square_isrock(cave, grid)) {
 		/* Tunnel through walls and rubble */
 		more = do_cmd_tunnel_aux(grid);
 	} else if (square_isdisarmabletrap(cave, grid)) {
