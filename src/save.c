@@ -55,8 +55,9 @@ void wr_description(void)
 				player->full_name,
 				player->died_from);
 	else
-		strnfmt(buf, sizeof buf, "%s, L0 %s %s, at DL%d",
+		strnfmt(buf, sizeof buf, "%s, Exp %ld %s %s, at DL%d",
 				player->full_name,
+				(long)player->exp,
 				player->race->name,
 				player->house->name,
 				player->depth);
