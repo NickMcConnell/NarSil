@@ -323,17 +323,30 @@ static bool describe_misc_magic(textblock *tb, const bitflag flags[OF_SIZE])
 /**
  * Describe abilities granted by an object.
  */
-static bool describe_abilities(textblock *tb, const struct object *obj)
+static bool describe_abilities(textblock *tb, const struct object *obj,
+		oinfo_detail_t mode)
 {
 	const char *name[8];
 	int ac = 0;
 	struct ability *ability;
+	bool known, known_kind, known_ego;
 
-	/* Only describe when identified */
-	if (!object_is_known(obj)) return false;
-
-	/* Count its abilities */
+	/*
+	 * Count its abilities.  If the object isn't known and we're not
+	 * spoiling nor smithing, only include abilities from parts the
+	 * kind or ego) that are known.
+	 */
+	known = object_is_known(obj) || (mode & OINFO_SPOIL)
+		|| (mode & OINFO_SMITH);
+	known_kind = obj->kind && obj->kind->aware;
+	known_ego = obj->ego && obj->ego->aware;
 	for (ability = obj->abilities; ability; ability = ability->next) {
+		if (!known
+				&& (!known_kind || !locate_ability(obj->kind->abilities, ability))
+				&& (!known_ego || !locate_ability(obj->ego->abilities, ability))) {
+			continue;
+		}
+		assert(ac < (int)N_ELEMENTS(name));
 		name[ac++] = ability->name;
 	}
 
@@ -407,27 +420,42 @@ static bool describe_throwing(textblock *tb, const struct object *obj)
 /**
  * Describe slays and brands on weapons
  */
-static bool describe_slays(textblock *tb, const struct object *obj)
+static bool describe_slays(textblock *tb, const struct object *obj,
+		oinfo_detail_t mode)
 {
 	int i, count = 0;
-	bool *s = obj->slays;
+	const bool *s = obj->slays;
+	bool known, known_kind, known_ego;
 
 	if (!s) return false;
+
+	/*
+	 * If the object isn't known and we're not spoiling nor smithing, only
+	 * include slays from parts (the kind or ego) that are known.
+	 */
+	known = object_is_known(obj) || (mode & OINFO_SPOIL)
+		|| (mode & OINFO_SMITH);
+	known_kind = obj->kind && obj->kind->aware && obj->kind->slays;
+	known_ego = obj->ego && obj->ego->aware && obj->ego->slays;
+	for (i = 1; i < z_info->slay_max; i++) {
+		if (s[i] && (known || (known_kind && obj->kind->slays[i])
+				|| (known_ego && obj->ego->slays[i]))) {
+			count++;
+		}
+	}
+	if (!count) return false;
 
 	if (tval_is_weapon(obj) || tval_is_fuel(obj))
 		textblock_append(tb, "Slays ");
 	else
 		textblock_append(tb, "It causes your melee attacks to slay ");
 
-	for (i = 1; i < z_info->slay_max; i++) {
-		if (s[i]) {
-			count++;
-		}
-	}
-
 	assert(count >= 1);
 	for (i = 1; i < z_info->slay_max; i++) {
-		if (!s[i]) continue;
+		if (!s[i] || (!known && (!known_kind || !obj->kind->slays[i])
+				&& (!known_ego || !obj->ego->slays[i]))) {
+			continue;
+		}
 
 		textblock_append(tb, "%s", slays[i].name);
 		if (count > 1)
@@ -443,27 +471,42 @@ static bool describe_slays(textblock *tb, const struct object *obj)
 /**
  * Describe slays and brands on weapons
  */
-static bool describe_brands(textblock *tb, const struct object *obj)
+static bool describe_brands(textblock *tb, const struct object *obj,
+		oinfo_detail_t mode)
 {
 	int i, count = 0;
 	bool *b = obj->brands;
+	bool known, known_kind, known_ego;
 
 	if (!b) return false;
+
+	/*
+	 * If the object isn't known and we're not spoiling nor smithing, only
+	 * include brands from parts (the kind or ego) that are known.
+	 */
+	known = object_is_known(obj) || (mode & OINFO_SPOIL)
+		|| (mode & OINFO_SMITH);
+	known_kind = obj->kind && obj->kind->aware && obj->kind->slays;
+	known_ego = obj->ego && obj->ego->aware && obj->ego->slays;
+	for (i = 1; i < z_info->brand_max; i++) {
+		if (b[i] && (known || (known_kind && obj->kind->brands[i])
+				|| (known_ego && obj->ego->brands[i]))) {
+			count++;
+		}
+	}
+	if (!count) return false;
 
 	if (tval_is_weapon(obj) || tval_is_fuel(obj))
 		textblock_append(tb, "Branded with ");
 	else
 		textblock_append(tb, "It brands your melee attacks with ");
 
-	for (i = 1; i < z_info->brand_max; i++) {
-		if (b[i]) {
-			count++;
-		}
-	}
-
 	assert(count >= 1);
 	for (i = 1; i < z_info->brand_max; i++) {
-		if (!b[i]) continue;
+		if (!b[i] || (!known && (!known_kind || !obj->kind->brands[i])
+				&& (!known_ego || !obj->ego->brands[i]))) {
+			continue;
+		}
 
 		textblock_append(tb, "%s", brands[i].name);
 		if (count > 1)
@@ -852,13 +895,13 @@ static textblock *object_info_out(const struct object *obj, int mode)
 	}
 
 	if (describe_stats(tb, obj, mode)) something = true;
-	if (describe_slays(tb, obj)) something = true;
-	if (describe_brands(tb, obj)) something = true;
+	if (describe_slays(tb, obj, mode)) something = true;
+	if (describe_brands(tb, obj, mode)) something = true;
 	if (describe_elements(tb, el_info)) something = true;
 	if (describe_protects(tb, flags)) something = true;
 	if (describe_sustains(tb, flags)) something = true;
 	if (describe_misc_magic(tb, flags)) something = true;
-	if (describe_abilities(tb, obj)) something = true;
+	if (describe_abilities(tb, obj, mode)) something = true;
 	if (describe_archery(tb, obj)) something = true;
 	if (describe_throwing(tb, obj)) something = true;
 	if (describe_light(tb, obj, mode)) something = true;
