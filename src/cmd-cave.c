@@ -768,15 +768,14 @@ static bool do_cmd_tunnel_test(struct loc grid)
 		return (false);
 	}
 
-	/* Message for doors */
-	if (square_iscloseddoor(cave, grid)) {
-		msg("You cannot tunnel through a door. Try bashing it.");
-		return (false);
-	}
-
 	/* Must be a wall/etc */
 	if (!square_isdiggable(cave, grid)) {
-		msg("You see nothing there to tunnel.");
+		/* Doors get a more informative message. */
+		if (square_iscloseddoor(cave, grid)) {
+			msg("You cannot tunnel through a door. Try bashing it.");
+		} else {
+			msg("You see nothing there to tunnel.");
+		}
 		return (false);
 	}
 
@@ -1434,12 +1433,12 @@ static void do_cmd_alter_aux(int dir)
 			square_mark(cave, grid);
 			square_light_spot(cave, grid);
 		}
-	} else if (square_iscloseddoor(cave, grid)) {
-		/* Open closed doors */
-		more = do_cmd_open_aux(grid);
 	} else if (square_isrock(cave, grid)) {
 		/* Tunnel through walls and rubble */
 		more = do_cmd_tunnel_aux(grid);
+	} else if (square_iscloseddoor(cave, grid)) {
+		/* Open closed doors */
+		more = do_cmd_open_aux(grid);
 	} else if (square_isdisarmabletrap(cave, grid)) {
 		/* Disarm traps */
 		more = do_cmd_disarm_aux(grid);
