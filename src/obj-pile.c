@@ -417,6 +417,7 @@ bool object_similar(const struct object *obj1, const struct object *obj2,
 		if (object_is_known(obj1) != object_is_known(obj2)) return false;
 
 		/* Require identical values */
+		if (obj1->weight != obj2->weight) return false;
 		if (obj1->att != obj2->att) return false;
 		if (obj1->dd != obj2->dd) return false;
 		if (obj1->ds != obj2->ds) return false;
