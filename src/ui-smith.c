@@ -1120,6 +1120,9 @@ static bool numbers_action(struct menu *m, const ui_event *event, int oid)
 		if (numbers_valid[oid]) {
 			modify_numbers(smith_obj, oid, &pval);
 			numbers_changed = true;
+			/* Update whan can be changed. */
+			numbers_set_validity();
+			menu_refresh(m, false);
 		}
 	}
 	return false;
