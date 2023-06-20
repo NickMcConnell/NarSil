@@ -1182,7 +1182,8 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 		bool hit_wall = false;
 		bool ghost_arrow = false;
 		int missed_monsters = 0;
-		struct loc final_grid = path_g[path_n - 1];
+		struct loc final_grid = (path_n > 0) ?
+			path_g[path_n - 1] : p->grid;
 
 		/* Abort any later shot(s) if there is no target on the trajectory */
 		if ((shot > 0) && !targets_remaining) break;
