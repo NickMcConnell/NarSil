@@ -1130,6 +1130,7 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 	bool targets_remaining = false;
 	bool rapid_fire = player_active_ability(p, "Rapid Fire");
 	bool hit_body = false;
+	bool is_potion;
 
 	struct object *bow = equipped_item_by_slot_name(p, "shooting");
 	struct object *missile;
@@ -1162,6 +1163,11 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 	} else {
 		attack = make_ranged_throw;
 	}
+	/*
+	 * Remember if the missile is a potion (need that after the missile
+	 * may have been destroyed).
+	 */
+	is_potion = tval_is_potion(obj);
 
 	/* Actually "fire" the object */
 	p->upkeep->energy_use = z_info->move_energy;
@@ -1314,7 +1320,7 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 					}
 
 					/* Special effects sometimes reveal the kind of potion*/
-					if (tval_is_potion(obj)) {
+					if (is_potion) {
 						/* Record monster hit points*/
 						pdam = mon->hp;
 
@@ -1461,7 +1467,7 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 	}
 
 	/* Need to print this message even if the potion missed */
-	if (!hit_body && tval_is_potion(obj)) {
+	if (!hit_body && is_potion) {
 		msg("The bottle breaks.");
 	}
 
