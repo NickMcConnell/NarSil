@@ -684,6 +684,11 @@ void do_cmd_change_name(void)
 				
 				case 'a': {
 					do_cmd_abilities();
+					/*
+					 * In case an ability was added, update
+					 * the player's state.
+					 */
+					update_stuff(player);
 					break;
 				}
 

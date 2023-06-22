@@ -494,6 +494,12 @@ bool player_gain_ability(struct player *p, struct ability *ability)
 	add_ability(&p->abilities, ability);
 	new = locate_ability(p->abilities, ability);
 	new->active = true;
+	/*
+	 * For some abilities, updating the bonuses is necessary; for some it
+	 * is not.  Having that indicated in ability.txt seems like overkill
+	 * to avoid an update_bonuses() call.
+	 */
+	p->upkeep->update |= (PU_BONUS);
 	p->upkeep->redraw |= (PR_EXP);
 	return true;
 }
