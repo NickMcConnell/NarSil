@@ -385,7 +385,7 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 				/* Inner or non-tunnelable outside granite wall */
 			case '#': set_marked_granite(c, grid, SQUARE_WALL_SOLID); break;
 				/* Quartz vein */
-			case '@': square_set_feat(c, grid, FEAT_QUARTZ); break;
+			case '%': square_set_feat(c, grid, FEAT_QUARTZ); break;
 				/* Rubble */
 			case ':': square_set_feat(c, grid, FEAT_RUBBLE); break;
 				/* Glyph of warding */
