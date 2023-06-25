@@ -17,16 +17,11 @@
  *    are included in all such copies.  Other copyrights may also apply.
  *
  * In this file, we use the SQUARE_WALL flags to the info field in
- * cave->squares.  Those are usually only applied and tested on granite, but
- * some (SQUARE_WALL_INNER) is applied and tested on permanent walls.
- * SQUARE_WALL_SOLID indicates the wall should not be tunnelled;
- * SQUARE_WALL_INNER marks an inward-facing wall of a room; SQUARE_WALL_OUTER
- * marks an outer wall of a room.
- *
- * We use SQUARE_WALL_SOLID to prevent multiple corridors from piercing a wall
- * in two adjacent locations, which would be messy, and SQUARE_WALL_OUTER
- * to indicate which walls surround rooms, and may thus be pierced by corridors
- * entering or leaving the room.
+ * cave->squares.  Those are applied and tested on granite.  SQUARE_WALL_SOLID
+ * fills the areas between rooms and can be carved out by tunneling.
+ * SQUARE_WALL_INNER is used in rooms, either for exterior walls that can not
+ * be carved out by tunneling or for interior walls.  SQUARE_WALL_OUTER is
+ * used in rooms for exterior walls that can be carved out by tunneling.
  *
  * Note that a tunnel which attempts to leave a room near the edge of the
  * dungeon in a direction toward that edge will cause "silly" wall piercings,
@@ -253,7 +248,7 @@ static bool build_streamer(struct chunk *c, int feat)
 			find_nearby_grid(c, &change, grid, d, d);
 
 			/* Only convert walls */
-			if (square_isgranite(c, change)) {
+			if (square_isgranitewall(c, change)) {
 				/* Turn the rock into the vein type */
 				square_set_feat(c, change, feat);
 			}
@@ -531,7 +526,17 @@ static bool tunnel_ok(struct chunk *c, struct loc grid1, struct loc grid2,
 		 * so we skip the first tunnel grid */
 		if ((x == grid_lo.x) && (y == grid_lo.y)) continue;
 
-		/* Count the number of times it enters or leaves a room */
+		/*
+		 * Count the number of times it enters or leaves a room.
+		 * This matches Sil 1.3's logic but won't count cases
+		 * where the interior grid is quartz or rubble (the former
+		 * does not seem to happen in Sil 1.3's vaults; that latter
+		 * can happen for Sil 1.3's Collapsed Cross, Collapsed Keep,
+		 * Cave in, and perhaps others).  Note that a tunnel that
+		 * grazes a room's boundary could also contribute to the
+		 * count (for instance, a horizontal tunnel hitting a vault
+		 * with a horizontal boundary of "$7$").
+		 */
 		if (square_iswall_outer(c, grid) &&
 			(square_ispassable(c, prev) || square_iswall_inner(c, prev))) {
 			/* To outside from inside */
@@ -543,8 +548,25 @@ static bool tunnel_ok(struct chunk *c, struct loc grid1, struct loc grid2,
 			changes++;
 		}
 		
-		/* Abort if the tunnel would go through two adjacent squares of the
-		 * outside wall of a room */
+		/*
+		 * Abort if the tunnel would go through two adjacent squares
+		 * of the outside wall of a room.  This matches Sil 1.3's
+		 * logic, but Sil 1.3's vaults have grids on the boundaries
+		 * that are not SQUARE_WALL_OUTER:  SQUARE_WALL_INNER,
+		 * quartz, rubble, and chasms, for instance.  Most problematic
+		 * tunnels with those vaults will be screened out by this
+		 * test, the test for going through an adjacent
+		 * SQUARE_WALL_OUTER and SQUARE_WALL_INNER, the test for
+		 * directly accessing the internals of a room without passing
+		 * through a SQUARE_WALL_OUTER, or the constraint on the
+		 * number of inside/outside crossings.  However, the Glittering
+		 * Caves vaults in Sil 1.3 (where there are possible tunnels
+		 * that access the internals and only pass through '%') may
+		 * be a problem.  It is possible to construct vaults (say
+		 * with a horizontal boundary that looks like "$7$", "$:$:$",
+		 * or "$%%$%%$") which would allow grazing tunnels that
+		 * wouldn't be rejected by the tests here or in Sil 1.3.
+		 */
 		if (square_iswall_outer(c, grid) && square_iswall_outer(c, prev)) {
 			return false;
 		}
@@ -565,8 +587,14 @@ static bool tunnel_ok(struct chunk *c, struct loc grid1, struct loc grid2,
 			return false;
 		}
 
-		/* Abort if the tunnel would directly enter a vault without going
-		 * through a designated square */
+		/*
+		 * Abort if the tunnel would directly enter a vault without
+		 * going through a designated square.  This matches Sil 1.3
+		 * but does not prevent a tunnel from entering a vault through
+		 * quartz or rubble on the boundary.  Converting the test on
+		 * second grid to (!square_iswall_outer() && square_is_room))
+		 * would do that.
+		 */
 		if (square_iswall_solid(c, prev) && 
 			(square_ispassable(c, grid) || square_iswall_inner(c, grid))) {
 			return false;

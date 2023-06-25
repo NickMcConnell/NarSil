@@ -383,9 +383,9 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 				/* Outer outside granite wall */
 			case '$': set_marked_granite(c, grid, SQUARE_WALL_OUTER); break;
 				/* Inner or non-tunnelable outside granite wall */
-			case '#': set_marked_granite(c, grid, SQUARE_WALL_SOLID); break;
+			case '#': set_marked_granite(c, grid, SQUARE_WALL_INNER); break;
 				/* Quartz vein */
-			case '@': square_set_feat(c, grid, FEAT_QUARTZ); break;
+			case '%': square_set_feat(c, grid, FEAT_QUARTZ); break;
 				/* Rubble */
 			case ':': square_set_feat(c, grid, FEAT_RUBBLE); break;
 				/* Glyph of warding */
@@ -409,7 +409,7 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 	}
 
 
-	/* Place regular dungeon monsters and objects, convert inner walls */
+	/* Place regular dungeon monsters and objects */
 	for (t = data, y = 0; y < v->hgt && *t; y++) {
 		int ay = flip_v ? v->hgt - 1 - y : y;
 		for (x = 0; x < v->wid && *t; x++, t++) {
