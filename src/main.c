@@ -240,7 +240,7 @@ static void change_path(const char *info)
 		}
 	}
 
-	quit_fmt("Unrecognised -d paramater %s", path);
+	quit_fmt("Unrecognised -d parameter %s", path);
 }
 
 
