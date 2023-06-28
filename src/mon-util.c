@@ -233,7 +233,7 @@ static void monster_fall_in_chasm(struct loc grid)
 
         /* Update combat rolls if visible */
         if (monster_is_visible(mon)) {
-			event_signal_combat_attack(EVENT_COMBAT_ATTACK, source_none(),
+			event_signal_combat_attack(EVENT_COMBAT_ATTACK, source_grid(grid),
 									   source_monster(mon->midx), true, -1, -1,
 									   -1, -1, false);
 			event_signal_combat_damage(EVENT_COMBAT_DAMAGE, dice, 4, dam, -1,
