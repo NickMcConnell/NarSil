@@ -372,6 +372,8 @@ void do_cmd_wield(struct command *cmd)
 	}
 
 	inven_takeoff(equip_obj);
+	combine_pack(player);
+	pack_overflow(equip_obj);
 	inven_wield(obj, slot);
 }
 
