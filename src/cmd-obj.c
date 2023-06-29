@@ -40,6 +40,7 @@
 #include "player-quest.h"
 #include "player-timed.h"
 #include "player-util.h"
+#include "songs.h"
 #include "target.h"
 #include "trap.h"
 
@@ -472,6 +473,8 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 		}
 
 		msg("You sound a loud note on the horn.");
+		player->csp -= voice_cost;
+		player->upkeep->redraw |= PR_MANA;
 	}
 
 	/* Check for use if necessary */
@@ -543,6 +546,11 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 						 dir,
 						 cmd);
 		target_release();
+
+		/* Using a horn stops singing.  Eating or quaffing do not. */
+		if (use == USE_VOICE) {
+			player_change_song(player, NULL, false);
+		}
 
 		if (!used) {
 			/* Restore the tentative deduction. */
