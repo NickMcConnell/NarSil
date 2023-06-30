@@ -98,7 +98,6 @@ static const char *skill_names[] = {
 	""
 };
 
-static void finish_with_random_choices(enum birth_stage current);
 static bool quickstart_allowed = false;
 bool arg_force_name;
 
@@ -379,7 +378,6 @@ static bool use_context_menu_birth(struct menu *current_menu,
 	enum {
 		ACT_CTX_BIRTH_OPT,
 		ACT_CTX_BIRTH_RAND,
-		ACT_CTX_BIRTH_FINISH_RAND,
 		ACT_CTX_BIRTH_QUIT,
 		ACT_CTX_BIRTH_HELP
 	};
@@ -403,8 +401,6 @@ static bool use_context_menu_birth(struct menu *current_menu,
 		menu_dynamic_add_label(m, "Select one at random", '*',
 			ACT_CTX_BIRTH_RAND, labels);
 	}
-	menu_dynamic_add_label(m, "Finish with random choices", '@',
-		ACT_CTX_BIRTH_FINISH_RAND, labels);
 	menu_dynamic_add_label(m, "Quit", 'q', ACT_CTX_BIRTH_QUIT, labels);
 	menu_dynamic_add_label(m, "Help", '?', ACT_CTX_BIRTH_HELP, labels);
 
@@ -430,12 +426,6 @@ static bool use_context_menu_birth(struct menu *current_menu,
 	case ACT_CTX_BIRTH_RAND:
 		current_menu->cursor = randint0(current_menu->count);
 		out->type = EVT_SELECT;
-		break;
-
-	case ACT_CTX_BIRTH_FINISH_RAND:
-		finish_with_random_choices(menu_data->stage_inout);
-		menu_data->stage_inout = BIRTH_FINAL_CONFIRM;
-		out->type = EVT_SWITCH;
 		break;
 
 	case ACT_CTX_BIRTH_QUIT:
@@ -605,7 +595,7 @@ static void clear_question(void)
 	"{light blue}Please select your character traits from the menus below:{/}\n\n" \
 	"Use the {light green}movement keys{/} to scroll the menu, " \
 	"{light green}Enter{/} to select the current menu item, '{light green}*{/}' " \
-	"for a random menu item, '{light green}@{/}' to finish the character with random selections, " \
+	"for a random menu item, " \
 	"'{light green}ESC{/}' to step back through the birth process, " \
 	"'{light green}={/}' for the birth options, '{light green}?{/}' " \
 	"for help, or '{light green}Ctrl-X{/}' to quit."
@@ -630,139 +620,6 @@ static void print_menu_instructions(void)
 	
 	/* Reset text_out() indentation */
 	text_out_indent = 0;
-}
-
-/**
- * Advance character generation to the confirmation step using random choices
- * and a default point buy for the statistics.
- *
- * \param current is the current stage for character generation.
- */
-static void finish_with_random_choices(enum birth_stage current)
-{
-	struct {
-		cmd_code code;
-		const char* arg_name;
-		int arg_choice;
-		char* arg_str;
-		bool arg_is_choice;
-	} cmds[4];
-	int ncmd = 0;
-	const struct player_race *pr;
-	char name[PLAYER_NAME_LEN];
-	char history[240];
-
-	if (current <= BIRTH_RACE_CHOICE) {
-		int n, i;
-
-		for (pr = races, n = 0; pr; pr = pr->next, ++n) {}
-		i = randint0(n);
-		pr = player_id2race(i);
-
-		assert(ncmd < (int)N_ELEMENTS(cmds));
-		cmds[ncmd].code = CMD_CHOOSE_RACE;
-		cmds[ncmd].arg_name = "choice";
-		cmds[ncmd].arg_choice = i;
-		cmds[ncmd].arg_is_choice = true;
-		++ncmd;
-	} else {
-		pr = player->race;
-	}
-
-	if (current <= BIRTH_HOUSE_CHOICE) {
-		struct player_house *ph;
-		int n, i;
-
-		for (ph = houses, n = 0; ph; ph = ph->next) {
-			if (ph->race == pr) n++;
-		}
-		i = randint0(n);
-		for (ph = houses, n = 0; ph; ph = ph->next) {
-			if (ph->race == pr) {
-				if (n == i) break;
-				n++;
-			}
-		}
-
-		assert(ncmd < (int)N_ELEMENTS(cmds));
-		cmds[ncmd].code = CMD_CHOOSE_HOUSE;
-		cmds[ncmd].arg_name = "choice";
-		cmds[ncmd].arg_choice = ph->hidx;
-		cmds[ncmd].arg_is_choice = true;
-		++ncmd;
-	}
-
-	if (current <= BIRTH_NAME_CHOICE) {
-		/*
-		 * Mimic what happens in get_name_command() for the
-		 * arg_force_name case.
-		 */
-		if (arg_force_name) {
-			if (arg_name[0]) {
-				my_strcpy(player->full_name, arg_name,
-					sizeof(player->full_name));
-			}
-		} else {
-			int ntry = 0;
-
-			while (1) {
-				if (ntry > 100) {
-					quit("Likely bug:  could not generate "
-						"a random name that was not "
-						"in use for a savefile");
-				}
-				player_random_name(name, sizeof(name));
-				/*
-				 * We're good to go if the frontend specified
-				 * a savefile to use or the savefile name
-				 * corresponding to the random name is not
-				 * already in use.
-				 */
-				if (savefile[0] || !savefile_name_already_used(name, true, true)) {
-					break;
-				}
-				++ntry;
-			}
-			assert(ncmd < (int)N_ELEMENTS(cmds));
-			cmds[ncmd].code = CMD_NAME_CHOICE;
-			cmds[ncmd].arg_name = "name";
-			cmds[ncmd].arg_str = name;
-			cmds[ncmd].arg_is_choice = false;
-			++ncmd;
-		}
-	}
-
-	if (current <= BIRTH_HISTORY_CHOICE) {
-		char *buf;
-
-		buf = get_history(pr->history, player);
-		my_strcpy(history, buf, sizeof(history));
-		string_free(buf);
-
-		assert(ncmd < (int)N_ELEMENTS(cmds));
-		cmds[ncmd].code = CMD_HISTORY_CHOICE;
-		cmds[ncmd].arg_name = "history";
-		cmds[ncmd].arg_str = history;
-		cmds[ncmd].arg_is_choice = false;
-		++ncmd;
-	}
-
-	/* Push in reverse order:  the last pushed will be executed first. */
-	while (ncmd > 0) {
-		--ncmd;
-		cmdq_push(cmds[ncmd].code);
-		if (cmds[ncmd].arg_name) {
-			if (cmds[ncmd].arg_is_choice) {
-				cmd_set_arg_choice(cmdq_peek(),
-					cmds[ncmd].arg_name,
-					cmds[ncmd].arg_choice);
-			} else {
-				cmd_set_arg_string(cmdq_peek(),
-					cmds[ncmd].arg_name,
-					cmds[ncmd].arg_str);
-			}
-		}
-	}
 }
 
 /**
@@ -816,12 +673,6 @@ static enum birth_stage menu_question(enum birth_stage current,
 			} else if (cx.key.code == '=') {
 				do_cmd_options_birth();
 				next = current;
-			} else if (cx.key.code == '@') {
-				/*
-				 * Use random choices to complete the character.
-				 */
-				finish_with_random_choices(current);
-				next = BIRTH_FINAL_CONFIRM;
 			} else if (cx.key.code == KTRL('X')) {
 				quit(NULL);
 			} else if (cx.key.code == '?') {
