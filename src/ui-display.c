@@ -418,26 +418,29 @@ static int prt_health_aux(int row, int col)
 		(mon->hp <= 0)) { /* Dead (?) */
 		/* The monster health is "unknown" */
 		Term_putstr(col, row, 12, attr, "  --------  ");
-	} else {
-		/* Visible */
-		attr = health_attr(mon->hp, mon->maxhp);
-
-		/* Convert into health bar (using ceiling for length) */
-		len = (8 * mon->hp + mon->maxhp - 1) / mon->maxhp;
-
-		/* Default to "unknown" */
-		Term_putstr(col, row, 12, COLOUR_WHITE, "  --------  ");
-
-		/* Dump the current "health" (handle monster stunning, confusion) */
-		if (mon->m_timed[MON_TMD_CONF] && mon->m_timed[MON_TMD_STUN])
-			Term_putstr(col + 2, row, len, attr, "cscscscs");
-		else if (mon->m_timed[MON_TMD_CONF])
-			Term_putstr(col + 2, row, len, attr, "cccccccc");
-		else if (mon->m_timed[MON_TMD_STUN])
-			Term_putstr(col + 2, row, len, attr, "ssssssss");
-		else
-			Term_putstr(col + 2, row, len, attr, "********");
+		/* Erase the morale bar */
+		Term_erase(col, row + 1, 12);
+		return 12;
 	}
+
+	/* Visible */
+	attr = health_attr(mon->hp, mon->maxhp);
+
+	/* Convert into health bar (using ceiling for length) */
+	len = (8 * mon->hp + mon->maxhp - 1) / mon->maxhp;
+
+	/* Default to "unknown" */
+	Term_putstr(col, row, 12, COLOUR_WHITE, "  --------  ");
+
+	/* Dump the current "health" (handle monster stunning, confusion) */
+	if (mon->m_timed[MON_TMD_CONF] && mon->m_timed[MON_TMD_STUN])
+		Term_putstr(col + 2, row, len, attr, "cscscscs");
+	else if (mon->m_timed[MON_TMD_CONF])
+		Term_putstr(col + 2, row, len, attr, "cccccccc");
+	else if (mon->m_timed[MON_TMD_STUN])
+		Term_putstr(col + 2, row, len, attr, "ssssssss");
+	else
+		Term_putstr(col + 2, row, len, attr, "********");
 
 	/* Show the alertness/morale bar */
 	Term_erase(col, row + 1, 12);
