@@ -332,7 +332,7 @@ bool effect_handler_RESTORE_MANA(effect_handler_context_t *context)
 }
 
 /**
- * Attempt to uncurse an object
+ * Uncurse all equipped objects
  */
 bool effect_handler_REMOVE_CURSE(effect_handler_context_t *context)
 {
@@ -349,14 +349,14 @@ bool effect_handler_REMOVE_CURSE(effect_handler_context_t *context)
 		/* Uncurse the object */
 		uncurse_object(obj);
 		removed = true;
-		context->ident = true;
 	}
 
 	if (removed) {
+		context->ident = true;
 		msg("You feel sanctified.");
 	}
 
-	return context->ident;
+	return true;
 }
 
 /**
