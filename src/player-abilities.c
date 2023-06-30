@@ -302,23 +302,25 @@ static int test_ability(const char *name, struct ability *test,
 	for (skill = 0; skill < SKILL_MAX; skill++) {
 		struct ability *ability = lookup_ability(skill, name);
 		if (ability) {
+			struct ability *thisa = test;
+
 			/* Note that we have found an ability of that name */
 			found = true;
 
 			/* See if the provided ability list contains the named one... */
-			while (test) {
-				if (streq(test->name, name) && (test->skill == skill)) {
+			while (thisa) {
+				if (streq(thisa->name, name) && (thisa->skill == skill)) {
 					/* ...and if so, if it satisfies any required condition */
-					if (!pred || (pred && pred(test))) {
+					if (!pred || (pred && pred(thisa))) {
 						count++;
 					}
 				}
-				test = test->next;
+				thisa = thisa->next;
 			}
 		}
 	}
 	assert(found);
-	return count;	
+	return count;
 }
 
 /**
