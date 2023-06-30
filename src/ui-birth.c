@@ -811,6 +811,9 @@ static enum birth_stage menu_question(enum birth_stage current,
 				cmdq_push(choice_command);
 				cmd_set_arg_choice(cmdq_peek(), "choice", current_menu->cursor);
 
+				if (current == BIRTH_HOUSE_CHOICE) {
+					house_start = current_menu->cursor;
+				}
 				menu_refresh(current_menu, false);
 				next = current + 1;
 			} else if (cx.key.code == '=') {
