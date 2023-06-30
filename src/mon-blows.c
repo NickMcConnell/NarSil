@@ -496,7 +496,7 @@ static void melee_effect_handler_POISON(melee_effect_handler_context_t *context)
 	
 	/* Take "poison" effect */
 	if (player_inc_timed(context->p, TMD_POISONED, context->damage, true,
-						 false))
+						 true))
 		context->obvious = true;
 }
 
