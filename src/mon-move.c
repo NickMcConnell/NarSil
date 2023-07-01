@@ -417,7 +417,7 @@ static void monster_find_range(struct monster *mon)
 
 		/* Spies have a high minimum range */
 		if (rf_has(mon->race->flags, RF_SMART) &&
-			rsf_has(mon->race->flags, RSF_SHRIEK) &&
+			rsf_has(mon->race->spell_flags, RSF_SHRIEK) &&
 			(mon->stance != STANCE_AGGRESSIVE)) {
 			mon->min_range = 10;
 		}
