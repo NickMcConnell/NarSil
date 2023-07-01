@@ -1583,6 +1583,7 @@ desc:It causes fear in all monsters in line of sight.
 #defence:0:0d0
 #alloc:7:2
 #charges:2d2
+#msg:Your mind turns inward.
 #effect:SELF_KNOWLEDGE
 #desc:It lets you know all of your abilities.
 
@@ -1598,6 +1599,7 @@ attack:0:0d0
 defence:0:0d0
 alloc:11:3
 charges:2d2
+msg:The base of the staff glows an intense green...
 effect:GLYPH:WARDING
 desc:It can be used to create glyphs of warding, which your opponents
 desc: have difficulty crossing.

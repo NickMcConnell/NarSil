@@ -241,7 +241,7 @@ bool effect_handler_GLYPH(effect_handler_context_t *context)
 
 	/* See if the effect works */
 	if (!square_istrappable(cave, player->grid)) {
-		msg("There is no clear floor on which to cast the spell.");
+		msg("You cannot draw a glyph without a clean expanse of floor.");
 		return false;
 	}
 
@@ -250,6 +250,7 @@ bool effect_handler_GLYPH(effect_handler_context_t *context)
 		push_object(player->grid);
 
 	/* Create a glyph */
+	msg("You trace out a glyph of warding upon the floor.");
 	square_add_glyph(cave, player->grid, context->subtype);
 
 	return true;
