@@ -355,7 +355,6 @@ static void project_monster_handler_FEAR(project_monster_handler_context_t *cont
 			rf_on(context->lore->flags, RF_NO_FEAR);
 		}
 	}
-	context->alert = false;
 	context->dam = 0;
 }
 
