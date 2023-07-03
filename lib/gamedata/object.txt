@@ -2285,7 +2285,7 @@ attack:0:0d0
 defence:0:0d0
 alloc:5:2
 alloc:15:1
-effect:NOURISH:INC_BY
+effect:NOURISH:INC_BY:0:1
 dice:2000
 desc:It provides nourishment for about 2000 turns
 desc: under normal conditions. 
@@ -2374,7 +2374,7 @@ cost:0
 attack:0:0d0
 defence:0:0d0
 alloc:4:3
-effect:NOURISH:DEC_BY
+effect:NOURISH:DEC_BY:0:1
 dice:1000
 desc:It makes you more hungry (by 1,000 turns under normal conditions). 
 

@@ -162,6 +162,7 @@ static bool item_tester_unknown(const struct object *obj)
  */
 bool effect_handler_NOURISH(effect_handler_context_t *context)
 {
+	const char *old_grade = player_get_timed_grade(player, TMD_FOOD);
 	int amount = effect_calculate_value(context);
 	if (context->subtype == 0) {
 		/* Increase food level by amount */
@@ -172,7 +173,17 @@ bool effect_handler_NOURISH(effect_handler_context_t *context)
 	} else {
 		return false;
 	}
-	context->ident = true;
+	/*
+	 * If the effect's other parameter is nonzero, only identify if the
+	 * timed grade changed.  Otherwise, always identify.
+	 */
+	if (context->other) {
+		if (old_grade != player_get_timed_grade(player, TMD_FOOD)) {
+			context->ident = true;
+		}
+	} else {
+		context->ident = true;
+	}
 	return true;
 }
 

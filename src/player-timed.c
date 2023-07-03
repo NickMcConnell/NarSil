@@ -491,6 +491,29 @@ static void player_timed_end_effect(int idx)
 }
 
 /**
+ * Return the name of the current grade of a timed effect on a player.
+ *
+ * \param p is the player to query.
+ * \param idx is the index of the timed effect.
+ * \return NULL if the timed effect is not currently active; otherwise return
+ * the name of the currently active grade for the timed effect.  The returned
+ * string should not be freed.
+ */
+const char *player_get_timed_grade(const struct player *p, int idx)
+{
+	const struct timed_grade *grade;
+
+	if (!p->timed[idx]) {
+		return NULL;
+	}
+	grade = timed_effects[idx].grade;
+	while (p->timed[idx] > grade->max) {
+		grade = grade->next;
+	}
+	return grade->name;
+}
+
+/**
  * Return true if the player timed effect matches the given string
  */
 bool player_timed_grade_eq(const struct player *p, int idx, const char *match)
