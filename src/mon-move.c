@@ -3423,7 +3423,7 @@ static void monster_turn(struct monster *mon)
 		}
 
 		/* No passable grids found */
-		if (loc_eq(mon->target.grid, loc(0, 0))) return;
+		if (loc_eq(tgrid, loc(0, 0))) return;
 
 		/* Cannot move, target grid does not contain the character */
 		if (no_move && !square_isplayer(cave, tgrid)) return;
