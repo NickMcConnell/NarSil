@@ -1108,6 +1108,7 @@ static void place_monster_escort(struct chunk *c, struct loc grid,
 	/* Monster races of the placed monsters */
 	struct monster_race **escort_races =
 		mem_zalloc(sizeof(struct monster_race*) * z_info->monster_group_max);
+	struct monster_race *escort_race;
 
 	assert(race);
 
@@ -1146,6 +1147,8 @@ static void place_monster_escort(struct chunk *c, struct loc grid,
 		}
 	}
 
+	escort_race = escort_races[0];
+
 	/* Start on the monster */
 	loc_num = 1;
 	loc_list[0] = grid;
@@ -1162,8 +1165,11 @@ static void place_monster_escort(struct chunk *c, struct loc grid,
 			if (!square_isempty(c, try)) continue;
 
 			/* Attempt to place another monster */
-			if (place_new_monster_one(c, try, race, sleep, false, group_info,
+			if (place_new_monster_one(c, try, escort_race, sleep, false, group_info,
 									  origin)) {
+				/* Get index of the next escort */
+				escort_race = escort_races[loc_num];
+
 				/* Add it to the "hack" set */
 				loc_list[loc_num] = try;
 				loc_num++;
