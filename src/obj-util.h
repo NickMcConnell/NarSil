@@ -60,15 +60,15 @@ bool obj_has_flag(const struct object *obj, int flag);
 bool obj_is_useable(const struct object *obj);
 bool obj_nourishes(const struct object *obj);
 struct effect *object_effect(const struct object *obj);
-bool obj_needs_aim(struct object *obj);
+bool obj_needs_aim(const struct object *obj);
 bool obj_allows_vertical_aim(const struct object *obj);
 
 void distribute_charges(struct object *source, struct object *dest, int amt);
 void uncurse_object(struct object *obj);
 bool verify_object(const char *prompt, const struct object *obj,
 		const struct player *p);
-void print_custom_message(struct object *obj, const char *string, int msg_type,
-		const struct player *p);
+void print_custom_message(const struct object *obj, const char *string,
+		int msg_type, const struct player *p);
 
 bool is_artifact_created(const struct artifact *art);
 bool is_artifact_seen(const struct artifact *art);
