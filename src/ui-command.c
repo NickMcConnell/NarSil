@@ -32,6 +32,7 @@
 #include "player-timed.h"
 #include "player-util.h"
 #include "target.h"
+#include "tutorial.h"
 #include "ui-command.h"
 #include "ui-display.h"
 #include "ui-event.h"
@@ -219,6 +220,10 @@ void textui_cmd_rest(void)
  */
 void textui_quit(void)
 {
+	/* The tutorial doesn't allow saves, so confirm before quitting. */
+	if (in_tutorial() && !get_check("Really exit the tutorial? ")) {
+		return;
+	}
 	player->upkeep->playing = false;
 }
 
