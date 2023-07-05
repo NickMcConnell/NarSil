@@ -1214,6 +1214,7 @@ void player_resting_complete_special(struct player *p)
 			disturb(p, false);
 	} else if (p->upkeep->resting == REST_COMPLETE) {
 		if ((p->chp == p->mhp) &&
+			(p->csp == p->msp || !player_is_singing(p, NULL)) &&
 			!p->timed[TMD_BLIND] && !p->timed[TMD_CONFUSED] &&
 			!p->timed[TMD_POISONED] && !p->timed[TMD_AFRAID] &&
 			!p->timed[TMD_STUN] &&
