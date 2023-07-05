@@ -176,7 +176,7 @@ wake:0
 color:Orange
 
 code:KILL_WALL
-type:monster
+type:environs
 desc:rock remover
 blind-desc:something
 obvious:1

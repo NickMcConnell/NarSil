@@ -840,24 +840,48 @@ bool effect_handler_BOLT(effect_handler_context_t *context)
  * Cast a beam spell
  * Pass through monsters, as a beam
  * Affect monsters (not grids or objects)
- * Special shenanigans for Horn of Blasting
  */
 bool effect_handler_BEAM(effect_handler_context_t *context)
 {
 	int flg = PROJECT_BEAM | PROJECT_KILL;
-	if (context->dir == DIR_UP) {
-		player_blast_ceiling(player);
+
+	(void) project_aimed(context->origin, context->subtype, context->dir,
+		context->value.dice, context->value.sides,
+		context->value.m_bonus, flg, context->obj);
+	if (!player->timed[TMD_BLIND]) {
 		context->ident = true;
-	} else if (context->dir == DIR_DOWN) {
-		player_blast_floor(player);
-		context->ident = true;
-	} else {
-		(void) project_aimed(context->origin, context->subtype, context->dir,
-							 context->value.dice, context->value.sides,
-							 context->value.m_bonus, flg, context->obj);
-		if (!player->timed[TMD_BLIND])
-			context->ident = true;
 	}
 	return true;
 }
 
+/**
+ * Cast a beam spell which affects grids or objects, but not monsters.
+ * Allows for targeting up or down (an effect that uses that should set the
+ * other parameter for the effect to a non-zero value), but the handling of
+ * the effect subtype there is not general:  currently assumes it is KILL_WALL.
+ */
+bool effect_handler_TERRAIN_BEAM(effect_handler_context_t *context)
+{
+	if (context->dir == DIR_UP || context->dir == DIR_DOWN) {
+		/* Verify that the effect allows targeting up or down. */
+		assert(context->other);
+		assert(context->subtype == PROJ_KILL_WALL);
+		if (context->dir == DIR_UP) {
+			player_blast_ceiling(player);
+		} else {
+			player_blast_floor(player);
+		}
+		context->ident = true;
+	} else {
+		int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM
+			| PROJECT_WALL;
+
+		(void) project_aimed(context->origin, context->subtype,
+			context->dir, context->value.dice, context->value.sides,
+			context->value.m_bonus, flg, context->obj);
+		if (!player->timed[TMD_BLIND]) {
+			context->ident = true;
+		}
+	}
+	return true;
+}

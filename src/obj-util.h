@@ -59,6 +59,7 @@ bool obj_is_useable(const struct object *obj);
 bool obj_nourishes(const struct object *obj);
 struct effect *object_effect(const struct object *obj);
 bool obj_needs_aim(struct object *obj);
+bool obj_allows_vertical_aim(const struct object *obj);
 
 void distribute_charges(struct object *source, struct object *dest, int amt);
 void uncurse_object(struct object *obj);

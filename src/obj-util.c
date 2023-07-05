@@ -681,6 +681,22 @@ bool obj_needs_aim(struct object *obj)
 }
 
 /**
+ * Can the given object be aimed vertically?
+ */
+bool obj_allows_vertical_aim(const struct object *obj)
+{
+	const struct effect *effect = object_effect(obj);
+
+	while (effect) {
+		if (effect->index == EF_TERRAIN_BEAM && effect->other == 1) {
+			return true;
+		}
+		effect = effect->next;
+	}
+	return false;
+}
+
+/**
  * Distribute charges of rods, staves, or wands.
  *
  * \param source is the source item

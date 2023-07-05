@@ -26,6 +26,8 @@ EFFECT(EXPLOSION,					false,	"dam",		1,		EFINFO_PROJ,	"produces a blast of %s",	
 EFFECT(BREATH,						true,	NULL,		3,		EFINFO_BREATH,	"breathes a cone of %s with width %d degrees, dealing %s damage at the source",	"breathe a cone of %s")
 EFFECT(BOLT,						true,	"dam",		2,		EFINFO_BOLT,	"casts a bolt of %s dealing %s damage",	"cast a bolt of %s")
 EFFECT(BEAM,						true,	"dam",		2,		EFINFO_BOLT,	"casts a beam of %s dealing %s damage",	"cast a beam of %s")
+EFFECT(TERRAIN_BEAM,					true,	NULL,
+1,		EFINFO_PROJ,	"casts a beam of %s",			"cast a beam of %s")
 EFFECT(NOURISH,						false,	NULL,		3,		EFINFO_FOOD,	"%s for %s turns (%s percent)",	"%s %s")
 EFFECT(CURE,						false,	NULL,		1,		EFINFO_CURE,	"cures %s",	"cure %s")
 EFFECT(TIMED_SET,					false,	NULL,		2,		EFINFO_TIMED,	"administers %s for %s turns",	"administer %s")

@@ -655,7 +655,6 @@ void do_cmd_use_staff(struct command *cmd)
 void do_cmd_blow_horn(struct command *cmd)
 {
 	struct object *obj;
-	bool blasting;
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -664,10 +663,7 @@ void do_cmd_blow_horn(struct command *cmd)
 			tval_is_horn,
 			USE_INVEN | USE_FLOOR | SHOW_FAIL) != CMD_OK) return;
 
-	/* Special case */
-	blasting = streq(obj->kind->name, "Blasting");
-
-	use_aux(cmd, obj, USE_VOICE, MSG_ZAP_ROD, blasting);
+	use_aux(cmd, obj, USE_VOICE, MSG_ZAP_ROD, obj_allows_vertical_aim(obj));
 }
 
 /**

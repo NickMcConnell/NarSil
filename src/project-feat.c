@@ -169,8 +169,8 @@ static void project_feature_handler_KILL_WALL(project_feature_handler_context_t 
 				square_unmark(cave, grid);
 			}
 
-			/* Destroy the rubble */
-			square_destroy_rubble(cave, grid);
+			/* Destroy the door */
+			square_destroy_door(cave, grid);
 		} else if (square_ismark(cave, grid)) {
 			/* Message */
 			msg("You fail to blow hard enough to force the door open.");

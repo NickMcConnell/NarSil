@@ -151,7 +151,8 @@ int effect_subtype(int index, const char *type)
 			case EF_SPHERE:
 			case EF_BREATH:
 			case EF_BOLT:
-			case EF_BEAM: {
+			case EF_BEAM:
+			case EF_TERRAIN_BEAM: {
 				val = proj_name_to_idx(type);
 				break;
 			}
