@@ -17,6 +17,7 @@
  */
 
 #include "angband.h"
+#include "game-world.h"
 #include "mon-desc.h"
 #include "mon-msg.h"
 #include "mon-predicate.h"
@@ -169,6 +170,13 @@ void message_warning(struct monster *mon)
 	}
 
 	add_monster_message(mon, msg_code, false);
+
+	/* Hard not to notice */
+	update_flow(cave, &cave->monster_noise, mon);
+	monsters_hear(false, false, -10);
+
+	/* Makes monster noise too */
+	mon->noise += 10;
 }
 
 /**
