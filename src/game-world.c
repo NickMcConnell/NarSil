@@ -264,7 +264,7 @@ static int square_flow_cost(struct chunk *c, struct loc grid,
 	} else {
 		/* Deal with noise flows */
 		/* Ignore walls */
-		if (square_iswall(c, grid)) {
+		if (square_iswall(c, grid) && !square_isdoor(c, grid)) {
 			return -1;
 		}
  
