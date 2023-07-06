@@ -328,7 +328,7 @@ bool square_iswall(struct chunk *c, struct loc grid)
 {
 	int feat = square(c, grid)->feat;
 	return tf_has(f_info[feat].flags, TF_DOOR_CLOSED) ||
-		tf_has(f_info[feat].flags, TF_WALL);
+		tf_has(f_info[feat].flags, TF_ROCK);
 }
 
 /**
