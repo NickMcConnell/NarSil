@@ -358,18 +358,17 @@ void update_flow(struct chunk *c, struct flow *flow, struct monster *mon)
 			for (d = 0; d < 8; d++)	{
 				/* Child location */
 				struct loc grid = loc_sum(next, ddgrid_ddd[d]);
-
-				/* Extra cost of the grid */
-				int cost = square_flow_cost(c, grid, mon);
-
-				/* Monster on this grid */
-				struct monster *grid_mon = square_monster(c, grid);
+				struct monster *grid_mon;
+				int cost;
 
 				/* Legal grids only */
 				if (!square_in_bounds(c, grid)) continue;
 
 				/* Skip grids that have already been processed */
 				if (flow->grids[grid.y][grid.x] < z_info->flow_max) continue;
+
+				/* Extra cost of the grid */
+				cost = square_flow_cost(c, grid, mon);
 
 				/* Ignore features that block flow */
 				if (cost < 0) continue;
@@ -379,6 +378,9 @@ void update_flow(struct chunk *c, struct flow *flow, struct monster *mon)
 
 				/* Enqueue that child */
 				q_push_int(queue, grid_to_i(grid, c->width));
+
+				/* Monster on this grid */
+				grid_mon = square_monster(c, grid);
 
 				/* Monsters at this site need to re-consider their targets */
 				if (grid_mon) {
