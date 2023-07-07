@@ -4,7 +4,8 @@
 # msgt - message type
 # mana - mana cost for the spell
 # best-range - best range for the spell
-# max-range - maximum range for the spell
+# max-range - maximum range for the spell; if not specified, the maximum
+#             is the same as player:max-range from constants.txt.
 # desire - base spell desirability
 # disturb - positive value means the spell cancels player stealth mode
 # use-past-range - percentage usefulness per grid past range

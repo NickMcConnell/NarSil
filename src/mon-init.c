@@ -749,6 +749,7 @@ static enum parser_error parse_mon_spell_name(struct parser *p) {
 	if (grab_name("monster spell", name, r_info_spell_flags, N_ELEMENTS(r_info_spell_flags), &index))
 		return PARSE_ERROR_INVALID_SPELL_NAME;
 	s->index = index;
+	s->max_range = z_info->max_range;
 	s->level = mem_zalloc(sizeof(*(s->level)));
 	parser_setpriv(p, s);
 	return PARSE_ERROR_NONE;
