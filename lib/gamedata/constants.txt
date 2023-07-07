@@ -52,7 +52,7 @@ mon-play:regen-sp-period:15
 mon-play:mana-cost:10
 
 # Maximum amount of mana a monster can have at once
-mon-play:mana-max:2
+mon-play:mana-max:15
 
 # Monsters will run up to this many grids out of sight
 mon-play:flee-range:5
