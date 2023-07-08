@@ -417,6 +417,8 @@ bool project_p(struct source origin, struct loc grid, int dd, int ds, int typ)
 
 	/* Adjust damage for resistance, immunity or vulnerability */
 	if (typ < ELEM_MAX) {
+		event_signal_combat_attack(EVENT_COMBAT_ATTACK, origin,
+			source_player(), true, -1, -1, -1, -1, false);
 		context.dam = adjust_dam(player, context.dd, context.ds, context.type);
 	}
 
