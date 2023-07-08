@@ -377,11 +377,9 @@ static void monster_get_target_dist_grid(struct monster *mon, int *dist,
  */
 void remove_bad_spells(struct monster *mon, bitflag f[RSF_SIZE])
 {
-	bitflag f2[RSF_SIZE];
 	int tdist;
 	struct loc tgrid;
-	struct monster_spell *spell;
-	int path;
+	int path, i;
 
 	/* Get distance from the player */
 	monster_get_target_dist_grid(mon, &tdist, &tgrid);
@@ -393,55 +391,65 @@ void remove_bad_spells(struct monster *mon, bitflag f[RSF_SIZE])
 		return;
 	}
 
-	/* Take working copy of spell flags */
-	rsf_copy(f2, f);
-
 	/* Iterate through the spells */
-	for (spell = monster_spells; spell; spell = spell->next) {
-		int index = spell->index;
+	for (i = FLAG_START; i != FLAG_END; i = rsf_next(f, i + 1)) {
+		const struct monster_spell *spell;
+
+		/* Do we even have this spell ? */
+		if (!rsf_has(f, i)) continue;
+
+		spell = monster_spell_by_index(i);
 
 		/* Check for a clean bolt shot */
-		if (mon_spell_is_archery(index) && (path == PROJECT_PATH_NOT_CLEAR)) {
-			rsf_off(f2, index);
+		if (mon_spell_is_archery(i) && (path == PROJECT_PATH_NOT_CLEAR)) {
+			rsf_off(f, i);
 		}
 
 		/* Remove unaffordable spells */
 		if (spell->mana > mon->mana) {
-			rsf_off(f2, index);
+			rsf_off(f, i);
+		}
+
+		/*
+		 * A mindless monster does no further checking if this spell
+		 * should be cast.
+		 */
+		if (rf_has(mon->race->flags, RF_MINDLESS)) {
+			continue;
 		}
 
 		/* Some attacks have limited range */
 		if (tdist > spell->max_range) {
-			rsf_off(f2, index);
+			rsf_off(f, i);
 		}
 
 		/* Make sure that missile attacks are never done at melee range or
 		 * when afraid */
 		if (((tdist == 1) || (mon->stance == STANCE_FLEEING) || player->truce)
-			&& (mon_spell_is_distant(index))) {
-			rsf_off(f2, index);
+				&& (mon_spell_is_distant(i))) {
+			rsf_off(f, i);
 		}
 
 		/* Make sure that fleeing monsters never use breath attacks */
-		if ((mon->stance == STANCE_FLEEING) && mon_spell_is_breath(index)) {
-			rsf_off(f2, index);
+		if ((mon->stance == STANCE_FLEEING) && mon_spell_is_breath(i)) {
+			rsf_off(f, i);
 		}
 
 		/* No songs during the truce, or by Morgoth until uncrowned */
-		if (mon_spell_is_song(index)) {
+		if (mon_spell_is_song(i)) {
 			const struct artifact *crown = lookup_artifact_name("of Morgoth");
 			if (player->truce) {
-				rsf_off(f2, index);
+				rsf_off(f, i);
 			}
 			if (rf_has(mon->race->flags, RF_QUESTOR) &&
-				!is_artifact_created(crown)) {
-				rsf_off(f2, index);
+					!is_artifact_created(crown)) {
+				rsf_off(f, i);
 			}
 		}
 
 		/* Earthquake is only useful if there is no monster in the
 		 * smashed square */
-		if (index == RSF_EARTHQUAKE) {
+		if (i == RSF_EARTHQUAKE) {
 			struct loc grid = player->grid;
 			if (mon->grid.y > grid.y) {
 				grid.y--;
@@ -454,18 +462,15 @@ void remove_bad_spells(struct monster *mon, bitflag f[RSF_SIZE])
 				grid.x++;
 			}
 			if (square_monster(cave, grid)) {
-				rsf_off(f2, index);
+				rsf_off(f, i);
 			}
 		}
 
 		/* Darkness is only useful if the player's square is lit */
-		if ((index == RSF_DARKNESS) && !square_islit(cave, player->grid)) {
-			rsf_off(f2, index);
+		if ((i == RSF_DARKNESS) && !square_islit(cave, player->grid)) {
+			rsf_off(f, i);
 		}
 	}
-
-	/* Use working copy of spell flags */
-	rsf_copy(f, f2);
 }
 
 /**

@@ -50,7 +50,7 @@
  * If exactly 1 spell is available cast it.  If more than one is
  * available, and random is set, pick one.
  */
-static int choose_attack_spell_fast(struct monster *mon, bool do_random)
+static int choose_attack_spell_fast(const bitflag f[RSF_SIZE], bool do_random)
 {
 	int i, num = 0;
 	uint8_t spells[RSF_MAX];
@@ -61,10 +61,9 @@ static int choose_attack_spell_fast(struct monster *mon, bool do_random)
 	}
 
 	/* Extract the spells  */
-	for (i = FLAG_START; ; i = rsf_next(mon->race->spell_flags, i + 1)) {
-		if (rsf_has(mon->race->spell_flags, i)) {
+	for (i = FLAG_START; i != FLAG_END; i = rsf_next(f, i + 1)) {
+		if (rsf_has(f, i)) {
 			spells[num++] = i;
-			if (num >= rsf_count(mon->race->spell_flags)) break;
 		}
 	}
 
@@ -115,16 +114,17 @@ static int choose_ranged_attack(struct monster *mon)
 	/* No spells left */
 	if (!rsf_count(f)) return 0;
 
-	/* Sometimes non-smart monsters cast randomly (though from the
-	 * restricted list) */
-	if (!rf_has(mon->race->flags, RF_SMART) && one_in_(5)) {
+	/* Mindless monsters always cast randomly and sometimes non-smart
+	 * do (though both always use the restricted list). */
+	if (rf_has(mon->race->flags, RF_MINDLESS)
+			|| (!rf_has(mon->race->flags, RF_SMART) && one_in_(5))) {
 		do_random = true;
 	}
 
 	/* Try fast selection first. If there is only one spell, choose that spell.
 	 * If there are multiple spells, choose one randomly if the 'random' flag
 	 * is set. Otherwise fail, and let the AI choose. */
-	best_spell = choose_attack_spell_fast(mon, do_random);
+	best_spell = choose_attack_spell_fast(f, do_random);
 	if (best_spell) return best_spell;
 
 	/* Use full AI */
