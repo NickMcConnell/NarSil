@@ -448,13 +448,23 @@ struct loc origin_get_loc(struct source origin)
  *   \param origin Origin of the projection
  *   \param rad Radius of explosion (0 = beam/bolt, 1 to 20 = ball), or maximum
  *	  length of arc from the source.
- *   \param y Target location (or location to travel towards)
- *   \param x Target location (or location to travel towards)
- *   \param dam Base damage to apply to monsters, terrain, objects, or player
+ *   \param finish Target location (or location to travel towards).
+ *   \param dd Is the number of dice of damage to monsters, terrain, objects,
+ *        or the player.  If uniform is not true, flg includes PROJECT_ARC, and
+ *        degrees_of_arc is greater than zero, dd is the number of dice at a
+ *        range of one from the origin and the number of dice is reduced at
+ *        greater ranges.
+ *   \param ds Is the number of sides for each of the damage dice.
+ *   \param dif Is the difficulty for defending against the attack (i.e. what
+ *        is passed to the third argument of skill_check() if a defense is
+ *        allowed).
  *   \param typ Type of projection (fire, frost, dispel demons etc.)
  *   \param flg Extra bit flags that control projection behavior
  *   \param degrees_of_arc How wide an arc spell is (in degrees).
- *   \param diameter_of_source how wide the source diameter is.
+ *   \param uniform If true, the damage not reduced by the distance from the
+ *        origin within the radius specified.  Otherwise, the damage decreases
+ *        from the center of the origin if flg includes PROJECT_ARC and
+ *        degrees_of_arc is greater than zero.
  *   \param obj An object that the projection ignores
  *
  *   \return true if any effects of the projection were observed, else false
@@ -534,14 +544,6 @@ struct loc origin_get_loc(struct source origin)
  *
  * degrees_of_arc controls the width of arc spells.  With a value for 
  *   degrees_of_arc of zero, arcs act like beams of defined length.
- *
- * diameter_of_source controls how quickly explosions lose strength with dis-
- *   tance from the target.  Most ball spells have a source diameter of 10,
- *   which means that they do 1/2 damage at range 1, 1/3 damage at range 2,
- *   and so on.   Caster-centered balls usually have a source diameter of 20,
- *   which allows them to do full damage to all adjacent grids.   Arcs have
- *   source diameters ranging up from 20, which allows the spell designer to
- *   fine-tune how quickly a breath loses strength outwards from the breather.
  *
  *
  * Implementation notes:
@@ -877,13 +879,16 @@ bool project(struct source origin, int rad, struct loc finish,
 		if (i > rad) {
 			/* No damage outside the radius. */
 			dam_temp = 0;
-		} else if (uniform) {
-			/* No damage reduction with range if uniform. */
+		} else if (uniform || !(flg & PROJECT_ARC)) {
+			/*
+			 * No damage reduction with range if uniform or not an
+			 * arc.
+			 */
 			dam_temp = dd;
 		} else {
 			/* Otherwise, lose two dice per square. */
-			if (dd > 2 * i) {
-				dam_temp = dd - 2 * i;
+			if (dd > 2 * (i - 1)) {
+				dam_temp = dd - 2 * (i - 1);
 			} else {
 				dam_temp = 0;
 			}
