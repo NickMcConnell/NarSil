@@ -627,11 +627,25 @@ bool handle_stickied_removal(struct player *p, struct object *obj)
  */
 int inven_carry_num(const struct player *p, const struct object *obj)
 {
-	int n_free_slot = z_info->pack_size - pack_slots_used(p);
-	int num_to_quiver = 0;
-	int num_left, i;
+	int max_weight = (weight_limit(p->state) * 3) / 2;
+	int num_lim, num_to_quiver, num_left, i;
+
+	/* Check how many can be carried without going over the weight limit. */
+	if (p->upkeep->total_weight > max_weight) {
+		return 0;
+	}
+	if (p->upkeep->total_weight + obj->weight * obj->number
+			<= max_weight) {
+		num_lim = obj->number;
+	} else {
+		num_lim = (max_weight - p->upkeep->total_weight) / obj->weight;
+		if (!num_lim) {
+			return 0;
+		}
+	}
 
 	/* Absorb as many as we can in the quiver. */
+	num_to_quiver = 0;
 	for (i = 0; i < p->body.count; i++) {
 		struct object *q_obj = p->body.slots[i].obj;
 		if (!slot_type_is(p, i, EQUIP_QUIVER)) continue;
@@ -641,12 +655,13 @@ int inven_carry_num(const struct player *p, const struct object *obj)
 	}
 
 	/* The quiver will get everything, or the pack can hold what's left. */
-	if (num_to_quiver == obj->number || n_free_slot > 0) {
-		return obj->number;
+	if (num_to_quiver >= num_lim
+			|| z_info->pack_size - pack_slots_used(p) > 0) {
+		return num_lim;
 	}
 
 	/* See if we can add to a partially full inventory slot. */
-	num_left = obj->number - num_to_quiver;
+	num_left = num_lim - num_to_quiver;
 	for (i = 0; i < z_info->pack_size; i++) {
 		struct object *inven_obj = p->upkeep->inven[i];
 		if (inven_obj && object_stackable(inven_obj, obj, OSTACK_PACK)) {
@@ -657,7 +672,7 @@ int inven_carry_num(const struct player *p, const struct object *obj)
 	}
 
 	/* Return the number we can absorb */
-	return obj->number - MAX(num_left, 0);
+	return num_lim - MAX(num_left, 0);
 }
 
 /**
@@ -665,10 +680,6 @@ int inven_carry_num(const struct player *p, const struct object *obj)
  */
 bool inven_carry_okay(const struct object *obj)
 {
-	if (player->upkeep->total_weight + obj->weight >
-		weight_limit(player->state) * 3 / 2) {
-		return false;
-	}
 	return inven_carry_num(player, obj) > 0;
 }
 
@@ -803,7 +814,9 @@ void inven_wield(struct object *obj, int slot)
 	char o_name[80];
 	bool dummy = false;
 	bool split = false;
-	int num = tval_is_ammo(obj) ? obj->number : 1;
+	int num = tval_is_ammo(obj) ?
+		((object_is_carried(player, obj)) ?
+			obj->number : inven_carry_num(player, obj)) : 1;
 	struct ability *ability;
 
 	/* Deal with wielding of shield or second weapon when already wielding a
@@ -1265,6 +1278,62 @@ void combine_pack(struct player *p)
 
 			/* Can we drop "obj1" onto "obj2"? */
 			if (object_mergeable(obj2, obj1, OSTACK_PACK)) {
+				/*
+				 * The quiver slots do not count as equipped
+				 * so may be merged with something else.
+				 * Handle the side effects of that.
+				 */
+				int quiver1_slot =
+					slot_by_name(p, "first quiver");
+				struct object *quiver1_obj =
+					slot_object(p, quiver1_slot);
+				int quiver2_slot =
+					slot_by_name(p, "second quiver");
+				struct object *quiver2_obj =
+					slot_object(p, quiver2_slot);
+
+				if (obj1 == quiver1_obj) {
+					if (obj2 == quiver2_obj) {
+						/*
+						 * Merging the two quiver slots.
+						 * Prefer to keep the first
+						 * occupied.
+						 */
+						p->body.slots[quiver1_slot].obj
+							= quiver2_obj;
+						p->body.slots[quiver2_slot].obj
+							= NULL;
+						--p->upkeep->equip_cnt;
+					} else {
+						/*
+						 * Merging with a stack in the
+						 * pack.  Put that stack in the
+						 * quiver.
+						 */
+						p->body.slots[quiver1_slot].obj
+							= obj2;
+					}
+				} else if (obj1 == quiver2_obj) {
+					if (obj2 == quiver1_obj) {
+						/*
+						 * Merging the two quiver slots.
+						 * Prefer to keep the first
+						 * occupied.
+						 */
+						p->body.slots[quiver2_slot].obj
+							= NULL;
+						--p->upkeep->equip_cnt;
+					} else {
+						/*
+						 * Merging with a stack in the
+						 * pack.  Put that stack in the
+						 * quiver.
+						 */
+						p->body.slots[quiver2_slot].obj
+							= obj2;
+					}
+				}
+
 				display_message = true;
 				disable_repeat = true;
 				object_absorb(obj2, obj1);
