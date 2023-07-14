@@ -977,13 +977,6 @@ static size_t prt_tmd(int row, int col)
 				c_put_str(grade->color, meter, row, col + len);
 				len += strlen(meter) + 1;
 			}
-
-			/* Food meter */
-			if (i == TMD_FOOD) {
-				char *meter = format("%d %%", player->timed[i] / 100);
-				c_put_str(grade->color, meter, row, col + len);
-				len += strlen(meter) + 1;
-			}
 		}
 	}
 
