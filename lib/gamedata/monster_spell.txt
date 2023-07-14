@@ -288,6 +288,7 @@ effect:TIMED_INC_NO_RES:SLOW
 dice:2d4
 lore:slow
 message-vis:{name} whispers of fading and decay.
+message-invis:{name} whispers of fading and decay.
 message-save:You resist.
 
 name:SNG_BIND
