@@ -1007,7 +1007,7 @@ struct numbers_menu_entry numbers_menu_info[SMITH_NUM_MAX] =
 	{ SMITH_NUM_INC_EVN,	"increase evasion bonus" },
 	{ SMITH_NUM_DEC_EVN,	"decrease evasion bonus" },
 	{ SMITH_NUM_INC_PS,		"increase protection sides" },
-	{ SMITH_NUM_DEC_PS,		"protection sides" },
+	{ SMITH_NUM_DEC_PS,		"decrease protection sides" },
 	{ SMITH_NUM_INC_PVAL,	"increase special bonus" },
 	{ SMITH_NUM_DEC_PVAL,	"decrease special bonus" },
 	{ SMITH_NUM_INC_WGT,	"increase weight" },
