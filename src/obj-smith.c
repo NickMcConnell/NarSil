@@ -81,12 +81,14 @@ int att_max(struct object *obj, bool assume_artistry)
 {
 	struct object_base *base = obj->kind->base;
 	struct object_kind *kind = obj->kind;
+	struct ego_item *ego = obj->ego;
 	int att = kind->att;
-    bool artistry = assume_artistry ||
+	bool artistry = assume_artistry ||
 		player_active_ability(player, "Artistry");
 
 	if (artistry) att += base->smith_attack_artistry;
 	if (!tval_is_weapon(obj)) att = MIN(0, att);
+	if (ego) att += ego->att;
 	if (obj->artifact) att += base->smith_attack_artefact;
 
 	/* Rings are a special case */
@@ -107,7 +109,10 @@ int att_min(struct object *obj)
 {
 	struct object_base *base = obj->kind->base;
 	struct object_kind *kind = obj->kind;
+	struct ego_item *ego = obj->ego;
 	int att = kind->att;
+
+	if (ego && (ego->att > 0)) att += 1;
 
 	/* Rings are a special case */
 	if (strstr(base->name, "Ring")) {

@@ -297,12 +297,12 @@ void ego_apply_magic(struct object *obj, bool smithing)
 	/* Bonuses apply differently for smithed objects */
 	if (smithing) {
 		/* Apply extra ego bonuses */
-		if (ego->att) obj->att = 1;
-		if (ego->evn) obj->evn = 1;
-		if (ego->dd) obj->dd = 1;
-		if (ego->ds) obj->ds = 1;
-		if (ego->pd) obj->pd = 1;
-		if (ego->ps) obj->ps = 1;
+		if (ego->att) obj->att += 1;
+		if (ego->evn) obj->evn += 1;
+		if (ego->dd) obj->dd += 1;
+		if (ego->ds) obj->ds += 1;
+		if (ego->pd) obj->pd += 1;
+		if (ego->ps) obj->ps += 1;
 
 		if (of_has(obj->flags, OF_CURSED)) {
 			obj->pval = -1;
