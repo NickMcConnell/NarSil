@@ -244,7 +244,7 @@ static bool monster_damage_target(melee_effect_handler_context_t *context,
 {
 	/* Take damage */
 	if (context->p) {
-		take_hit(context->p, context->damage, context->ddesc);
+		take_hit(context->p, context->net_dam, context->ddesc);
 		if (context->p->is_dead) return true;
 	}
 	return false;
