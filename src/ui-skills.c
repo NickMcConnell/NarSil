@@ -282,7 +282,9 @@ static int skill_points_command(void)
 		break;
 
 	case ACT_CTX_SKILL_PTS_ESCAPE:
-		/* Exit from skill buying. */
+		/* Undo any changes made and then exit from skill buying. */
+		cmdq_push(CMD_RESET_SKILLS);
+		cmd_set_arg_choice(cmdq_peek(), "choice", false);
 		next = -1;
 		break;
 
