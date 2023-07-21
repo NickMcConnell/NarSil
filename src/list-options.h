@@ -50,7 +50,7 @@ INTERFACE, true)
 OP(pickup_always,         "Always pickup items",
 INTERFACE, false)
 OP(pickup_inven,          "Always pickup items matching inventory",
-INTERFACE, true)
+INTERFACE, false)
 OP(show_flavors,          "Show flavors in object descriptions",
 INTERFACE, false)
 OP(cheat_peek,            "Debug: Peek into object creation",
