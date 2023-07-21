@@ -131,7 +131,8 @@ void update_combat_rolls_attack(game_event_type type, game_event_data *data,
 				attacker.which.trap->kind->d_char;
 			combat_rolls[0][combat_number].attacker_attr =
 				attacker.which.trap->kind->d_attr;
-		} else if (vis || (attacker.what == SRC_PLAYER)) {
+		} else if ((vis && (attacker.what == SRC_MONSTER))
+				|| (attacker.what == SRC_PLAYER)) {
 			combat_rolls[0][combat_number].attacker_char = race1->d_char;
 
 			if (player->timed[TMD_RAGE] && (attacker.what != SRC_PLAYER)) {
@@ -148,7 +149,8 @@ void update_combat_rolls_attack(game_event_type type, game_event_data *data,
 			/* Hack for Iron Crown */
 			combat_rolls[0][combat_number].defender_char = ']';
 			combat_rolls[0][combat_number].defender_attr = COLOUR_L_DARK;
-		} else if (vis || (defender.what == SRC_PLAYER)) {
+		} else if ((vis && (defender.what == SRC_MONSTER))
+				|| (defender.what == SRC_PLAYER)) {
 			combat_rolls[0][combat_number].defender_char = race2->d_char;
 			
 			if (player->timed[TMD_RAGE] && (defender.what != SRC_PLAYER)) {
