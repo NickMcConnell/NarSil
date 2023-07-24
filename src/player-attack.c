@@ -1518,7 +1518,7 @@ void do_cmd_fire(struct command *cmd) {
 			/* Prompt */ "Fire which ammunition?",
 			/* Error  */ "You have no suitable ammunition to fire.",
 			/* Filter */ obj_can_fire,
-			/* Choice */ USE_EQUIP | USE_INVEN | USE_QUIVER | USE_FLOOR)
+			/* Choice */ USE_EQUIP)
 		!= CMD_OK)
 		return;
 
@@ -1561,8 +1561,6 @@ void do_cmd_throw(struct command *cmd) {
 	int range;
 	struct object *obj;
 
-	//TODO automatic throwing
-
 	/*
 	 * Get arguments.  Never default to showing the equipment as the first
 	 * list (since throwing the equipped weapon leaves that slot empty will
@@ -1602,6 +1600,62 @@ void do_cmd_throw(struct command *cmd) {
 }
 
 /**
+ * Front-end command which fires from the first quiver.
+ */
+void do_cmd_fire_quiver1(void) {
+	struct object *bow = equipped_item_by_slot_name(player, "shooting");
+	struct object *ammo = equipped_item_by_slot_name(player, "first quiver");
+
+	/* Require a usable launcher */
+	if (!bow || !player->state.ammo_tval) {
+		msg("You have nothing to fire with.");
+		return;
+	}
+
+	/* Require usable ammo */
+	if (!ammo) {
+		msg("You have no ammunition in the first quiver to fire.");
+		return;
+	}
+	if (ammo->tval != player->state.ammo_tval) {
+		msg("The ammunition in the first quiver is not compatible with your launcher.");
+		return;
+	}
+
+	/* Fire! */
+	cmdq_push(CMD_FIRE);
+	cmd_set_arg_item(cmdq_peek(), "item", ammo);
+}
+
+/**
+ * Front-end command which fires from the second quiver.
+ */
+void do_cmd_fire_quiver2(void) {
+	struct object *bow = equipped_item_by_slot_name(player, "shooting");
+	struct object *ammo = equipped_item_by_slot_name(player, "second quiver");
+
+	/* Require a usable launcher */
+	if (!bow || !player->state.ammo_tval) {
+		msg("You have nothing to fire with.");
+		return;
+	}
+
+	/* Require usable ammo */
+	if (!ammo) {
+		msg("You have no ammunition in the second quiver to fire.");
+		return;
+	}
+	if (ammo->tval != player->state.ammo_tval) {
+		msg("The ammunition in the second quiver is not compatible with your launcher.");
+		return;
+	}
+
+	/* Fire! */
+	cmdq_push(CMD_FIRE);
+	cmd_set_arg_item(cmdq_peek(), "item", ammo);
+}
+
+/**
  * Front-end command which fires at the nearest target with default ammo.
  */
 void do_cmd_fire_at_nearest(void) {
@@ -1637,4 +1691,61 @@ void do_cmd_fire_at_nearest(void) {
 	cmdq_push(CMD_FIRE);
 	cmd_set_arg_item(cmdq_peek(), "item", ammo);
 	cmd_set_arg_target(cmdq_peek(), "target", dir);
+}
+
+/**
+ * Front-end command for "automatic" throwing
+ *
+ * Throws the first item in the inventory that is designed for throwing at the
+ * current target, if set and in range, or the nearest monster that is in
+ * range.
+ */
+void do_cmd_automatic_throw(void) {
+	struct object *thrown;
+	int nthrow = scan_items(&thrown, 1, player, USE_INVEN, obj_is_throwing);
+	int range;
+
+	if (nthrow <= 0) {
+		msg("You don't have anything designed for throwing in your inventory.");
+		return;
+	}
+
+	range = throwing_range(thrown);
+	assert(range > 0);
+	if (!target_okay(range)) {
+		/*
+		 * Get the nearest monster in range.  Could use
+		 * target_set_closest(), but that would have the drawback of
+		 * clearing the current target if there is nothing in range.
+		 */
+		struct point_set *targets = target_get_monsters(
+			TARGET_KILL | TARGET_QUIET, NULL, false);
+		struct monster *target = NULL;
+		int target_range = range + 1;
+		int ntgt = point_set_size(targets), i = 0;
+
+		while (1) {
+			if (i >= ntgt) {
+				point_set_dispose(targets);
+				if (!target) {
+					msg("No clear target for automatic throwing.");
+					return;
+				}
+				target_set_monster(target);
+				health_track(player->upkeep, target);
+				break;
+			}
+			if (distance(player->grid, targets->pts[i])
+					< target_range) {
+				target = square_monster(cave, targets->pts[i]);
+				assert(target);
+			}
+			++i;
+		}
+	}
+
+	/* Throw! */
+	cmdq_push(CMD_THROW);
+	cmd_set_arg_item(cmdq_peek(), "item", thrown);
+	cmd_set_arg_target(cmdq_peek(), "target", DIR_TARGET);
 }

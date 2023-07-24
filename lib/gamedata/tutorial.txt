@@ -762,7 +762,7 @@ note:bow note
 text:The {object:bow:*} here is a bow, and the {object:arrow:*} is a set
 text: of arrows. Pick them up by {commanding:Pick up objects}, then wield
 text: them both by {commanding:Wear/wield an item}. You can now fire arrows
-text: by {commanding:Fire your missile weapon}. Try this in the next room.
+text: by {commanding:Fire from quiver 1}. Try this in the next room.
 
 note:running note
 text:If you want to move a long distance, hold down Shift while you

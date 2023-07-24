@@ -977,6 +977,66 @@ bool player_can_fire(struct player *p, bool show_msg)
 }
 
 /**
+ * Return true if the player can fire from the first quiver.
+ *
+ * \param p is the player
+ * \param show_msg should be set to true if a failure message should be
+ * displayed.
+ */
+bool player_can_fire_quiver1(struct player *p, bool show_msg)
+{
+	const struct object *ammo;
+
+	if (!player_can_fire(p, show_msg)) {
+		return false;
+	}
+	ammo = equipped_item_by_slot_name(p, "first quiver");
+	if (!ammo) {
+		if (show_msg) {
+			msg("You have nothing in the first quiver to fire.");
+		}
+		return false;
+	}
+	if (ammo->tval != p->state.ammo_tval) {
+		if (show_msg) {
+			msg("The ammunition in the first quiver is not compatible with your launcher.");
+		}
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Return true if the player can fire from the second quiver.
+ *
+ * \param p is the player
+ * \param show_msg should be set to true if a failure message should be
+ * displayed.
+ */
+bool player_can_fire_quiver2(struct player *p, bool show_msg)
+{
+	const struct object *ammo;
+
+	if (!player_can_fire(p, show_msg)) {
+		return false;
+	}
+	ammo = equipped_item_by_slot_name(p, "second quiver");
+	if (!ammo) {
+		if (show_msg) {
+			msg("You have nothing in the second quiver to fire.");
+		}
+		return false;
+	}
+	if (ammo->tval != p->state.ammo_tval) {
+		if (show_msg) {
+			msg("The ammunition in the second quiver is not compatible with your launcher.");
+		}
+		return false;
+	}
+	return true;
+}
+
+/**
  * Return true if the player can refuel their light source.
  *
  * \param p is the player
@@ -1009,6 +1069,24 @@ bool player_can_refuel(struct player *p, bool show_msg)
 bool player_can_fire_prereq(void)
 {
 	return player_can_fire(player, true);
+}
+
+/**
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
+ */
+bool player_can_fire_quiver1_prereq(void)
+{
+	return player_can_fire_quiver1(player, true);
+}
+
+/**
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
+ */
+bool player_can_fire_quiver2_prereq(void)
+{
+	return player_can_fire_quiver2(player, true);
 }
 
 /**

@@ -130,6 +130,11 @@ bool target_okay(int range)
 			/* Get the monster location */
 			target.grid = mon->grid;
 
+			/* Reject if it is beyond the imposed range. */
+			if (range && (distance(player->grid, target.grid)
+					> range)) {
+				return false;
+			}
 			/* Good target */
 			return true;
 		}

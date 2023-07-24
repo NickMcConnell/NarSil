@@ -69,6 +69,7 @@ bool pack_is_full(void);
 bool pack_is_overfull(void);
 void pack_overflow(struct object *obj);
 int preferred_quiver_slot(const struct object *obj);
-
+bool player_has_throwable(struct player *p, bool show_msg);
+bool player_has_throwable_prereq(void);
 
 #endif /* OBJECT_GEAR_H */

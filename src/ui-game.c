@@ -27,6 +27,7 @@
 #include "init.h"
 #include "mon-lore.h"
 #include "mon-make.h"
+#include "obj-gear.h"
 #include "obj-knowledge.h"
 #include "obj-util.h"
 #include "player-attack.h"
@@ -119,12 +120,13 @@ struct cmd_info cmd_item[] =
 	{ "Examine an item", { 'x', 'x', 'I', 'I' }, CMD_NULL, textui_obj_examine, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Drop an item", { 'd' }, CMD_DROP, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Destroy an item", { 'k', KTRL('K'),  'k', KTRL('K') }, CMD_DESTROY, NULL, NULL, 0, NULL, NULL, NULL, 0 },
-	{ "Fire your missile weapon", { 'f' }, CMD_FIRE, NULL, player_can_fire_prereq, 0, NULL, NULL, NULL, 0 },
+	{ "Fire from quiver 1", { 'f' }, CMD_NULL, do_cmd_fire_quiver1, player_can_fire_quiver1_prereq, 0, NULL, NULL, NULL, 0 },
+	{ "Fire from quiver 2", { 'F' }, CMD_NULL, do_cmd_fire_quiver2, player_can_fire_quiver2_prereq, 0, NULL, NULL, NULL, 0 },
 	{ "Use a staff", { 'a', 'a', 'u', 'u' }, CMD_USE_STAFF, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Blow a horn", { 'p' }, CMD_BLOW_HORN, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Eat some food", { 'E' }, CMD_EAT, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Quaff a potion", { 'q' }, CMD_QUAFF, NULL, NULL, 0, NULL, NULL, NULL, 0 },
-	{ "Fuel your light source", { 'F' }, CMD_REFUEL, NULL, player_can_refuel_prereq, 0, NULL, NULL, NULL, 0 },
+	{ "Fuel your light source", { KTRL('F') }, CMD_REFUEL, NULL, player_can_refuel_prereq, 0, NULL, NULL, NULL, 0 },
 	{ "Use an item", { 'u', KTRL('U'), 'U', KTRL('U') }, CMD_USE, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Smith an item", { '0' }, CMD_SMITH, NULL, NULL, 0, NULL, NULL, NULL, 0 }
 };
@@ -139,7 +141,7 @@ struct cmd_info cmd_action[] =
 	{ "Look around", { 'l', KTRL('L'),  'l', KTRL('L') }, CMD_NULL, do_cmd_look, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Target monster or location", { '*' }, CMD_NULL, textui_target, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Target closest monster", { '\'' }, CMD_NULL, textui_target_closest, NULL, 0, NULL, NULL, NULL, 0 },
-	{ "Dig a tunnel", { 'T', KTRL('T'), 'T', KTRL('T') }, CMD_TUNNEL, NULL, NULL, 0, NULL, NULL, NULL, 0 },
+	{ "Dig a tunnel", { 'T' }, CMD_TUNNEL, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Go up staircase", {'<' }, CMD_GO_UP, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Go down staircase", { '>' }, CMD_GO_DOWN, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Open a door or a chest", { 'o' }, CMD_OPEN, NULL, NULL, 0, NULL, NULL, NULL, 0 },
@@ -147,6 +149,7 @@ struct cmd_info cmd_action[] =
 	{ "Bash a door", { 'b', KTRL('B'), 'B', KTRL('B') }, CMD_BASH, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Fire at nearest target", { 'h' }, CMD_NULL, do_cmd_fire_at_nearest, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Throw an item", { 't', 't', 'v', 'v' }, CMD_THROW, NULL, NULL, 0, NULL, NULL, NULL, 0 },
+	{ "Throw automatically", { KTRL('T') }, CMD_NULL, do_cmd_automatic_throw, player_has_throwable_prereq, 0, NULL, NULL, NULL, 0 },
 	{ "Change song", { 's', 's', 'a', 'a' }, CMD_SING, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Toggle stealth mode", { 'S' }, CMD_TOGGLE_STEALTH, NULL, NULL, 0, NULL, NULL, NULL, 0 },
 	{ "Walk into a trap", { '_' }, CMD_JUMP, NULL, NULL, 0, NULL, NULL, NULL, 0 },

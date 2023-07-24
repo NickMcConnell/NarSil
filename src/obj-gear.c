@@ -1442,3 +1442,34 @@ void pack_overflow(struct object *obj)
 	if (player->upkeep->update) update_stuff(player);
 	if (player->upkeep->redraw) redraw_stuff(player);
 }
+
+/**
+ * Return true if the player has something in their inventory designed for
+ * throwing.
+ *
+ * \param p is the player
+ * \param show_msg should be set to true if a failure message should be
+ * displayed.
+ */
+bool player_has_throwable(struct player *p, bool show_msg)
+{
+	struct object *thrown;
+	int nthrow = scan_items(&thrown, 1, player, USE_INVEN, obj_is_throwing);
+
+	if (nthrow <= 0) {
+		if (show_msg) {
+			msg("You don't have anything designed for throwing in your inventory.");
+		}
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Prerequisite function for command. See struct cmd_info in ui-input.h and
+ * it's use in ui-game.c.
+ */
+bool player_has_throwable_prereq(void)
+{
+	return player_has_throwable(player, true);
+}

@@ -666,7 +666,8 @@ int context_menu_object(struct object *obj)
 			ADD_LABEL("Quaff", CMD_QUAFF, MN_ROW_VALID);
 		} else if (tval_is_edible(obj)) {
 			ADD_LABEL("Eat", CMD_EAT, MN_ROW_VALID);
-		} else if (obj_can_fire(obj)) {
+		} else if (obj_can_fire(obj)
+				&& object_is_in_quiver(player, obj)) {
 			ADD_LABEL("Fire", CMD_FIRE, MN_ROW_VALID);
 		} else {
 			ADD_LABEL("Use", CMD_USE, MN_ROW_VALID);

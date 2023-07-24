@@ -71,8 +71,11 @@ typedef struct attack_result (*ranged_attack) (struct player *p,
 											   bool one_shot);
 
 extern void do_cmd_fire(struct command *cmd);
+extern void do_cmd_fire_quiver1(void);
+extern void do_cmd_fire_quiver2(void);
 extern void do_cmd_fire_at_nearest(void);
 extern void do_cmd_throw(struct command *cmd);
+extern void do_cmd_automatic_throw(void);
 
 
 int prt_after_sharpness(struct player *p, const struct object *obj, int *flag);
