@@ -780,8 +780,8 @@ static bool do_radiance(struct player *p, struct loc grid) {
 /**
  * Handle special effects of throwing certain potions
  */
-static bool thrown_potion_effects(struct object *obj, bool *is_dead,
-								  struct monster *mon)
+static bool thrown_potion_effects(struct player *p, struct object *obj,
+		bool *is_dead, struct monster *mon)
 {
 	struct loc grid = mon->grid;
 
@@ -822,27 +822,29 @@ static bool thrown_potion_effects(struct object *obj, bool *is_dead,
 		char o_name[80];
 
 		/* Identify it fully */
-		object_flavor_aware(player, obj);
+		object_flavor_aware(p, obj);
 		object_know(obj);
 
 		/* Description */
-		object_desc(o_name, sizeof(o_name), obj, ODESC_FULL, player);
+		object_desc(o_name, sizeof(o_name), obj,
+			ODESC_PREFIX | ODESC_FULL | ODESC_ALTNUM | (1 << 16),
+			p);
 
 		/* Describe the potion */
 		msg("You threw %s.", o_name);
 
 		/* Combine / Reorder the pack (later) */
-		player->upkeep->notice |= (PN_COMBINE);
+		p->upkeep->notice |= (PN_COMBINE);
 
 		/* Window stuff */
-		player->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
+		p->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
 	}
 
 	/* Redraw if necessary*/
-	if (used) player->upkeep->redraw |= (PR_HEALTH);
+	if (used) p->upkeep->redraw |= (PR_HEALTH);
 
 	/* Handle stuff */
-	handle_stuff(player);
+	handle_stuff(p);
 
 	return used;
 
@@ -1327,8 +1329,8 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 						msg("The bottle breaks.");
 					
 						/* Returns true if damage has already been handled */
-						potion_effect = thrown_potion_effects(obj, &fatal_blow,
-															  mon);
+						potion_effect = thrown_potion_effects(
+							p, obj, &fatal_blow, mon);
 
 						/* Check the change in monster hp*/
 						pdam -= mon->hp;
@@ -1430,7 +1432,9 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 			char o_short_name[80];
 			object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
 			object_know(bow);
-			object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+			object_desc(o_full_name, sizeof(o_full_name), obj,
+				ODESC_PREFIX | ODESC_FULL | ODESC_ALTNUM |
+				(1 << 16), p);
 			msg("The arrow leaves behind a trail of light!");
 			msg("You recognize your %s to be %s", o_short_name, o_full_name);
 		}

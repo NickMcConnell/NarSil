@@ -230,7 +230,8 @@ void do_cmd_wield(struct command *cmd)
 		(player->upkeep->total_weight + obj->weight >
 		 weight_limit(player->state)* 3 / 2)) {
 		/* Describe it */
-		object_desc(o_name, sizeof(o_name), obj, ODESC_FULL, player);
+		object_desc(o_name, sizeof(o_name), obj,
+			ODESC_PREFIX | ODESC_FULL, player);
 
 		if (obj->kind) msg("You cannot lift %s.", o_name);
 

@@ -637,7 +637,8 @@ void ident_on_wield(struct player *p, struct object *obj)
 		ident(obj);
 
 		/* Full object description */
-		object_desc(o_name, sizeof(o_name), obj, ODESC_FULL, p);
+		object_desc(o_name, sizeof(o_name), obj,
+			ODESC_PREFIX | ODESC_FULL, p);
 
 		/* Print the messages */
 		msg("You recognize it as %s.", o_name);
@@ -685,7 +686,8 @@ void ident_flag(struct player *p, int flag)
 			ident(obj);
 
 			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+			object_desc(o_full_name, sizeof(o_full_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
 
 			/* Print the message */
 			msg("You realize that it is %s.", o_full_name);
@@ -736,7 +738,8 @@ void ident_element(struct player *p, int element)
 			ident(obj);
 
 			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+			object_desc(o_full_name, sizeof(o_full_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
 
 			/* Print the message */
 			msg("You realize that it is %s.", o_full_name);
@@ -783,7 +786,8 @@ void ident_passive(struct player *p)
 			ident(obj);
 
 			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+			object_desc(o_full_name, sizeof(o_full_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
 
 			/* Print the message */
 			msg("You realize that your %s is %s.", o_short_name,
@@ -824,7 +828,8 @@ void ident_see_invisible(const struct monster *mon, struct player *p)
 			ident(obj);
 
 			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+			object_desc(o_full_name, sizeof(o_full_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
 			
 			/* Print the messages */
 			msg("You notice that you can see %s very clearly.", m_name);
@@ -861,7 +866,8 @@ void ident_haunted(struct player *p)
 			ident(obj);
 
 			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+			object_desc(o_full_name, sizeof(o_full_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
 			
 			/* Print the messages */
 			msg("You notice that wraiths are being drawn to you.");
@@ -898,7 +904,8 @@ void ident_cowardice(struct player *p)
 			ident(obj);
 
 			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+			object_desc(o_full_name, sizeof(o_full_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
 			
 			/* Print the messages */
 			msg("You realize that your %s is %s.", o_short_name,
@@ -946,7 +953,8 @@ void ident_hunger(struct player *p)
 			ident(obj);
 
 			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+			object_desc(o_full_name, sizeof(o_full_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
 
 			/* Print the messages */
             if (of_has(obj->flags, OF_HUNGER)) {
@@ -999,7 +1007,8 @@ void ident_weapon_by_use(struct object *obj, char *m_name, int flag, int brand,
 	ident(obj);
 	
 	/* Full object description */
-	object_desc(o_full_name, sizeof(o_full_name), obj, ODESC_FULL, p);
+	object_desc(o_full_name, sizeof(o_full_name), obj,
+		ODESC_PREFIX | ODESC_FULL, p);
 	
 	/* Description of the 'slay' */
 	slay_desc(slay_description, sizeof(slay_description), flag, brand, m_name);
@@ -1029,7 +1038,9 @@ void ident_bow_arrow_by_use(struct object *bow, struct object *arrows,
 		ident(arrows);
 
 		/* Full arrow description */
-		object_desc(a_full_name, sizeof(a_full_name), arrows, ODESC_FULL, p);
+		object_desc(a_full_name, sizeof(a_full_name), arrows,
+			ODESC_PREFIX | ODESC_FULL | ODESC_ALTNUM | (1 << 16),
+			p);
 
 		slay_desc(slay_description, sizeof(slay_description), arrow_flag,
 				  arrow_brand, m_name);
@@ -1046,7 +1057,8 @@ void ident_bow_arrow_by_use(struct object *bow, struct object *arrows,
 		ident(bow);
 
 		/* Full bow description */
-		object_desc(b_full_name, sizeof(b_full_name), bow, ODESC_FULL, p);
+		object_desc(b_full_name, sizeof(b_full_name), bow,
+			ODESC_PREFIX | ODESC_FULL, p);
 
 		slay_desc(slay_description, sizeof(slay_description), 0, bow_brand,
 				  m_name);
