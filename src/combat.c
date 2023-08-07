@@ -157,11 +157,15 @@ int skill_check(struct source attacker, int skill, int difficulty,
 
 	/* Alternate rolls for dealing with the player curse */
 	if (player->cursed) { 
+		int alt_total;
+
 		if (attacker.what == SRC_PLAYER) {
-			skill_total = MIN(skill_total, randint1(10) + skill);
+			alt_total = randint1(10) + skill;
+			skill_total = MIN(skill_total, alt_total);
 		}
 		if (defender.what == SRC_PLAYER) {
-			difficulty_total = MIN(difficulty_total, randint1(10) + difficulty);
+			alt_total = randint1(10) + difficulty;
+			difficulty_total = MIN(difficulty_total, alt_total);
 		}
 	}
 
