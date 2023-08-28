@@ -714,7 +714,7 @@ text: past.
 note:object note
 text:There are many different types of objects, which are represented
 text: by punctuation symbols. For example the {object:sword:Curved Sword} is
-text: a sword text: and the {object:soft armor:Leather Armour} is a piece of
+text: a sword and the {object:soft armor:Leather Armour} is a piece of
 text: armour. To pick them up, walk onto them and {command:Pick up objects}.
 text: To drop an object, {command:Drop an item}.
 
