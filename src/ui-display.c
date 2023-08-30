@@ -920,7 +920,7 @@ static size_t prt_state(int row, int col)
 	/* Display the info (or blanks) */
 	c_put_str(attr, text, row, col);
 
-	return strlen(text);
+	return strlen(text) + 1;
 }
 
 /**
