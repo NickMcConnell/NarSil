@@ -814,7 +814,7 @@ void do_cmd_use(struct command *cmd)
 
 static void refill_lamp(struct object *lamp, struct object *obj)
 {
-	int timeout = obj->timeout ? obj->timeout : obj->pval;
+	int timeout = lamp->timeout + (obj->timeout ? obj->timeout : obj->pval);
 
 	/* Message */
 	if (timeout > z_info->fuel_lamp) {
@@ -822,7 +822,7 @@ static void refill_lamp(struct object *lamp, struct object *obj)
 			if (!get_check("Refueling from this lantern will waste some fuel. Proceed? ")) {
 				return;
 			}
-		} else if (get_check("Refueling from this flask will waste some fuel. Proceed? ")) {
+		} else if (!get_check("Refueling from this flask will waste some fuel. Proceed? ")) {
 			return;
 		}
 	} else {

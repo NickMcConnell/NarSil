@@ -634,6 +634,9 @@ bool obj_is_useable(const struct object *obj)
 	if (object_effect(obj))
 		return true;
 
+	if (obj_can_refuel(obj))
+		return true;
+
 	if (tval_is_ammo(obj))
 		return obj->tval == player->state.ammo_tval;
 
