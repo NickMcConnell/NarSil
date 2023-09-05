@@ -283,6 +283,7 @@ static void project_monster_handler_SLEEP(project_monster_handler_context_t *con
 {
 	int result = project_monster_skill_check(context, RF_NO_SLEEP);
 	if (result > 0) {
+		if (context->seen) context->obvious = true;
 		set_alertness(context->mon, context->mon->alertness - (result + 5));
 	} else {
 		context->hurt_msg = MON_MSG_UNAFFECTED;
@@ -298,6 +299,7 @@ static void project_monster_handler_SLEEP(project_monster_handler_context_t *con
 /* Speed Monster (Ignore "dam") */
 static void project_monster_handler_SPEED(project_monster_handler_context_t *context)
 {
+	if (context->seen) context->obvious = true;
 	context->mon_timed[MON_TMD_FAST] = context->dam;
 	if (context->mon->alertness < ALERTNESS_UNWARY) context->alert = false;
 	context->dam = 0;
@@ -308,6 +310,7 @@ static void project_monster_handler_SLOW(project_monster_handler_context_t *cont
 {
 	int result = project_monster_skill_check(context, RF_NO_SLOW);
 	if (result > 0) {
+		if (context->seen) context->obvious = true;
 		context->mon_timed[MON_TMD_SLOW] = result + 10;
 	} else {
 		context->alert = false;
@@ -326,6 +329,7 @@ static void project_monster_handler_CONFUSION(project_monster_handler_context_t 
 {
 	int result = project_monster_skill_check(context, RF_NO_CONF);
 	if (result > 0) {
+		if (context->seen) context->obvious = true;
 		context->mon_timed[MON_TMD_CONF] = result + 10;
 	} else {
 		context->hurt_msg = MON_MSG_UNAFFECTED;
