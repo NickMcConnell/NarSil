@@ -637,11 +637,11 @@ static void dif_mod(int value, int positive_base, int *dif_inc)
 static void adjust_smithing_cost(int diff, struct obj_property *prop, struct smithing_cost *smithing_cost)
 {
 	switch (prop->smith_cost_type) {
-		case SMITH_COST_STR: smithing_cost->stat[STAT_STR] += diff; break;
-		case SMITH_COST_DEX: smithing_cost->stat[STAT_DEX] += diff; break;
-		case SMITH_COST_CON: smithing_cost->stat[STAT_CON] += diff; break;
-		case SMITH_COST_GRA: smithing_cost->stat[STAT_GRA] += diff; break;
-		case SMITH_COST_EXP: smithing_cost->exp += diff * 100; break;
+		case SMITH_COST_STR: smithing_cost->stat[STAT_STR] += diff * prop->smith_cost; break;
+		case SMITH_COST_DEX: smithing_cost->stat[STAT_DEX] += diff * prop->smith_cost; break;
+		case SMITH_COST_CON: smithing_cost->stat[STAT_CON] += diff * prop->smith_cost; break;
+		case SMITH_COST_GRA: smithing_cost->stat[STAT_GRA] += diff * prop->smith_cost; break;
+		case SMITH_COST_EXP: smithing_cost->exp += diff * prop->smith_cost; break;
 	}
 }
 
