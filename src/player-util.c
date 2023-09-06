@@ -1455,11 +1455,6 @@ static void search_square(struct player *p, struct loc grid, int dist,
 		/* Give up if the square is unseen and not adjacent */
 		if ((dist > 1) && !square_isseen(cave, grid)) return;
 
-		/* No bonus for searching on your own square */
-		if (dist < 1) {
-			dist = 1;
-		}
-
 		/* Determine the base score */
 		score = p->state.skill_use[SKILL_PERCEPTION];
 
@@ -1485,7 +1480,7 @@ static void search_square(struct player *p, struct loc grid, int dist,
 			/* No bonus for searching on your own square */
 			dist = 1;
 		}
-		difficulty += (5 * dist);
+		difficulty += 5 * (dist - 1);
 
 		/* Give various penalties */
 		if (p->timed[TMD_BLIND] || no_light(p) || p->timed[TMD_IMAGE]) {
