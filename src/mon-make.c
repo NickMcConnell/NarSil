@@ -1497,8 +1497,8 @@ bool pick_and_place_monster_on_stairs(struct chunk *c, struct player *p,
 				} else {
 					msg("%s!", message);
 			}
+			return true;
 		}
-		return true;
 	}
 
 	/* Didn't happen or not seen */
