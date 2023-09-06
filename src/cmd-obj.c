@@ -801,6 +801,7 @@ void do_cmd_use(struct command *cmd)
 	else if (tval_is_horn(obj))			do_cmd_blow_horn(cmd);
 	else if (tval_is_staff(obj))		do_cmd_use_staff(cmd);
 	else if (obj_can_refuel(obj))		do_cmd_refuel(cmd);
+	else if (tval_is_wearable(obj))		do_cmd_wield(cmd);
 	else
 		msg("The item cannot be used at the moment");
 }

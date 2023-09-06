@@ -634,6 +634,17 @@ bool obj_is_useable(const struct object *obj)
 	if (object_effect(obj))
 		return true;
 
+	/*
+	 * Could do further testing to see if the equipped object, if any, can
+	 * be removed, but for items (like rings) that can go in more than one
+	 * slot there are extra complications to the logic (using wield_slot()
+	 * and slot_object() is not sufficient if all the appropriate slots
+	 * are full and the slot from wield_slot() has a cursed item but
+	 * another appropriate slot has an uncursed item).
+	 */
+	if (tval_is_wearable(obj) && !object_is_equipped(player->body, obj))
+		return true;
+
 	if (obj_can_refuel(obj))
 		return true;
 
