@@ -408,8 +408,11 @@ static void sval_display(struct menu *menu, int oid, bool cursor, int row,
 	uint8_t attr = (cursor ? COLOUR_L_BLUE : COLOUR_WHITE);
 	struct object object_body;
 	struct object *obj = &object_body;
+	struct smithing_cost local_cost;
+	struct smithing_cost *cost = &local_cost;
 	if (cursor) {
 		obj = smith_obj;
+		cost = &current_cost;
 	}
 	create_base_object(choice[oid], obj);
 	object_know(obj);
@@ -418,7 +421,8 @@ static void sval_display(struct menu *menu, int oid, bool cursor, int row,
 		object_copy(smith_obj_backup, smith_obj);
 	}
 	include_pval(obj);
-	attr = smith_affordable(obj, &current_cost) ? COLOUR_WHITE : COLOUR_SLATE;
+	(void)object_difficulty(obj, cost);
+	attr = smith_affordable(obj, cost) ? COLOUR_WHITE : COLOUR_SLATE;
 	if (cursor) {
 		show_smith_obj();
 	}
@@ -1297,11 +1301,17 @@ static void check_smithing_menu_row_colors(void)
 		if (i == 3) {
 			if (!smith_obj->kind) {
 				smithing_actions[i].flags = MN_ACT_GRAYED;
+			} else {
+				smithing_actions[i].flags = 0;
 			}
 		}
 		if (i == 4) {
-			if (!mithril_items_carried(player)) {
+			if (!mithril_items_carried(player) ||
+					!square_isforge(cave, player->grid) ||
+					!square_forge_uses(cave, player->grid)) {
 				smithing_actions[i].flags = MN_ACT_GRAYED;
+			} else {
+				smithing_actions[i].flags = 0;
 			}
 		}
 		if (i == 5) {
@@ -1310,6 +1320,8 @@ static void check_smithing_menu_row_colors(void)
 				!square_isforge(cave, player->grid) ||
 				!square_forge_uses(cave, player->grid)) {
 				smithing_actions[i].flags = MN_ACT_GRAYED;
+			} else {
+				smithing_actions[i].flags = 0;
 			}
 		}
 	}
