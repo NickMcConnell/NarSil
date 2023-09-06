@@ -858,10 +858,17 @@ void apply_magic(struct object *obj, int lev, bool allow_artifacts, bool good,
 			apply_magic_armour(obj, lev);
 		}
 	} else if (tval_is_jewelry(obj)) {
-		/* For jewellery, some negative values mean cursed */
-		if ((obj->att < 0) || (obj->evn < 0)) of_on(obj->flags, OF_CURSED);
+		/* For jewellery, some negative values mean cursed and broken */
+		if ((obj->att < 0) || (obj->evn < 0)) {
+			of_on(obj->flags, OF_CURSED);
+			obj->notice |= (OBJ_NOTICE_CURSED | OBJ_NOTICE_BROKEN);
+		}
 		for (i = 0; i < OBJ_MOD_MAX; i++) {
-			if (obj->modifiers[i] < 0) of_on(obj->flags, OF_CURSED);
+			if (obj->modifiers[i] < 0) {
+				of_on(obj->flags, OF_CURSED);
+				obj->notice |=
+					(OBJ_NOTICE_CURSED | OBJ_NOTICE_BROKEN);
+			}
 		}
 	} else if (tval_is_light(obj)) {
 		if (special) {
