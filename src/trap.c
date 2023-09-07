@@ -988,8 +988,8 @@ void hit_trap(struct loc grid)
 			effect = trap->kind->effect;
 			effect_do(effect, source_trap(trap), NULL, &ident, false, 0, NULL);
 
-			/* Trap may have gone */
-			if (!square_trap(cave, grid)) break;
+			/* Trap may have gone or the player may be dead */
+			if (!square_trap(cave, grid) || player->is_dead) break;
 
 			/* Do any extra effects (hack - use ident as the trigger - NRM) */
 			if (trap->kind->msg_xtra && ident) {
@@ -1000,8 +1000,8 @@ void hit_trap(struct loc grid)
 							  0, NULL);
 				}
 
-				/* Trap may have gone */
-				if (!square_trap(cave, grid)) break;
+				/* Trap may have gone or the player may be dead */
+				if (!square_trap(cave, grid) || player->is_dead) break;
 			}
 		}
 
