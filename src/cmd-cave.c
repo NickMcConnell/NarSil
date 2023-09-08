@@ -1382,7 +1382,7 @@ void do_cmd_bash(struct command *cmd)
 /**
  * Manipulate an adjacent grid in some way
  *
- * Attack monsters, tunnel through walls, disarm traps, open doors.
+ * Attack monsters, tunnel through walls, disarm traps, bash doors.
  *
  * This command must always take energy, to prevent free detection
  * of invisible monsters.
@@ -1437,8 +1437,8 @@ static void do_cmd_alter_aux(int dir)
 		/* Tunnel through walls and rubble */
 		more = do_cmd_tunnel_aux(grid);
 	} else if (square_iscloseddoor(cave, grid)) {
-		/* Open closed doors */
-		more = do_cmd_open_aux(grid);
+		/* Bash closed doors */
+		more = do_cmd_bash_aux(grid);
 	} else if (square_isdisarmabletrap(cave, grid)) {
 		/* Disarm traps */
 		more = do_cmd_disarm_aux(grid);
@@ -1649,7 +1649,13 @@ void move_player(int dir, bool disarm)
 		/* Auto-repeat if not already repeating */
 		if (cmd_get_nrepeats() == 0)
 			cmd_set_repeat(99);
-		do_cmd_alter_aux(dir);
+		if (door) {
+			if (!do_cmd_open_aux(grid)) {
+				disturb(player, false);
+			}
+		} else {
+			do_cmd_alter_aux(dir);
+		}
 	} else if (trap && player->upkeep->running) {
 		/* Stop running before known traps */
 		disturb(player, false);

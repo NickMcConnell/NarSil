@@ -707,9 +707,9 @@ note:door note
 text:To proceed, you will need to go through that door. To open a door, just
 text: try to move into it. Some doors are locked, in which case you will
 text: need to try multiple times in order to pick the lock. Alternatively,
-text: you could try bashing down the door by {commanding:Bash a door}.
-text: Some doors are stuck, in which case bashing them down is the only way
-text: past.
+text: you could try bashing down the door by holding down Control while you
+text: move into it (or {commanding:Alter a grid} before moving). Some doors
+text: are stuck, in which case bashing them down is the only way past.
 
 note:object note
 text:There are many different types of objects, which are represented
