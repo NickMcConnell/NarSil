@@ -452,9 +452,6 @@ static bool project_m_monster_attack(project_monster_handler_context_t *context,
 		/* Generate treasure, etc */
 		monster_death(mon, player, false, NULL, false);
 
-		/* Delete the monster */
-		delete_monster_idx(cave, m_idx);
-
 		mon_died = true;
 	} else {
 		/* Alert it */
