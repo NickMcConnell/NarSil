@@ -49,6 +49,7 @@ bool obj_can_dig(const struct object *obj);
 bool obj_has_charges(const struct object *obj);
 bool obj_can_refuel(const struct object *obj);
 bool obj_can_takeoff(const struct object *obj);
+bool obj_can_throw(const struct object *obj);
 bool obj_can_wear(const struct object *obj);
 bool obj_can_fire(const struct object *obj);
 bool obj_is_throwing(const struct object *obj);
