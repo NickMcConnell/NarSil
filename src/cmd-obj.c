@@ -369,6 +369,10 @@ void do_cmd_wield(struct command *cmd)
 			if (get_check("Do you wish to wield it in your off-hand? ")) {
 				slot = shield_slot;
 				equip_obj = slot_object(player, slot);
+				if (!equip_obj) {
+					inven_wield(obj, slot);
+					return;
+				}
 			}
 		}
 	}
