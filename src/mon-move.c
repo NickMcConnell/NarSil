@@ -3466,9 +3466,9 @@ static void monster_turn(struct monster *mon)
 		if (rf_has(mon->race->flags, RF_SMART) &&
 			!rf_has(mon->race->flags, RF_TERRITORIAL) &&
 			(mon->stance == STANCE_FLEEING) &&
-			square_isstairs(cave, mon->grid)) {
+			square_isstairs(cave, tgrid)) {
 			if (monster_is_visible(mon)) {
-				if (square_isdownstairs(cave, mon->grid)) {
+				if (square_isdownstairs(cave, tgrid)) {
 					add_monster_message(mon, MON_MSG_FLEE_DOWN_STAIRS, true);
 				} else {
 					add_monster_message(mon, MON_MSG_FLEE_UP_STAIRS, true);
@@ -3486,8 +3486,8 @@ static void monster_turn(struct monster *mon)
 				!player->timed[TMD_AFRAID] &&
 				!player->timed[TMD_ENTRANCED] &&
 				(player->timed[TMD_STUN] <= 100) &&
-				(distance(mon->grid, player->grid) == 1)) {
-				py_attack_real(player, grid, ATT_OPPORTUNIST);
+				(distance(tgrid, player->grid) == 1)) {
+				py_attack_real(player, tgrid, ATT_OPPORTUNIST);
 			}
 
 			/* Removes the monster if it is still alive */
