@@ -107,10 +107,19 @@ static enum parser_error parse_trap_max_depth(struct parser *p) {
 
 static enum parser_error parse_trap_power(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
+    int power = parser_getint(p, "power");
 
     if (!t)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
-    t->power =  parser_getint(p, "power");
+    /*
+     * Internally, a trap instance uses a uint8_t to store the power so reject
+     * any power here that can not be unambiguously stored in a uint8_t.  -1
+     * means the trap is undisarmable.
+     */
+    if (power < -1 || power > 254) {
+        return PARSE_ERROR_INVALID_VALUE;
+    }
+    t->power = power;
     return PARSE_ERROR_NONE;
 }
 

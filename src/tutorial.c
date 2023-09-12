@@ -320,7 +320,7 @@ static void tutorial_section_place_custom_trap(struct chunk *c, struct loc grid,
 		struct trap *the_trap = square_trap(c, grid);
 
 		if (the_trap) {
-			the_trap->power = 255;
+			the_trap->power = 254;
 		}
 	}
 }

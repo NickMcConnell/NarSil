@@ -1090,9 +1090,9 @@ static bool do_cmd_disarm_aux(struct loc grid)
 		return !more;
 	}
 
-	/* Determine trap power */
+	/* Determine trap power; (uint8_t)-1 is undisarmable */
 	power = trap->power;
-	if (power < 0) {
+	if (power == (uint8_t)-1) {
 		msg("You cannot disarm the %s.", trap->kind->name);
 		return false;
 	}
