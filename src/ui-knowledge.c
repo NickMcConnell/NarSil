@@ -1100,7 +1100,7 @@ static struct
 	{ L"T",        "Trolls" },
 	{ L"v",        "Vampires" },
 	{ L"V",        "Valar" },
-	{ L"W",        "Wights/Wraiths" },
+	{ L"wW",       "Wights/Wraiths" },
 	{ L"@",        "Men/Elves" },
 	{ L"&",        "Thorns" },
 	{ L"|",        "Deathblades" },
