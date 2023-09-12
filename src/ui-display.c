@@ -158,13 +158,13 @@ static void prt_stat(int stat, int row, int col)
 
 	/* Indicate temporary modifiers */
 	if ((stat == STAT_STR) && player->timed[TMD_STR])
-		put_str("*", row + stat, 3);
+		put_str("*", row, col + 3);
 	if ((stat == STAT_DEX) && player->timed[TMD_DEX])
-		put_str("*", row + stat, 3);
+		put_str("*", row, col + 3);
 	if ((stat == STAT_CON) && player->timed[TMD_CON])
-		put_str("*", row + stat, 3);
+		put_str("*", row, col + 3);
 	if ((stat == STAT_GRA) && player->timed[TMD_GRA])
-		put_str("*", row + stat, 3);
+		put_str("*", row, col + 3);
 }
 
 /**
