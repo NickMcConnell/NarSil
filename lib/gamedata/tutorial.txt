@@ -571,10 +571,6 @@
 # VISIBLE
 #     The trap will start out visible and does not need to be detected by the
 #     player.
-# INVISIBLE
-#     Makes the trap so it won't be detected by merely observing the trap's
-#     location.  Does not affect the action of trap detection spells or
-#     devices.
 
 # door:symbol:flags
 # (Optional) Causes a door to be placed at a location the description marks

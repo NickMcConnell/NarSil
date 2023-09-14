@@ -86,7 +86,7 @@ struct tutorial_section_sym_val {
 			int sleepiness;
 			bool sleepiness_fixed;
 		} monster;
-		struct { struct trap_kind *kind; bool vis, invis; } trap;
+		struct { struct trap_kind *kind; bool vis; } trap;
 		struct { int feat, power; } door;
 		struct { int feat, uses; } forge;
 		struct { char *dest; char *note; int feat; } gate;

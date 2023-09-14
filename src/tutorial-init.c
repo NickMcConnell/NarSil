@@ -2501,11 +2501,11 @@ static enum parser_error parse_section_monster(struct parser *p)
 
 static enum parser_error parse_section_trap(struct parser *p)
 {
-	const char *trap_flags[] = { "NONE", "VISIBLE", "INVISIBLE", NULL };
+	const char *trap_flags[] = { "NONE", "VISIBLE", NULL };
 	struct tutorial_parser_priv *priv = (struct tutorial_parser_priv*)
 		parser_priv(p);
 	struct trap_kind *trap;
-	bool vis, invis;
+	bool vis;
 	char *flags, *s;
 	struct tutorial_section_sym_key *key;
 	enum parser_error result;
@@ -2515,7 +2515,6 @@ static enum parser_error parse_section_trap(struct parser *p)
 	}
 	trap = lookup_trap(parser_getsym(p, "name"));
 	vis = false;
-	invis = false;
 	flags = string_make(parser_getstr(p, "flags"));
 	s = strtok(flags, " |");
 	while (s) {
@@ -2523,8 +2522,6 @@ static enum parser_error parse_section_trap(struct parser *p)
 
 		if (idx == 1) {
 			vis = true;
-		} else if (idx == 2) {
-			invis = true;
 		} else if (idx < 0) {
 			string_free(flags);
 			return PARSE_ERROR_INVALID_FLAG;
@@ -2541,7 +2538,6 @@ static enum parser_error parse_section_trap(struct parser *p)
 
 		value->v.trap.kind = trap;
 		value->v.trap.vis = vis;
-		value->v.trap.invis = invis;
 		value->is_predefined = false;
 		value->kind = SECTION_SYM_TRAP;
 		if (!tutorial_section_sym_table_insert(

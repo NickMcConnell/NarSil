@@ -316,12 +316,6 @@ static void tutorial_section_place_custom_trap(struct chunk *c, struct loc grid,
 	place_trap(c, grid, val->v.trap.kind->tidx, c->depth);
 	if (val->v.trap.vis) {
 		square_reveal_trap(c, grid, false);
-	} else if (val->v.trap.invis) {
-		struct trap *the_trap = square_trap(c, grid);
-
-		if (the_trap) {
-			the_trap->power = 254;
-		}
 	}
 }
 
