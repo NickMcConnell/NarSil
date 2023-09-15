@@ -1001,7 +1001,7 @@ void lore_append_abilities(textblock *tb, const struct monster_race *race,
 	/* Describe abilities. */
 	create_mon_flag_mask(current_flags, RFT_ABIL, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	my_strcpy(start, format("%s has the abilities:", initial_pronoun),
+	my_strcpy(start, format("%s has the abilities: ", initial_pronoun),
 			  sizeof(start));
 	lore_append_clause(tb, current_flags, COLOUR_RED, start, "and", ".  ");
 
