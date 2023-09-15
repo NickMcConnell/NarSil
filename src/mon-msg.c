@@ -172,7 +172,8 @@ void message_warning(struct monster *mon)
 	add_monster_message(mon, msg_code, false);
 
 	/* Hard not to notice */
-	update_flow(cave, &cave->monster_noise, mon);
+	cave->monster_noise.centre = mon->grid;
+	update_flow(cave, &cave->monster_noise, NULL);
 	monsters_hear(false, false, -10);
 
 	/* Makes monster noise too */

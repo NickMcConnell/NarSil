@@ -170,6 +170,7 @@ void break_truce(struct player *p, bool obvious)
 				msg("%s lets out a cry! The tension is broken.", m_name);
 
 				/* Make a lot of noise */
+				cave->monster_noise.centre = mon->grid;
 				update_flow(cave, &cave->monster_noise, NULL);
 				monsters_hear(false, false, -10);
 			} else {

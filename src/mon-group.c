@@ -326,6 +326,7 @@ void monster_group_new_wandering_flow(struct chunk *c, struct monster *mon,
 		/* They only pick a new location on creation.  Detect this using the
 		 * fact that speed hasn't been determined yet on creation */
 		if (mon->mspeed == 0) {
+			group->flow.centre = leader->grid;
 			update_flow(c, &group->flow, leader);
 		}
 	} else if (square_in_bounds_fully(c, tgrid)) {
