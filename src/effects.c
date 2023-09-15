@@ -267,6 +267,11 @@ static int effect_value_base_player_hp(void)
 	return player->chp;
 }
 
+static int effect_value_base_player_max_hp(void)
+{
+	return player->mhp;
+}
+
 static int effect_value_base_player_will(void)
 {
 	int will = player->state.skill_use[SKILL_WILL];
@@ -297,6 +302,7 @@ expression_base_value_f effect_value_base_by_name(const char *name)
 		{ "DUNGEON_LEVEL", effect_value_base_dungeon_level },
 		{ "MAX_SIGHT", effect_value_base_max_sight },
 		{ "PLAYER_HP", effect_value_base_player_hp },
+		{ "PLAYER_MAX_HP", effect_value_base_player_max_hp },
 		{ "PLAYER_WILL", effect_value_base_player_will },
 		{ "PLAYER_CUT", effect_value_base_player_cut },
 		{ "PLAYER_POIS", effect_value_base_player_pois },

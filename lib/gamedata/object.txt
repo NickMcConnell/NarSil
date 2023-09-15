@@ -1860,7 +1860,8 @@ effect:TIMED_SET:CUT
 dice:$B
 expr:B:PLAYER_CUT: / 2
 effect:HEAL_HP
-dice:m50
+dice:$B
+expr:B:PLAYER_MAX_HP: / 2
 effect:NOURISH:INC_BY
 dice:100
 flags:GOOD
