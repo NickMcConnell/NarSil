@@ -626,19 +626,28 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 				msg("(It is very hard to dodge or attack from within a web.)");
 			}
 
-            /* Allow for ripostes - treats attack as a weapon weighing 2 pounds
-			 * per damage die */
-            if (rf_has(race->flags, RF_RIPOSTE) &&
-                !monster_riposte &&
-                !mon->m_timed[MON_TMD_CONF] &&
-                (mon->stance != STANCE_FLEEING) &&
-                !mon->skip_this_turn &&
-                !mon->skip_next_turn &&
-                (hit_result <= -10 - (2 * race->blow[0].dice.dice))) {
-                msg("%s ripostes!", m_name);
-                make_attack_normal(mon, p);
-                monster_riposte = true;
-            }
+			/*
+			 * Allow for ripostes - treats attack as a weapon
+			 * weighing 2 pounds per damage die
+			 */
+			if (rf_has(race->flags, RF_RIPOSTE) &&
+					!monster_riposte &&
+					!mon->m_timed[MON_TMD_CONF] &&
+					(mon->stance != STANCE_FLEEING) &&
+					!mon->skip_this_turn &&
+					!mon->skip_next_turn &&
+					(hit_result <= -10 - (2 * race->blow[0].dice.dice))) {
+				/* Remember that the monster can do this */
+				if (monster_is_visible(mon)) {
+					struct monster_lore *lore =
+						get_lore(mon->race);
+
+					rf_on(lore->flags, RF_RIPOSTE);
+				}
+				msg("%s ripostes!", m_name);
+				make_attack_normal(mon, p);
+				monster_riposte = true;
+			}
 		}
 
 		/* Alert the monster, even if no damage was done or the player missed */
