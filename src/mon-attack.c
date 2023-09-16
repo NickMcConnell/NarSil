@@ -327,12 +327,12 @@ static void cruel_blow(struct monster *mon, struct player *p, int dice)
 		/* Remember that the monster can do this */
 		if (monster_is_visible(mon)) {
 			rf_on(lore->flags, RF_CRUEL_BLOW);
-
-			msg("You reel in pain!");
-
-			/* Confuse the player */
-			player_inc_timed(p, TMD_CONFUSED, dice, true, true);
 		}
+
+		msg("You reel in pain!");
+
+		/* Confuse the player */
+		player_inc_timed(p, TMD_CONFUSED, dice, true, true);
 	}
 }
 
