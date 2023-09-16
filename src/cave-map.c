@@ -403,6 +403,12 @@ void wiz_dark(struct chunk *c, struct player *p)
 			/* Forget all grids */
 			square_unmark(c, grid);
 
+			/*
+			 * Mark all grids as unseen so view calculations start
+			 * from scratch.
+			 */
+			sqinfo_off(square(c, grid)->info, SQUARE_SEEN);
+
 			/* Forget all objects */
 			while (obj) {
 				struct object *next = obj->next;
