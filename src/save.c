@@ -566,9 +566,11 @@ void wr_ignore(void)
 	for (i = 0; i < z_info->e_max; i++) {
 		bitflag everseen = 0, itypes[ITYPE_SIZE];
 
-		/* Figure out and write the everseen flag */
+		/* Figure out and write the everseen and aware flags */
 		if (e_info[i].everseen)
 			everseen |= 0x02;
+		if (e_info[i].aware)
+			everseen |= 0x04;
 		wr_byte(everseen);
 
 		/* Figure out and write the ignore flags */

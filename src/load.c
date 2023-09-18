@@ -894,9 +894,10 @@ int rd_ignore(void)
 		if (i < z_info->e_max) {
 			bitflag flags, itypes[ITYPE_SIZE];
 			
-			/* Read and extract the everseen flag */
+			/* Read and extract the everseen and aware flags */
 			rd_byte(&flags);
 			e_info[i].everseen = (flags & 0x02) ? true : false;
+			e_info[i].aware = (flags & 0x04) ? true : false;
 
 			/* Read and extract the ignore flags */
 			for (j = 0; j < itype_size; j++)
