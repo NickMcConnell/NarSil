@@ -378,8 +378,8 @@ struct player_state {
 	int add;			/* Total archery damage dice */
 	int ads;			/* Total archery damage sides */
 
-	int old_p_min;	/* old Minimum protection roll, to test for changes to it */
-	int old_p_max;	/* old Maximum protection roll, to test for changes to it */
+	int p_min;	/* minimum protection roll, to test for changes to it */
+	int p_max;	/* maximum protection roll, to test for changes to it */
 
 	int dig;			/* Digging ability */
 

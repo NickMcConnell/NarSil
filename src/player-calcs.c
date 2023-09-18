@@ -20,6 +20,7 @@
 
 #include "angband.h"
 #include "cave.h"
+#include "combat.h"
 #include "game-event.h"
 #include "game-input.h"
 #include "game-world.h"
@@ -38,6 +39,7 @@
 #include "player-calcs.h"
 #include "player-timed.h"
 #include "player-util.h"
+#include "project.h"
 #include "songs.h"
 
 
@@ -1078,6 +1080,10 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 			+ state->skill_stat_mod[i] + state->skill_misc_mod[i];
 	}
 
+	/* Compute bounds for the protection roll */
+	state->p_min = protection_roll(p, PROJ_HURT, true, MINIMISE);
+	state->p_max = protection_roll(p, PROJ_HURT, true, MINIMISE);
+
 	return;
 }
 
@@ -1149,7 +1155,9 @@ static void update_bonuses(struct player *p)
 	}
 
 	/* Redraw armor (if needed) */
-	if (state.skill_use[SKILL_EVASION] != p->state.skill_use[SKILL_EVASION]) {
+	if (state.skill_use[SKILL_EVASION] != p->state.skill_use[SKILL_EVASION]
+			|| state.p_min != p->state.p_min
+			|| state.p_max != p->state.p_max) {
 		/* Redraw */
 		p->upkeep->redraw |= (PR_ARMOR);
 	}
