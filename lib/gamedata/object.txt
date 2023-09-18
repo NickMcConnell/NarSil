@@ -226,7 +226,7 @@ flags:INSTA_ART
 # The Mighty Hammer 'Grond'
 
 # Index 19
-name:& Mighty Hammer~
+#name:& Mighty Hammer~
 #graphics:\:D
 #type:hafted
 #depth:20
