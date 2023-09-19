@@ -248,7 +248,6 @@ void prise_silmaril(struct player *p)
 	int noise = 0;
 	int mds = p->state.mds;
 	int attack_mod = p->state.skill_use[SKILL_MELEE];
-	char o_name[80];
 	struct monster_race *race = lookup_monster("Morgoth, Lord of Darkness");
 
 	/* The Crown is on the ground */
@@ -359,9 +358,6 @@ void prise_silmaril(struct player *p)
 
 			/* Get it */
 			inven_carry(p, sil, true, true);
-
-			/* Describe the object */
-			object_desc(o_name, sizeof(o_name), sil, true, p);
 
 			/* Break the truce (always) */
 			break_truce(p, true);
