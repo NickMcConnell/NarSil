@@ -50,7 +50,7 @@ struct ability *locate_ability(struct ability *ability, struct ability *test);
 void add_ability(struct ability **set, struct ability *add);
 void activate_ability(struct ability **set, struct ability *activate);
 void remove_ability(struct ability **ability, struct ability *remove);
-bool player_has_ability(struct player *p, const char *name);
+bool player_has_ability(struct player *p, struct ability *ability);
 int player_active_ability(struct player *p, const char *name);
 bool player_has_prereq_abilities(struct player *p, struct ability *ability);
 int player_ability_cost(struct player *p, struct ability *ability);

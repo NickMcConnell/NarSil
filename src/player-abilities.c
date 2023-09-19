@@ -420,16 +420,11 @@ void remove_ability(struct ability **ability, struct ability *remove)
 	}
 }
 
-static bool player_innate_ability(struct player *p, const char *name)
+bool player_has_ability(struct player *p, struct ability *ability)
 {
-	struct ability *ability = p->abilities;
-	return ability ? !!test_ability(name, ability, NULL) : false;
-}
-
-bool player_has_ability(struct player *p, const char *name)
-{
-	if (player_innate_ability(p, name)) return true;
-	if (test_ability(name, p->item_abilities, NULL)) return true;
+	if (!ability) return false;
+	if (locate_ability(p->abilities, ability)) return true;
+	if (locate_ability(p->item_abilities, ability)) return true;
 	return false;
 }
 

@@ -162,7 +162,7 @@ static void ability_browser(int oid, void *data, const region *loc)
 {
 	struct ability **choice = data;
 	struct ability *current = choice[oid];
-	bool learned = player_has_ability(player, current->name);
+	bool learned = player_has_ability(player, current);
 	uint8_t attr = COLOUR_L_DARK;
 	bool points = player->skill_base[current->skill] >= current->level;
 
@@ -196,7 +196,7 @@ static void ability_browser(int oid, void *data, const region *loc)
 		}
 		Term_gotoxy(text_out_indent + 2, 13);
 		while (prereq) {
-			if (player_has_ability(player, prereq->name)) {
+			if (locate_ability(player->abilities, prereq)) {
 				attr = COLOUR_SLATE;
 			} else {
 				attr = COLOUR_L_DARK;

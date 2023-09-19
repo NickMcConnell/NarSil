@@ -940,7 +940,7 @@ void inven_wield(struct object *obj, int slot)
 
 	/* Activate all of its new abilities */
 	for (ability = wielded->abilities; ability; ability = ability->next) {
-		if (!player_has_ability(player, ability->name)) {
+		if (!player_has_ability(player, ability)) {
 			add_ability(&player->item_abilities, ability);
 			activate_ability(&player->item_abilities, ability);
 		}
