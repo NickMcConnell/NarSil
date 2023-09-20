@@ -99,6 +99,7 @@ bool player_action_is_movement(struct player *p, int n);
 int player_dodging_bonus(struct player *p);
 bool player_can_riposte(struct player *p, int hit_result);
 bool player_is_sprinting(struct player *p);
+int player_bane_type_killed(int bane_type);
 int calc_bane_bonus(struct player *p);
 int player_bane_bonus(struct player *p, struct monster *mon);
 int player_spider_bane_bonus(struct player *p);

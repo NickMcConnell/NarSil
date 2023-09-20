@@ -19,6 +19,7 @@
 #include "angband.h"
 #include "monster.h"
 #include "player-abilities.h"
+#include "player-util.h"
 #include "ui-abilities.h"
 #include "ui-input.h"
 #include "ui-menu.h"
@@ -31,10 +32,10 @@
 static struct ability **skill_abilities;
 
 static struct bane_type {
-	int race_flag;
+	int kills;
 	const char *name;
 } bane_types[] = {
-	#define BANE(a, b) { RF_##a, b },
+	#define BANE(a, b) { 0, b },
 	#include "list-bane-types.h"
 	#undef BANE
 };
@@ -57,18 +58,44 @@ static void bane_display(struct menu *menu, int oid, bool cursor, int row,
 						 int col, int width)
 {
 	struct bane_type *choice = menu->menu_data;
-	uint8_t attr = (cursor ? COLOUR_L_BLUE : COLOUR_WHITE);
-	c_put_str(attr, choice[oid].name, row, col);	
+	uint8_t name_attr = (oid && choice[oid].kills < 4)
+		? COLOUR_L_DARK : COLOUR_SLATE;
+	c_put_str(name_attr, choice[oid].name, row, col);
+	if (cursor && oid) {
+		textblock *tb = textblock_new();
+		region area;
+
+		area.col = col - 7;
+		area.row = row + (menu->count - oid) + 1;
+		area.width = -1;
+		area.page_rows = -1;
+		if (choice[oid].kills >= 4) {
+			textblock_append(tb, "You have slain %d of these foes.",
+				choice[oid].kills);
+		} else {
+			textblock_append(tb,
+				"You have slain %d of these foes and need to "
+				"slay %d more.", choice[oid].kills,
+				4 - choice[oid].kills);
+		}
+		textui_textblock_place(tb, area, NULL);
+		textblock_free(tb);
+	}
 }
 
-/**
+/**i
  * Handle keypresses in the bane menu.
  */
 static bool bane_action(struct menu *m, const ui_event *event, int oid)
 {
 	if ((event->type == EVT_SELECT) && oid) {
+		struct bane_type *choice = m->menu_data;
+
+		if (choice[oid].kills < 4) {
+			/* Need 4 kills to select. */
+			return true;
+		}
 		player->bane_type = oid;
-		return true;
 	}
 	return false;
 }
@@ -80,13 +107,26 @@ static bool bane_menu(void)
 {
 	struct menu menu;
 	menu_iter menu_f = { NULL, NULL, bane_display, bane_action, NULL };
-	region area = { COL_DESCRIPTION, 4, 0, 0 };
+	region area = { COL_DESCRIPTION, 4, -1,
+		(int)N_ELEMENTS(bane_types) + 3 };
+	ui_event menu_result;
+	int i;
+	bane_types[0].kills = 0;
+	for (i = 1; i < (int)N_ELEMENTS(bane_types); ++i) {
+		bane_types[i].kills = player_bane_type_killed(i);
+	}
 	menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
 	menu.title = "Enemy types";
+	menu.selections = lower_case;
 	menu_setpriv(&menu, N_ELEMENTS(bane_types), bane_types);
 	menu_layout(&menu, &area);
-	menu_select(&menu, 0, true);
-	return player->bane_type != RF_NONE;
+	screen_save();
+	/* Erase to the bottom of the terminal. */
+	area.page_rows = -1;
+	region_erase(&area);
+	menu_result = menu_select(&menu, 0, false);
+	screen_load();
+	return menu_result.type == EVT_SELECT && player->bane_type != 0;
 }
 
 /**
@@ -143,6 +183,9 @@ static bool ability_action(struct menu *m, const ui_event *event, int oid)
 				}
 				if (player_gain_ability(player, choice[oid])) {
 					put_str("Ability gained.", 0, 0);
+				} else if (streq(choice[oid]->name, "Bane")) {
+					/* Rejected the selection so clear. */
+					player->bane_type = 0;
 				}
 			} else {
 				msg("You do not have enough experience to acquire this ability.");

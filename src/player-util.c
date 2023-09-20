@@ -900,16 +900,20 @@ static const int bane_flag[] = {
 	#undef BANE
 };
 
-static int player_bane_type_killed(int i)
+int player_bane_type_killed(int bane_type)
 {
-	int j, k = 0;
+	int j, k;
+
+	if (bane_type < 0 || bane_type >= (int)N_ELEMENTS(bane_flag)) {
+		return 0;
+	}
 
 	/* Scan the monster races */
-	for (j = 1; j < z_info->r_max; j++) {
+	for (j = 1, k = 0; j < z_info->r_max; j++) {
 		struct monster_race *race = &r_info[j];
 		struct monster_lore *lore = get_lore(race);
 
-		if (rf_has(race->flags, bane_flag[i])) {
+		if (rf_has(race->flags, bane_flag[bane_type])) {
 			k += lore->pkills;
 		}
 	}
