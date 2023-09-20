@@ -1004,7 +1004,7 @@ static void place_monster_unique_friend(struct chunk *c, struct loc grid,
 			/* Check each direction */
 			for (i = start; i < 8 + start; i++) {
 				struct loc try = loc_sum(grid, ddgrid_ddd[i % 8]);
-				if (place_new_monster_one(c, try, race, sleep, true, group_info,
+				if (place_new_monster_one(c, try, race1, sleep, true, group_info,
 										  origin)) {
 					/* Success */
 					break;
