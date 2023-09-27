@@ -61,7 +61,7 @@ static void bane_display(struct menu *menu, int oid, bool cursor, int row,
 	uint8_t name_attr = (oid && choice[oid].kills < 4)
 		? COLOUR_L_DARK : COLOUR_SLATE;
 	c_put_str(name_attr, choice[oid].name, row, col);
-	if (cursor && oid) {
+	if (cursor) {
 		textblock *tb = textblock_new();
 		region area;
 
@@ -69,9 +69,14 @@ static void bane_display(struct menu *menu, int oid, bool cursor, int row,
 		area.row = row + (menu->count - oid) + 1;
 		area.width = -1;
 		area.page_rows = -1;
-		if (choice[oid].kills >= 4) {
-			textblock_append(tb, "You have slain %d of these foes.",
-				choice[oid].kills);
+		if (!oid) {
+			textblock_append(tb,
+				"                                            "
+				"                  ");
+		} else if (choice[oid].kills >= 4) {
+			textblock_append(tb,
+				"You have slain %d of these foes.            "
+				"                  ", choice[oid].kills);
 		} else {
 			textblock_append(tb,
 				"You have slain %d of these foes and need to "
