@@ -138,19 +138,29 @@ static void ability_display(struct menu *menu, int oid, bool cursor, int row,
 	struct ability **choice = menu->menu_data;
 	struct ability *innate = locate_ability(player->abilities, choice[oid]);
 	struct ability *item = locate_ability(player->item_abilities, choice[oid]);
+	const char *name = choice[oid]->name;
+	char *name_allocated = NULL;
 	uint8_t attr = COLOUR_L_DARK;
 	int points = player->skill_base[choice[oid]->skill];
 	int points_needed = choice[oid]->level;
 
 	if (innate) {
 		attr = innate->active ? COLOUR_WHITE : COLOUR_RED;
+		if (innate->skill == SKILL_PERCEPTION
+				&& streq(innate->name, "Bane")
+				&& player->bane_type > 0) {
+			name_allocated = string_make(format("%s-Bane",
+				bane_types[player->bane_type].name));
+			name = name_allocated;
+		}
 	} else if (item) {
 		attr = item->active ? COLOUR_L_GREEN : COLOUR_RED;
 	} else if (player_has_prereq_abilities(player, choice[oid]) &&
 			   (points >= points_needed)) {
 		attr = COLOUR_SLATE;
 	}
-	c_put_str(attr, choice[oid]->name, row, col);	
+	c_put_str(attr, name, row, col);
+	string_free(name_allocated);
 }
 
 /**
@@ -266,6 +276,17 @@ static void ability_browser(int oid, void *data, const region *loc)
 						   player->new_exp);
 			}
 		}
+	} else if (current->skill == SKILL_PERCEPTION
+			&& streq(current->name, "Bane")
+			&& player->bane_type > 0) {
+		/* Or if you have the ability and it is Bane... */
+		Term_gotoxy(text_out_indent, 10);
+		text_out_c(COLOUR_WHITE, "%s-Bane:",
+			bane_types[player->bane_type].name);
+		Term_gotoxy(text_out_indent + 2, 12);
+		text_out_c(COLOUR_WHITE, "%d slain, giving a %+d bonus",
+			bane_types[player->bane_type].kills,
+			calc_bane_bonus(player));
 	}
 }
 
