@@ -83,6 +83,8 @@ enum {
  *   INVIS: Ignores invisible walls
  *   CHASM: Blocked by chasms
  *   CHCK: Projection notes when it cannot bypass a monster
+ *   RANGE_DAM: if range is zero, set the range to be where damage can
+ *     still be inflicted
  */
 enum {
 	PROJECT_NONE  = 0x00000,
@@ -103,7 +105,8 @@ enum {
 	PROJECT_CHASM = 0x04000,
 	PROJECT_CHCK  = 0x08000,
 	PROJECT_WALL  = 0x10000,
-	PROJECT_LEAVE = 0x20000
+	PROJECT_LEAVE = 0x20000,
+	PROJECT_RANGE_DAM = 0x40000
 };
 
 /* Display attrs and chars */

@@ -806,10 +806,15 @@ bool effect_handler_BREATH(effect_handler_context_t *context)
 	/* Breath width */
 	int degrees_of_arc = context->other;
 
-	/* Distance breathed generally has no fixed limit. */
-	int rad = context->radius ? context->radius : z_info->max_range;
+	/*
+	 * Distance breathed generally has no fixed limit; if the radius set
+	 * is zero, the displayed effect will only go out to the range where
+	 * damage can still be inflicted (i.e. the PROJECT_RANGE_DAM flag).
+	 */
+	int rad = context->radius;
 
-	int flg = PROJECT_ARC | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY;
+	int flg = PROJECT_ARC | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL
+		| PROJECT_PLAY | PROJECT_RANGE_DAM;
 
 	/* Breathe at the target */
 	if (project(context->origin, rad, target, context->value.dice,

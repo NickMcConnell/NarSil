@@ -542,6 +542,9 @@ struct loc origin_get_loc(struct source origin)
  *
  * PROJECT_PLAY allows projections to affect the player.
  *
+ * PROJECT_RANGE_DAM will reset rad if rad is zero to the range at which
+ * damage can still be inflicted
+ *
  * degrees_of_arc controls the width of arc spells.  With a value for 
  *   degrees_of_arc of zero, arcs act like beams of defined length.
  *
@@ -653,6 +656,21 @@ bool project(struct source origin, int rad, struct loc finish,
 
 	/* Default center of explosion (if any) */
 	centre = start;
+
+	/* If requested, set the radius to where damage can be inflicted. */
+	if (!rad && (flg & (PROJECT_RANGE_DAM))) {
+		if (uniform || !(flg & (PROJECT_ARC))) {
+			/* No damage reduction with distance */
+			rad = z_info->max_range;
+		} else {
+			rad = (dd + 1) / 2;
+			if (rad < 0) {
+				rad = 0;
+			} else if (rad > z_info->max_range) {
+				rad = z_info->max_range;
+			}
+		}
+	}
 
 	/*
 	 * An arc spell with no width and a non-zero radius is actually a
