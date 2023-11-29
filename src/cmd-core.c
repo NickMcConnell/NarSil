@@ -109,7 +109,7 @@ static const struct command_info game_cmds[] =
 	{ CMD_SING, "change song", do_cmd_change_song, false, 0 },
 	{ CMD_INSCRIBE, "inscribe", do_cmd_inscribe, false, 0 },
 	{ CMD_USE, "use", do_cmd_use, false, 0 },
-	{ CMD_SUICIDE, "kill character", do_cmd_suicide, false, 0 },
+	{ CMD_RETIRE, "retire character", do_cmd_retire, false, 0 },
 	{ CMD_HELP, "help", NULL, false, 0 },
 	{ CMD_REPEAT, "repeat", NULL, false, 0 },
 

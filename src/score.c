@@ -338,8 +338,8 @@ void enter_score(const struct player *p, const time_t *death_time)
 	} else if (streq(p->died_from, "Interrupting")) {
 		msg("Score not registered due to interruption.");
 		event_signal(EVENT_MESSAGE_FLUSH);
-	} else if (streq(p->died_from, "Quitting")) {
-		msg("Score not registered due to quitting.");
+	} else if (streq(p->died_from, "Retiring")) {
+		msg("Score not registered due to retiring.");
 		event_signal(EVENT_MESSAGE_FLUSH);
 	} else {
 		struct high_score entry;

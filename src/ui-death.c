@@ -39,12 +39,14 @@
 #include "ui-spoil.h"
 
 /**
- * Display a "tomb-stone"
+ * Display the exit screen
  */
-static void print_tomb(struct high_score *score)
+static void display_exit_screen(struct high_score *score)
 {
 	if (player->escaped) {
 		Term_putstr(15, 2, -1, COLOUR_L_BLUE, "You have escaped");
+	} else if (streq(player->died_from, "Retiring")) {
+		Term_putstr(15, 2, -1, COLOUR_L_BLUE, "You have retired");
 	} else {
 		Term_putstr(15, 2, -1, COLOUR_L_BLUE, "You have been slain");
 	}
@@ -276,9 +278,8 @@ void death_screen(void)
 	(void)time(&death_time);
 	build_score(&score, player, player->died_from, &death_time);
 
-	/* Tombstone */
 	clear_from(0);
-	print_tomb(&score);
+	display_exit_screen(&score);
 
 	/* Flush all input and output */
 	event_signal(EVENT_INPUT_FLUSH);

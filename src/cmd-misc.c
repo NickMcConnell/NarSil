@@ -80,7 +80,7 @@ void do_cmd_escape(void)
 	/* Flush input */
 	event_signal(EVENT_INPUT_FLUSH);
 
-	/* Commit suicide */
+	/* Treat escaping character as dead to satisfy end of game logic. */
 	event_signal(EVENT_DEATH);
 	player->is_dead = true;
 
@@ -117,15 +117,13 @@ void do_cmd_escape(void)
 }
 
 /**
- * Commit suicide
+ * Retire
  */
-void do_cmd_suicide(struct command *cmd)
+void do_cmd_retire(struct command *cmd)
 {
-	/* Commit suicide */
+	/* Treat retired character as dead to satisfy end of game logic. */
 	player->is_dead = true;
-
-	/* Cause of death */
-	my_strcpy(player->died_from, "Quitting", sizeof(player->died_from));
+	my_strcpy(player->died_from, "Retiring", sizeof(player->died_from));
 }
 
 /**
