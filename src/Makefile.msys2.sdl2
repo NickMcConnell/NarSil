@@ -45,6 +45,7 @@ VIDEO_sdl2 := -DUSE_SDL2 \
 	-ljxl \
 	-lhwy \
 	-lwebp \
+	-lwebpdemux \
 	-lsharpyuv \
 	-lfreetype \
 	-lharfbuzz \
