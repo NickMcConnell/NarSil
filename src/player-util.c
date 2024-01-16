@@ -428,7 +428,7 @@ void player_fall_in_pit(struct player *p, bool spiked)
 	char name[50];
 	square_apparent_name(cave, p->grid, name, sizeof(name));
 
-	msg("You fall into a %s", name);
+	msg("You fall into a %s!", name);
 
 	/* Update combat rolls */
 	event_signal_combat_attack(EVENT_COMBAT_ATTACK, source_grid(p->grid),

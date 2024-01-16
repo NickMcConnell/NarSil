@@ -113,7 +113,7 @@ desc:A hole dug to snare the unwary.
 
 # spiked pit
 
-name:pit:spiked pit
+name:spiked pit:spiked pit
 graphics:^:s
 rarity:1
 min-depth:11
@@ -211,7 +211,7 @@ msg-xtra:It pierces your foot.
 
 # rune -- summon (OoD) monster
 
-name:monster nest:roost
+name:roost:roost
 graphics:^:B
 rarity:1
 min-depth:3
@@ -225,7 +225,7 @@ msg-xtra:There is a flutter of wings from high above.
 
 # rune -- summon monsters
 
-name:monster nest:web
+name:web:web
 graphics:^:B
 rarity:1
 min-depth:8
@@ -255,7 +255,7 @@ msg:The ceiling collapses!
 
 # spot -- acid
 
-name:discolored spot:acid trap
+name:discoloured spot:acid trap
 graphics:^:u
 rarity:1
 min-depth:1
