@@ -46,7 +46,7 @@ enum
  */
 enum monster_flag_type {
 	RFT_NONE = 0,	/* placeholder flag */
-	RFT_OBV,		/* an obvious property */
+	RFT_OBV,		/* an obvious property not fitting in another category */
 	RFT_DISP,		/* for display purposes */
 	RFT_GEN,		/* related to generation */
 	RFT_NOTE,		/* especially noteworthy for lore */
@@ -54,7 +54,8 @@ enum monster_flag_type {
 	RFT_GROUP,		/* group behaviour-related */
 	RFT_DROP,		/* drop details */
 	RFT_MIND,		/* mind properties */
-	RFT_ABIL,		/* abilities */
+	RFT_ABIL,		/* abilities that are not obvious */
+	RFT_ABIL_OBV,		/* abilities that are obvious */
 	RFT_MOVE,		/* movement-related */
 	RFT_RACE_N,		/* types of monster (noun) */
 	RFT_RACE_A,		/* types of monster (adjective) */

@@ -61,8 +61,8 @@ void lore_update(const struct monster_race *race, struct monster_lore *lore)
 	if (!race || !lore) return;
 
 	/* Assume some "obvious" flags */
-	create_mon_flag_mask(mask, RFT_OBV, RFT_MAX);
-	mflag_union(lore->flags, mask);
+	create_mon_flag_mask(mask, RFT_OBV, RFT_ABIL_OBV, RFT_MAX);
+	rf_union(lore->flags, mask);
 
 	/* Blows */
 	for (i = 0; i < z_info->mon_blows_max; i++) {
@@ -81,7 +81,7 @@ void lore_update(const struct monster_race *race, struct monster_lore *lore)
 		lore->armour_known = true;
 		lore->drop_known = true;
 		create_mon_flag_mask(mask, RFT_RACE_A, RFT_RACE_N, RFT_DROP, RFT_MAX);
-		mflag_union(lore->flags, mask);
+		rf_union(lore->flags, mask);
 		rf_on(lore->flags, RF_FORCE_DEPTH);
 	}
 
@@ -999,7 +999,7 @@ void lore_append_abilities(textblock *tb, const struct monster_race *race,
 	initial_pronoun = lore_pronoun_nominative(msex, true);
 
 	/* Describe abilities. */
-	create_mon_flag_mask(current_flags, RFT_ABIL, RFT_MAX);
+	create_mon_flag_mask(current_flags, RFT_ABIL, RFT_ABIL_OBV, RFT_MAX);
 	rf_inter(current_flags, known_flags);
 	my_strcpy(start, format("%s has the abilities: ", initial_pronoun),
 			  sizeof(start));
