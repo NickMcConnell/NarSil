@@ -265,7 +265,7 @@ static void race_help(int i, void *db, const region *l)
 		int adj = r->stat_adj[j];
 
 		text_out_e("%s", name);
-		text_out_c(stat_attr(j), "%+3d", adj);
+		text_out_c(stat_attr(adj), "%+3d", adj);
 		text_out("\n");
 	}
 
@@ -314,7 +314,7 @@ static void house_help(int i, void *db, const region *l)
 		int adj = r->stat_adj[j] + h->stat_adj[j];
 
 		text_out_e("%s", name);
-		text_out_c(stat_attr(j), "%+3d", adj);
+		text_out_c(stat_attr(adj), "%+3d", adj);
 		text_out("\n");
 	}
 
