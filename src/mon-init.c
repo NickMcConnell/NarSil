@@ -1044,6 +1044,8 @@ static enum parser_error parse_mon_spell_lore_desc(struct parser *p) {
 
 static enum parser_error parse_mon_spell_message(struct parser *p) {
 	struct monster_spell *s = parser_priv(p);
+	const char *msg = (parser_hasval(p, "text")) ?
+		parser_getstr(p, "text") : "";
 	struct monster_spell_level *l;
 	assert(s);
 
@@ -1051,12 +1053,14 @@ static enum parser_error parse_mon_spell_message(struct parser *p) {
 	while (l->next) {
 		l = l->next;
 	}
-	l->message = string_append(l->message, parser_getstr(p, "text"));
+	l->message = string_append(l->message, msg);
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_mon_spell_blind_message(struct parser *p) {
 	struct monster_spell *s = parser_priv(p);
+	const char *msg = (parser_hasval(p, "text")) ?
+		parser_getstr(p, "text") : "";
 	struct monster_spell_level *l;
 	assert(s);
 
@@ -1064,12 +1068,14 @@ static enum parser_error parse_mon_spell_blind_message(struct parser *p) {
 	while (l->next) {
 		l = l->next;
 	}
-	l->blind_message = string_append(l->blind_message,parser_getstr(p, "text"));
+	l->blind_message = string_append(l->blind_message, msg);
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_mon_spell_silence_message(struct parser *p) {
 	struct monster_spell *s = parser_priv(p);
+	const char *msg = (parser_hasval(p, "text")) ?
+		parser_getstr(p, "text") : "";
 	struct monster_spell_level *l;
 	assert(s);
 
@@ -1077,13 +1083,14 @@ static enum parser_error parse_mon_spell_silence_message(struct parser *p) {
 	while (l->next) {
 		l = l->next;
 	}
-	l->silence_message = string_append(l->silence_message,
-									   parser_getstr(p, "text"));
+	l->silence_message = string_append(l->silence_message, msg);
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_mon_spell_blind_silence_message(struct parser *p) {
 	struct monster_spell *s = parser_priv(p);
+	const char *msg = (parser_hasval(p, "text")) ?
+		parser_getstr(p, "text") : "";
 	struct monster_spell_level *l;
 	assert(s);
 
@@ -1091,13 +1098,14 @@ static enum parser_error parse_mon_spell_blind_silence_message(struct parser *p)
 	while (l->next) {
 		l = l->next;
 	}
-	l->blind_silence_message = string_append(l->blind_silence_message,
-											 parser_getstr(p, "text"));
+	l->blind_silence_message = string_append(l->blind_silence_message, msg);
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_mon_spell_smart_message(struct parser *p) {
 	struct monster_spell *s = parser_priv(p);
+	const char *msg = (parser_hasval(p, "text")) ?
+		parser_getstr(p, "text") : "";
 	struct monster_spell_level *l;
 	assert(s);
 
@@ -1105,13 +1113,14 @@ static enum parser_error parse_mon_spell_smart_message(struct parser *p) {
 	while (l->next) {
 		l = l->next;
 	}
-	l->smart_message = string_append(l->smart_message,
-									 parser_getstr(p, "text"));
+	l->smart_message = string_append(l->smart_message, msg);
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_mon_spell_smart_blind_message(struct parser *p) {
 	struct monster_spell *s = parser_priv(p);
+	const char *msg = (parser_hasval(p, "text")) ?
+		parser_getstr(p, "text") : "";
 	struct monster_spell_level *l;
 	assert(s);
 
@@ -1119,13 +1128,14 @@ static enum parser_error parse_mon_spell_smart_blind_message(struct parser *p) {
 	while (l->next) {
 		l = l->next;
 	}
-	l->smart_blind_message = string_append(l->smart_blind_message,
-										   parser_getstr(p, "text"));
+	l->smart_blind_message = string_append(l->smart_blind_message, msg);
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_mon_spell_smart_silence_message(struct parser *p) {
 	struct monster_spell *s = parser_priv(p);
+	const char *msg = (parser_hasval(p, "text")) ?
+		parser_getstr(p, "text") : "";
 	struct monster_spell_level *l;
 	assert(s);
 
@@ -1133,13 +1143,14 @@ static enum parser_error parse_mon_spell_smart_silence_message(struct parser *p)
 	while (l->next) {
 		l = l->next;
 	}
-	l->smart_silence_message = string_append(l->smart_silence_message,
-											 parser_getstr(p, "text"));
+	l->smart_silence_message = string_append(l->smart_silence_message, msg);
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_mon_spell_smart_blind_silence_message(struct parser *p) {
 	struct monster_spell *s = parser_priv(p);
+	const char *msg = (parser_hasval(p, "text")) ?
+		parser_getstr(p, "text") : "";
 	struct monster_spell_level *l;
 	assert(s);
 
@@ -1148,7 +1159,7 @@ static enum parser_error parse_mon_spell_smart_blind_silence_message(struct pars
 		l = l->next;
 	}
 	l->smart_blind_silence_message =
-		string_append(l->smart_blind_silence_message, parser_getstr(p, "text"));
+		string_append(l->smart_blind_silence_message, msg);
 	return PARSE_ERROR_NONE;
 }
 
@@ -1201,18 +1212,18 @@ static struct parser *init_parse_mon_spell(void) {
 			   parse_mon_spell_expr_xtra);
 	parser_reg(p, "power-cutoff int power", parse_mon_spell_power_cutoff);
 	parser_reg(p, "lore str text", parse_mon_spell_lore_desc);
-	parser_reg(p, "message-vis str text", parse_mon_spell_message);
-	parser_reg(p, "message-invis str text", parse_mon_spell_blind_message);
-	parser_reg(p, "message-smart-vis str text", parse_mon_spell_smart_message);
-	parser_reg(p, "message-smart-invis str text",
+	parser_reg(p, "message-vis ?str text", parse_mon_spell_message);
+	parser_reg(p, "message-invis ?str text", parse_mon_spell_blind_message);
+	parser_reg(p, "message-smart-vis ?str text", parse_mon_spell_smart_message);
+	parser_reg(p, "message-smart-invis ?str text",
 			   parse_mon_spell_smart_blind_message);
-	parser_reg(p, "message-silence-vis str text",
+	parser_reg(p, "message-silence-vis ?str text",
 			   parse_mon_spell_silence_message);
-	parser_reg(p, "message-silence-invis str text",
+	parser_reg(p, "message-silence-invis ?str text",
 			   parse_mon_spell_blind_silence_message);
-	parser_reg(p, "message-silence-smart-vis str text",
+	parser_reg(p, "message-silence-smart-vis ?str text",
 			   parse_mon_spell_smart_silence_message);
-	parser_reg(p, "message-silence-smart-invis str text",
+	parser_reg(p, "message-silence-smart-invis ?str text",
 			   parse_mon_spell_smart_blind_silence_message);
 	parser_reg(p, "message-save str text", parse_mon_spell_save_message);
 	parser_reg(p, "message-no-save str text", parse_mon_spell_no_save_message);

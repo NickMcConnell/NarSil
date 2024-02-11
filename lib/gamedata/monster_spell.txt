@@ -293,12 +293,17 @@ message-vis:{name} whispers of fading and decay.
 message-invis:{name} whispers of fading and decay.
 message-save:You resist.
 
+# Note that messages for songs are set by songs.txt and code in song.c's
+# monster_sing().  Supply empty messages here to suppress bug warnings from
+# the game.
 name:SNG_BIND
 mana:10
 best-range:0
 desire:1
 use-past-range:100
 effect:SONG_OF_BINDING
+message-vis:
+message-invis:
 lore:binding
 
 name:SNG_PIERCE
@@ -307,6 +312,8 @@ best-range:0
 desire:0
 use-past-range:0
 effect:SONG_OF_PIERCING
+message-vis:
+message-invis:
 lore:piercing
 
 name:SNG_OATHS
@@ -315,4 +322,6 @@ best-range:0
 desire:1
 use-past-range:100
 effect:SONG_OF_OATHS
+message-vis:
+message-invis:
 lore:oaths
