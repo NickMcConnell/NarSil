@@ -49,7 +49,7 @@ void wiz_cheat_death(void)
 	(void)player_clear_timed(player, TMD_CUT, true, false);
 
 	/* Prevent starvation */
-	player_set_timed(player, TMD_FOOD, PY_FOOD_MAX - 1, false, false);
+	player_set_timed(player, TMD_FOOD, PY_FOOD_FULL - 1, false, false);
 
 	/* Note cause of death XXX XXX XXX */
 	my_strcpy(player->died_from, "Cheating death", sizeof(player->died_from));
