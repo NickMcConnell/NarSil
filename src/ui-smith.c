@@ -114,7 +114,7 @@ static void include_pval(struct object *obj)
 		object_wipe(smith_obj_backup);
 		object_copy(smith_obj_backup, smith_obj);
 	}
-	if (pval) {
+	if (pval_valid(obj)) {
 		if (ABS(obj->pval) <= 1) obj->pval *= pval;
 		for (i = 0; i < OBJ_MOD_MAX; i++) {
 			if (ABS(obj->modifiers[i]) <= 1) obj->modifiers[i] *= pval;
@@ -1167,11 +1167,14 @@ static void numbers_menu(const char *name, int row)
 
 static void accept_item(const char *name, int row)
 {
+	include_pval(smith_obj);
 	if (!smith_affordable(smith_obj, &current_cost) ||
 		!square_isforge(cave, player->grid) ||
 		!square_forge_uses(cave, player->grid)) {
+		exclude_pval(smith_obj);
 		return;
 	}
+	exclude_pval(smith_obj);
 	if (current_cost.drain > 0) {
 		char buf[80];
 
@@ -1315,6 +1318,7 @@ static void check_smithing_menu_row_colors(void)
 			}
 		}
 		if (i == 5) {
+			include_pval(smith_obj);
 			if (!smith_obj->kind ||
 				!smith_affordable(smith_obj, &current_cost) ||
 				!square_isforge(cave, player->grid) ||
@@ -1323,6 +1327,7 @@ static void check_smithing_menu_row_colors(void)
 			} else {
 				smithing_actions[i].flags = 0;
 			}
+			exclude_pval(smith_obj);
 		}
 	}
 }
