@@ -304,10 +304,12 @@ void ego_apply_magic(struct object *obj, bool smithing)
 		if (ego->pd) obj->pd += 1;
 		if (ego->ps) obj->ps += 1;
 
-		if (of_has(obj->flags, OF_CURSED)) {
-			obj->pval = -1;
-		} else {
-			obj->pval = 1;
+		if (ego->pval > 0) {
+			if (of_has(ego->flags, OF_CURSED)) {
+				obj->pval = -1;
+			} else {
+				obj->pval = 1;
+			}
 		}
 
 		/* Apply modifiers */

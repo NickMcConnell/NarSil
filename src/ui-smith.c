@@ -114,10 +114,10 @@ static void include_pval(struct object *obj)
 		object_wipe(smith_obj_backup);
 		object_copy(smith_obj_backup, smith_obj);
 	}
-	if (pval) {
-		if (ABS(obj->pval) <= 1) obj->pval *= pval;
+	if (pval_valid(obj)) {
+		obj->pval = pval;
 		for (i = 0; i < OBJ_MOD_MAX; i++) {
-			if (ABS(obj->modifiers[i]) <= 1) obj->modifiers[i] *= pval;
+			if (ABS(obj->modifiers[i]) <= 1) obj->modifiers[i] = pval * ABS(obj->modifiers[i]);
 		}
 	}
 	pval_included = true;
@@ -153,6 +153,7 @@ static void reset_smithing_objects(struct object_kind *kind)
 	create_base_object(kind, smith_obj);
 	object_know(smith_obj);
 	object_copy(smith_obj_backup, smith_obj);
+	pval = pval_valid(smith_obj) ? smith_obj->kind->pval : 0;
 }
 
 /**
@@ -493,6 +494,7 @@ static bool tval_action(struct menu *m, const ui_event *event, int oid)
 	/* Set the new value appropriately */
 	if (evt.type == EVT_SELECT) {
 		smith_obj->kind = smithing_svals[menu.cursor];
+		pval = pval_valid(smith_obj) ? smith_obj->kind->pval : 0;
 		selected = true;
 	}
 	menu_refresh(smithing_menu, false);
@@ -570,6 +572,7 @@ static void special_display(struct menu *menu, int oid, bool cursor, int row,
 	if (cursor) {
 		create_special(smith_obj, choice[oid]);
 		object_know(smith_obj);
+		pval = pval_valid(smith_obj) ? smith_obj->pval : 0;
 		include_pval(smith_obj);
 		attr = smith_affordable(smith_obj, &current_cost) ? COLOUR_WHITE :COLOUR_SLATE;
 		show_smith_obj();
@@ -1167,11 +1170,14 @@ static void numbers_menu(const char *name, int row)
 
 static void accept_item(const char *name, int row)
 {
+	include_pval(smith_obj);
 	if (!smith_affordable(smith_obj, &current_cost) ||
 		!square_isforge(cave, player->grid) ||
 		!square_forge_uses(cave, player->grid)) {
+		exclude_pval(smith_obj);
 		return;
 	}
+	exclude_pval(smith_obj);
 	if (current_cost.drain > 0) {
 		char buf[80];
 
@@ -1315,6 +1321,7 @@ static void check_smithing_menu_row_colors(void)
 			}
 		}
 		if (i == 5) {
+			include_pval(smith_obj);
 			if (!smith_obj->kind ||
 				!smith_affordable(smith_obj, &current_cost) ||
 				!square_isforge(cave, player->grid) ||
@@ -1323,6 +1330,7 @@ static void check_smithing_menu_row_colors(void)
 			} else {
 				smithing_actions[i].flags = 0;
 			}
+			exclude_pval(smith_obj);
 		}
 	}
 }
