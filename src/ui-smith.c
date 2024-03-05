@@ -646,6 +646,7 @@ static const char *smithing_art_cats[] =
 	#undef SKILL
 	"Name Artefact"
 };
+static int *smithing_art_cat_counts = NULL;
 
 struct property_info {
 	struct obj_property *prop;
@@ -837,7 +838,12 @@ static void artefact_display(struct menu *menu, int oid, bool cursor, int row,
 							int col, int width)
 {
 	char **choice = menu->menu_data;
-	uint8_t attr = (cursor ? COLOUR_L_BLUE : COLOUR_WHITE);
+	uint8_t attr;
+
+	assert(oid >= 0 && oid < SMITH_CAT_MAX + SKILL_MAX + 1
+		&& smithing_art_cat_counts);
+	attr = smithing_art_cat_counts[oid] > 0 ?
+		(cursor ? COLOUR_L_BLUE : COLOUR_WHITE) : COLOUR_L_DARK;
 	if (cursor) {
 		object_know(smith_obj);
 		include_pval(smith_obj);
@@ -861,32 +867,43 @@ static bool artefact_action(struct menu *m, const ui_event *event, int oid)
 		if (oid < SMITH_CAT_MAX) {
 			menu_iter menu_f = { NULL, NULL, prop_display, prop_action, NULL };
 			menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
-			smith_art_properties = mem_zalloc(z_info->property_max *
-											  sizeof(struct property_info));
+			smith_art_properties = mem_zalloc(z_info->property_max
+				* sizeof(struct property_info));
 			count = get_smith_properties(oid);
-			if (!count) return false;
+			if (!count) {
+				mem_free(smith_art_properties);
+				smith_art_properties = NULL;
+				return true;
+			}
 			menu.selections = lower_case;
 			menu.flags = MN_CASELESS_TAGS;
 			menu_setpriv(&menu, count, smith_art_properties);
 			menu_layout(&menu, &area);
 			menu_select(&menu, 0, true);
+			mem_free(smith_art_properties);
+			smith_art_properties = NULL;
 		} else if (oid < SMITH_CAT_MAX + SKILL_MAX) {
 			menu_iter menu_f = { NULL, NULL, skill_display, skill_action, NULL};
 			menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
-			smith_art_abilities = mem_zalloc(100 * sizeof(struct ability*));
+			smith_art_abilities =
+				mem_zalloc(100 * sizeof(struct ability*));
 			count = get_smith_art_abilities(oid - SMITH_CAT_MAX);
-			if (!count) return false;
+			if (!count) {
+				mem_free(smith_art_abilities);
+				smith_art_abilities = NULL;
+				return true;
+			}
 			menu.flags = MN_CASELESS_TAGS;
 			menu.selections = lower_case;
 			menu_setpriv(&menu, count, smith_art_abilities);
 			menu_layout(&menu, &area);
 			menu_select(&menu, 0, true);
+			mem_free(smith_art_abilities);
+			smith_art_abilities = NULL;
 		} else {
 			rename_artefact();
 		}
 	}
-	smith_art_properties = mem_realloc(smith_art_properties, 0);
-	smith_art_abilities = mem_realloc(smith_art_abilities, 0);
 
 	return true;
 }
@@ -900,6 +917,7 @@ static void artefact_menu(const char *name, int row)
 	struct menu menu;
 	menu_iter menu_f = { NULL, NULL, artefact_display, artefact_action, NULL };
 	region area = { COL_SMT2, ROW_SMT1, COL_SMT4 - COL_SMT2, MAX_SMITHING_TVALS };
+	int i;
 
 	if (!kind) return;
 
@@ -911,6 +929,30 @@ static void artefact_menu(const char *name, int row)
 			  sizeof(smith_art_name));
 	smith_art->name = smith_art_name;
 
+	/*
+	 * So the category entries can be colored appropriately, remember
+	 * what categories have applicable entries for this type of object.
+	 */
+	smithing_art_cat_counts = mem_alloc((SMITH_CAT_MAX + SKILL_MAX + 1)
+		* sizeof(smithing_art_cat_counts));
+	for (i = 0; i < SMITH_CAT_MAX; ++i) {
+		smith_art_properties = mem_zalloc(z_info->property_max
+			* sizeof(*smith_art_properties));
+		smithing_art_cat_counts[i] = get_smith_properties(i);
+		mem_free(smith_art_properties);
+		smith_art_properties = NULL;
+	}
+	for (i = SMITH_CAT_MAX; i < SMITH_CAT_MAX + SKILL_MAX; ++i) {
+		smith_art_abilities =
+			mem_zalloc(100 * sizeof(*smith_art_abilities));
+		smithing_art_cat_counts[i] =
+			get_smith_art_abilities(i - SMITH_CAT_MAX);
+		mem_free(smith_art_abilities);
+		smith_art_abilities = NULL;
+	}
+	/* Renaming is always possible. */
+	smithing_art_cat_counts[SMITH_CAT_MAX + SKILL_MAX] = 1;
+
 	/* Set up the menu */
 	menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
 	menu.selections = lower_case;
@@ -921,6 +963,9 @@ static void artefact_menu(const char *name, int row)
 
 	/* Select an entry */
 	menu_select(&menu, 0, false);
+
+	mem_free(smithing_art_cat_counts);
+	smithing_art_cat_counts = NULL;
 }
 
 /**
