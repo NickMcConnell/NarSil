@@ -386,7 +386,9 @@ void monster_groups_verify(struct chunk *c)
 							 info.index);
 				}
 				if (info.role == MON_GROUP_LEADER) {
-					assert (!leader_found);
+					if (leader_found) {
+						assert(0);
+					}
 					leader_found = true;
 				}
 				entry = entry->next;
