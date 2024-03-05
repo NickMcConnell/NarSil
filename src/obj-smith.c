@@ -1110,7 +1110,8 @@ void add_artefact_details(struct artifact *art, struct object *obj)
 	int i;
 	struct smithing_cost dummy;
 
-	art->aidx = z_info->a_max;
+	/* Skip using an artifact index of zero. */
+	art->aidx = (z_info->a_max) ? z_info->a_max : 1;
 	art->tval = obj->tval;
 	art->sval = obj->sval;
 	art->pval = obj->pval;
@@ -1352,12 +1353,15 @@ static void create_smithing_item(struct object *obj, struct smithing_cost *cost)
 	/* If making an artefact, copy its attributes into the proper place in
 	 * the a_info array (noting aidx has already been set) */
 	if (obj->artifact) {
-		uint16_t aidx = z_info->a_max;
+		uint16_t aidx = (z_info->a_max) ? z_info->a_max : 1;
 		assert(aidx == obj->artifact->aidx);
-		z_info->a_max++;
+		z_info->a_max = aidx + 1;
 		a_info = mem_realloc(a_info, z_info->a_max * sizeof(struct artifact));
 		aup_info = mem_realloc(aup_info, z_info->a_max * sizeof(*aup_info));
-
+		if (aidx == 1) {
+			memset(&a_info[0], 0, sizeof(a_info[0]));
+			memset(&aup_info[0], 0, sizeof(aup_info[0]));
+		}
 		memset(&a_info[aidx], 0, sizeof(a_info[aidx]));
 		artefact_copy(&a_info[aidx], (struct artifact *) obj->artifact);
 		a_info[aidx].name = string_make(a_info[aidx].name);
