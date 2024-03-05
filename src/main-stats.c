@@ -770,11 +770,14 @@ static int stats_dump_lists(void)
 	const char *object_mods[] =
 	{
 		#define STAT(a) #a,
-        #include "list-stats.h"
-        #undef STAT
-        #define OBJ_MOD(a) #a,
-        #include "list-object-modifiers.h"
-        #undef OBJ_MOD
+		#include "list-stats.h"
+		#undef STAT
+		#define SKILL(a, b) #a,
+		#include "list-skills.h"
+		#undef SKILL
+		#define OBJ_MOD(a) #a,
+		#include "list-object-modifiers.h"
+		#undef OBJ_MOD
 		NULL
 	};
 
