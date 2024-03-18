@@ -1001,10 +1001,22 @@ int rd_artifacts(void)
 			note(format("Too many (%u) artifacts!", tmp16u));
 			return (-1);
 		}
+		tmp16u = z_info->a_max;
+	} else if(tmp16u < z_info->a_max) {
+		/*
+		 * Tolerate getting fewer artifacts than expected, but if
+		 * the additional artifacts are not at the end of the list,
+		 * the loaded data for aup_info will not match up with the
+		 * expanded set of artifacts.
+		 */
+		if (!player->is_dead) {
+			note(format("Expected %u artifacts; got %u.",
+				z_info->a_max, tmp16u));
+		}
 	}
 
 	/* Read the artifact flags */
-	for (i = 0; i < z_info->a_max; i++) {
+	for (i = 0; i < tmp16u; i++) {
 		uint8_t tmp8u;
 
 		rd_byte(&tmp8u);

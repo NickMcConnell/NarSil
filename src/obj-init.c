@@ -2538,21 +2538,36 @@ static errr run_parse_randart(struct parser *p) {
 static errr finish_parse_randart(struct parser *p) {
 	struct artifact *a, *n;
 	int aidx;
-	int old_max = z_info->a_max;
+	int old_max = z_info->a_max, new_max = z_info->a_max;
 
 	/* Scan the list for the max id */
 	a = parser_priv(p);
 	while (a) {
-		z_info->a_max++;
+		++new_max;
 		a = a->next;
 	}
 
+	/* Skip using an artifact index of zero. */
+	if (!old_max && new_max) {
+		++new_max;
+	}
+	/* Artifact indices have to fit in a uint16_t. */
+	if (new_max > 65535) {
+		plog_fmt("Too many artifacts (%d) after reading the "
+			"randart file!", new_max);
+		return PARSE_ERROR_TOO_MANY_ENTRIES;
+	}
+
 	/* Re-allocate the direct access list and copy the data to it */
-	a_info = mem_realloc(a_info, (z_info->a_max + 1) * sizeof(*a));
-	aup_info = mem_realloc(aup_info, (z_info->a_max + 1) * sizeof(*aup_info));
-	aidx = z_info->a_max;
+	a_info = mem_realloc(a_info, new_max * sizeof(*a));
+	aup_info = mem_realloc(aup_info, new_max * sizeof(*aup_info));
+	if (!old_max && new_max) {
+		memset(&a_info[0], 0, sizeof(a_info[0]));
+		memset(&aup_info[0], 0, sizeof(aup_info[0]));
+	}
+	aidx = new_max - 1;
 	for (a = parser_priv(p); a; a = n, aidx--) {
-		assert(aidx > old_max);
+		assert(aidx >= old_max);
 
 		memcpy(&a_info[aidx], a, sizeof(*a));
 		a_info[aidx].aidx = aidx;
@@ -2562,8 +2577,11 @@ static errr finish_parse_randart(struct parser *p) {
 		mem_free(a);
 
 		aup_info[aidx].aidx = aidx;
+		aup_info[aidx].created = false;
+		aup_info[aidx].seen = false;
+		aup_info[aidx].everseen = false;
 	}
-	z_info->a_max += 1;
+	z_info->a_max = new_max;
 
 	parser_destroy(p);
 	return 0;
