@@ -319,7 +319,9 @@ static int test_ability(const char *name, struct ability *test,
 			}
 		}
 	}
-	assert(found);
+	if (!found) {
+		assert(0);
+	}
 	return count;
 }
 

@@ -599,7 +599,6 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
 	struct timed_effect_data *effect = &timed_effects[idx];
 	struct timed_grade *new_grade = effect->grade;
 	struct timed_grade *current_grade = effect->grade;
-	struct timed_change_grade *change_grade = effect->c_grade;
 	struct object *weapon = equipped_item_by_slot_name(p, "weapon");
 	struct timed_grade *blackout_grade = timed_effects[TMD_STUN].grade;
 
@@ -682,7 +681,7 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
 		int change;
 
 		/* There had better be a change grade */
-		assert(change_grade);
+		assert(effect->c_grade);
 
 		/* Find the change we will be using */
 		change = v - p->timed[idx];
