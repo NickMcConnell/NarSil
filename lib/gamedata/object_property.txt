@@ -131,10 +131,12 @@ smith-cost:STR:1
 
 name:light
 type:flag
+subtype:misc ability
 code:LIGHT
 smith-cat:misc
 smith-difficulty:8
 smith-cost:GRA:1
+desc:Lights the dungeon around you
 
 name:sustain strength
 type:flag
