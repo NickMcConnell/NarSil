@@ -6,8 +6,10 @@
 #include "cave.h"
 #include "init.h"
 #include "monster.h"
+#ifndef WINDOWS
 #include <locale.h>
 #include <langinfo.h>
+#endif
 
 
 int setup_tests(void **state) {
@@ -166,6 +168,7 @@ static int test_graphics0(void *state) {
 	notnull(f);
 	eq(f->d_char, L'#');
 	eq(f->d_attr, COLOUR_L_PURPLE);
+#ifndef WINDOWS
 	if (setlocale(LC_CTYPE, "") && streq(nl_langinfo(CODESET), "UTF-8")) {
 		/*
 		 * Check for glyph that is outside of the ASCII range.  Use
@@ -183,6 +186,7 @@ static int test_graphics0(void *state) {
 		eq(f->d_char, wcs[0]);
 		eq(f->d_attr, COLOUR_RED);
 	}
+#endif
 	ok;
 }
 

@@ -9,8 +9,10 @@
 #include "mon-spell.h"
 #include "z-form.h"
 #include "z-virt.h"
+#ifndef WINDOWS
 #include <locale.h>
 #include <langinfo.h>
+#endif
 
 extern struct monster_pursuit *pursuit_messages;
 extern struct monster_warning *warning_messages;
@@ -161,6 +163,7 @@ static int test_glyph0(void *state) {
 	rb = (struct monster_base*) parser_priv(p);
 	notnull(rb);
 	eq(rb->d_char, L'D');
+#ifndef WINDOWS
 	if (setlocale(LC_CTYPE, "") && streq(nl_langinfo(CODESET), "UTF-8")) {
 		/*
 		 * Check that a glyph outside of the ASCII range works.  Using
@@ -175,6 +178,7 @@ static int test_glyph0(void *state) {
 		eq(nc, 1);
 		eq(rb->d_char, wcs[0]);
 	}
+#endif
 	ok;
 }
 
@@ -336,9 +340,9 @@ static int test_combined0(void *state) {
 	notnull(rb->name);
 	require(streq(rb->name, "dragon"));
 	eq(rb->d_char, L'd');
-	eq(rb->pain, dummy_pain_messages + 2);
-	eq(rb->pursuit, dummy_pursuit_messages + 1);
-	eq(rb->warning, dummy_warning_messages + 2);
+	ptreq(rb->pain, dummy_pain_messages + 2);
+	ptreq(rb->pursuit, dummy_pursuit_messages + 1);
+	ptreq(rb->warning, dummy_warning_messages + 2);
 	rf_wipe(eflags);
 	rf_on(eflags, RF_TERRITORIAL);
 	rf_on(eflags, RF_BASH_DOOR);

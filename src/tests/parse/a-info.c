@@ -142,7 +142,7 @@ static int test_name0(void *state) {
 
 	eq(r, PARSE_ERROR_NONE);
 	a = parser_priv(state);
-	require(a);
+	notnull(a);
 	require(streq(a->name, "of Thrain"));
 	ok;
 }
@@ -165,7 +165,7 @@ static int test_base_object0(void *state) {
 
 	eq(r, PARSE_ERROR_NONE);
 	a = parser_priv(state);
-	require(a);
+	notnull(a);
 	eq(a->tval, TV_LIGHT);
 	eq(a->sval, z_info->ordinary_kind_max);
 	ok;

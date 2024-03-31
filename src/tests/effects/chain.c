@@ -101,10 +101,10 @@ static int test_chain1_execute(void *state) {
 			0, NULL);
 		free_effect(ec);
 	}
-	noteq(ec, NULL);
+	notnull(ec);
 	require(completed);
 	require(ident);
-	require(player->chp == player->mhp - 1);
+	eq(player->chp, player->mhp - 1);
 	ok;
 }
 
@@ -122,10 +122,10 @@ static int test_chain2_execute(void *state) {
 			0, NULL);
 		free_effect(ec);
 	}
-	noteq(ec, NULL);
+	notnull(ec);
 	require(completed);
 	require(ident);
-	require(player->chp == player->mhp - 1);
+	eq(player->chp, player->mhp - 1);
 	ok;
 }
 
@@ -144,10 +144,10 @@ static int test_chain3_execute(void *state) {
 			0, NULL);
 		free_effect(ec);
 	}
-	noteq(ec, NULL);
+	notnull(ec);
 	require(completed);
 	require(ident);
-	require(player->chp == player->mhp - 3);
+	eq(player->chp, player->mhp - 3);
 	ok;
 }
 
