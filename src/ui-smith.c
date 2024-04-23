@@ -626,7 +626,11 @@ static void special_menu(const char *name, int row)
 	smithing_specials = mem_zalloc(z_info->e_max * sizeof(smithing_specials));
 	affordable_specials = mem_zalloc(z_info->e_max * sizeof(affordable_specials));
 	count = get_smithing_specials(smith_obj->kind);
-	if (!count) return;
+	if (!count) {
+		mem_free(affordable_specials);
+		mem_free(smithing_specials);
+		return;
+	}
 	menu.selections = lower_case;
 	menu.flags = MN_CASELESS_TAGS;
 	menu_setpriv(&menu, count, smithing_specials);
