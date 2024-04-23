@@ -544,10 +544,14 @@ static void tval_menu(const char *name, int row)
  * Special items menu
  * ------------------------------------------------------------------------ */
 struct ego_item **smithing_specials;
+bool *affordable_specials;
 
 static int get_smithing_specials(struct object_kind *kind)
 {
-	int i, count = 0;
+	int i, count = 0, pval_old = pval;
+	struct object dummy_body;
+	struct smithing_cost dummy_cost;
+
 	if (!kind) return 0;
 	for (i = 0; i < z_info->e_max; i++) {
 		struct ego_item *ego = &e_info[i];
@@ -556,8 +560,20 @@ static int get_smithing_specials(struct object_kind *kind)
 			if (kind->kidx == poss->kidx) break;
 		}
 		if (!poss) continue;
-		smithing_specials[count++] = ego;
+		smithing_specials[count] = ego;
+		object_copy(&dummy_body, smith_obj);
+		create_special(&dummy_body, ego);
+		object_know(&dummy_body);
+		pval = pval_valid(&dummy_body) ? dummy_body.pval : 0;
+		include_pval(&dummy_body);
+		(void)object_difficulty(&dummy_body, &dummy_cost);
+		affordable_specials[count] = smith_affordable(&dummy_body,
+			&dummy_cost);
+		exclude_pval(&dummy_body);
+		object_wipe(&dummy_body);
+		++count;
 	}
+	pval = pval_old;
 	return count;
 }
 
@@ -568,13 +584,12 @@ static void special_display(struct menu *menu, int oid, bool cursor, int row,
 							int col, int width)
 {
 	struct ego_item **choice = (struct ego_item **) menu->menu_data;
-	uint8_t attr = COLOUR_SLATE;
+	uint8_t attr = affordable_specials[oid] ? COLOUR_WHITE : COLOUR_SLATE;
 	if (cursor) {
 		create_special(smith_obj, choice[oid]);
 		object_know(smith_obj);
 		pval = pval_valid(smith_obj) ? smith_obj->pval : 0;
 		include_pval(smith_obj);
-		attr = smith_affordable(smith_obj, &current_cost) ? COLOUR_WHITE :COLOUR_SLATE;
 		show_smith_obj();
 		exclude_pval(smith_obj);
 	}
@@ -608,6 +623,7 @@ static void special_menu(const char *name, int row)
 	/* Set up the menu */
 	menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
 	smithing_specials = mem_zalloc(z_info->e_max * sizeof(smithing_specials));
+	affordable_specials = mem_zalloc(z_info->e_max * sizeof(affordable_specials));
 	count = get_smithing_specials(smith_obj->kind);
 	if (!count) return;
 	menu.selections = lower_case;
@@ -623,6 +639,7 @@ static void special_menu(const char *name, int row)
 		smith_obj->ego = smithing_specials[menu.cursor];
 
 	menu_refresh(&menu, false);
+	mem_free(affordable_specials);
 	mem_free(smithing_specials);
 
 	return;
