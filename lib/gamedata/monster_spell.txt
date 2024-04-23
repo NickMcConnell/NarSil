@@ -248,7 +248,7 @@ use-past-range:100
 effect:TIMED_INC_NO_RES:AFRAID
 dice:3d4
 effect-xtra:NOISE
-dice:-10
+dice-xtra:-10
 lore:terrify
 message-vis:{name} looks into your eyes.
 message-invis:{name} lets out a terrible cry.
