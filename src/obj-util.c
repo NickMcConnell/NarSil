@@ -328,6 +328,27 @@ struct object_kind *lookup_kind(int tval, int sval)
 	return NULL;
 }
 
+/**
+ * Return the object kind that should be used as the basis for any smithed
+ * artifact belonging to the given tval.  If there is no such kind -
+ * indicating smithed artifacts should use a standard kind from that tval -
+ * return NULL.
+ */
+struct object_kind *lookup_selfmade_kind(int tval)
+{
+	int k;
+
+	for (k = 0; k < z_info->k_max; k++) {
+		struct object_kind *kind = &k_info[k];
+
+		if (kind->tval == tval
+				&& kf_has(kind->kind_flags, KF_SMITH_ART)) {
+			return kind;
+		}
+	}
+	return NULL;
+}
+
 struct object_kind *objkind_byid(int kidx) {
 	if (kidx < 0 || kidx >= z_info->k_max)
 		return NULL;

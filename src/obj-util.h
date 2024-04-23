@@ -37,6 +37,7 @@ bool is_unknown(const struct object *obj);
 unsigned check_for_inscrip(const struct object *obj, const char *inscrip);
 unsigned check_for_inscrip_with_int(const struct object *obj, const char *insrip, int *ival);
 struct object_kind *lookup_kind(int tval, int sval);
+struct object_kind *lookup_selfmade_kind(int tval);
 struct object_kind *objkind_byid(int kidx);
 const struct artifact *lookup_artifact_name(const char *name);
 struct ego_item *lookup_ego_item(const char *name, int tval, int sval);

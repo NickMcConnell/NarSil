@@ -12,6 +12,7 @@
 KF(NONE,			"")
 KF(INSTA_ART,		"")
 KF(QUEST_ART,		"")
+KF(SMITH_ART,		"")
 KF(GOOD,			"")
 KF(SHOW_DICE,		"")
 KF(EASY_KNOW,		"")

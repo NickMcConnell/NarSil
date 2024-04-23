@@ -28,6 +28,7 @@
 #include "obj-pile.h"
 #include "obj-smith.h"
 #include "obj-tval.h"
+#include "obj-util.h"
 #include "object.h"
 #include "player-abilities.h"
 #include "player-calcs.h"
@@ -916,17 +917,27 @@ static bool artefact_action(struct menu *m, const ui_event *event, int oid)
  */
 static void artefact_menu(const char *name, int row)
 {
-	struct object_kind *kind = smith_obj->kind;
+	struct object_kind *kind;
 	struct menu menu;
 	menu_iter menu_f = { NULL, NULL, artefact_display, artefact_action, NULL };
 	region area = { COL_SMT2, ROW_SMT1, COL_SMT4 - COL_SMT2, MAX_SMITHING_TVALS };
 	int i;
 
-	if (!kind) return;
+	if (!smith_obj->kind) return;
+	/*
+	 * Some types of objects use a special base for all smithed artefacts.
+	 * All others use the base item already selected.
+	 */
+	kind = lookup_selfmade_kind(smith_obj->kind->tval);
+	if (!kind) {
+		kind = smith_obj->kind;
+	}
 
 	/* Mark as an artefact, remove any special item info */
+	if (smith_obj->ego || kind != smith_obj->kind) {
+		reset_smithing_objects(kind);
+	}
 	smith_obj->artifact = smith_art;
-	if (smith_obj->ego) reset_smithing_objects(kind);
 
 	my_strcpy(smith_art_name, format("of %s", player->full_name),
 			  sizeof(smith_art_name));

@@ -154,6 +154,10 @@ graphics:$:w
 # being created without also turning them into artifacts.  This flag
 # must be specified both here and in the artifact template.
 #
+# The 'SMITH_ART' flag indicates that this object kind should be used as
+# the kind for all smithed objects that have the same type ('ring' for
+# example) as this kind.
+#
 # The reason for having multiple 'ring' and
 # 'amulet' templates is to allow each 'special artifact' to
 # have a different 'color' and 'flavor', and also to allow the use of
@@ -262,7 +266,7 @@ weight:1
 cost:1000
 attack:0:0d0
 defence:0:0d0
-flags:INSTA_ART
+flags:INSTA_ART | SMITH_ART
 
 
 # A base amulet for self-made artifacts
@@ -276,7 +280,7 @@ weight:1
 cost:1000
 attack:0:0d0
 defence:0:0d0
-flags:INSTA_ART
+flags:INSTA_ART | SMITH_ART
 
 
 # The Mighty Hammer 'Grond'
