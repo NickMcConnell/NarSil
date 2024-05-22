@@ -780,10 +780,11 @@ bool effect_handler_SUMMON(effect_handler_context_t *context)
 		}
 	} else {
 		/* Summon some monsters */
-		while (summon_max) {
+		int itry = 0;
+		while (count < summon_max && itry < 1000) {
 			count += summon_specific(player->grid, player->depth + level_boost,
 									 summon_type);
-			summon_max--;
+			++itry;
 		}
 
 		/* Identify */

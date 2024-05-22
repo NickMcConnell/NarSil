@@ -345,7 +345,7 @@ int summon_specific(struct loc grid, int lev, int type)
 	get_mon_num_prep(summon_specific_okay);
 
 	/* Pick a monster, using the level calculation */
-	race = get_mon_num(lev, false, true, player->depth);
+	race = get_mon_num(lev, false, true, false);
 
 	/* Prepare allocation table */
 	get_mon_num_prep(NULL);
