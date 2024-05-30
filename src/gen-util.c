@@ -398,7 +398,8 @@ void place_item_near_player(struct chunk *c, struct player *p, int tval,
  * \param good is it a good object?
  * \param great is it a great object?
  * \param origin item origin
- * \param tval specified tval, if any
+ * \param drop constrains the type of object created or may be NULL to no
+ * constraint on the object type
  */
 void place_object(struct chunk *c, struct loc grid, int level, bool good,
 		bool great, uint8_t origin, struct drop *drop)

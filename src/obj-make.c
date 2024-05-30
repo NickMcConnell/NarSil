@@ -1095,28 +1095,35 @@ static void get_obj_num_prep(struct drop *drop)
 
 		/* Check the restriction, if any */
 		if (drop) {
-			bool done = false;
 			struct poss_item *item;
 			if (drop->poss) {
+				/*
+				 * Unless determined otherwise, this object is
+				 * not included.
+				 */
+				entry->prob2 = 0;
 				item = drop->poss;
 				while (item) {
 					if ((int) item->kidx == entry->index) {
-						done = true;
 						/* Accept this object */
 						entry->prob2 = entry->prob1;
+						break;
 					}
-					if (done) break;
 					item = item->next;
 				}
 			} else if (drop->imposs) {
+				/*
+				 * Unless determined otherwise, this object is
+				 * included.
+				 */
+				entry->prob2 = entry->prob1;
 				item = drop->imposs;
 				while (item) {
 					if ((int) item->kidx == entry->index) {
-						done = true;
 						/* Do not use this object */
 						entry->prob2 = 0;
+						break;
 					}
-					if (done) break;
 					item = item->next;
 				}
 			} else {
@@ -1242,9 +1249,8 @@ struct object_kind *get_obj_num(int level)
  * \param lev is the creation level of the object (not necessarily == depth).
  * \param good is whether the object is to be good
  * \param great is whether the object is to be great
- * \param extra_roll is whether we get an extra roll in apply_magic()
- * \param value is the value to be returned to the calling function
- * \param tval is the desired tval, or 0 if we allow any tval
+ * \param drop constrains the type of object created or may be NULL to have no
+ * constraint on the object type
  *
  * \return a pointer to the newly allocated object, or NULL on failure.
  */
