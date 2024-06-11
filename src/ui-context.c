@@ -455,11 +455,15 @@ int context_menu_cave(struct chunk *c, int y, int x, int adjacent, int mx,
 			ADD_LABEL("Disarm", CMD_DISARM, MN_ROW_VALID);
 			ADD_LABEL("Jump Onto", CMD_JUMP, MN_ROW_VALID);
 		}
+		else if (square_iswarded(c, grid)) {
+			ADD_LABEL("Disarm", CMD_DISARM, MN_ROW_VALID);
+		}
 
 		if (square_isopendoor(c, grid)) {
 			ADD_LABEL("Close", CMD_CLOSE, MN_ROW_VALID);
 		}
-		else if (square_iscloseddoor(c, grid)) {
+		else if (square_iscloseddoor(c, grid)
+				&& !square_issecretdoor(c, grid)) {
 			ADD_LABEL("Open", CMD_OPEN, MN_ROW_VALID);
 			ADD_LABEL("Bash", CMD_BASH, MN_ROW_VALID);
 		}
