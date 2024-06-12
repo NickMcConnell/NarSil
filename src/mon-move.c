@@ -2692,14 +2692,14 @@ static void process_move(struct monster *mon, struct loc tgrid, bool bash)
 					mon->noise += 15;
 				}
 			} else if (rf_has(race->flags, RF_TUNNEL_WALL) &&
-					   !square_iswall(cave, next)) {
+					   !square_iscloseddoor(cave, next)) {
 				bool note = false;
                 
 				/* Noise distance depends on monster "dangerousness"  XXX */
 				int noise_dist = 10;
                 
-                /* Do not move */
-                do_move = false;
+				/* Do not move */
+				do_move = false;
                 
 				/* Note that the monster killed the wall */
 				if (square_isview(cave, next)) {
