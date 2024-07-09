@@ -527,6 +527,15 @@ static bool do_cmd_close_test(struct loc grid)
 		return (false);
 	}
 
+	/* Dont allow if player is in the way. */
+	if (square(cave, grid)->mon < 0) {
+		/* Message */
+		msg("To close the door you would need to move out from the doorway.");
+
+		/* Nope */
+		return (false);
+	}
+
 	/* Okay */
 	return (true);
 }
@@ -1455,12 +1464,8 @@ static void do_cmd_alter_aux(int dir)
 		/* Open chest */
 		more = do_cmd_open_chest(grid, o_chest_closed);
 	} else if (square_isopendoor(cave, grid)) {
-		if (dir == DIR_NONE) {
-			msg("To close the door you would need to move out from the doorway.");
-		} else {
-			/* Close door */
-			more = do_cmd_close_aux(grid);
-		}
+		/* Close door */
+		more = do_cmd_close_aux(grid);
 	} else if ((dir == DIR_NONE) && square_isupstairs(cave, grid)) {
 		/* Ascend */
 		if (get_check("Are you sure you wish to ascend? ")) {
