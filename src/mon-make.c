@@ -1339,7 +1339,7 @@ void place_monster_by_letter(struct chunk *c, struct loc grid, char ch,
 	}
 	while (!got_race && (depth > 0)) {		
 		race = get_mon_num(depth, false, true, true);
-		if (race->d_char == wtmp[0] ||
+		if (race->d_char == wtmp[0] &&
 			(allow_unique || !rf_has(race->flags, RF_UNIQUE))) {
 			got_race = true;
 			break;
