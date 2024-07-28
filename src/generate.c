@@ -582,6 +582,30 @@ static void cave_clear(struct chunk *c, struct player *p)
 	 * first turn if you fell down) */
     p->upkeep->knocked_back = false;
 
+	/* Forget knowledge of old level */
+	if (p->cave && (c == cave)) {
+		int x, y;
+
+		/* Deal with artifacts */
+		for (y = 0; y < c->height; y++) {
+			for (x = 0; x < c->width; x++) {
+				struct object *obj = square_object(c, loc(x, y));
+				while (obj) {
+					if (obj->artifact && obj_is_known_artifact(obj)) {
+						history_lose_artifact(p, obj->artifact);
+						mark_artifact_created(obj->artifact, true);
+					}
+
+					obj = obj->next;
+				}
+			}
+		}
+
+		/* Free the known cave */
+		cave_free(p->cave);
+		p->cave = NULL;
+	}
+
 	/* Clear the monsters */
 	wipe_mon_list(c, p);
 
@@ -703,6 +727,16 @@ static struct chunk *cave_generate(struct player *p)
 
 	/* Validate the dungeon (we could use more checks here) */
 	chunk_validate_objects(chunk);
+
+	/* Allocate new known level */
+	p->cave = cave_new(chunk->height, chunk->width);
+	p->cave->depth = chunk->depth;
+	p->cave->objects = mem_realloc(p->cave->objects, (chunk->obj_max + 1)
+								   * sizeof(struct object*));
+	p->cave->obj_max = chunk->obj_max;
+	for (i = 0; i <= p->cave->obj_max; i++) {
+		p->cave->objects[i] = NULL;
+	}
 
 	/* Clear stair creation */
 	p->upkeep->create_stair = FEAT_NONE;
