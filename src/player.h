@@ -570,7 +570,10 @@ struct player {
 	struct player_body body;			/* Equipment slots available */
 
 	struct object *gear;				/* Real gear */
+	struct object *gear_k;				/* Known gear */
 
+	struct object *obj_k;				/* Object knowledge ("runes") */
+	struct chunk *cave;					/* Known version of current level */
 
 	struct player_state state;			/* Calculatable state */
 	struct player_state known_state;	/* What the player can know of the above */
