@@ -1350,6 +1350,12 @@ int rd_dungeon(void)
 	/* The dungeon is ready */
 	character_dungeon = true;
 
+	/* Read known cave */
+	if (rd_dungeon_aux(&player->cave)) {
+		return 1;
+	}
+	player->cave->depth = depth;
+
 	return 0;
 }
 
@@ -1361,6 +1367,8 @@ int rd_objects(void)
 {
 	if (rd_objects_aux(cave))
 		return -1;
+	if (rd_objects_aux(rd_item, player->cave))
+		return -1;
 
 	return 0;
 }
@@ -1370,13 +1378,34 @@ int rd_objects(void)
  */
 int rd_monsters(void)
 {
+	int i;
+
 	/* Only if the player's alive */
 	if (player->is_dead)
 		return 0;
 
 	if (rd_monsters_aux(cave))
 		return -1;
+	if (rd_monsters_aux(player->cave))
+		return -1;
 
+#if OBJ_RECOVER
+	player->cave->objects = mem_zalloc((cave->obj_max + 1) * sizeof(struct object*));
+	player->cave->obj_max = cave->obj_max;
+	for (i = 0; i <= cave->obj_max; i++) {
+		struct object *obj = cave->objects[i], *known_obj;
+		if (!obj) continue;
+		known_obj = object_new();
+		obj->known = known_obj;
+		object_copy(known_obj, obj);
+		player->cave->objects[i] = known_obj;
+	}
+#else
+	/* Associate known objects */
+	for (i = 0; i < player->cave->obj_max; i++)
+		if (cave->objects[i] && player->cave->objects[i])
+			cave->objects[i]->known = player->cave->objects[i];
+#endif
 	return 0;
 }
 
@@ -1386,6 +1415,8 @@ int rd_monsters(void)
 int rd_traps(void)
 {
 	if (rd_traps_aux(cave))
+		return -1;
+	if (rd_traps_aux(player->cave))
 		return -1;
 	return 0;
 }
