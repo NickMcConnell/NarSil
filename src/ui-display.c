@@ -2712,11 +2712,10 @@ static void ui_leave_world(game_event_type type, game_event_data *data,
 	/* Player HP can optionally change the colour of the '@' now. */
 	event_remove_handler(EVENT_HP, hp_colour_change, NULL);
 
-	/* Simplest way to keep the map up to date - will do for now */
-	event_remove_handler(EVENT_MAP, update_maps, angband_term[0]);
-#ifdef MAP_DEBUG
-	event_remove_handler(EVENT_MAP, trace_map_updates, angband_term[0]);
-#endif
+	/*
+	 * Note that ui_leave_game() handles the map handlers on term 0
+	 * to allow for post-death viewing of the dungeon.
+	 */
 
 	/* Check if the panel should shift when the player's moved */
 	event_remove_handler(EVENT_PLAYERMOVED, check_panel, NULL);
@@ -2792,6 +2791,15 @@ static void ui_enter_game(game_event_type type, game_event_data *data,
 static void ui_leave_game(game_event_type type, game_event_data *data,
 						  void *user)
 {
+	/*
+	 * These are removed here rather than ui_leave_world() to allow for
+	 * post-death viewing of the dungeon.
+	 */
+	event_remove_handler(EVENT_MAP, update_maps, angband_term[0]);
+#ifdef MAP_DEBUG
+	event_remove_handler(EVENT_MAP, trace_map_updates, angband_term[0]);
+#endif
+
 	/* Display a message to the player */
 	event_remove_handler(EVENT_MESSAGE, display_message, NULL);
 
