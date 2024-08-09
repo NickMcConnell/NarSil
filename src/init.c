@@ -2073,6 +2073,7 @@ void cleanup_angband(void)
 
 	/* Free the main cave */
 	if (cave) {
+		forget_fire(cave);
 		cave_free(cave);
 		cave = NULL;
 	}
