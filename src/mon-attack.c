@@ -186,15 +186,11 @@ static int choose_ranged_attack(struct monster *mon)
 bool make_ranged_attack(struct monster *mon)
 {
 	struct monster_lore *lore = get_lore(mon->race);
-	char m_name[80];
 	bool seen = (player->timed[TMD_BLIND] == 0) && monster_is_visible(mon);
 
 	/* Choose attack, or give up */
 	int choice = choose_ranged_attack(mon);
 	if (!choice) return false;
-
-	/* There will be at least an attempt now, so get the monster's name */
-	monster_desc(m_name, sizeof(m_name), mon, MDESC_STANDARD);
 
 	/* Monster has cast a spell*/
 	mflag_off(mon->mflag, MFLAG_ALWAYS_CAST);
