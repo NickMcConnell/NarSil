@@ -339,7 +339,7 @@ void monster_group_new_wandering_flow(struct chunk *c, struct monster *mon,
 			!rf_has(race->flags, RF_TERRITORIAL) &&
 			(player->depth != z_info->dun_depth) && one_in_(5) &&
 			cave_find(c, &grid, square_isstairs) &&
-			square_monster(c, grid) && !square_isvault(c, grid)) {
+			!square_isplayer(c, grid) && !square_isvault(c, grid)) {
 			/* Sometimes intelligent monsters want to pick a staircase and leave
 			 * the level */
 			group->flow.centre = grid;
