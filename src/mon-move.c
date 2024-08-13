@@ -535,9 +535,9 @@ static bool get_move_wander(struct monster *mon, struct loc *tgrid)
 				if (group_sleepers == 1) {
 					sleeper_grid = mon1->grid;
 				}
-				if (mon1->wandering_dist > group_furthest) {
-					group_furthest = mon1->wandering_dist;
-				}
+			}
+			if (mon1->wandering_dist > group_furthest) {
+				group_furthest = mon1->wandering_dist;
 			}
 			list_entry = list_entry->next;
 		}
