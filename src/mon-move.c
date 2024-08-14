@@ -1676,9 +1676,9 @@ static bool get_move(struct monster *mon, struct loc *tgrid, bool *fear,
 						   !square_isprojectable(cave, gridw)) {
 					/* If walls east and west of monster (#) and there is
 					 * a monster in one of the three squares behind (X) */
-					struct loc grid1 = loc_diff(mgrid, loc(-1, dx));
-					struct loc grid2 = loc_diff(mgrid, loc(0, dx));
-					struct loc grid3 = loc_diff(mgrid, loc(1, dx));
+					struct loc grid1 = loc_diff(mgrid, loc(-1, dy));
+					struct loc grid2 = loc_diff(mgrid, loc(0, dy));
+					struct loc grid3 = loc_diff(mgrid, loc(1, dy));
 					struct loc grida = loc_sum(mgrid, loc(0, dy));
 					struct monster *mon1 = square_monster(cave, grid1);
 					struct monster *mon2 = square_monster(cave, grid2);
