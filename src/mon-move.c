@@ -1716,7 +1716,7 @@ static bool get_move(struct monster *mon, struct loc *tgrid, bool *fear,
 			/* Monster has to be willing to melee */
 			if (mon->min_range == 1) {
 				/* If we're in sight, find a hiding place */
-				if (square_isseen(cave, mon->grid) &&
+				if (square_isseen(cave, mon->grid) ||
 					square_isfire(cave, mon->grid)) {
 					/* Find a safe spot to lurk in */
 					if (get_move_retreat(mon, tgrid)) {
@@ -1735,7 +1735,7 @@ static bool get_move(struct monster *mon, struct loc *tgrid, bool *fear,
 
 				/* Done */
 				return true;
-			} else if (square_isseen(cave, mon->grid) &&
+			} else if (square_isseen(cave, mon->grid) ||
 					   square_isfire(cave, mon->grid)) {
 				/* Find a safe spot to lurk in */
 				if (get_move_retreat(mon, tgrid)) {
