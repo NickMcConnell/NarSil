@@ -81,6 +81,7 @@ void do_cmd_escape(void)
 	event_signal(EVENT_INPUT_FLUSH);
 
 	/* Commit suicide */
+	event_signal(EVENT_DEATH);
 	player->is_dead = true;
 
 	/* Get time */
