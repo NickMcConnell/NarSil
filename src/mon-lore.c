@@ -1198,7 +1198,7 @@ void lore_append_attack(textblock *tb, const struct monster_race *race,
 						const struct monster_lore *lore,
 						bitflag known_flags[RF_SIZE])
 {
-	int i, known_attacks = 0, total_attacks = 0, described_count = 0;
+	int i, known_attacks = 0, described_count = 0;
 	monster_sex_t msex = MON_SEX_NEUTER;
 
 	assert(tb && race && lore);
@@ -1211,7 +1211,6 @@ void lore_append_attack(textblock *tb, const struct monster_race *race,
 		/* Skip non-attacks */
 		if (!race->blow[i].method) continue;
 
-		total_attacks++;
 		if (lore->blow_known[i])
 			known_attacks++;
 	}

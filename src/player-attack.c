@@ -294,7 +294,6 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 	int net_dam = 0;
 	int prt_percent = 100;
 	int stealth_bonus = 0;
-	int hits = 0;
 	int mdd, mds;
     bool monster_riposte = false;
     bool abort_attack = false;
@@ -474,8 +473,6 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 			bool fatal_blow = false;
 			bool living = monster_is_living(mon);
 			int slay = 0, brand = 0, flag = 0;
-
-			hits++;
 
 			/* Mark the monster as attacked */
 			mflag_on(mon->mflag, MFLAG_HIT_BY_MELEE);

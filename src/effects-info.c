@@ -112,7 +112,6 @@ static void copy_to_textblock_with_coloring(textblock *tb, const char *s)
 textblock *effect_describe(const struct effect *e, const char *prefix)
 {
 	textblock *tb = NULL;
-	int nadded = 0;
 	char desc[250];
 	random_value value = { 0, 0, 0, 0 };
 	bool value_set = false;
@@ -257,8 +256,6 @@ textblock *effect_describe(const struct effect *e, const char *prefix)
 				}
 			}
 			copy_to_textblock_with_coloring(tb, desc);
-
-			++nadded;
 		}
 	}
 
