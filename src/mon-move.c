@@ -821,7 +821,7 @@ static bool get_move_find_safety(struct monster *mon, struct loc *tgrid)
 						cost = 100 / chance;
 
 						/* Next to character */
-						if (distance(loc_diff(grid1, origin), player->grid)
+						if (distance(actual, player->grid)
 							<= 1) {
 							/* Don't want to maneuver next to the character */
 							cost += 3;
@@ -863,7 +863,7 @@ static bool get_move_find_safety(struct monster *mon, struct loc *tgrid)
 								/* Scan all adjacent grids for escape routes */
 								for (j = 0; j < 8; j++) {
 									/* Calculate real adjacent grids */
-									struct loc grid2 = loc_sum(grid1,
+									struct loc grid2 = loc_sum(actual,
 															   ddgrid_ddd[i]);
 
 									/* Check bounds */
