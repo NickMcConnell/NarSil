@@ -117,7 +117,8 @@ void shatter_weapon(struct player *p, int silnum)
 	p->stealth_score -= 5;
 
 	destroyed = gear_object_for_use(player, weapon, 1, false, &dummy);
-	object_delete(cave, &destroyed);
+	object_delete(p->cave, NULL, &destroyed->known);
+	object_delete(cave, p->cave, &destroyed);
 
 	/* Process monsters */
 	for (i = 1; i < cave_monster_max(cave); i++) {

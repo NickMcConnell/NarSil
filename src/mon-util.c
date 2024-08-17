@@ -1160,13 +1160,16 @@ bool monster_carry(struct chunk *c, struct monster *mon, struct object *obj)
 
 	/* Forget location */
 	obj->grid = loc(0, 0);
-	obj->marked = false;
 
 	/* Link the object to the monster */
 	obj->held_m_idx = mon->midx;
 
 	/* Add the object to the monster's inventory */
 	list_object(c, obj);
+	if (obj->known) {
+		obj->known->oidx = obj->oidx;
+		player->cave->objects[obj->oidx] = obj->known;
+	}
 	pile_insert(&mon->held_obj, obj);
 
 	/* Result */

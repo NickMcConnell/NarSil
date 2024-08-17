@@ -347,7 +347,7 @@ struct object *chest_check(const struct player *p, struct loc grid,
 				return obj;
 			break;
 		case CHEST_TRAPPED:
-			if (is_trapped_chest(obj) && object_is_known(obj))
+			if (is_trapped_chest(obj) && obj->known && obj->known->pval)
 				return obj;
 			break;
 		}
@@ -473,7 +473,7 @@ static void chest_death(struct loc grid, struct object *chest)
 		if (!treasure)
 			continue;
 		if (tval_is_chest(treasure)) {
-			object_delete(cave, &treasure);
+			object_delete(cave, player->cave, &treasure);
 			continue;
 		}
 
@@ -485,6 +485,7 @@ static void chest_death(struct loc grid, struct object *chest)
 
 	/* Chest is now empty */
 	chest->pval = 0;
+	chest->known->pval = 0;
 }
 
 
@@ -622,7 +623,7 @@ bool do_cmd_open_chest(struct loc grid, struct object *obj)
 	 * might as well ignore it here
 	 */
 	if (obj->pval == 0)
-		obj->notice |= OBJ_NOTICE_IGNORE;
+		obj->known->notice |= OBJ_NOTICE_IGNORE;
 
 	/* Redraw chest, to be on the safe side (it may have been ignored) */
 	square_light_spot(cave, grid);
@@ -659,7 +660,7 @@ bool do_cmd_disarm_chest(struct object *obj)
 	result = skill_check(source_player(), score, difficulty, source_none());
 
 	/* Must find the trap first. */
-	if (!object_is_known(obj) || ignore_item_ok(player, obj)) {
+	if (!obj->known->pval || ignore_item_ok(player, obj)) {
 		msg("I don't see any traps.");
 	} else if (!is_trapped_chest(obj)) {
 		/* Already disarmed/unlocked or no traps */
