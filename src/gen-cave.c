@@ -1275,10 +1275,12 @@ struct chunk *gates_gen(struct player *p)
 	int y, x;
 	struct chunk *c;
 	struct room_profile profile = lookup_room_profile("Gates of Angband");
+	const struct vault *gates_room =
+		random_vault(p->depth, "Gates of Angband", false);
 	struct loc pgrid = loc(0, 0);
 
-	/* Restrict to single-screen size */
-	c = cave_new(3 * z_info->block_hgt, 2 * z_info->block_wid);
+	/* Make it just big enough for the room and permanent boundary. */
+	c = cave_new(2 + gates_room->hgt, 2 + gates_room->wid);
 	c->depth = p->depth;
 
 	/* Fill cave area with basic granite */
