@@ -1041,7 +1041,7 @@ bool textui_get_item(struct object **choice, const char *pmt, const char *str,
 
 	/* Scan all non-gold objects in the grid */
 	floor_num = scan_floor(floor_list, floor_max, player,
-		OFLOOR_TEST | OFLOOR_VISIBLE, tester);
+		OFLOOR_TEST | OFLOOR_SENSE | OFLOOR_VISIBLE, tester);
 
 	/* Full floor */
 	f1 = 0;
@@ -1316,7 +1316,7 @@ void textui_cmd_ignore_menu(struct object *obj)
 	m->selections = lower_case;
 
 	/* Basic ignore option */
-	if (!(obj->notice & OBJ_NOTICE_IGNORE)) {
+	if (!(obj->known->notice & OBJ_NOTICE_IGNORE)) {
 		menu_dynamic_add(m, "This item only", IGNORE_THIS_ITEM);
 	} else {
 		menu_dynamic_add(m, "Unignore this item", UNIGNORE_THIS_ITEM);
@@ -1390,9 +1390,9 @@ void textui_cmd_ignore_menu(struct object *obj)
 	screen_load();
 
 	if (selected == IGNORE_THIS_ITEM) {
-		obj->notice |= OBJ_NOTICE_IGNORE;
+		obj->known->notice |= OBJ_NOTICE_IGNORE;
 	} else if (selected == UNIGNORE_THIS_ITEM) {
-		obj->notice &= ~(OBJ_NOTICE_IGNORE);
+		obj->known->notice &= ~(OBJ_NOTICE_IGNORE);
 	} else if (selected == IGNORE_THIS_FLAVOR) {
 		object_ignore_flavor_of(obj);
 	} else if (selected == UNIGNORE_THIS_FLAVOR) {
