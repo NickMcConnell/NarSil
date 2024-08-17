@@ -331,6 +331,9 @@ void player_init(struct player *p)
 								  sizeof(struct object *));
 	p->timed = mem_zalloc(TMD_MAX * sizeof(int16_t));
 	p->vaults = mem_zalloc(z_info->v_max * sizeof(int16_t));
+	p->obj_k = mem_zalloc(sizeof(struct object));
+	p->obj_k->brands = mem_zalloc(z_info->brand_max * sizeof(bool));
+	p->obj_k->slays = mem_zalloc(z_info->slay_max * sizeof(bool));
 
 	/* Options should persist */
 	p->opts = opts_save;
@@ -349,7 +352,7 @@ void player_init(struct player *p)
  */
 void wield_all(struct player *p)
 {
-	struct object *obj, *new_pile = NULL;
+	struct object *obj, *new_pile = NULL, *new_known_pile = NULL;
 	int slot;
 
 	/* Scan through the slots */
@@ -375,6 +378,7 @@ void wield_all(struct player *p)
 
 			/* Add to the pile of new objects to carry */
 			pile_insert(&new_pile, new);
+			pile_insert(&new_known_pile, new->known);
 		}
 
 		/* Wear the new stuff */
@@ -388,6 +392,7 @@ void wield_all(struct player *p)
 	/* Now add the unwielded split objects to the gear */
 	if (new_pile) {
 		pile_insert_end(&p->gear, new_pile);
+		pile_insert_end(&p->gear_k, new_known_pile);
 	}
 	return;
 }
@@ -489,11 +494,26 @@ bool player_make_simple(const char *nrace, const char *nhouse, const char *nsex,
  */
 static void player_outfit(struct player *p)
 {
+	int i;
 	const struct start_item *si;
-	struct object *obj;
+	struct object *obj, *known_obj;
 
 	/* Currently carrying nothing */
 	p->upkeep->total_weight = 0;
+
+	/* Give the player obvious object knowledge */
+	p->obj_k->dd = 1;
+	p->obj_k->ds = 1;
+	p->obj_k->pd = 1;
+	p->obj_k->ps = 1;
+	p->obj_k->att = 1;
+	p->obj_k->evn = 1;
+	for (i = 1; i < OF_MAX; i++) {
+		struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
+		if (prop->subtype == OFT_LIGHT) of_on(p->obj_k->flags, i);
+		if (prop->subtype == OFT_DIG) of_on(p->obj_k->flags, i);
+		if (prop->subtype == OFT_THROW) of_on(p->obj_k->flags, i);
+	}
 
 	/* Give the player starting equipment */
 	for (si = p->race->start_items; si; si = si->next) {
@@ -506,7 +526,13 @@ static void player_outfit(struct player *p)
 		object_prep(obj, kind, 0, MINIMISE);
 		obj->number = num;
 		obj->origin = ORIGIN_BIRTH;
+
+		known_obj = object_new();
+		obj->known = known_obj;
+		object_set_base_known(p, obj);
 		object_flavor_aware(p, obj);
+		obj->known->pval = obj->pval;
+		obj->known->notice |= OBJ_NOTICE_ASSESSED;
 
 		/* Carry the item */
 		inven_carry(p, obj, true, false);

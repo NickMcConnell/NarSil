@@ -63,18 +63,29 @@ static int path_step_idx;
 /**
  * Determine whether a grid is OK for the pathfinder to check
  */
-static bool is_valid_pf(struct loc grid)
+static bool is_valid_pf(struct player *p, struct loc grid)
 {
 	/* Unvisited means allowed */
-	if (!square_isknown(cave, grid)) return true;
+	if (!square_isknown(p->cave, grid)) return true;
 
 	/* No trapped squares */
-	if (square_isvisibletrap(cave, grid)) {
+	if (square_isvisibletrap(p->cave, grid)) {
 		return false;
 	}
 
-	/* Require open space */
-	return (square_ispassable(cave, grid));
+	/* All remaining passable terrain is okay. */
+	if (square_ispassable(p->cave, grid)) {
+		return true;
+	}
+
+	/* Some impassable terrain can be traversed fairly easily by modifying
+	 * the terrain so allow those kinds. */
+	if (square_iscloseddoor(p->cave, grid) || square_isrubble(p->cave, grid)) {
+		return true;
+	}
+
+	/* Reject all other impassable terrain. */
+	return false;
 }
 
 /**
@@ -124,7 +135,7 @@ static void path_dist_info_init(void)
 	/* Set distance of valid grids to MAX_PF_LENGTH */
 	for (grid.y = top_left.y; grid.y < bottom_right.y; grid.y++)
 		for (grid.x = top_left.x; grid.x < bottom_right.x; grid.x++)
-			if (is_valid_pf(grid))
+			if (is_valid_pf(player, grid))
 				set_path_dist(grid, MAX_PF_LENGTH);
 
 	/* Set distance of the player's grid to 0 */
@@ -599,14 +610,14 @@ static bool run_test(const struct player *p)
 		/* Visible objects abort running */
 		for (obj = square_object(cave, grid); obj; obj = obj->next)
 			/* Visible object */
-			if (obj->marked && !ignore_item_ok(p, obj)) return true;
+			if (obj->known && !ignore_item_ok(p, obj)) return true;
 
 		/* Assume unknown */
 		inv = true;
 
 		/* Check memorized grids */
 		if (square_isknown(cave, grid)) {
-			bool notice = square_isinteresting(cave, grid);
+			bool notice = square_isinteresting(p->cave, grid);
 
 			/* Interesting feature */
 			if (notice) return true;
@@ -800,7 +811,7 @@ void run_step(int dir)
 
 				/* Known wall */
 				if (square_isknown(cave, grid) &&
-					!square_ispassable(cave, grid)) {
+					!square_ispassable(player->cave, grid)) {
 					disturb(player, false);
 					player->upkeep->running_withpathfind = false;
 					return;
@@ -819,10 +830,10 @@ void run_step(int dir)
 				}
 
 				/* Visible objects abort running */
-				for (obj = square_object(cave, grid); obj;
+				for (obj = square_object(player->cave, grid); obj;
 						obj = obj->next) {
 					/* Visible object */
-					if (obj->marked && !ignore_item_ok(player, obj)) {
+					if (obj->known && !ignore_item_ok(player, obj)) {
 						disturb(player, false);
 						player->upkeep->running_withpathfind = false;
 						return;

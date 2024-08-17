@@ -421,6 +421,51 @@ subtype:throw
 id-type:on wield
 code:THROWING
 
+name:indestructible
+type:flag
+subtype:misc ability
+code:INDESTRUCTIBLE
+
+name:no smithing
+type:flag
+subtype:misc ability
+code:NO_SMITHING
+
+name:no random
+type:flag
+subtype:misc ability
+code:NO_RANDOM
+
+name:mithril
+type:flag
+subtype:misc ability
+code:MITHRIL
+
+name:axe
+type:flag
+subtype:misc ability
+code:AXE
+
+name:polearm
+type:flag
+subtype:misc ability
+code:POLEARM
+
+name:enchantable
+type:flag
+subtype:misc ability
+code:ENCHANTABLE
+
+name:hand and a half
+type:flag
+subtype:misc ability
+code:HAND_AND_A_HALF
+
+name:two handed
+type:flag
+subtype:misc ability
+code:TWO_HANDED
+
 name:ignore acid
 type:ignore
 code:ACID

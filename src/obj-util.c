@@ -488,13 +488,6 @@ static int compare_types(const struct object *o1, const struct object *o2)
  */
 int compare_items(const struct object *o1, const struct object *o2)
 {
-	/* unknown objects go at the end, order doesn't matter */
-	if (!object_is_known(o1)) {
-		return (!object_is_known(o2)) ? 0 : 1;
-	} else if (!object_is_known(o2)) {
-		return -1;
-	}
-
 	/* known artifacts will sort first */
 	if (o1->artifact && o2->artifact)
 		return compare_types(o1, o2);
