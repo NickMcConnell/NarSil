@@ -107,6 +107,9 @@ static bool populate_gear(const struct in_slot_desc *slots) {
 		if (slots->inscrip && slots->inscrip[0] != '\0') {
 			obj->note = quark_add(slots->inscrip);
 		}
+		obj->known = object_new();
+		object_set_base_known(player, obj);
+		object_touch(player, obj);
 		if (slots->known && ! object_flavor_is_aware(obj)) {
 			object_know(obj);
 		}

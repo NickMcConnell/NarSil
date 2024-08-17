@@ -101,6 +101,7 @@ struct trap_kind *lookup_trap(const char *desc);
 bool square_trap_specific(struct chunk *c, struct loc grid, int t_idx);
 bool square_trap_flag(struct chunk *c, struct loc grid, int flag);
 bool square_reveal_trap(struct chunk *c, struct loc grid, bool domsg);
+void square_memorize_traps(struct chunk *c, struct loc grid);
 void hit_trap(struct loc grid);
 bool check_hit(int power, bool display_roll, struct source against);
 bool square_player_trap_allowed(struct chunk *c, struct loc grid);
