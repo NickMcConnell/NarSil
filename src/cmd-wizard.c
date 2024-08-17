@@ -1555,6 +1555,11 @@ void do_cmd_wiz_play_item(struct command *cmd)
 							obj->number *
 							obj->weight;
 					}
+					if (object_is_equipped(player->body, obj)) {
+						obj->notice &=
+							~OBJ_NOTICE_KNOWN;
+						ident_on_wield(player, obj);
+					}
 					wiz_play_item_standard_upkeep(player,
 						obj);
 				}
