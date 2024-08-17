@@ -145,7 +145,6 @@ static void wr_item(const struct object *obj)
 	}
 	wr_byte(obj->notice);
 	wr_byte(obj->pseudo);
-	wr_byte(obj->marked);
 
 	for (i = 0; i < OF_SIZE; i++)
 		wr_byte(obj->flags[i]);
@@ -254,7 +253,7 @@ static void wr_monster(const struct monster *mon)
 		obj = obj->next;
 	}
 	wr_item(dummy);
-	object_delete(NULL, &dummy);
+	object_delete(NULL, NULL, &dummy);
 
 	/* Write group info */
 	wr_u16b(mon->group_info.index);
@@ -689,6 +688,7 @@ static void wr_gear_aux(struct object *gear)
 void wr_gear(void)
 {
 	wr_gear_aux(player->gear);
+	wr_gear_aux(player->gear_k);
 }
 
 
@@ -781,7 +781,7 @@ static void wr_dungeon_aux(struct chunk *c)
  */
 static void wr_objects_aux(struct chunk *c)
 {
-	int y, x;
+	int y, x, i;
 	struct object *dummy;
 
 	if (player->is_dead)
@@ -797,6 +797,18 @@ static void wr_objects_aux(struct chunk *c)
 				obj = obj->next;
 			}
 		}
+	}
+
+	/* Write known objects we don't know the location of, and imagined versions
+	 * of known objects */
+	for (i = 1; i < c->obj_max; i++) {
+		struct object *obj = c->objects[i];
+		if (!obj) continue;
+		if (square_in_bounds_fully(c, obj->grid)) continue;
+		if (obj->held_m_idx) continue;
+		if (obj->known && !(obj->known->notice & OBJ_NOTICE_IMAGINED)) continue;
+		assert(obj->oidx == i);
+		wr_item(obj);
 	}
 
 	/* Write a dummy record as a marker */

@@ -1749,7 +1749,7 @@ static void desc_obj_fake(int k_idx)
 	struct object_kind *kind = &k_info[k_idx];
 	struct object_kind *old_kind = player->upkeep->object_kind;
 	struct object *old_obj = player->upkeep->object;
-	struct object *obj = object_new();
+	struct object *obj = object_new(), *known_obj = object_new();
 
 	char header[120];
 
@@ -1765,7 +1765,8 @@ static void desc_obj_fake(int k_idx)
 
 	/* It's fully known */
 	if (kind->aware || !kind->flavor)
-		object_know(obj);
+		object_copy(known_obj, obj);
+	obj->known = known_obj;
 
 	/* Hack -- Handle stuff */
 	handle_stuff(player);
@@ -1775,7 +1776,8 @@ static void desc_obj_fake(int k_idx)
 		ODESC_PREFIX | ODESC_CAPITAL, player);
 
 	textui_textblock_show(tb, area, header);
-	object_delete(NULL, &obj);
+	object_delete(NULL, NULL, &known_obj);
+	object_delete(NULL, NULL, &obj);
 	textblock_free(tb);
 
 	/* Restore the old trackee */
@@ -2119,9 +2121,9 @@ static void do_cmd_knowledge_features(const char *name, int row)
 	int f_count = 0;
 	int i;
 
-	features = mem_zalloc(z_info->f_max * sizeof(int));
+	features = mem_zalloc(FEAT_MAX * sizeof(int));
 
-	for (i = 0; i < z_info->f_max; i++) {
+	for (i = 0; i < FEAT_MAX; i++) {
 		/* Ignore non-features and mimics */
 		if (f_info[i].name == 0 || f_info[i].mimic)
 			continue;
@@ -2894,7 +2896,7 @@ static void lookup_symbol(char sym, char *buf, size_t max)
 	/* Look through features */
 	/* Note: We need a better way of doing this. Currently '#' matches secret
 	 * door, and '^' matches trap door (instead of the more generic "trap"). */
-	for (i = 1; i < z_info->f_max; i++) {
+	for (i = 1; i < FEAT_MAX; i++) {
 		if (char_matches_key(f_info[i].d_char, sym)) {
 			strnfmt(buf, max, "%c - %s.", sym, f_info[i].name);
 			return;

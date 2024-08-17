@@ -58,13 +58,19 @@ int setup_tests(void **state) {
 	cns->p = player;
 	cns->torch = object_new();
 	object_prep(cns->torch, lookup_kind(TV_LIGHT, 1), 0, RANDOMISE);
-	object_know(cns->torch);
+	cns->torch->known = object_new();
+	object_set_base_known(cns->p, cns->torch);
+	object_touch(cns->p, cns->torch);
 	cns->arrow = object_new();
 	object_prep(cns->arrow, lookup_kind(TV_ARROW, 1), 0, RANDOMISE);
-	object_know(cns->arrow);
+	cns->arrow->known = object_new();
+	object_set_base_known(cns->p, cns->arrow);
+	object_touch(cns->p, cns->arrow);
 	cns->flask = object_new();
 	object_prep(cns->flask, lookup_kind(TV_FLASK, 1), 0, RANDOMISE);
-	object_know(cns->flask);
+	cns->flask->known = object_new();
+	object_set_base_known(cns->p, cns->flask);
+	object_touch(cns->p, cns->flask);
 	*state = cns;
 
 	return 0;
@@ -116,6 +122,10 @@ static bool fill_pack(struct carry_num_state *cns, int n_pack,
 		object_copy(curr, cns->torch);
 		/* Vary inscriptions so they won't stack. */
 		curr->note = quark_add(format("dummy%d", i));
+		if (cns->torch->known) {
+			curr->known = object_new();
+			object_copy(curr->known, cns->torch->known);
+		}
 		inven_carry(cns->p, curr, false, false);
 		calc_inventory(cns->p);
 		if (! object_is_carried(cns->p, curr) ||
@@ -135,6 +145,12 @@ static bool fill_pack(struct carry_num_state *cns, int n_pack,
 		curr = object_new();
 		object_copy(curr, cns->flask);
 		curr->number = n;
+		if (cns->flask->known) {
+			curr->known = object_new();
+			object_copy(curr->known, cns->flask->known);
+			curr->known->number = n;
+			curr->known->note = curr->note;
+		}
 		inven_carry(cns->p, curr, false, false);
 		calc_inventory(cns->p);
 		if (! object_is_carried(cns->p, curr) ||

@@ -170,8 +170,6 @@ static struct object *rd_item(void)
 	}
 	rd_byte(&obj->notice);
 	rd_byte(&obj->pseudo);
-	rd_byte(&tmp8u);
-	obj->marked = tmp8u ? true : false;;
 
 	for (i = 0; i < of_size; i++)
 		rd_byte(&obj->flags[i]);
@@ -234,7 +232,7 @@ static struct object *rd_item(void)
 
 	/* Check we have a kind */
 	if ((!obj->tval && !obj->sval) || !obj->kind) {
-		object_delete(NULL, &obj);
+		object_delete(NULL, NULL, &obj);
 		return NULL;
 	}
 
@@ -1090,15 +1088,22 @@ static int rd_gear_aux(rd_item_t rd_item_version, struct object **gear)
  */
 int rd_gear(void)
 {
-	struct object *obj;
+	struct object *obj, *known_obj;
 
 	/* Get gear */
 	if (rd_gear_aux(rd_item, &player->gear))
 		return -1;
 
-	/* Add weight */
-	for (obj = player->gear; obj; obj = obj->next) {
-		player->upkeep->total_weight += (obj->number * obj->weight);
+	/* Get known gear */
+	if (rd_gear_aux(rd_item, &player->gear_k))
+		return -1;
+
+	/* Align the two, add weight */
+	for (obj = player->gear, known_obj = player->gear_k; obj;
+		 obj = obj->next, known_obj = known_obj->next) {
+		obj->known = known_obj;
+		player->upkeep->total_weight +=
+			obj->number * obj->weight;
 	}
 
 	calc_inventory(player);

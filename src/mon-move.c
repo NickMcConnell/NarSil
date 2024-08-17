@@ -2548,17 +2548,28 @@ static void process_move_grab_objects(struct monster *mon, struct loc new)
 
 			object_copy(taken, obj);
 			taken->oidx = 0;
-
-			/* Describe observable situations */
-			if (square_isseen(cave, new)) {
-				msg("%s picks up %s.", m_name, o_name);
+			if (obj->known) {
+				taken->known = object_new();
+				object_copy(taken->known, obj->known);
+				taken->known->oidx = 0;
+				taken->known->grid = loc(0, 0);
 			}
 
-			/* Delete the object */
-			square_delete_object(cave, new, obj, true, true);
-
 			/* Try to carry the copy */
-			(void) monster_carry(cave, mon, taken);
+			if (monster_carry(cave, mon, taken)) {
+				/* Describe observable situations */
+				if (square_isseen(cave, new) && !ignore_item_ok(player, obj)) {
+					msg("%s picks up %s.", m_name, o_name);
+				}
+
+				/* Delete the object */
+				square_delete_object(cave, new, obj, true, true);
+			} else {
+				if (taken->known) {
+					object_delete(player->cave, NULL, &taken->known);
+				}
+				object_delete(cave, player->cave, &taken);
+			}
 		}
 
 		/* Next object */
