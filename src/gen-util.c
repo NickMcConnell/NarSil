@@ -420,7 +420,7 @@ void place_object(struct chunk *c, struct loc grid, int level, bool good,
 		if (new_obj->artifact) {
 			mark_artifact_created(new_obj->artifact, false);
 		}
-		object_delete(c, &new_obj);
+		object_delete(c, NULL, &new_obj);
 		return;
 	} else {
 		list_object(c, new_obj);
@@ -651,7 +651,7 @@ bool new_player_spot(struct chunk *c, struct player *p)
 	}
 
 	if (p->upkeep->create_stair && square_changeable(c, grid)) {
-		object_pile_free(c, square_object(c, grid));
+		object_pile_free(c, NULL, square_object(c, grid));
 		square_set_feat(c, grid, p->upkeep->create_stair);
 	}
 	player_place(c, p, grid);

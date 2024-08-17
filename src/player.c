@@ -366,7 +366,8 @@ void player_cleanup_members(struct player *p)
 
 	/* Free the things that are only sometimes initialised */
 	if (p->gear) {
-		object_pile_free(NULL, p->gear);
+		object_pile_free(NULL, NULL, p->gear);
+		object_pile_free(NULL, NULL, p->gear_k);
 	}
 	if (p->body.slots) {
 		for (int i = 0; i < p->body.count; i++)
@@ -377,6 +378,10 @@ void player_cleanup_members(struct player *p)
 	string_free(p->history);
 	release_ability_list(p->abilities);
 	release_ability_list(p->item_abilities);
+	if (p->cave) {
+		cave_free(p->cave);
+		p->cave = NULL;
+	}
 }
 
 
@@ -391,6 +396,9 @@ static void init_player(void) {
 	player->upkeep = mem_zalloc(sizeof(struct player_upkeep));
 	player->upkeep->inven = mem_zalloc((z_info->pack_size + 1) * sizeof(struct object *));
 	player->timed = mem_zalloc(TMD_MAX * sizeof(int16_t));
+	player->obj_k = object_new();
+	player->obj_k->brands = mem_zalloc(z_info->brand_max * sizeof(bool));
+	player->obj_k->slays = mem_zalloc(z_info->slay_max * sizeof(bool));
 	player->vaults = mem_zalloc(z_info->v_max * sizeof(int16_t));
 
 	options_init_defaults(&player->opts);
