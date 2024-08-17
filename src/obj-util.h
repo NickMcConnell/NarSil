@@ -33,7 +33,6 @@ void object_flags(const struct object *obj, bitflag flags[OF_SIZE]);
 void object_flags_known(const struct object *obj, bitflag flags[OF_SIZE]);
 bool object_test(item_tester tester, const struct object *o);
 bool item_test(item_tester tester, int item);
-bool is_unknown(const struct object *obj);
 unsigned check_for_inscrip(const struct object *obj, const char *inscrip);
 unsigned check_for_inscrip_with_int(const struct object *obj, const char *insrip, int *ival);
 struct object_kind *lookup_kind(int tval, int sval);

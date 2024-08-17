@@ -238,7 +238,7 @@ void dump_features(ang_file *fff)
 {
 	int i;
 
-	for (i = 0; i < z_info->f_max; i++) {
+	for (i = 0; i < FEAT_MAX; i++) {
 		struct feature *feat = &f_info[i];
 		size_t j;
 
@@ -764,6 +764,7 @@ static enum parser_error parse_prefs_trap(struct parser *p)
 
 static enum parser_error parse_prefs_feat(struct parser *p)
 {
+	const char *sym = parser_getsym(p, "idx");
 	int idx;
 	const char *lighting;
 	int light_idx;
@@ -772,8 +773,8 @@ static enum parser_error parse_prefs_feat(struct parser *p)
 	assert(d != NULL);
 	if (d->bypass) return PARSE_ERROR_NONE;
 
-	idx = lookup_feat(parser_getsym(p, "idx"));
-	if (idx >= z_info->f_max)
+	idx = lookup_feat_code(sym);
+	if (idx >= FEAT_MAX)
 		return PARSE_ERROR_OUT_OF_BOUNDS;
 
 	lighting = parser_getsym(p, "lighting");
@@ -1254,7 +1255,7 @@ void reset_visuals(bool load_prefs)
 	struct flavor *f;
 
 	/* Extract default attr/char code for features */
-	for (i = 0; i < z_info->f_max; i++) {
+	for (i = 0; i < FEAT_MAX; i++) {
 		struct feature *feat = &f_info[i];
 
 		/* Assume we will use the underlying values */
@@ -1333,8 +1334,8 @@ void textui_prefs_init(void)
 	kind_x_attr = mem_zalloc(z_info->k_max * sizeof(uint8_t));
 	kind_x_char = mem_zalloc(z_info->k_max * sizeof(wchar_t));
 	for (i = 0; i < LIGHTING_MAX; i++) {
-		feat_x_attr[i] = mem_zalloc(z_info->f_max * sizeof(uint8_t));
-		feat_x_char[i] = mem_zalloc(z_info->f_max * sizeof(wchar_t));
+		feat_x_attr[i] = mem_zalloc(FEAT_MAX * sizeof(uint8_t));
+		feat_x_char[i] = mem_zalloc(FEAT_MAX * sizeof(wchar_t));
 	}
 	for (i = 0; i < LIGHTING_MAX; i++) {
 		trap_x_attr[i] = mem_zalloc(z_info->trap_max * sizeof(uint8_t));

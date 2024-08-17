@@ -402,6 +402,10 @@ enum {
 	OBJ_NOTICE_SPOIL = 0x20,
 	OBJ_NOTICE_IGNORE = 0x40,
 	OBJ_NOTICE_PICKUP = 0x80,
+	OBJ_NOTICE_WORN = 0x0100,
+	OBJ_NOTICE_ASSESSED = 0x0200,
+	//OBJ_NOTICE_IGNORE = 0x0400,
+	OBJ_NOTICE_IMAGINED = 0x0800,
 };
 
 /**
@@ -487,8 +491,6 @@ struct object {
 	uint8_t pseudo;			/**< Sil - pseudo-id status */
 
 	int16_t held_m_idx;		/**< Monster holding us (if any) */
-
-	bool marked;			/**< Object is marked */
 
 	uint8_t origin;			/**< How this item was found */
 	uint8_t origin_depth;		/**< What depth the item was found at */

@@ -162,7 +162,7 @@ static void tutorial_section_place_note(struct chunk *c, struct loc grid,
 			if (floor_carry(c, grid, obj, &dummy)) {
 				list_object(c, obj);
 			} else {
-				object_delete(c, &obj);
+				object_delete(c, NULL, &obj);
 			}
 		}
 	}
@@ -262,7 +262,7 @@ static void tutorial_section_place_object(struct chunk *c, struct loc grid,
 		if (obj->artifact) {
 			mark_artifact_created(obj->artifact, false);
 		}
-		object_delete(c, &obj);
+		object_delete(c, NULL, &obj);
 		return;
 	}
 	list_object(c, obj);
