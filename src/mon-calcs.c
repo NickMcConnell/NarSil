@@ -38,6 +38,7 @@
 #include "player-timed.h"
 #include "player-util.h"
 #include "player.h"
+#include "project.h"
 #include "songs.h"
 
 /**
@@ -540,6 +541,34 @@ static void listen(struct chunk *c, struct player *p, struct monster *mon)
 }
 
 /**
+ * Analyse the path from player to infravision-seen monster and forget any
+ * grids which would have blocked line of sight
+ */
+static void path_analyse(struct chunk *c, struct loc grid)
+{
+	int path_n, i;
+	struct loc path_g[256];
+
+	if (c != cave) {
+		return;
+	}
+
+	/* Plot the path. */
+	path_n = project_path(c, path_g, z_info->max_range, player->grid,
+		&grid, PROJECT_NONE);
+
+	/* Project along the path */
+	for (i = 0; i < path_n - 1; ++i) {
+		/* Forget grids which would block los */
+		if (!square_allowslos(player->cave, path_g[i])) {
+			sqinfo_off(square(c, path_g[i])->info, SQUARE_SEEN);
+			square_forget(c, path_g[i]);
+			square_light_spot(c, path_g[i]);
+		}
+	}
+}
+
+/**
  * This function updates the monster record of the given monster
  *
  * This involves extracting the distance to the player (if requested),
@@ -698,6 +727,9 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 				/* Learn about invisibility */
 				rf_on(lore->flags, RF_INVISIBLE);
 			}
+
+			/* Learn about intervening squares */
+			path_analyse(c, mon->grid);
 		}
 	}
 

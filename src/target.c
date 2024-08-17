@@ -348,18 +348,19 @@ static bool target_accept(struct loc grid)
 	}
 
 	/* Traps */
-	if (square_isvisibletrap(cave, grid)) return true;
+	if (square_isvisibletrap(player->cave, grid)) return true;
 
 	/* Scan all objects in the grid */
-	for (obj = square_object(cave, grid); obj; obj = obj->next) {
+	for (obj = square_object(player->cave, grid); obj; obj = obj->next) {
 		/* Memorized object */
-		if (obj->marked && !ignore_known_item_ok(player, obj)) {
+		if (obj->known && !ignore_known_item_ok(player, obj)) {
 			return true;
 		}
 	}
 
 	/* Interesting memorized features */
-	if (square_isknown(cave, grid) && square_isinteresting(cave, grid)) {
+	if (square_isknown(cave, grid)
+		&& square_isinteresting(player->cave, grid)) {
 		return true;
 	}
 

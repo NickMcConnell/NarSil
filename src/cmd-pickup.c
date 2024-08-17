@@ -172,6 +172,10 @@ static void player_pickup_aux(struct player *p, struct object *obj,
 
 	/* Carry the object, prompting for number if necessary */
 	if (max == obj->number) {
+		if (obj->known) {
+			square_excise_object(p->cave, p->grid, obj->known);
+			delist_object(p->cave, obj->known);
+		}
 		square_excise_object(cave, p->grid, obj);
 		delist_object(cave, obj);
 		inven_carry(p, obj, true, domsg);

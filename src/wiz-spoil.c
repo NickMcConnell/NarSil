@@ -130,7 +130,7 @@ static void kind_info(char *buf, size_t buf_len, char *dam, size_t dam_len,
 		char *wgt, size_t wgt_len, int *lev, int32_t *val, int k)
 {
 	struct object_kind *kind = &k_info[k];
-	struct object *obj = object_new();
+	struct object *obj = object_new(), *known_obj = object_new();
 	int i;
 
 	/* Prepare a fake item */
@@ -146,7 +146,8 @@ static void kind_info(char *buf, size_t buf_len, char *dam, size_t dam_len,
 	(*lev) = kind->level;
 
 	/* Make known */
-	object_know(obj);
+	object_copy(known_obj, obj);
+	obj->known = known_obj;
 
 	/* Value */
 	(*val) = object_value(obj);
@@ -162,7 +163,8 @@ static void kind_info(char *buf, size_t buf_len, char *dam, size_t dam_len,
 
 	/* Hack */
 	if (!dam) {
-		object_delete(NULL, &obj);
+		object_delete(NULL, NULL, &known_obj);
+		object_delete(NULL, NULL, &obj);
 		return;
 	}
 
@@ -175,7 +177,8 @@ static void kind_info(char *buf, size_t buf_len, char *dam, size_t dam_len,
 	else if (tval_is_armor(obj))
 		strnfmt(dam, dam_len, "%dd%d", obj->pd, obj->ps);
 
-	object_delete(NULL, &obj);
+	object_delete(NULL, NULL, &known_obj);
+	object_delete(NULL, NULL, &obj);
 }
 
 
@@ -395,13 +398,14 @@ void spoil_artifact(const char *fname)
 			const struct artifact *art = &a_info[j];
 			struct artifact artc;
 			char buf2[80];
-			struct object *obj;
+			struct object *obj, *known_obj;
 
 			/* We only want objects in the current group */
 			if (art->tval != group_artifact[i].tval) continue;
 
 			/* Get local object */
 			obj = object_new();
+			known_obj = object_new();
 
 			/*
 			 * Make a copy of the artifact state; hide the
@@ -413,12 +417,14 @@ void spoil_artifact(const char *fname)
 
 			/* Attempt to "forge" the artifact */
 			if (!make_fake_artifact(obj, &artc)) {
-				object_delete(NULL, &obj);
+				object_delete(NULL, NULL, &known_obj);
+				object_delete(NULL, NULL, &obj);
 				continue;
 			}
 
 			/* Grab artifact name */
-			object_know(obj);
+			object_copy(known_obj, obj);
+			obj->known = known_obj;
 			object_desc(buf2, sizeof(buf2), obj, ODESC_PREFIX |
 				ODESC_COMBAT | ODESC_EXTRA | ODESC_SPOIL, NULL);
 
@@ -439,7 +445,8 @@ void spoil_artifact(const char *fname)
 
 			/* Terminate the entry */
 			spoiler_blanklines(2);
-			object_delete(NULL, &obj);
+			object_delete(NULL, NULL, &known_obj);
+			object_delete(NULL, NULL, &obj);
 		}
 	}
 

@@ -245,6 +245,47 @@ void object_flavor_tried(struct object *obj)
  * These functions transfer player knowledge to objects
  * ------------------------------------------------------------------------ */
 /**
+ * Sets the basic details on a known object
+ */
+void object_set_base_known(struct player *p, struct object *obj)
+{
+	assert(obj->known);
+	obj->known->kind = obj->kind;
+	obj->known->tval = obj->tval;
+	obj->known->sval = obj->sval;
+	obj->known->weight = obj->weight;
+	obj->known->number = obj->number;
+
+	/* Generic dice, attack and evasion for non-rings */
+	if (!tval_is_ring(obj)) {
+		if (!obj->known->dd) {
+			obj->known->dd = obj->kind->dd * p->obj_k->dd;
+		}
+		if (!obj->known->ds) {
+			obj->known->ds = obj->kind->ds * p->obj_k->ds;
+		}
+		if (!obj->known->pd) {
+			obj->known->pd = obj->kind->pd * p->obj_k->pd;
+		}
+		if (!obj->known->ps) {
+			obj->known->ps = obj->kind->ps * p->obj_k->ps;
+		}
+		if (!obj->known->att) {
+			obj->known->att = obj->kind->att * p->obj_k->att;
+		}
+		if (!obj->known->evn) {
+			obj->known->evn = obj->kind->evn * p->obj_k->evn;
+		}
+	}
+
+	/* Aware flavours and unflavored non-wearables get info now */
+	if ((obj->kind->aware && obj->kind->flavor) ||
+		(!tval_is_wearable(obj) && !obj->kind->flavor)) {
+		obj->known->pval = obj->pval;
+	}
+}
+
+/**
  * This function does a few book keeping things for item identification.
  *
  * It identifies visible objects for the Lore-Master ability, marks
@@ -292,6 +333,81 @@ static void player_know_object(struct player *p, struct object *obj)
 		}
 	}
 }
+
+/**
+ * Gain knowledge based on seeing an object on the floor
+ */
+void object_see(struct player *p, struct object *obj)
+{
+	struct object *known_obj = p->cave->objects[obj->oidx];
+	struct loc grid = obj->grid;
+
+	/* Make new known objects, fully know sensed ones, relocate old ones */
+	if (known_obj == NULL) {
+		/* Make a new one */
+		struct object *new_obj;
+
+		assert(! obj->known);
+		new_obj = object_new();
+		obj->known = new_obj;
+		object_set_base_known(p, obj);
+
+		/* List the known object */
+		p->cave->objects[obj->oidx] = new_obj;
+		new_obj->oidx = obj->oidx;
+
+		/* If monster held, we're done */
+		if (obj->held_m_idx) return;
+
+		/* Attach it to the current floor pile */
+		new_obj->grid = grid;
+		pile_insert_end(&p->cave->squares[grid.y][grid.x].obj, new_obj);
+	} else {
+		struct loc old = known_obj->grid;
+
+		/* Make sure knowledge is correct */
+		assert(known_obj == obj->known);
+
+		if (known_obj->kind != obj->kind) {
+			/* Copy over actual details */
+			object_set_base_known(p, obj);
+		} else {
+			known_obj->number = obj->number;
+		}
+
+		/* If monster held, we're done */
+		if (obj->held_m_idx) return;
+
+		/* Attach it to the current floor pile if necessary */
+		if (! square_holds_object(p->cave, grid, known_obj)) {
+			/* Detach from any old pile */
+			if (!loc_is_zero(old) && square_holds_object(p->cave, old, known_obj)) {
+				square_excise_object(p->cave, old, known_obj);
+			}
+
+			known_obj->grid = grid;
+			pile_insert_end(&p->cave->squares[grid.y][grid.x].obj, known_obj);
+		}
+	}
+}
+
+/**
+ * Gain knowledge based on being an the same square as an object
+ */
+void object_touch(struct player *p, struct object *obj)
+{
+	/* Automatically notice artifacts, mark as assessed */
+	obj->known->artifact = obj->artifact;
+	obj->known->notice |= OBJ_NOTICE_ASSESSED;
+
+	/* Apply known properties to the object */
+	player_know_object(p, obj);
+
+	/* Log artifacts if found */
+	if (obj->artifact)
+		history_find_artifact(p, obj->artifact);
+}
+
 
 /**
  * Propagate player knowledge of objects to all objects

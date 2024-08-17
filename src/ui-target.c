@@ -627,10 +627,10 @@ static bool aux_trap(struct chunk *c, struct player *p,
 	char out_val[TARGET_OUT_VAL_SIZE];
 	const char *lphrase3;
 
-	if (!square_isvisibletrap(c, auxst->grid)) return false;
+	if (!square_isvisibletrap(p->cave, auxst->grid)) return false;
 
 	/* A trap */
-	trap = square(c, auxst->grid)->trap;
+	trap = square(p->cave, auxst->grid)->trap;
 
 	/* Not boring */
 	auxst->boring = false;
@@ -823,18 +823,18 @@ static bool aux_terrain(struct chunk *c, struct player *p,
 	char name[50];
 	char out_val[TARGET_OUT_VAL_SIZE];
 
-	if (!auxst->boring && !square_isinteresting(c, auxst->grid))
+	if (!auxst->boring && !square_isinteresting(p->cave, auxst->grid))
 		return false;
 
 	/* Terrain feature if needed */
-	square_apparent_name(c, auxst->grid, name, sizeof(name));
+	square_apparent_name(p->cave, auxst->grid, name, sizeof(name));
 
 	/* Pick a preposition if needed */
 	lphrase2 = (*auxst->phrase2) ?
-		square_apparent_look_in_preposition(c, auxst->grid) : "";
+		square_apparent_look_in_preposition(p->cave, auxst->grid) : "";
 
 	/* Pick prefix for the name */
-	lphrase3 = square_apparent_look_prefix(c, auxst->grid);
+	lphrase3 = square_apparent_look_prefix(p->cave, auxst->grid);
 
 	/* Display a message */
 	if (p->wizard) {
@@ -1015,7 +1015,7 @@ static int draw_path(uint16_t path_n, struct loc *path_g, wchar_t *c, int *a,
 		/* Find the co-ordinates on the level. */
 		struct loc grid = path_g[i];
 		struct monster *mon = square_monster(cave, grid);
-		struct object *obj = square_object(cave, grid);
+		struct object *obj = square_object(player->cave, grid);
 
 		/*
 		 * As path[] is a straight line and the screen is oblong,
@@ -1044,11 +1044,11 @@ static int draw_path(uint16_t path_n, struct loc *path_g, wchar_t *c, int *a,
 		} else if (mon && monster_is_visible(mon)) {
 			/* Visible monsters are red. */
 			colour = COLOUR_L_RED;
-		} else if (obj && obj->marked)
+		} else if (obj)
 			/* Known objects are yellow. */
 			colour = COLOUR_YELLOW;
 
-		else if (!square_isprojectable(cave, grid) &&
+		else if (!square_isprojectable(player->cave, grid) &&
 				 (square_isknown(cave, grid) || square_isseen(cave, grid)))
 			/* Known walls are blue. */
 			colour = COLOUR_BLUE;
@@ -1106,7 +1106,7 @@ static bool pile_is_tracked(const struct object *obj) {
 static bool pile_has_known(const struct object *obj) {
 	for (const struct object *o = obj; o != NULL; o = o->next) {
 		struct object *base_obj = cave->objects[o->oidx];
-		if (object_is_known(base_obj)) {
+		if (base_obj->known) {
 			return true;
 		}
 	}

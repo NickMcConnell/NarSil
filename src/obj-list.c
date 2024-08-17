@@ -141,7 +141,7 @@ static bool object_list_should_ignore_object(const struct player *p,
 	assert(obj->kind);
 	assert(base_obj);
 
-	if (object_is_known(base_obj) && ignore_known_item_ok(p, obj))
+	if (ignore_known_item_ok(p, obj))
 		return true;
 
 	return false;
@@ -162,7 +162,7 @@ void object_list_collect(object_list_t *list)
 		return;
 
 	/* Scan each object in the dungeon. */
-	for (i = 1; i < cave->obj_max; i++) {
+	for (i = 1; i < player->cave->obj_max; i++) {
 		object_list_entry_t *entry = NULL;
 		int entry_index;
 		int current_distance;
@@ -170,13 +170,11 @@ void object_list_collect(object_list_t *list)
 		struct loc grid;
 		int field;
 		bool los = false;
-		struct object *obj = cave->objects[i];
+		struct object *obj = player->cave->objects[i];
 
 		/* Skip unfilled entries, unknown objects and monster-held objects */
 		if (!obj) continue;
 		if (loc_is_zero(obj->grid)) {
-			continue;
-		} else if (!obj->marked) {
 			continue;
 		} else {
 			grid = obj->grid;
@@ -329,10 +327,7 @@ int object_list_entry_line_attribute(const object_list_entry_t *entry)
 
 	base_obj = cave->objects[entry->object->oidx];
 
-	if (!object_is_known(base_obj))
-		/* unknown object */
-		attr = COLOUR_RED;
-	else if (base_obj->artifact && object_is_known(base_obj))
+	if (base_obj->known->artifact)
 		/* known artifact */
 		attr = COLOUR_VIOLET;
 	else if (!object_flavor_is_aware(base_obj))
