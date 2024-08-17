@@ -22,9 +22,10 @@
 #
 # === Understanding terrain.txt ===
 #
+# code : code name from list-terrain.h
 # name : terrain name
 # graphics : symbol : color
-# mimic : feature to mimic
+# mimic : code name for the feature to mimic
 # priority : display priority on mini-map
 # flags : terrain flags
 #
@@ -43,6 +44,10 @@
 #
 # 'mimic' is the index of a feature to mimic.
 #
+# 'desc' is for description. As many desc: lines may be used as are needed
+# to describe the terrain. Note that lines will need spaces at their
+# ends or the beginning of the next line to prevent words from running
+# together.
 #
 # === Important notes ===
 #
@@ -52,6 +57,7 @@
 
 # 0x00 --> <darkness>
 
+code:NONE
 name:unknown grid
 graphics: :w
 priority:2
@@ -59,6 +65,7 @@ priority:2
 
 # 0x01 --> open floor
 
+code:FLOOR
 name:open floor
 graphics:.:W
 priority:5
@@ -68,6 +75,7 @@ desc: hold traps or items.  Does not break line of sight.
 
 # # 0x20 --> locked door (power 0) -- aka a normal door
 
+code:CLOSED
 name:closed door
 graphics:+:U
 priority:17
@@ -81,6 +89,7 @@ desc: valuable time by locking them.
 
 # 0x04 --> open door
 
+code:OPEN
 name:open door
 graphics:':U
 priority:15
@@ -91,6 +100,7 @@ desc: through as long as it stays open.
 
 # 0x05 --> broken door
 
+code:BROKEN
 name:broken door
 graphics:.:U
 priority:15
@@ -100,6 +110,7 @@ desc:A door so broken that it cannot be shut.
 
 # 0x50 --> up stairs (perm)
 
+code:LESS
 name:up staircase
 graphics:<:W
 priority:25
@@ -109,6 +120,7 @@ desc:A staircase up to a shallower part of the dungeon.
 
 # 0x51 --> down stairs (perm)
 
+code:MORE
 name:down staircase
 graphics:>:W
 priority:25
@@ -118,6 +130,7 @@ desc:A staircase down to a deeper part of the dungeon.
 
 # 0x52 --> up shaft (perm)
 
+code:LESS_SHAFT
 name:up shaft
 graphics:<:D
 priority:25
@@ -127,6 +140,7 @@ desc:A shaft up to a shallower part of the dungeon.
 
 # 0x53 --> down shaft (perm)
 
+code:MORE_SHAFT
 name:down shaft
 graphics:>:D
 priority:25
@@ -136,6 +150,7 @@ desc:A shaft down to a deeper part of the dungeon.
 
 # 0x02 --> unused
 
+code:CHASM
 name:chasm
 graphics:%:D
 priority:20
@@ -149,9 +164,10 @@ die-msg:falling off a precipice
 
 # 0x30 --> secret door
 
+code:SECRET
 name:secret door
 graphics:#:z
-mimic:granite wall
+mimic:GRANITE
 priority:10
 info:0:3:0
 flags:ROCK | DOOR_ANY | DOOR_CLOSED | GRANITE | TORCH
@@ -163,6 +179,7 @@ desc:A door that appears like a granite wall to untrained eyes.
 
 # 0x31 --> pile of rubble
 
+code:RUBBLE
 name:pile of rubble
 graphics:::s
 priority:13
@@ -177,6 +194,7 @@ desc: to normal floor.
 
 # 0x33 --> quartz vein
 
+code:QUARTZ
 name:quartz vein
 graphics:%:w
 priority:11
@@ -192,6 +210,7 @@ desc: sight.
 
 # 0x38 --> granite wall -- basic
 
+code:GRANITE
 name:granite wall
 graphics:#:W
 priority:20
@@ -207,9 +226,10 @@ desc: sight.
 
 # 0x3F --> granite wall -- permanent
 
+code:PERM
 name:permanent wall
 graphics:#:M
-mimic:granite wall
+mimic:GRANITE
 priority:20
 flags:WALL | ROCK | GRANITE | PERMANENT | NO_SCENT | NO_FLOW | TORCH
 confused-msg:bashes into a wall
@@ -218,6 +238,7 @@ desc: surrounded by these kinds of walls and some special rooms are made of them
 
 # 0x40 --> forge -- 0 uses
 
+code:FORGE
 name:forge
 graphics:0:s
 priority:20
@@ -227,6 +248,7 @@ desc:A forge for smithing objects.
 
 # 0x46 --> good forge -- 0 uses
 
+code:FORGE_GOOD
 name:enchanted forge
 graphics:0:Y
 priority:20
@@ -236,6 +258,7 @@ desc:An enchanted forge for smithing objects.
 
 # 0x4C --> unique forge -- 0 uses
 
+code:FORGE_UNIQUE
 name:forge 'Orodruth'
 graphics:0:D
 priority:20
@@ -245,6 +268,7 @@ desc:A uniquely enchanted forge for smithing objects.
 
 # # 0x11 --> visible trap -- open pit
 
+code:PIT
 name:pit
 graphics:^:s
 priority:20
@@ -255,6 +279,7 @@ run-msg:A pit blocks your path.  Step into it?
 
 # # 0x12 --> visible trap -- spiked pit
 
+code:SPIKED_PIT
 name:spiked pit
 graphics:^:W
 priority:20

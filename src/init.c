@@ -739,14 +739,37 @@ static struct file_parser world_parser = {
  * Intialize terrain
  * ------------------------------------------------------------------------ */
 
+static enum parser_error parse_feat_code(struct parser *p) {
+	const char *code = parser_getstr(p, "code");
+	int idx = lookup_feat_code(code);
+	struct feature *f;
+
+	if (idx < 0) {
+		/*
+		 * Of the existing parser errors, PARSE_ERROR_INVALID_VALUE
+		 * could also be used; this matches what ui-prefs.c returns
+		 * for an unknown feature code or name.
+		 */
+		return PARSE_ERROR_OUT_OF_BOUNDS;
+	}
+	assert(idx < FEAT_MAX);
+	f = &f_info[idx];
+	f->fidx = idx;
+	parser_setpriv(p, f);
+	return PARSE_ERROR_NONE;
+}
+
 static enum parser_error parse_feat_name(struct parser *p) {
 	const char *name = parser_getstr(p, "name");
-	struct feature *h = parser_priv(p);
+	struct feature *f = parser_priv(p);
 
-	struct feature *f = mem_zalloc(sizeof *f);
-	f->next = h;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	if (f->name) {
+		return PARSE_ERROR_REPEATED_DIRECTIVE;
+	}
 	f->name = string_make(name);
-	parser_setpriv(p, f);
 	return PARSE_ERROR_NONE;
 }
 
@@ -770,12 +793,18 @@ static enum parser_error parse_feat_graphics(struct parser *p) {
 }
 
 static enum parser_error parse_feat_mimic(struct parser *p) {
-	const char *mimic_feat = parser_getstr(p, "feat");
+	const char *mimic_name = parser_getstr(p, "feat");
 	struct feature *f = parser_priv(p);
+	int mimic_idx;
 
 	if (!f)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
-	f->mimic = string_make(mimic_feat);
+	/* Verify that it refers to a valid feature. */
+	mimic_idx = lookup_feat_code(mimic_name);
+	if (mimic_idx < 0) {
+		return PARSE_ERROR_OUT_OF_BOUNDS;
+	}
+	f->mimic = &f_info[mimic_idx];
 	return PARSE_ERROR_NONE;
 }
 
@@ -828,72 +857,81 @@ static enum parser_error parse_feat_info(struct parser *p) {
 
 static enum parser_error parse_feat_desc(struct parser *p) {
     struct feature *f = parser_priv(p);
-    assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->desc = string_append(f->desc, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_walk_msg(struct parser *p) {
     struct feature *f = parser_priv(p);
-    assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->walk_msg = string_append(f->walk_msg, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_run_msg(struct parser *p) {
     struct feature *f = parser_priv(p);
-    assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->run_msg = string_append(f->run_msg, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_hurt_msg(struct parser *p) {
     struct feature *f = parser_priv(p);
-    assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->hurt_msg = string_append(f->hurt_msg, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_dig_msg(struct parser *p) {
     struct feature *f = parser_priv(p);
-    assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->dig_msg = string_append(f->dig_msg, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_fail_msg(struct parser *p) {
     struct feature *f = parser_priv(p);
-    assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->fail_msg = string_append(f->fail_msg, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_str_msg(struct parser *p) {
     struct feature *f = parser_priv(p);
-    assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->str_msg = string_append(f->str_msg, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_die_msg(struct parser *p) {
     struct feature *f = parser_priv(p);
-    assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
     f->die_msg = string_append(f->die_msg, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_confused_msg(struct parser *p) {
 	struct feature *f = parser_priv(p);
-	assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
 	f->confused_msg =
 		string_append(f->confused_msg, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
@@ -901,8 +939,9 @@ static enum parser_error parse_feat_confused_msg(struct parser *p) {
 
 static enum parser_error parse_feat_look_prefix(struct parser *p) {
 	struct feature *f = parser_priv(p);
-	assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
 	f->look_prefix =
 		string_append(f->look_prefix, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
@@ -910,8 +949,9 @@ static enum parser_error parse_feat_look_prefix(struct parser *p) {
 
 static enum parser_error parse_feat_look_in_preposition(struct parser *p) {
 	struct feature *f = parser_priv(p);
-	assert(f);
 
+	if (!f)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
 	f->look_in_preposition =
 		string_append(f->look_in_preposition, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
@@ -920,6 +960,7 @@ static enum parser_error parse_feat_look_in_preposition(struct parser *p) {
 struct parser *init_parse_feat(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
+	parser_reg(p, "code str code", parse_feat_code);
 	parser_reg(p, "name str name", parse_feat_name);
 	parser_reg(p, "graphics char glyph sym color", parse_feat_graphics);
 	parser_reg(p, "mimic str feat", parse_feat_mimic);
@@ -937,6 +978,12 @@ struct parser *init_parse_feat(void) {
 	parser_reg(p, "confused-msg str text", parse_feat_confused_msg);
 	parser_reg(p, "look-prefix str text", parse_feat_look_prefix);
 	parser_reg(p, "look-in-preposition str text", parse_feat_look_in_preposition);
+	/*
+	 * Since the layout of the terrain array is fixed by list-terrain.h,
+	 * allocate it now and fill in the customizable parts when parsing.
+	 */
+	f_info = mem_zalloc(FEAT_MAX * sizeof(*f_info));
+
 	return p;
 }
 
@@ -945,44 +992,23 @@ static errr run_parse_feat(struct parser *p) {
 }
 
 static errr finish_parse_feat(struct parser *p) {
-	struct feature *f, *n;
 	int fidx;
 
-	/* Scan the list for the max id */
-	z_info->f_max = 0;
-	f = parser_priv(p);
-	while (f) {
-		z_info->f_max++;
-		f = f->next;
-	}
-
-	/* Allocate the direct access list and copy the data to it */
-	f_info = mem_zalloc((z_info->f_max + 1) * sizeof(*f));
-	fidx = z_info->f_max - 1;
-	for (f = parser_priv(p); f; f = n, fidx--) {
-		assert(fidx >= 0);
-
-		memcpy(&f_info[fidx], f, sizeof(*f));
-		/* Add trailing space for ease of use with targeting code. */
-		if (f_info[fidx].look_prefix) {
-			f_info[fidx].look_prefix =
-				string_append(f_info[fidx].look_prefix, " ");
+	for (fidx = 0; fidx < FEAT_MAX; ++fidx) {
+		/* Ensure the prefixes and prepositions end with a space for
+		 * ease of use with the targeting code. */
+		if (f_info[fidx].look_prefix && !suffix(
+				f_info[fidx].look_prefix, " ")) {
+			f_info[fidx].look_prefix = string_append(
+				f_info[fidx].look_prefix, " ");
 		}
-		if (f_info[fidx].look_in_preposition) {
+		if (f_info[fidx].look_in_preposition && !suffix(
+				f_info[fidx].look_in_preposition, " ")) {
 			f_info[fidx].look_in_preposition =
-				string_append(f_info[fidx].look_in_preposition, " ");
+				string_append(f_info[fidx].look_in_preposition,
+				" ");
 		}
-		f_info[fidx].fidx = fidx;
-		n = f->next;
-		if (fidx < z_info->f_max - 1)
-			f_info[fidx].next = &f_info[fidx + 1];
-		else
-			f_info[fidx].next = NULL;
-		mem_free(f);
 	}
-
-	/* Set the terrain constants */
-	set_terrain();
 
 	parser_destroy(p);
 	return 0;
@@ -990,7 +1016,7 @@ static errr finish_parse_feat(struct parser *p) {
 
 static void cleanup_feat(void) {
 	int idx;
-	for (idx = 0; idx < z_info->f_max; idx++) {
+	for (idx = 0; idx < FEAT_MAX; idx++) {
 		string_free(f_info[idx].look_in_preposition);
 		string_free(f_info[idx].look_prefix);
 		string_free(f_info[idx].confused_msg);
@@ -1001,7 +1027,6 @@ static void cleanup_feat(void) {
 		string_free(f_info[idx].hurt_msg);
 		string_free(f_info[idx].run_msg);
 		string_free(f_info[idx].walk_msg);
-		string_free(f_info[idx].mimic);
 		string_free(f_info[idx].desc);
 		string_free(f_info[idx].name);
 	}

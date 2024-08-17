@@ -523,7 +523,9 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 
 		/* Delete */
 		gear_excise_object(p, obj);
-		object_delete(cave, &obj);
+		assert(obj->known);
+		object_delete(p->cave, NULL, &obj->known);
+		object_delete(cave, p->cave, &obj);
 
 		/* Inventory has changed, so disable repeat command */
 		cmd_disable_repeat();
@@ -601,7 +603,9 @@ static void use_mithril(struct player *p, int cost)
 			bool none_left = false;
 			struct object *used = gear_object_for_use(p, obj, amount, true,
 													  &none_left);
-			object_delete(cave, &used);
+			assert(used->known);
+			object_delete(p->cave, NULL, &used->known);
+			object_delete(cave, p->cave, &used);
 			to_go -= amount;
 		}
 		if (!to_go) break;

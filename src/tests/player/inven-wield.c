@@ -55,6 +55,9 @@ static bool empty_gear(struct player *p) {
 		none_left = false;
 		curr = gear_object_for_use(p, curr, curr->number, false,
 			&none_left);
+		if (curr->known) {
+			object_free(curr->known);
+		}
 		object_free(curr);
 		curr = next;
 		if (!none_left) {
@@ -79,6 +82,9 @@ static bool empty_floor(struct chunk *c, struct player *p) {
 		none_left = false;
 		obj = floor_object_for_use(p, obj, obj->number, false,
 			&none_left);
+		if (obj->known) {
+			object_free(obj->known);
+		}
 		object_free(obj);
 		if (!none_left) {
 			return false;
@@ -94,7 +100,9 @@ static struct object *setup_object(int tval, int sval, int num) {
 		obj = object_new();
 		object_prep(obj, kind, 0, RANDOMISE);
 		obj->number = num;
-		object_know(obj);
+		obj->known = object_new();
+		object_set_base_known(player, obj);
+		object_touch(player, obj);
 	}
 	return obj;
 }
@@ -174,7 +182,7 @@ int setup_tests(void **state) {
 	on_new_level();
 
 	/* Shift to empty spot so pickup or drop is easier. */
-	object_pile_free(cave, square_object(cave, player->grid));
+	object_pile_free(cave, NULL, square_object(cave, player->grid));
 
 	return 0;
 }

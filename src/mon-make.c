@@ -371,9 +371,23 @@ void delete_monster_idx(struct chunk *c, int m_idx)
 	while (obj && (c == cave)) {
 		struct object *next = obj->next;
 
-		/* Delete the object */
+		/* Delete the object.  Since it's in the cave's list do
+		 * some additional bookkeeping. */
+		if (obj->known) {
+			/* It's not in a floor pile so remove it completely.
+			 * Once compatibility with old savefiles isn't needed
+			 * can skip the test and simply delist and delete
+			 * since any obj->known from a monster's inventory
+			 * will not be in a floor pile. */
+			if (loc_is_zero(obj->known->grid) && (c == cave)) {
+				delist_object(player->cave, obj->known);
+				object_delete(player->cave, NULL, &obj->known);
+			}
+		}
 		delist_object(c, obj);
-		object_delete(c, &obj);
+		if (c == cave) {
+			object_delete(cave, player->cave, &obj);
+		}
 		obj = next;
 	}
 
@@ -574,7 +588,8 @@ void wipe_mon_list(struct chunk *c, struct player *p)
 				}
 				obj = obj->next;
 			}
-			object_pile_free(c, held_obj);
+			object_pile_free(c, (p && c == cave) ? p->cave : NULL,
+				held_obj);
 		}
 
 		/* Reduce the racial counter */

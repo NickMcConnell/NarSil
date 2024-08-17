@@ -925,7 +925,7 @@ static int longest_terrain_name(void)
 			max = strlen(trap_info[i].name);
 		}
 	}
-	for (i = 0; i < z_info->f_max; i++) {
+	for (i = 0; i < FEAT_MAX; i++) {
 		if (strlen(f_info[i].name) > max) {
 			max = strlen(f_info[i].name);
 		}
@@ -2475,7 +2475,8 @@ static void see_floor_items(game_event_type type, game_event_data *data,
 	int i;
 
 	/* Scan all visible, sensed objects in the grid */
-	floor_num = scan_floor(floor_list, floor_max, player, OFLOOR_VISIBLE, NULL);
+	floor_num = scan_floor(floor_list, floor_max, player,
+						   OFLOOR_SENSE | OFLOOR_VISIBLE, NULL);
 	if (floor_num == 0) {
 		mem_free(floor_list);
 		return;

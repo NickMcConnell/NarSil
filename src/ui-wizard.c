@@ -105,7 +105,7 @@ static const region wiz_create_item_area = { 0, 0, 0, 0 };
  */
 static void get_art_name(char *buf, int max, int a_idx)
 {
-	struct object *obj;
+	struct object *obj, *known_obj;
 	struct object_kind *kind;
 	const struct artifact *art = &a_info[a_idx];
 
@@ -125,12 +125,17 @@ static void get_art_name(char *buf, int max, int a_idx)
 	obj->artifact = art;
 
 	/* Make it known to us */
-	object_know(obj);
+	known_obj = object_new();
+	obj->known = known_obj;
+	object_copy(known_obj, obj);
+	known_obj->notice |= OBJ_NOTICE_IMAGINED;
 
 	/* Create the artifact description */
 	object_desc(buf, max, obj, ODESC_SINGULAR | ODESC_SPOIL, NULL);
 
-	object_delete(NULL, &obj);
+	object_delete(NULL, NULL, &known_obj);
+	obj->known = NULL;
+	object_delete(NULL, NULL, &obj);
 }
 
 

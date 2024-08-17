@@ -27,7 +27,6 @@
 struct angband_constants
 {
 	/* Array bounds etc, set on parsing edit files */
-	uint16_t f_max;		/**< Maximum number of terrain features */
 	uint16_t trap_max;	/**< Maximum number of trap kinds */
 	uint16_t k_max;		/**< Maximum number of object base kinds */
 	uint16_t drop_max;	/**< Maximum number of object drop types */
