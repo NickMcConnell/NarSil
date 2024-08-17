@@ -62,6 +62,19 @@ static struct chunk *create_empty_cave(int height, int width) {
 	return c;
 }
 
+static void setup_player_cave(struct chunk *c, struct player *p) {
+	int i;
+
+	p->cave = cave_new(c->height, c->width);
+	p->cave->objects = mem_realloc(p->cave->objects, (c->obj_max + 1) *
+		sizeof(struct object*));
+	p->cave->obj_max = c->obj_max;
+	for (i = 0; i <= p->cave->obj_max; ++i) {
+		p->cave->objects[i] = NULL;
+	}
+	p->cave->depth = c->depth;
+}
+
 static struct object *setup_object(int tval, int sval, int num) {
 	struct object_kind *kind = lookup_kind(tval, sval);
 	struct object *obj = NULL;
@@ -88,7 +101,10 @@ static void generate_piles(struct chunk *c, struct player *p) {
 				bool note = false;
 
 				if (obj && !floor_carry(c, grid, obj, &note)) {
-					object_delete(c, &obj);
+					if (obj->known) {
+						object_delete(c, p->cave, &obj->known);
+					}
+					object_delete(c, p->cave, &obj);
 				}
 			}
 		}
@@ -117,6 +133,7 @@ static int test_obj_pile_simple(void *state) {
 	player->depth = 1;
 	cave = create_empty_cave(11, 15);
 	cave->depth = player->depth;
+	setup_player_cave(cave, player);
 	player_place(cave, player, loc(cave->width / 2, cave->height / 2));
 	character_dungeon = true;
 	on_new_level();
@@ -124,6 +141,8 @@ static int test_obj_pile_simple(void *state) {
 	effect_simple(EF_EARTHQUAKE, source_player(), "0", 0,
 		MAX(cave->width / 2, cave->height / 2), 0, NULL);
 	wiz_light(cave, player);
+	cave_free(player->cave);
+	player->cave = NULL;
 	cave_free(cave);
 	cave = NULL;
 	ok;
@@ -134,6 +153,7 @@ static int test_obj_pile_orphan(void *state) {
 	player->depth = 1;
 	cave = create_empty_cave(11, 15);
 	cave->depth = player->depth;
+	setup_player_cave(cave, player);
 	player_place(cave, player, loc(cave->width / 2, cave->height / 2));
 	character_dungeon = true;
 	on_new_level();
@@ -142,6 +162,8 @@ static int test_obj_pile_orphan(void *state) {
 	effect_simple(EF_EARTHQUAKE, source_player(), "0", 0,
 		MAX(cave->width / 2, cave->height / 2), 0, NULL);
 	wiz_light(cave, player);
+	cave_free(player->cave);
+	player->cave = NULL;
 	cave_free(cave);
 	cave = NULL;
 	ok;

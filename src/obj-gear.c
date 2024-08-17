@@ -386,7 +386,7 @@ bool minus_ac(struct player *p)
 		} else if ((obj->ps <= 0) && (obj->evn <= 0)) {
 			bool none_left;
 			struct object *destroyed = gear_object_for_use(p, obj, 1, false, &none_left);
-			object_delete(NULL, &destroyed);
+			object_delete(NULL, NULL, &destroyed);
 			msg("Your %s is destroyed!", o_name);
 		} else {
 			msg("Your %s is damaged!", o_name);
@@ -444,6 +444,7 @@ bool gear_excise_object(struct player *p, struct object *obj)
 {
 	int i;
 
+	pile_excise(&p->gear_k, obj->known);
 	pile_excise(&p->gear, obj);
 
 	/* Change the weight */
@@ -476,6 +477,7 @@ struct object *gear_last_item(struct player *p)
 void gear_insert_end(struct player *p, struct object *obj)
 {
 	pile_insert_end(&p->gear, obj);
+	pile_insert_end(&p->gear_k, obj->known);
 }
 
 /**
@@ -491,7 +493,7 @@ struct object *gear_object_for_use(struct player *p, struct object *obj,
 	struct object *first_remainder = NULL;
 	char name[80];
 	char label = gear_to_label(p, obj);
-	bool artifact = obj->artifact && object_is_known(obj);
+	bool artifact = (obj->known->artifact != NULL);
 
 	/* Bounds check */
 	num = MIN(num, obj->number);
@@ -744,7 +746,12 @@ void inven_carry(struct player *p, struct object *obj, bool absorb,
 			p->upkeep->total_weight += (obj->number * obj->weight);
 
 			/* Combine the items */
+			object_absorb(combine_item->known, obj->known);
+			obj->known = NULL;
 			object_absorb(combine_item, obj);
+
+			/* Ensure numbers are aligned (should not be necessary, but safe) */
+			combine_item->known->number = combine_item->number;
 
 			obj = combine_item;
 			combining = true;
@@ -762,7 +769,7 @@ void inven_carry(struct player *p, struct object *obj, bool absorb,
 		/* Remove cave object details */
 		obj->held_m_idx = 0;
 		obj->grid = loc(0, 0);
-		obj->marked = false;
+		obj->known->grid = loc(0, 0);
 
 		/* Update the inventory */
 		p->upkeep->total_weight += (obj->number * obj->weight);
@@ -847,8 +854,8 @@ void inven_wield(struct object *obj, int slot)
 			wielded = gear_object_for_use(player, obj, num, false, &dummy);
 
 			/* It's still carried; keep its weight in the total. */
-			assert(wielded->number == 1);
-			player->upkeep->total_weight += wielded->weight;
+			assert(wielded->number == num);
+			player->upkeep->total_weight += wielded->weight * num;
 
 			/* The new item needs new gear and known gear entries */
 			wielded->next = obj->next;
@@ -856,6 +863,11 @@ void inven_wield(struct object *obj, int slot)
 			wielded->prev = obj;
 			if (wielded->next)
 				(wielded->next)->prev = wielded;
+			wielded->known->next = obj->known->next;
+			obj->known->next = wielded->known;
+			wielded->known->prev = obj->known;
+			if (wielded->known->next)
+				(wielded->known->next)->prev = wielded->known;
 		} else {
 			/* Just use the object directly */
 			wielded = obj;
@@ -925,21 +937,6 @@ void inven_wield(struct object *obj, int slot)
 
 	/* Do any ID-on-wield */
 	ident_on_wield(player, wielded);
-
-	/* Handle split objects; messy, but avoids re-ID and ensuing messages */
-	if (split) {
-		int snum = obj->number;
-		int oidx = obj->oidx;
-		struct object *prev = obj->prev, *next = obj->next;
-		struct loc grid = obj->grid;
-		assert(snum);
-		object_copy(obj, wielded);
-		obj->prev = prev;
-		obj->next = next;
-		obj->number = snum;
-		obj->oidx = oidx;
-		obj->grid = grid;
-	}
 
 	/* Activate all of its new abilities */
 	for (ability = wielded->abilities; ability; ability = ability->next) {
@@ -1229,7 +1226,7 @@ bool inven_destroy(struct object *obj, int amt)
 	}
 
 	/* Destroy it */
-	object_delete(cave, &destroyed);
+	object_delete(cave, player->cave, &destroyed);
 
 	/* Sound for quiver objects */
 	if (quiver)
@@ -1341,14 +1338,24 @@ void combine_pack(struct player *p)
 
 				display_message = true;
 				disable_repeat = true;
+				object_absorb(obj2->known, obj1->known);
+				obj1->known = NULL;
 				object_absorb(obj2, obj1);
+
+				/* Ensure numbers align (should not be necessary, but safer) */
+				obj2->known->number = obj2->number;
 
 				break;
 			} else {
 				if (inven_can_stack_partial(obj2, obj1)) {
 					/* Don't display a message for this case:  shuffling items
 					 * between stacks isn't interesting to the player. */
+					object_absorb_partial(obj2->known, obj1->known);
 					object_absorb_partial(obj2, obj1);
+					/* Ensure numbers align (should not be
+					 * necessary, but safer) */
+					obj2->known->number = obj2->number;
+					obj1->known->number = obj1->number;
 
 					break;
 				}

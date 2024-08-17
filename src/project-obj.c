@@ -97,7 +97,9 @@ int inven_damage(struct player *p, int type, int perc, int resistance)
 
 				/* Destroy "amt" items */
 				destroyed = gear_object_for_use(p, obj, amt, false, &none_left);
-				object_delete(NULL, &destroyed);
+				if (destroyed->known)
+					object_delete(NULL, NULL, &destroyed->known);
+				object_delete(NULL, NULL, &destroyed);
 
 				/* Count the casualties */
 				k += amt;
@@ -341,8 +343,8 @@ bool project_o(struct loc grid, int typ, const struct object *protected_obj)
 			char o_name[80];
 
 			/* Effect observed */
-			if (!ignore_item_ok(player, obj) && square_isseen(cave, grid) &&
-				obj->marked) {
+			if (obj->known && !ignore_item_ok(player, obj) &&
+				square_isseen(cave, grid)) {
 				obvious = true;
 				object_desc(o_name, sizeof(o_name), obj,
 					ODESC_BASE, player);
