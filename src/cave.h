@@ -115,7 +115,7 @@ struct feature {
 	char *desc;
 	int fidx;
 
-	struct feature *mimic;	/**< Feature to mimic or NULL for no mimicry */
+	struct feature *mimic;		/**< Feature to mimic or NULL for no mimicry */
 	uint8_t priority;	/**< Display priority */
 
 	uint8_t forge_bonus;/**< What bonus does this get as a forge? */
@@ -306,7 +306,7 @@ bool square_isplayer(struct chunk *c, struct loc grid);
 bool square_isoccupied(struct chunk *c, struct loc grid);
 bool square_isimpassable(struct chunk *c, struct loc grid);
 bool square_isknown(struct chunk *c, struct loc grid);
-bool square_isnotknown(struct chunk *c, struct loc grid);
+bool square_ismemorybad(struct chunk *c, struct loc grid);
 bool square_ischasm(struct chunk *c, struct loc grid);
 
 /* SQUARE INFO PREDICATES */
@@ -378,6 +378,8 @@ struct trap *square_trap(struct chunk *c, struct loc grid);
 bool square_holds_object(struct chunk *c, struct loc grid, struct object *obj);
 void square_excise_object(struct chunk *c, struct loc grid, struct object *obj);
 void square_excise_pile(struct chunk *c, struct loc grid);
+void square_excise_all_imagined(struct chunk *p_c, struct chunk *c,
+		struct loc grid);
 void square_delete_object(struct chunk *c, struct loc grid, struct object *obj, bool do_note, bool do_light);
 void square_know_pile(struct chunk *c, struct loc grid);
 int square_num_doors_adjacent(struct chunk *c, struct loc grid);
@@ -437,7 +439,7 @@ void cave_connectors_free(struct connector *join);
 void cave_free(struct chunk *c);
 void list_object(struct chunk *c, struct object *obj);
 void delist_object(struct chunk *c, struct object *obj);
-void object_lists_check_integrity(struct chunk *c);
+void object_lists_check_integrity(struct chunk *c, struct chunk *c_k);
 void scatter(struct chunk *c, struct loc *place, struct loc grid, int d,
 			 bool need_los);
 int scatter_ext(struct chunk *c, struct loc *places, int n, struct loc grid,

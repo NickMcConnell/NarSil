@@ -19,7 +19,7 @@ FEAT(LESS) /* up staircase */
 FEAT(MORE) /* down staircase */
 FEAT(LESS_SHAFT) /* up shaft */
 FEAT(MORE_SHAFT) /* down shaft */
-FEAT(CHASM)
+FEAT(CHASM) /* chasm */
 FEAT(SECRET) /* secret door */
 FEAT(RUBBLE) /* impassable rubble */
 FEAT(QUARTZ) /* quartz vein wall */

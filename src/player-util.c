@@ -1448,7 +1448,7 @@ static void search_square(struct player *p, struct loc grid, int dist,
 			
 			/* Mark an object, but not the square it is in */
 			if (square_obj) {
-				square_obj->marked = true;
+				square_know_pile(cave, grid);
 			}
 
 			square_light_spot(cave, grid);
@@ -1533,7 +1533,7 @@ static void search_square(struct player *p, struct loc grid, int dist,
 			/* Traps on chests */
 			if (obj && !object_is_known(obj)) {
 				msg("You have discovered a trap on the chest!");
-				object_know(obj);
+				obj->known->pval = obj->pval;
 				disturb(p, false);
 			}
 		}

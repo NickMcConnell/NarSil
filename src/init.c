@@ -716,7 +716,7 @@ static enum parser_error parse_feat_code(struct parser *p) {
 	if (idx < 0) {
 		/*
 		 * Of the existing parser errors, PARSE_ERROR_INVALID_VALUE
-		 * could alsoe e used; this matches what ui-prefs.c returns
+		 * could also be used; this matches what ui-prefs.c returns
 		 * for an unknown feature code or name.
 		 */
 		return PARSE_ERROR_OUT_OF_BOUNDS;
@@ -974,10 +974,8 @@ static errr finish_parse_feat(struct parser *p) {
 	int fidx;
 
 	for (fidx = 0; fidx < FEAT_MAX; ++fidx) {
-		/*
-		 * Ensure the prefixes and prepositions end with a space for
-		 * ease of use with the targeting code.
-		 */
+		/* Ensure the prefixes and prepositions end with a space for
+		 * ease of use with the targeting code. */
 		if (f_info[fidx].look_prefix && !suffix(
 				f_info[fidx].look_prefix, " ")) {
 			f_info[fidx].look_prefix = string_append(

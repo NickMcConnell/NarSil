@@ -559,8 +559,32 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 
 	/* Execute the effect */
 	if (can_use) {
-		bool ident = false, deduct_before, used;
+		int charges = 0;
+		uint16_t number;
+		bool ident = false, describe = false, deduct_before, used;
 		struct object *work_obj;
+		struct object *first_remainder = NULL;
+		char label = '\0';
+
+		if (from_floor) {
+			number = obj->number;
+		} else {
+			label = gear_to_label(player, obj);
+			/*
+			 * Show an aggregate total if the description doesn't
+			 * have a charge/recharging notice specific to the
+			 * stack.
+			 */
+			if (use != USE_VOICE) {
+				number = object_pack_total(player, obj, false,
+					&first_remainder);
+				if (first_remainder && first_remainder->number == number) {
+					first_remainder = NULL;
+				}
+			} else {
+				number = obj->number;
+			}
+		}
 
 		/* Sound and/or message */
 		if (obj->kind->effect_msg) {
@@ -593,21 +617,32 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 			} else {
 				if (use == USE_CHARGE) {
 					deduct_before = true;
+					charges = obj->pval;
 					/* Use a single charge */
 					obj->pval--;
-					obj->used++;
 				} else {
 					deduct_before = false;
 				}
 				work_obj = object_new();
 				object_copy(work_obj, obj);
 				work_obj->oidx = 0;
+				if (obj->known) {
+					work_obj->known = object_new();
+					object_copy(work_obj->known,
+						obj->known);
+					work_obj->known->oidx = 0;
+				}
 			}
 		} else {
 			deduct_before = false;
 			work_obj = object_new();
 			object_copy(work_obj, obj);
 			work_obj->oidx = 0;
+			if (obj->known) {
+				work_obj->known = object_new();
+				object_copy(work_obj->known, obj->known);
+				work_obj->known->oidx = 0;
+			}
 		}
 
 		/* Do effect; use original not copy (proj. effect handling) */
@@ -656,7 +691,10 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 			 * gained
 			 */
 			if (was_aware || !ident) {
-				object_delete(cave, &work_obj);
+				if (work_obj->known) {
+					object_delete(player->cave, NULL, &work_obj->known);
+				}
+				object_delete(cave, player->cave, &work_obj);
 				/*
 				 * Selection of effect's target may have
 				 * triggered an update to windows while the
@@ -674,37 +712,56 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 		/* Increase knowledge */
 		if (!was_aware && ident) {
 			object_flavor_aware(player, work_obj);
+			describe = true;
 		} else {
 			object_flavor_tried(work_obj);
 		}
 
 		/*
-		 * Use up or deduct charge if it wasn't done before.  For
-		 * charges, also have to change work_obj since it is used
-		 * for messaging.
+		 * Use up, deduct charge, or apply timeout if it wasn't
+		 * done before.  For charges or timeouts, also have to change
+		 * work_obj since it is used for messaging (for single use
+		 * items, ODESC_ALTNUM means that the work_obj's number doesn't
+		 * need to be adjusted).
 		 */
-		if (used) {
-			/*
-			 * Use up or deduct charge if it wasn't done before.
-			 * For charges, also have to change work_obj since it
-			 * is used for messaging.
-			 */
-			if (!deduct_before) {
-				assert(!from_floor);
-				if (use == USE_CHARGE) {
-					obj->pval--;
-					obj->used++;
-					work_obj->pval--;
-					work_obj->used++;
-				} else if (use == USE_SINGLE) {
-					struct object *used_obj =
-						gear_object_for_use(player, obj,
-							1, false, &none_left);
+		if (used && !deduct_before) {
+			assert(!from_floor);
+			if (use == USE_CHARGE) {
+				obj->pval--;
+				work_obj->pval--;
+			} else if (use == USE_SINGLE) {
+				struct object *used_obj = gear_object_for_use(
+					player, obj, 1, false, &none_left);
 
-					object_delete(cave, &used_obj);
+				if (used_obj->known) {
+					object_delete(cave, player->cave,
+						&used_obj->known);
 				}
+				object_delete(cave, player->cave, &used_obj);
 			}
+		}
 
+		if (describe) {
+			/*
+			 * Describe what's left of single use items or newly
+			 * identified items of all kinds.
+			 */
+			char name[80];
+
+			object_desc(name, sizeof(name), work_obj,
+				ODESC_PREFIX | ODESC_FULL | ODESC_ALTNUM |
+				((number + ((used && use == USE_SINGLE) ?
+				-1 : 0)) << 16), player);
+			if (from_floor) {
+				/* Print a message */
+				msg("You see %s.", name);
+			} else if (first_remainder) {
+				label = gear_to_label(player, first_remainder);
+				msg("You have %s (1st %c).", name, label);
+			} else {
+				msg("You have %s (%c).", name, label);
+			}
+		} else if (used && use == USE_CHARGE && object_is_known(work_obj)) {
 			/* Describe charges */
 			if (use == USE_CHARGE && object_is_known(work_obj)) {
 				if (from_floor) {
@@ -716,7 +773,9 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 		}
 
 		/* Clean up created copy. */
-		object_delete(cave, &work_obj);
+		if (work_obj->known)
+			object_delete(player->cave, NULL, &work_obj->known);
+		object_delete(cave, player->cave, &work_obj);
 	}
 
 	/* Use the turn */
@@ -916,7 +975,9 @@ static void refill_lamp(struct object *lamp, struct object *obj)
 		} else {
 			used = floor_object_for_use(player, obj, 1, true, &none_left);
 		}
-		object_delete(cave, &used);
+		if (used->known)
+			object_delete(player->cave, NULL, &used->known);
+		object_delete(cave, player->cave, &used);
 	}
 
 	/* Recalculate torch */
@@ -957,7 +1018,9 @@ static void combine_torches(struct object *torch, struct object *obj)
 	} else {
 		used = floor_object_for_use(player, obj, 1, true, &none_left);
 	}
-	object_delete(cave, &used);
+	if (used->known)
+		object_delete(player->cave, NULL, &used->known);
+	object_delete(cave, player->cave, &used);
 
 	/* Combine the pack (later) */
 	player->upkeep->notice |= (PN_COMBINE);

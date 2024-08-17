@@ -690,6 +690,7 @@ bool square_remove_all_traps(struct chunk *c, struct loc grid)
 
 	/* Refresh grids that the character can see */
 	if (square_isseen(c, grid)) {
+		square_memorize_traps(c, grid);
 		square_light_spot(c, grid);
 	}
 
@@ -732,8 +733,10 @@ bool square_remove_trap(struct chunk *c, struct loc grid, int t_idx_remove)
 	}
 
 	/* Refresh grids that the character can see */
-	if (square_isseen(c, grid))
+	if (square_isseen(c, grid)) {
+		square_memorize_traps(c, grid);
 		square_light_spot(c, grid);
+	}
 
 	(void)square_verify_trap(c, grid, 0);
 
@@ -913,6 +916,7 @@ bool square_reveal_trap(struct chunk *c, struct loc grid, bool domsg)
 		if (!trf_has(trap->flags, TRF_VISIBLE)) {
 			/* See the trap (actually, see all the traps) */
 			trf_on(trap->flags, TRF_VISIBLE);
+			square_memorize_traps(c, grid);
 
 			/* We found a trap */
 			found_trap++;
@@ -931,7 +935,7 @@ bool square_reveal_trap(struct chunk *c, struct loc grid, bool domsg)
 		}
 
 		/* Memorize */
-		square_mark(c, grid);
+		square_memorize(c, grid);
 
 		/* Redraw */
 		square_light_spot(c, grid);
@@ -939,6 +943,41 @@ bool square_reveal_trap(struct chunk *c, struct loc grid, bool domsg)
 
     /* Return true if we found any traps */
     return (found_trap != 0);
+}
+
+/**
+ * Memorize all the visible traps on a square
+ */
+void square_memorize_traps(struct chunk *c, struct loc grid)
+{
+	struct trap *trap = square(c, grid)->trap;
+	struct trap *current = NULL;
+	if (c != cave) return;
+
+	/* Clear current knowledge */
+	square_remove_all_traps(player->cave, grid);
+	sqinfo_off(square(player->cave, grid)->info, SQUARE_TRAP);
+
+	/* Copy all visible traps to the known cave */
+	while (trap) {
+		if (square_isvisibletrap(c, grid)) {
+			struct trap *next;
+			if (current) {
+				next = mem_zalloc(sizeof(*next));
+				current->next = next;
+				current = next;
+			} else {
+				current = mem_zalloc(sizeof(*current));
+				player->cave->squares[grid.y][grid.x].trap = current;
+			}
+			memcpy(current, trap, sizeof(*trap));
+			current->next = NULL;
+		}
+		trap = trap->next;
+	}
+	if (square(player->cave, grid)->trap) {
+		sqinfo_on(square(player->cave, grid)->info, SQUARE_TRAP);
+	}
 }
 
 /**
@@ -1042,11 +1081,8 @@ void hit_trap(struct loc grid)
 		trf_on(trap->flags, TRF_VISIBLE);
 	}
 
-    /* Verify traps (remove marker if appropriate) */
-    if (square_verify_trap(cave, grid, 0)) {
-		/* At least one trap left.  Memorize the grid. */
-		square_mark(cave, grid);
-    }
+	/* Update the player's view. */
+	square_memorize_traps(cave, grid);
     if (square_isseen(cave, grid)) {
 		square_light_spot(cave, grid);
     }

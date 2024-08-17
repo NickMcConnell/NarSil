@@ -138,7 +138,7 @@ static void close_marked_chasms(void)
 				square_set_feat(cave, grid, FEAT_FLOOR);
 
 				/* Memorize */
-				square_mark(cave, grid);
+				square_memorize(cave, grid);
 				square_light_spot(cave, grid);
 			}
 		}
@@ -422,7 +422,7 @@ bool effect_handler_MAP_AREA(effect_handler_context_t *context)
 
 				/* Memorize normal features */
 				if (!square_isfloor(cave, grid))
-					square_mark(cave, grid);
+					square_memorize(cave, grid);
 
 				/* Memorize known walls */
 				for (i = 0; i < 8; i++) {
@@ -431,13 +431,14 @@ bool effect_handler_MAP_AREA(effect_handler_context_t *context)
 
 					/* Memorize walls (etc) */
 					if (square_seemslikewall(cave, loc(xx, yy)))
-						square_mark(cave, loc(xx, yy));
+						square_memorize(cave, loc(xx, yy));
 				}
 			}
 
-			/* Forget unprocessed, unknown grids in the mapping area */
-			if (square_isnotknown(cave, grid))
+			/* Forget unprocessed, misremembered grids in the mapping area */
+			if (square_ismemorybad(cave, grid)) {
 				square_unmark(cave, grid);
+			}
 		}
 	}
 
@@ -514,11 +515,25 @@ bool effect_handler_DETECT_DOORS(effect_handler_context_t *context)
 				place_closed_door(cave, grid);
 
 				/* Memorize */
-				square_mark(cave, grid);
+				square_memorize(cave, grid);
 				square_light_spot(cave, grid);
 
 				/* Obvious */
 				doors = true;
+			} else if (square_isdoor(cave, grid)) {
+				/* Detect other types of doors. */
+				if (square_ismemorybad(cave, grid)) {
+					square_memorize(cave, grid);
+					square_light_spot(cave, grid);
+					doors = true;
+				}
+			} else if (square_isdoor(player->cave, grid)
+					&& square_ismemorybad(cave, grid)) {
+				/*
+				 * Forget misremembered doors in the mapping
+				 * area.
+				 */
+				square_forget(cave, grid);
 			}
 		}
 	}

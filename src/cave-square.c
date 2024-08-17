@@ -400,15 +400,18 @@ bool square_isimpassable(struct chunk *c, struct loc grid) {
  * True if the player knows the terrain of the square
  */
 bool square_isknown(struct chunk *c, struct loc grid) {
-	return square_ismark(cave, grid);
+	if (c != cave && (!player || c != player->cave)) return false;
+	if (!player->cave) return false;
+	return square(player->cave, grid)->feat == FEAT_NONE ? false : true;
 }
 
 /**
  * True if the player's knowledge of the terrain of the square is wrong
  * or missing
  */
-bool square_isnotknown(struct chunk *c, struct loc grid) {
-	return !square_ismark(cave, grid);
+bool square_ismemorybad(struct chunk *c, struct loc grid) {
+	return !square_isknown(c, grid)
+		|| square(player->cave, grid)->feat != square(cave, grid)->feat;
 }
 
 /**
@@ -832,6 +835,19 @@ bool square_in_bounds_fully(struct chunk *c, struct loc grid)
 }
 
 /**
+ * Checks if a square is thought by the player to block projections
+ */
+bool square_isbelievedwall(struct chunk *c, struct loc grid)
+{
+	// the edge of the world is definitely gonna block things
+	if (!square_in_bounds_fully(c, grid)) return true;
+	// if we dont know assume its projectable
+	if (!square_isknown(c, grid)) return false;
+	// report what we think (we may be wrong)
+	return !square_isprojectable(player->cave, grid);
+}
+
+/**
  * Checks if a square is empty and not in a vault
  */
 bool square_suits_start(struct chunk *c, struct loc grid)
@@ -964,9 +980,49 @@ void square_excise_object(struct chunk *c, struct loc grid, struct object *obj){
  * Excise an entire floor pile.
  */
 void square_excise_pile(struct chunk *c, struct loc grid) {
+	struct chunk *p_c = (player && c == cave) ? player->cave : NULL;
 	assert(square_in_bounds(c, grid));
-	object_pile_free(c, square_object(c, grid));
+	object_pile_free(c, p_c, square_object(c, grid));
 	square_set_obj(c, grid, NULL);
+}
+
+/**
+ * Remove all imagined objects from a floor pile.
+ *
+ * \param p_c is the chunk for a player's point of view which will be tested
+ * for the imagined objects.
+ * \param c is the chunk (typically cave) which holds the orphaned objects
+ * corresponding to the imagined objects in p_c.
+ * \param grid is the grid to check for imagined objects.
+ *
+ * If calling square_excise_pile() on p_c it will necessary to call this
+ * function first to avoid leaving dangling references (via the known pointer
+ * in orphaned objects within c's object list).
+ */
+void square_excise_all_imagined(struct chunk *p_c, struct chunk *c,
+		struct loc grid)
+{
+	struct object *obj;
+
+	assert(square_in_bounds(p_c, grid));
+	obj = square_object(p_c, grid);
+	while (obj) {
+		struct object *next = obj->next;
+
+		if (obj->notice & OBJ_NOTICE_IMAGINED) {
+			struct object *original;
+
+			assert(c->objects && c->objects[obj->oidx]);
+			original = c->objects[obj->oidx];
+			square_excise_object(p_c, grid, obj);
+			delist_object(p_c, obj);
+			object_delete(p_c, NULL, &obj);
+			original->known = NULL;
+			delist_object(c, original);
+			object_delete(c, p_c, &original);
+		}
+		obj = next;
+	}
 }
 
 /**
@@ -983,14 +1039,46 @@ void square_excise_pile(struct chunk *c, struct loc grid) {
 void square_delete_object(struct chunk *c, struct loc grid, struct object *obj,
 						  bool do_note, bool do_light)
 {
+	struct chunk *p_c = (c == cave) ? player->cave : NULL;
 	square_excise_object(c, grid, obj);
 	delist_object(c, obj);
-	object_delete(c, &obj);
+	object_delete(c, p_c, &obj);
 	if (do_note) {
 		square_note_spot(c, grid);
 	}
 	if (do_light) {
 		square_light_spot(c, grid);
+	}
+}
+
+/**
+ * Helper for square_know_pile():  remove known
+ * location for the requested items that are not on this grid.
+ */
+static void forget_remembered_objects(struct chunk *c, struct chunk *knownc,
+		struct loc grid)
+{
+	struct object *obj = square_object(knownc, grid);
+
+	while (obj) {
+		struct object *next = obj->next;
+		struct object *original = c->objects[obj->oidx];
+
+		assert(original);
+		if (!square_holds_object(c, grid, original)) {
+			square_excise_object(knownc, grid, obj);
+			obj->grid = loc(0, 0);
+
+			/* Delete objects which no longer exist anywhere */
+			if (obj->notice & OBJ_NOTICE_IMAGINED) {
+				delist_object(knownc, obj);
+				object_delete(knownc, NULL, &obj);
+				original->known = NULL;
+				delist_object(c, original);
+				object_delete(c, knownc, &original);
+			}
+		}
+		obj = next;
 	}
 }
 
@@ -1001,12 +1089,19 @@ void square_know_pile(struct chunk *c, struct loc grid)
 {
 	struct object *obj;
 
-	object_lists_check_integrity(c);
+	if (c != cave) return;
+
+	object_lists_check_integrity(c, player->cave);
 
 	/* Know every item on this grid */
 	for (obj = square_object(c, grid); obj; obj = obj->next) {
-		obj->marked = true;
+		object_see(player, obj);
+		if (loc_eq(grid, player->grid)) {
+			object_touch(player, obj);
+		}
 	}
+
+	forget_remembered_objects(c, player->cave, grid);
 }
 
 
@@ -1085,6 +1180,15 @@ void square_set_feat(struct chunk *c, struct loc grid, int feat)
 		sqinfo_off(square(c, grid)->info, SQUARE_WALL_OUTER);
 		sqinfo_off(square(c, grid)->info, SQUARE_WALL_SOLID);
 	}
+}
+
+/**
+ * Set the player-"known" terrain type for a square.
+ */
+static void square_set_known_feat(struct chunk *c, struct loc grid, int feat)
+{
+	if (c != cave) return;
+	player->cave->squares[grid.y][grid.x].feat = feat;
 }
 
 /**
@@ -1268,8 +1372,8 @@ int square_pit_difficulty(struct chunk *c, struct loc grid) {
  * \param c Is the chunk to use.  Usually it is the player's version of the
  * chunk.
  * \param grid Is the grid to use.
- * \param name Is the buffer to hold the returned name.
- * \param size Is the maximum number of characters name can hold.
+ * \param name is a field to write the name to
+ * \param size is the length of the field the name is written to
  */
 void square_apparent_name(struct chunk *c, struct loc grid, char *name,
 						  int size)
@@ -1308,7 +1412,7 @@ void square_apparent_name(struct chunk *c, struct loc grid, char *name,
  * The prefix is usually an indefinite article.  It may be an empty string.
  */
 const char *square_apparent_look_prefix(struct chunk *c, struct loc grid) {
-	int actual = square_isknown(c, grid) ? square(c, grid)->feat : 0;
+	int actual = square(c, grid)->feat;
 	const struct feature *fp = f_info[actual].mimic ?
 		f_info[actual].mimic : &f_info[actual];
 	return (fp->look_prefix) ? fp->look_prefix :
@@ -1325,10 +1429,22 @@ const char *square_apparent_look_prefix(struct chunk *c, struct loc grid) {
  * \param grid Is the grid to use.
  */
 const char *square_apparent_look_in_preposition(struct chunk *c, struct loc grid) {
-	int actual = square_isknown(cave, grid) ? square(cave, grid)->feat : 0;
+	int actual = square(c, grid)->feat;
 	const struct feature *fp = f_info[actual].mimic ?
 		f_info[actual].mimic : &f_info[actual];
-	return (fp->look_in_preposition) ? fp->look_in_preposition : "on ";
+	return (fp->look_in_preposition) ?  fp->look_in_preposition : "on ";
+}
+
+/* Memorize the terrain */
+void square_memorize(struct chunk *c, struct loc grid) {
+	if (c != cave) return;
+	square_set_known_feat(c, grid, square(c, grid)->feat);
+}
+
+/* Forget the terrain */
+void square_forget(struct chunk *c, struct loc grid) {
+	if (c != cave) return;
+	square_set_known_feat(c, grid, FEAT_NONE);
 }
 
 void square_mark(struct chunk *c, struct loc grid) {

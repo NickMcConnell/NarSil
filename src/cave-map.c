@@ -115,7 +115,7 @@ void map_info(struct loc grid, struct grid_data *g)
 		}
 
 		/* Remember seen feature */
-		square_mark(cave, grid);
+		square_memorize(cave, grid);
 	} else if (g->rage) {
 		/* Rage shows nothing out of view */
 		g->f_idx = FEAT_NONE;
@@ -126,17 +126,13 @@ void map_info(struct loc grid, struct grid_data *g)
 	}
 
 	/* Use known feature */
-	if (square_isknown(cave, grid)) {
-		g->f_idx = square(cave, grid)->feat;
-	} else {
-		g->f_idx = FEAT_NONE;
-	}
+	g->f_idx = square(player->cave, grid)->feat;
 	if (f_info[g->f_idx].mimic)
 		g->f_idx = (uint32_t) (f_info[g->f_idx].mimic - f_info);
 
 	/* There is a known trap in this square */
-	if (square_isvisibletrap(cave, grid) && square_isknown(cave, grid)) {
-		struct trap *trap = square(cave, grid)->trap;
+	if (square_trap(player->cave, grid) && square_isknown(cave, grid)) {
+		struct trap *trap = square(player->cave, grid)->trap;
 
 		/* Scan the square trap list */
 		while (trap) {
@@ -151,8 +147,8 @@ void map_info(struct loc grid, struct grid_data *g)
     }
 
 	/* Objects */
-	for (obj = square_object(cave, grid); obj; obj = obj->next) {
-		if (!obj->marked || ignore_known_item_ok(player, obj)) {
+	for (obj = square_object(player->cave, grid); obj; obj = obj->next) {
+		if (ignore_known_item_ok(player, obj)) {
 			/* Item stays hidden */
 		} else if (!g->first_kind) {
 			g->first_kind = obj->kind;
@@ -226,11 +222,17 @@ void square_note_spot(struct chunk *c, struct loc grid)
 	/* Make the player know precisely what is on this grid */
 	square_know_pile(c, grid);
 
-	if (square_isknown(c, grid))
+	/* Notice traps, memorize those we can see */
+	if (square_issecrettrap(c, grid)) {
+		square_reveal_trap(c, grid, true);
+	}
+	square_memorize_traps(c, grid);
+
+	if (!square_ismemorybad(c, grid))
 		return;
 
 	/* Memorize this grid */
-	square_mark(c, grid);
+	square_memorize(c, grid);
 }
 
 
@@ -242,7 +244,7 @@ void square_note_spot(struct chunk *c, struct loc grid)
  */
 void square_light_spot(struct chunk *c, struct loc grid)
 {
-	if (c == cave) {
+	if ((c == cave) && player->cave) {
 		player->upkeep->redraw |= PR_ITEMLIST;
 		event_signal_point(EVENT_MAP, grid.x, grid.y);
 	}
@@ -366,6 +368,7 @@ void wiz_light(struct chunk *c, struct player *p)
 					/* Memorize normal features */
 					if (!square_isfloor(c, a_grid) || 
 						square_isvisibletrap(c, a_grid)) {
+						square_memorize(c, a_grid);
 						square_mark(c, a_grid);
 					}
 				}
@@ -375,8 +378,17 @@ void wiz_light(struct chunk *c, struct player *p)
 			square_know_pile(c, grid);
 
 			/* Forget unprocessed, unknown grids in the mapping area */
-			if (!square_ismark(c, grid) && square_isnotknown(c, grid))
-				square_unmark(c, grid);
+			if (!square_ismark(c, grid) && square_ismemorybad(c, grid))
+				square_forget(c, grid);
+		}
+	}
+
+	/* Unmark grids */
+	for (y = 1; y < c->height - 1; y++) {
+		for (x = 1; x < c->width - 1; x++) {
+			struct loc grid = loc(x, y);
+			if (!square_in_bounds(c, grid)) continue;
+			square_unmark(c, grid);
 		}
 	}
 
@@ -396,13 +408,14 @@ void wiz_dark(struct chunk *c, struct player *p)
 	int y, x;
 
 	/* Scan all grids */
+	assert(c == cave);
 	for (y = 1; y < c->height - 1; y++) {
 		for (x = 1; x < c->width - 1; x++) {
 			struct loc grid = loc(x, y);
-			struct object *obj = square_object(c, grid);
+			struct object *obj = square_object(p->cave, grid);
 
 			/* Forget all grids */
-			square_unmark(c, grid);
+			square_forget(c, grid);
 
 			/*
 			 * Mark all grids as unseen so view calculations start
@@ -413,7 +426,7 @@ void wiz_dark(struct chunk *c, struct player *p)
 			/* Forget all objects */
 			while (obj) {
 				struct object *next = obj->next;
-				obj->marked = false;
+				delist_object(p->cave, obj);
 				obj = next;
 			}
 
