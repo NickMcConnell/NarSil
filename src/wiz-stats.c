@@ -1557,7 +1557,6 @@ struct tunnel_instance {
 	tunnel_type t;
 	tunnel_direction_type dir;
 	int vlength, hlength;
-	bool room_to_corridor;
 };
 
 struct covar_n {
@@ -1785,8 +1784,7 @@ static void initialize_tunnel_aggregate(struct tunnel_aggregate *ta)
 }
 
 static void add_to_tunnel_aggregate(struct tunnel_aggregate *ta,
-		const struct tunnel_instance *ti, int ntunnel,
-		const struct chunk *c)
+		const struct tunnel_instance *ti, int ntunnel)
 {
 	int counts[4][4] = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
 		{ 0, 0, 0, 0 } };
@@ -2129,7 +2127,7 @@ static void cgenstat_handle_level_end(game_event_type et, game_event_data *ed,
 
 		/* Aggregate tunneling results. */
 		add_to_tunnel_aggregate(&gs->ta[gs->level_type],
-			gs->curr_tunn, gs->n_curr_tunn, cave);
+			gs->curr_tunn, gs->n_curr_tunn);
 
 		/*
 		 * Summarize what's in the cave and add it to the running
