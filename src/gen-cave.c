@@ -814,11 +814,11 @@ static bool connect_two_rooms(struct chunk *c, int r1, int r2, bool tentative,
 			return false;
 		}
 		if (MIN(ABS(cent2.y - top_left1.y), ABS(cent2.y - bottom_right1.y))
-			> distance_limitx - 2) {
+			> distance_limity - 2) {
 			return false;
 		}
 		if (MIN(ABS(cent1.y - top_left2.y), ABS(cent1.y - bottom_right2.y))
-			> distance_limitx - 2) {
+			> distance_limity - 2) {
 			return false;
 		}
 
