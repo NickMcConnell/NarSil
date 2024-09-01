@@ -383,7 +383,7 @@ void wield_all(struct player *p)
 
 		/* Wear the new stuff */
 		p->body.slots[slot].obj = obj;
-		ident_on_wield(p, obj);
+		object_learn_on_wield(p, obj);
 
 		/* Increment the equip counter by hand */
 		p->upkeep->equip_cnt++;

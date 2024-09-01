@@ -349,7 +349,7 @@ int pval_max(struct object *obj)
 
 	/* Special items have limited pvals */
 	if (obj->ego) {
-		if (object_is_cursed(obj)) {
+		if (obj_is_cursed(obj)) {
 			if (obj->ego->pval > 0) pval -= 1;
 		} else {
 			pval += obj->ego->pval;
@@ -377,7 +377,7 @@ int pval_min(struct object *obj)
 
 	/* Special items have limited pvals */
 	if (obj->ego) {
-		if (object_is_cursed(obj)) {
+		if (obj_is_cursed(obj)) {
 			if (obj->ego->pval > 0) pval -= obj->ego->pval;
 		} else if (obj->ego->pval > 0) {
 			pval -= 1;
@@ -1383,7 +1383,10 @@ static void create_smithing_item(struct object *obj, struct smithing_cost *cost)
 	
 	/* Identify the object */
 	object_flavor_aware(player, created);
-	object_know(created);
+	while (!object_runes_known(created)) {
+		object_learn_unknown_rune(player, created);
+		player_know_object(player, created);
+	}
 
 	/* Create description */
 	object_desc(o_name, sizeof(o_name), created, ODESC_COMBAT | ODESC_EXTRA,

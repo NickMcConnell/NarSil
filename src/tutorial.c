@@ -1226,7 +1226,6 @@ struct object *tutorial_create_artifact(const struct artifact *art)
 	obj->artifact = art;
 	copy_artifact_data(obj, art);
 	mark_artifact_created(art, true);
-	pseudo_id(obj);
 	return obj;
 }
 
