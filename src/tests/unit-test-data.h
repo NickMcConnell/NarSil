@@ -694,6 +694,51 @@ static struct player_upkeep TEST_DATA test_player_upkeep = {
 	.equip_cnt = 0,
 };
 
+static struct object TEST_DATA test_player_knowledge = {
+	.kind = NULL,
+	.image_kind = NULL,
+	.ego = NULL,
+	.artifact = NULL,
+	.prev = NULL,
+	.next = NULL,
+	.known = NULL,
+	.oidx = 0,
+	.grid = { 0, 0 },
+	.tval = 0,
+	.sval = 0,
+	.pval = 0,
+	.weight = 0,
+
+	.modifiers = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	.el_info = {
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+	.brands = NULL,
+	.slays = NULL,
+
+	.att = 0,
+	.evn = 0,
+	.dd = 0,
+	.ds = 0,
+	.pd = 0,
+	.ps = 0,
+
+	.timeout = 0,
+	.number = 0,
+	.notice = 0,
+
+	.held_m_idx = 0,
+	.origin = 0,
+	.origin_depth = 0,
+	.origin_race = NULL,
+	.note = 0,
+	.abilities = NULL,
+};
+
 static char test_history[24] = "no history";
 static struct player TEST_DATA test_player = {
 	.grid = { 1, 1 },
@@ -739,6 +784,8 @@ static struct player TEST_DATA test_player = {
 	.wizard = 0,
 	.upkeep = &test_player_upkeep,
 	.gear = NULL,
+	.gear_k = NULL,
+	.obj_k = &test_player_knowledge,
 };
 
 static char cave_name[16] = "Test";

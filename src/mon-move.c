@@ -2527,7 +2527,7 @@ static void process_move_grab_objects(struct monster *mon, struct loc new)
 	obj = square_object(cave, new);
 	while (obj) {
 		char o_name[80];
-		bool useless = object_is_cursed(obj) || object_is_broken(obj);
+		bool useless = obj_is_cursed(obj) || obj_is_broken(obj);
 		struct object *next = obj->next;
 
 		/* Get the object name */

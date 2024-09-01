@@ -951,6 +951,7 @@ int rd_ignore(void)
 
 int rd_misc(void)
 {
+	size_t i;
 	uint8_t tmp8u;
 	
 	/* Read the randart seed */
@@ -977,6 +978,41 @@ int rd_misc(void)
 		deactivate_randart_file();
 	}
 
+	/* Property knowledge */
+	/* Flags */
+	for (i = 0; i < OF_SIZE; i++)
+		rd_byte(&player->obj_k->flags[i]);
+
+	/* Modifiers */
+	for (i = 0; i < OBJ_MOD_MAX; i++) {
+		rd_s16b(&player->obj_k->modifiers[i]);
+	}
+
+	/* Elements */
+	for (i = 0; i < ELEM_MAX; i++) {
+		rd_s16b(&player->obj_k->el_info[i].res_level);
+		rd_byte(&player->obj_k->el_info[i].flags);
+	}
+
+	/* Read brands */
+	for (i = 0; i < brand_max; i++) {
+		rd_byte(&tmp8u);
+		player->obj_k->brands[i] = tmp8u ? true : false;
+	}
+
+	/* Read slays */
+	for (i = 0; i < slay_max; i++) {
+		rd_byte(&tmp8u);
+		player->obj_k->slays[i] = tmp8u ? true : false;
+	}
+
+	/* Combat data */
+	rd_s16b(&player->obj_k->att);
+	rd_s16b(&player->obj_k->evn);
+	rd_byte(&player->obj_k->pd);
+	rd_byte(&player->obj_k->ps);
+	rd_byte(&player->obj_k->dd);
+	rd_byte(&player->obj_k->ds);
 	return 0;
 }
 

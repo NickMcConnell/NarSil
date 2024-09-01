@@ -701,8 +701,7 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify,
 				   (new_grade->down_msg)) {
 			print_custom_message(weapon, new_grade->down_msg, effect->msgt, p);
 
-			/* Special cases */
-			if (idx == TMD_FOOD) ident_hunger(p);
+			/* Special case */
 			if (blackout_grade && v < blackout_grade->max) {
 				msg("You wake up.");
 				p->timed[TMD_BLIND] = MAX(p->timed[TMD_BLIND] - 1, 0);
@@ -843,7 +842,7 @@ bool player_inc_check(struct player *p, int idx, bool lore)
 	/* Check whether @ has resistance to this effect */
 	if (resistance) {
 		/* Possibly identify relevant items */
-		ident_flag(p, effect->fail);
+		equip_learn_flag(p, effect->fail);
 	}
 
 	/* Determine whether the player saves */

@@ -34,6 +34,11 @@ int slay_count(const bool *slays_on);
 bool react_to_slay(struct slay *slay, const struct monster *mon);
 int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
 			   int *slay, int *brand);
-bool brand_message(int brand, char *name, char *message, int len);
+void learn_brand_slay_from_melee(struct player *p, struct object *weapon,
+	const struct monster *mon);
+void learn_brand_slay_from_launch(struct player *p, struct object *missile,
+	struct object *launcher, const struct monster *mon);
+void learn_brand_slay_from_throw(struct player *p, struct object *missile,
+	const struct monster *mon);
 
 #endif /* OBJECT_SLAYS_H */

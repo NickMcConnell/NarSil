@@ -629,6 +629,8 @@ void wr_ignore(void)
 
 void wr_misc(void)
 {
+	size_t i;
+
 	/* Random artifact seed */
 	wr_u32b(seed_randart);
 
@@ -643,6 +645,39 @@ void wr_misc(void)
 
 	/* Current turn */
 	wr_s32b(turn);
+
+	/* Flags */
+	for (i = 0; i < OF_SIZE; i++)
+		wr_byte(player->obj_k->flags[i]);
+
+	/* Modifiers */
+	for (i = 0; i < OBJ_MOD_MAX; i++) {
+		wr_s16b(player->obj_k->modifiers[i]);
+	}
+
+	/* Elements */
+	for (i = 0; i < ELEM_MAX; i++) {
+		wr_s16b(player->obj_k->el_info[i].res_level);
+		wr_byte(player->obj_k->el_info[i].flags);
+	}
+
+	/* Brands */
+	for (i = 0; i < z_info->brand_max; i++) {
+		wr_byte(player->obj_k->brands[i] ? 1 : 0);
+	}
+
+	/* Slays */
+	for (i = 0; i < z_info->slay_max; i++) {
+		wr_byte(player->obj_k->slays[i] ? 1 : 0);
+	}
+
+	/* Combat data */
+	wr_s16b(player->obj_k->att);
+	wr_s16b(player->obj_k->evn);
+	wr_byte(player->obj_k->pd);
+	wr_byte(player->obj_k->ps);
+	wr_byte(player->obj_k->dd);
+	wr_byte(player->obj_k->ds);
 }
 
 

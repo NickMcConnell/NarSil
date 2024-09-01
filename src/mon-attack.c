@@ -562,7 +562,7 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 					player_inc_timed(p, TMD_FAST, damroll(5, 4), true, true, true);
 
 					/* Give the player a chance to identify what's causing it */
-					ident_cowardice(p);
+					player_learn_flag(p, OF_COWARDICE);
 				}
 			}
 		}
