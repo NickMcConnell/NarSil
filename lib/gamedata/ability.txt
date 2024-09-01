@@ -418,10 +418,9 @@ type:helm
 type:crown
 type:light
 
-name:Lore-Keeper
+name:Item Lore
 level:4
-desc:Lets you tell the difference between mere special items
-desc: and artifacts, as well as which items are cursed.
+desc:Lets you recognise non-worn items immediately.
 type:helm
 type:crown
 
@@ -441,7 +440,7 @@ desc: you kill more.
 
 name:Lore-Master
 level:7
-prerequisite:Perception:Lore-Keeper
+prerequisite:Perception:Item Lore
 desc:You can immediately identify every item and have full knowledge
 desc: of all your opponents.
 type:helm
