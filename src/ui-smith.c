@@ -50,6 +50,8 @@
  */
 static struct object smith_obj_body;
 static struct object *smith_obj = &smith_obj_body;
+static struct object smith_obj_known_body;
+static struct object *smith_obj_known = &smith_obj_known_body;
 
 /**
  * Backup of the smithed object.
@@ -119,6 +121,7 @@ static void include_pval(struct object *obj)
 		obj->pval = pval;
 		for (i = 0; i < OBJ_MOD_MAX; i++) {
 			if (ABS(obj->modifiers[i]) <= 1) obj->modifiers[i] = pval * ABS(obj->modifiers[i]);
+			obj->known->modifiers[i] = obj->modifiers[i];
 		}
 	}
 	pval_included = true;
@@ -152,7 +155,8 @@ static void reset_smithing_objects(struct object_kind *kind)
 	release_ability_list(smith_art->abilities);
 	memset(smith_art, 0, sizeof(*smith_art));
 	create_base_object(kind, smith_obj);
-	object_know(smith_obj);
+	object_copy(smith_obj_known, smith_obj);
+	smith_obj->known = smith_obj_known;
 	object_copy(smith_obj_backup, smith_obj);
 	pval = pval_valid(smith_obj) ? smith_obj->kind->pval : 0;
 }
@@ -408,8 +412,8 @@ static void sval_display(struct menu *menu, int oid, bool cursor, int row,
 	char name[40];
 	struct object_kind **choice = (struct object_kind **) menu->menu_data;
 	uint8_t attr = (cursor ? COLOUR_L_BLUE : COLOUR_WHITE);
-	struct object object_body;
-	struct object *obj = &object_body;
+	struct object object_body, object_known_body;
+	struct object *obj = &object_body, *known_obj = &object_known_body;
 	struct smithing_cost local_cost;
 	struct smithing_cost *cost = &local_cost;
 	if (cursor) {
@@ -417,7 +421,8 @@ static void sval_display(struct menu *menu, int oid, bool cursor, int row,
 		cost = &current_cost;
 	}
 	create_base_object(choice[oid], obj);
-	object_know(obj);
+	object_copy(known_obj, obj);
+	obj->known = known_obj;
 	if (cursor) {
 		object_wipe(smith_obj_backup);
 		object_copy(smith_obj_backup, smith_obj);
@@ -550,7 +555,7 @@ bool *affordable_specials;
 static int get_smithing_specials(struct object_kind *kind)
 {
 	int i, count = 0, pval_old = pval;
-	struct object dummy_body;
+	struct object dummy_body, dummy_body_known;
 	struct smithing_cost dummy_cost;
 
 	if (!kind) return 0;
@@ -564,13 +569,15 @@ static int get_smithing_specials(struct object_kind *kind)
 		smithing_specials[count] = ego;
 		object_copy(&dummy_body, smith_obj);
 		create_special(&dummy_body, ego);
-		object_know(&dummy_body);
+		object_copy(&dummy_body_known, &dummy_body);
+		dummy_body.known = &dummy_body_known;
 		pval = pval_valid(&dummy_body) ? dummy_body.pval : 0;
 		include_pval(&dummy_body);
 		(void)object_difficulty(&dummy_body, &dummy_cost);
 		affordable_specials[count] = smith_affordable(&dummy_body,
 			&dummy_cost);
 		exclude_pval(&dummy_body);
+		object_wipe(&dummy_body_known);
 		object_wipe(&dummy_body);
 		++count;
 	}
@@ -587,8 +594,11 @@ static void special_display(struct menu *menu, int oid, bool cursor, int row,
 	struct ego_item **choice = (struct ego_item **) menu->menu_data;
 	uint8_t attr = affordable_specials[oid] ? COLOUR_WHITE : COLOUR_SLATE;
 	if (cursor) {
+		struct object known_body;
+		struct object *known_obj = &known_body;
 		create_special(smith_obj, choice[oid]);
-		object_know(smith_obj);
+		object_copy(known_obj, smith_obj);
+		smith_obj->known = known_obj;
 		pval = pval_valid(smith_obj) ? smith_obj->pval : 0;
 		include_pval(smith_obj);
 		show_smith_obj();
@@ -870,7 +880,10 @@ static void artefact_display(struct menu *menu, int oid, bool cursor, int row,
 	attr = smithing_art_cat_counts[oid] > 0 ?
 		(cursor ? COLOUR_L_BLUE : COLOUR_WHITE) : COLOUR_L_DARK;
 	if (cursor) {
-		object_know(smith_obj);
+		struct object known_body;
+		struct object *known_obj = &known_body;
+		object_copy(known_obj, smith_obj);
+		smith_obj->known = known_obj;
 		include_pval(smith_obj);
 		show_smith_obj();
 		exclude_pval(smith_obj);

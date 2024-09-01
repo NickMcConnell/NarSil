@@ -21,6 +21,9 @@ int teardown_tests(void *state) {
 	mem_free(p->upkeep->inven);
 	mem_free(p->upkeep);
 	mem_free(p->timed);
+	mem_free(p->obj_k->brands);
+	mem_free(p->obj_k->slays);
+	mem_free(p->obj_k);
 	mem_free(state);
 	return 0;
 }

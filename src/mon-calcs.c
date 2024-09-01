@@ -277,6 +277,9 @@ void calc_stance(struct monster *mon)
 	/* Aggravation makes non-mindless things much more hostile */
 	if (player->state.flags[OF_AGGRAVATE] && !rf_has(race->flags, RF_MINDLESS)){
 		stances[1] = STANCE_AGGRESSIVE;
+		if (monster_is_in_view(mon)) {
+			equip_learn_flag(player, OF_AGGRAVATE);
+		}
 	}
 
 	/* Monsters that have been angered have confident turned into aggressive */
@@ -763,7 +766,7 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 			/* Identify see invisible items */
 			if (rf_has(race->flags, RF_INVISIBLE) &&
 				(player->state.flags[OF_SEE_INVIS] > 0)) {
-				ident_see_invisible(mon, player);
+				player_learn_flag(player, OF_SEE_INVIS);
 			}
 		}
 	} else if (monster_is_visible(mon)) {
@@ -834,7 +837,7 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 		/* If it was a wraith, possibly realise you are haunted */
 		if (rf_has(race->flags, RF_UNDEAD) &&
 			!rf_has(race->flags, RF_TERRITORIAL)) {
-			ident_haunted(player);
+			player_learn_flag(player, OF_HAUNTED);
 		}
 	}
 }

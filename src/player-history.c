@@ -195,16 +195,20 @@ static bool history_mark_artifact_lost(struct player_history *h,
 static void get_artifact_name(char *buf, size_t len, const struct artifact *artifact)
 {
 	struct object body = OBJECT_NULL;
+	struct object known_body = OBJECT_NULL;
 
 	struct object *fake = &body;
+	struct object *known_obj = &known_body;
 
 	/* Make fake artifact for description purposes */
 	make_fake_artifact(fake, artifact);
 
-	ident(fake);
+	fake->known = known_obj;
+	object_copy(known_obj, fake);
 	object_desc(buf, len, fake, ODESC_PREFIX | ODESC_BASE | ODESC_SPOIL,
 		NULL);
 
+	object_wipe(known_obj);
 	object_wipe(fake);
 }
 

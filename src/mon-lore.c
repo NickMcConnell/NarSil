@@ -50,6 +50,13 @@ enum monster_sex {
 
 typedef enum monster_sex monster_sex_t;
 
+void lore_learn_flag_if_visible(struct monster_lore *lore, const struct monster *mon, int flag)
+{
+	if (monster_is_visible(mon)) {
+		rf_on(lore->flags, flag);
+	}
+}
+
 /**
  * Update which bits of lore are known
  */

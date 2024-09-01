@@ -436,8 +436,8 @@ bool object_similar(const struct object *obj1, const struct object *obj2,
 		return false;
 	} else if (tval_is_weapon(obj1) || tval_is_armor(obj1) ||
 			   tval_is_jewelry(obj1) || tval_is_light(obj1)) {
-		/* Require identical knowledge of both items */
-		if (object_is_known(obj1) != object_is_known(obj2)) return false;
+		bool obj1_is_known = object_runes_known(obj1);
+		bool obj2_is_known = object_runes_known(obj2);
 
 		/* Require identical values */
 		if (obj1->weight != obj2->weight) return false;
@@ -463,6 +463,10 @@ bool object_similar(const struct object *obj1, const struct object *obj2,
 		/* ... and lights must have same amount of fuel */
 		else if ((obj1->timeout != obj2->timeout) &&
 				 tval_is_light(obj1)) return false;
+
+		/* Prevent unIDd items stacking with IDd items in the object list */
+		if (mode & OSTACK_LIST && (obj1_is_known != obj2_is_known))
+			return false;
 	} else {
 		/* Anything else probably okay */
 	}
