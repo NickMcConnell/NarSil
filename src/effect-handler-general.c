@@ -150,7 +150,7 @@ static void close_marked_chasms(void)
  */
 static bool item_tester_unknown(const struct object *obj)
 {
-    return object_is_known(obj) ? false : true;
+    return object_runes_known(obj) ? false : true;
 }
 
 /**
@@ -341,7 +341,7 @@ bool effect_handler_DRAIN_STAT(effect_handler_context_t *context)
 		msg("You feel %s for a moment, but it passes.", desc_stat(stat, false));
 
 		/* Notice effect */
-		ident_flag(player, flag);
+		equip_learn_flag(player, flag);
 		context->ident = true;
 
 		return true;
@@ -389,7 +389,7 @@ bool effect_handler_REMOVE_CURSE(effect_handler_context_t *context)
 
 		/* Skip non-objects, non-cursed objects */
 		if (!obj || !obj->kind) continue;
-		if (!object_is_cursed(obj)) continue;
+		if (!obj_is_cursed(obj)) continue;
 
 		/* Uncurse the object */
 		uncurse_object(obj);
@@ -738,7 +738,7 @@ bool effect_handler_IDENTIFY(effect_handler_context_t *context)
 		return used;
 
 	/* Identify the object */
-	ident(obj);
+	object_learn_unknown_rune(player, obj);
 
 	return true;
 }
@@ -772,6 +772,7 @@ bool effect_handler_RECHARGE(effect_handler_context_t *context)
 	}
 
 	obj->pval += num;
+	obj->notice &= ~(OBJ_NOTICE_EMPTY);
 
 	/* Combine the pack (later) */
 	player->upkeep->notice |= (PN_COMBINE);
@@ -1029,7 +1030,7 @@ bool effect_handler_SONG_OF_FREEDOM(effect_handler_context_t *context)
                         obj->pval = (0 - obj->pval);
 
                         /* Identify */
-                        object_know(obj);
+                        obj->known->pval = obj->pval;
 				}
 			} else if (square_ischasm(cave, grid)) {
 				/* Chasm */

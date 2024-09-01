@@ -984,26 +984,6 @@ static bool do_cmd_tunnel_aux(struct loc grid)
 		/* Success */
 		msg(square_feat(cave, grid)->dig_msg);
 		twall(grid);
-
-		/* Possibly identify the digger */
-		if (!object_is_known(digger) && digger->modifiers[OBJ_MOD_TUNNEL]) { 
-            char o_short_name[80];
-            char o_full_name[80];
-
-            /* Short, pre-identification object description */
-            object_desc(o_short_name, sizeof(o_short_name), digger,
-						ODESC_BASE, player);
-
-            ident(digger);
-
-            /* Full object description */
-            object_desc(o_full_name, sizeof(o_full_name), digger, ODESC_FULL,
-				player);
-
-            /* Print the messages */
-            msg("You notice that your %s is especially suited to tunneling.", o_short_name);
-            msg("You are wielding %s.", o_full_name);
-		}
 	}
 
 	/* Break the truce if creatures see */

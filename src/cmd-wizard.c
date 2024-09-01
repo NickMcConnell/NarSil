@@ -287,13 +287,6 @@ static void wiz_drop_object(struct object *obj)
 	obj->origin = ORIGIN_CHEAT;
 	obj->origin_depth = convert_depth_to_origin(player->depth);
 
-	/* Pseudo-id artefacts and specials, identify other weapons/armour */
-	if (obj->artifact || obj->ego) {
-		pseudo_id(obj);
-	} else if (tval_has_variable_power(obj) && !tval_is_jewelry(obj)) {
-		object_know(obj);
-	}
-
 	/* Drop the object from heaven. */
 	drop_near(cave, &obj, 0, player->grid, true, true);
 }
@@ -1554,6 +1547,14 @@ void do_cmd_wiz_play_item(struct command *cmd)
 						player->upkeep->total_weight +=
 							obj->number *
 							obj->weight;
+					}
+					object_touch(player, obj);
+					if (object_is_equipped(player->body, obj)) {
+						assert(obj->known);
+						obj->known->notice &=
+							~OBJ_NOTICE_WORN;
+						object_learn_on_wield(player,
+							obj);
 					}
 					wiz_play_item_standard_upkeep(player,
 						obj);
