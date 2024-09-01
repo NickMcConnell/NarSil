@@ -97,7 +97,7 @@ static const char *obj_desc_get_basename(const struct object *obj, bool aware,
 	if (aware && p && !OPT(p, show_flavors)) show_flavor = false;
 
 	/* Artifacts are special */
-	if (obj->artifact && (aware || object_is_known(obj) || terse ||
+	if (obj->artifact && (aware || object_is_known_artifact(obj) || terse ||
 						  !obj->kind->flavor))
 		return obj->kind->name;
 
@@ -161,7 +161,7 @@ static size_t obj_desc_name_prefix(char *buf, size_t max, size_t end,
 		strnfcat(buf, max, &end, "no more ");
 	} else if (number > 1) {
 		strnfcat(buf, max, &end, "%u ", number);
-	} else if (obj->artifact && object_is_known(obj)) {
+	} else if (object_is_known_artifact(obj)) {
 		strnfcat(buf, max, &end, "the ");
 	} else if (*basename == '&') {
 		bool an = false;
@@ -297,9 +297,9 @@ static size_t obj_desc_name(char *buf, size_t max, size_t end,
 	end = obj_desc_name_format(buf, max, end, basename, modstr, plural);
 
 	/* Append extra names of various kinds */
-	if (obj->artifact && object_is_known(obj))
+	if (object_is_known_artifact(obj))
 		strnfcat(buf, max, &end, " %s", obj->artifact->name);
-	else if (obj->ego && object_is_known(obj) && !(mode & ODESC_NOEGO))
+	else if (obj->known->ego && !(mode & ODESC_NOEGO))
 		strnfcat(buf, max, &end, " %s", obj->ego->name);
 	else if (aware && !obj->artifact && obj->kind->flavor) {
 		if (terse)
@@ -320,7 +320,7 @@ static size_t obj_desc_chest(const struct object *obj, char *buf, size_t max,
 	if (!tval_is_chest(obj)) return end;
 
 	/* The chest is unopened, but we know nothing about its trap/lock */
-	if (obj->pval && !object_is_known(obj)) return end;
+	if (obj->pval && !obj->known->pval) return end;
 
 	/* Describe the traps */
 	strnfcat(buf, max, &end, " (%s)", chest_trap_name(obj));
@@ -342,15 +342,13 @@ static size_t obj_desc_combat(const struct object *obj, char *buf, size_t max,
 	} else if (tval_is_ammo(obj) && obj->att) {
 		/* Display attack for arrows if non-zero */
 		strnfcat(buf, max, &end, " (%+d)", obj->att);
-	} else if (obj->att && !(tval_is_ring(obj) && !object_is_known(obj))) {
-		/* Display attack if non-zero */
+	} else if (obj->att) {
+		/* Display attack if known and non-zero */
 		strnfcat(buf, max, &end, " (%+d)", obj->att);
 	}
 
 	/* Show evasion/protection info */
-	if (tval_is_ring(obj) && !object_is_known(obj)) {
-		/* Do nothing */
-	} else if (obj->pd && obj->ps) {
+	if (obj->pd && obj->ps) {
 		strnfcat(buf, max, &end, " [%+d,%dd%d]", obj->evn, obj->pd, obj->ps);
 	} else if (obj->evn) {
 		strnfcat(buf, max, &end, " [%+d]", obj->evn);
@@ -381,8 +379,6 @@ static size_t obj_desc_mods(const struct object *obj, char *buf, size_t max,
 {
 	int i, j, num_mods = 0;
 	int mods[OBJ_MOD_MAX] = { 0 };
-
-	if (!object_is_known(obj)) return end;
 
 	/* Run through possible modifiers and store distinct ones */
 	for (i = 0; i < OBJ_MOD_MAX; i++) {
@@ -461,17 +457,17 @@ static size_t obj_desc_inscrip(const struct object *obj, char *buf,
 	}
 
 	/* Note curses, use special inscription, if any */
-	if (object_is_cursed(obj) &&
-		(object_is_known(obj) || player_active_ability(player, "Lore-Keeper"))){
+	if (of_has(obj->known->flags, OF_CURSED)){
 		u[n++] = "cursed";
-	} else if (obj->pseudo != OBJ_PSEUDO_NONE) {
-		assert(obj->pseudo < OBJ_PSEUDO_MAX);
-		u[n++] = inscrip_text[obj->pseudo];
 	}
 
 	/* Note ignore */
 	if (p && ignore_item_ok(p, obj))
 		u[n++] = "ignore";
+
+	/* Note unknown properties */
+	if (!object_runes_known(obj) && (obj->known->notice & OBJ_NOTICE_ASSESSED))
+		u[n++] = "??";
 
 	if (n) {
 		int i;
@@ -526,11 +522,11 @@ size_t object_desc(char *buf, size_t max, const struct object *obj,
 	size_t end = 0;
 
 	/* Simple description for null item */
-	if (!obj)
+	if (!obj || !obj->known)
 		return strnfmt(buf, max, "(nothing)");
 
 	/* Egos and kinds whose name we know are seen */
-	if (obj->ego && object_is_known(obj) && !spoil)
+	if (obj->known->ego && !spoil)
 		obj->ego->everseen = true;
 
 	if (object_flavor_is_aware(obj) && !spoil)
@@ -548,7 +544,7 @@ size_t object_desc(char *buf, size_t max, const struct object *obj,
 		else if (tval_is_light(obj))
 			end = obj_desc_light(obj, buf, max, end);
 
-		end = obj_desc_combat(obj, buf, max, end, mode, p);
+		end = obj_desc_combat(obj->known, buf, max, end, mode, p);
 	}
 
 	/* Modifiers, charges, flavour details, inscriptions */

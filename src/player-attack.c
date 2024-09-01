@@ -556,9 +556,18 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 								 grid);
 			}
 
-			/* If a slay, brand or flag was noticed, then identify the weapon */
-			if (slay || brand || flag) {
-				ident_weapon_by_use(obj, m_name, flag, brand, slay, p);
+			/* If a slay, brand or flag was noticed, learn it */
+			if (slay || brand) {
+				learn_brand_slay_from_melee(p, obj, mon);
+			}
+			if (flag && !player_knows_flag(p, flag)) {
+				char o_name[80];
+				char desc[80];
+				object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
+				if (flag_slay_message(flag, m_name, desc, strlen(desc))) {
+					msg("Your %s %s.", o_name, desc);
+				}
+				player_learn_flag(p, flag);
 			}
 
 			/* Deal with killing blows */
@@ -568,7 +577,17 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 					if (p->chp < p->mhp) {
 						effect_simple(EF_HEAL_HP, source_player(), "m7", 0, 0,
 									  0, NULL);
-						ident_weapon_by_use(obj, m_name, OF_VAMPIRIC, 0, 0, p);
+						if (!player_knows_flag(p, OF_VAMPIRIC)) {
+							char o_name[80];
+							char desc[80];
+							object_desc(o_name, sizeof(o_name), obj,
+										ODESC_BASE, p);
+							if (flag_slay_message(OF_VAMPIRIC, m_name, desc,
+												  strlen(desc))) {
+								msg("Your %s %s.", o_name, desc);
+							}
+							player_learn_flag(p, OF_VAMPIRIC);
+						}
 					}
 				}
 
@@ -829,7 +848,6 @@ static bool thrown_potion_effects(struct player *p, struct object *obj,
 
 		/* Identify it fully */
 		object_flavor_aware(p, obj);
-		object_know(obj);
 
 		/* Description */
 		object_desc(o_name, sizeof(o_name), obj,
@@ -1001,9 +1019,18 @@ static struct attack_result make_ranged_shot(struct player *p,
 	/* Monster description */
 	monster_desc(m_name, sizeof(m_name), mon, MDESC_DEFAULT);
 
-	if (!object_is_known(ammo) || !object_is_known(bow)) {
-		ident_bow_arrow_by_use(bow, ammo, m_name, bow_brand, bow_slay,
-							   arrow_flag, arrow_brand, arrow_slay, p);
+	/* If a slay, brand or flag was noticed, then identify the weapon */
+	if (bow_slay || bow_brand || arrow_slay || arrow_brand) {
+		learn_brand_slay_from_launch(p, ammo, bow, mon);
+	}
+	if (arrow_flag) {
+		char o_name[80];
+		char desc[80];
+		object_desc(o_name, sizeof(o_name), ammo, ODESC_BASE, p);
+		if (flag_slay_message(arrow_flag, m_name, desc, strlen(desc))) {
+			msg("Your %s %s.", o_name, desc);
+		}
+		player_learn_flag(p, arrow_flag);
 	}
 
 	event_signal_combat_damage(EVENT_COMBAT_DAMAGE, total_dd, total_ds,
@@ -1095,13 +1122,20 @@ static struct attack_result make_ranged_throw(struct player *p,
 	result.dmg = MAX(0, dam - prt);
 
 	/* If a slay, brand or flag was noticed, then identify the weapon */
-	if (slay || brand || flag) {
+	if (slay || brand) {
+		learn_brand_slay_from_throw(p, obj, mon);
+	}
+	if (flag) {
 		char m_name[80];
+		char o_name[80];
+		char desc[80];
 
-		/* Monster description */
 		monster_desc(m_name, sizeof(m_name), mon, MDESC_DEFAULT);
-
-		ident_weapon_by_use(obj, m_name, flag, brand, slay, p);
+		object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
+		if (flag_slay_message(flag, m_name, desc, strlen(desc))) {
+			msg("Your %s %s.", o_name, desc);
+		}
+		player_learn_flag(p, flag);
 	}
 
 	event_signal_combat_damage(EVENT_COMBAT_DAMAGE, total_dd, total_ds,
@@ -1433,11 +1467,11 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 			}
 		}
 
-		if (bow && !object_is_known(bow) && noticed_radiance) {
+		if (bow && !of_has(bow->known->flags, OF_RADIANCE) && noticed_radiance){
 			char o_full_name[80];
 			char o_short_name[80];
 			object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-			object_know(bow);
+			player_learn_flag(p, OF_RADIANCE);
 			object_desc(o_full_name, sizeof(o_full_name), obj,
 				ODESC_PREFIX | ODESC_FULL | ODESC_ALTNUM |
 				(1 << 16), p);

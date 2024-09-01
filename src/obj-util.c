@@ -209,8 +209,8 @@ void object_flags(const struct object *obj, bitflag flags[OF_SIZE])
  */
 void object_flags_known(const struct object *obj, bitflag flags[OF_SIZE])
 {
-	of_wipe(flags);
-	if (!obj) return;
+	object_flags(obj, flags);
+	of_inter(flags, obj->known->flags);
 
 	if (!obj->kind) {
 		return;
@@ -219,13 +219,8 @@ void object_flags_known(const struct object *obj, bitflag flags[OF_SIZE])
 	if (object_flavor_is_aware(obj)) {
 		of_union(flags, obj->kind->flags);
 	}
-
 	if (obj->ego && easy_know(obj)) {
 		of_union(flags, obj->ego->flags);
-	}
-
-	if (object_is_known(obj)) {
-		of_copy(flags, obj->flags);
 	}
 }
 
@@ -630,12 +625,14 @@ bool obj_is_throwing(const struct object *obj)
 	return of_has(obj->flags, OF_THROWING);
 }
 
-/**
- * Determine if an object is a known artifact
- */
-bool obj_is_known_artifact(const struct object *obj)
+bool obj_is_cursed(const struct object *obj)
 {
-	return obj->artifact && object_is_known(obj);
+	return of_has(obj->flags, OF_CURSED);
+}
+
+bool obj_is_broken(const struct object *obj)
+{
+	return (object_value(obj) <= 0);
 }
 
 /* Can has inscrip pls */
@@ -772,13 +769,7 @@ void uncurse_object(struct object *obj)
 	if (!of_off(obj->flags, OF_CURSED)) {
 		msg("Attempt to uncurse non-cursed object - please report this bug");
 	}
-	obj->notice &= ~(OBJ_NOTICE_CURSED);
-
-	/* Take note if allowed */
-	if (obj->pseudo) obj->pseudo = OBJ_PSEUDO_UNCURSED;
-
-	/* The object has been "sensed" */
-	obj->notice |= (OBJ_NOTICE_SENSE);
+	of_off(obj->known->flags, OF_CURSED);
 
 	player->upkeep->notice |= (PN_COMBINE);
 	player->upkeep->update |= (PU_BONUS);
