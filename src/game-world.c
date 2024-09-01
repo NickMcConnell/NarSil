@@ -722,9 +722,9 @@ static void process_player_post_energy_use_cleanup(void)
 	update_flow(cave, &cave->player_noise, NULL);
 	update_scent();
 
-	/* Possibly identify passive abilities every so often*/
+	/* Possibly identify DANGER flag every so often */
 	if (one_in_(500)) {
-		ident_passive(player);
+		equip_learn_flag(player, OF_DANGER);
 	}
 
 	/*** Damage over Time ***/
@@ -781,6 +781,10 @@ static void process_player_post_energy_use_cleanup(void)
 
 	/* Timeout various things */
 	decrease_timeouts();
+
+	/* Notice things after time */
+	if (!(turn % 100))
+		equip_learn_after_time(player);
 
 	/* Lower the staircasiness */
 	if (player->staircasiness > 0) {

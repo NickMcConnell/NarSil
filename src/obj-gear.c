@@ -608,12 +608,9 @@ struct object *gear_object_for_use(struct player *p, struct object *obj,
  */
 bool handle_stickied_removal(struct player *p, struct object *obj)
 {
-	if (!object_is_equipped(player->body, obj)
-			|| !obj_has_flag(obj, OF_CURSED)) {
-		/*
-		 * There's no problem and no messaging needed if the item is
-		 * not equipped or is equipped but not cursed.
-		 */
+		/* There's no problem and no messaging needed if the item is
+		 * not equipped or is equipped but not cursed. */
+	if (!object_is_equipped(player->body, obj) || !obj_is_cursed(obj)) {
 		return false;
 	}
 
@@ -825,7 +822,6 @@ void inven_wield(struct object *obj, int slot)
 	const char *fmt;
 	char o_name[80];
 	bool dummy = false;
-	bool split = false;
 	int num = tval_is_ammo(obj) ?
 		((object_is_carried(player, obj)) ?
 			obj->number : inven_carry_num(player, obj)) : 1;
@@ -850,7 +846,6 @@ void inven_wield(struct object *obj, int slot)
 	if (object_is_carried(player, obj)) {
 		/* Split off a new object if necessary */
 		if (obj->number > num) {
-			split = true;
 			wielded = gear_object_for_use(player, obj, num, false, &dummy);
 
 			/* It's still carried; keep its weight in the total. */
@@ -876,7 +871,6 @@ void inven_wield(struct object *obj, int slot)
 		/* Get a floor item and carry it */
 		wielded = floor_object_for_use(player, obj, num, false, &dummy);
 		inven_carry(player, wielded, false, false);
-		split = (wielded != obj);
 	}
 
 	/* Wear the new stuff */
@@ -895,6 +889,9 @@ void inven_wield(struct object *obj, int slot)
 		/* Stop wielding two handed weapon */
 		inven_takeoff(weapon);
 	}
+
+	/* Do any ID-on-wield */
+	object_learn_on_wield(player, wielded);
 
 	/* Where is the item now */
 	if (tval_is_melee_weapon(wielded))
@@ -915,16 +912,11 @@ void inven_wield(struct object *obj, int slot)
 	/* Message */
 	msgt(MSG_WIELD, fmt, o_name, gear_to_label(player, wielded));
 
-	/* Sticky flag geats a special mention */
-	if (of_has(wielded->flags, OF_CURSED)) {
+	/* Sticky flag gets a special mention */
+	if (obj_is_cursed(wielded)) {
 		/* Warn the player */
 		msgt(MSG_CURSED, "You have a bad feeling about this...");
-
-		/* Sense the object */
-		wielded->pseudo = OBJ_PSEUDO_CURSED;
-
-		/* The object has been "sensed" */
-		wielded->notice |= (OBJ_NOTICE_SENSE);
+		of_on(obj->known->flags, OF_CURSED);
 	}
 
 	if (less_effective) {
@@ -934,9 +926,6 @@ void inven_wield(struct object *obj, int slot)
 		/* Message */
 		msg("You are no longer able to wield your %s as effectively.", o_name);
 	}
-
-	/* Do any ID-on-wield */
-	ident_on_wield(player, wielded);
 
 	/* Activate all of its new abilities */
 	for (ability = wielded->abilities; ability; ability = ability->next) {

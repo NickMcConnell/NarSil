@@ -1360,13 +1360,16 @@ static int *obj_group_order = NULL;
 
 static void get_artifact_display_name(char *o_name, size_t namelen, int a_idx)
 {
-	struct object body = OBJECT_NULL;
-	struct object *obj = &body;
+	struct object body = OBJECT_NULL, known_body = OBJECT_NULL;
+	struct object *obj = &body, *known_obj = &known_body;
 
 	make_fake_artifact(obj, &a_info[a_idx]);
-	object_know(obj);
+	object_wipe(known_obj);
+	object_copy(known_obj, obj);
+	obj->known = known_obj;
 	object_desc(o_name, namelen, obj,
 		ODESC_PREFIX | ODESC_BASE | ODESC_SPOIL, NULL);
+	object_wipe(known_obj);
 	object_wipe(obj);
 }
 
@@ -1425,8 +1428,8 @@ static struct object *find_artifact(struct artifact *artifact)
  */
 static void desc_art_fake(int a_idx)
 {
-	struct object *obj;
-	struct object object_body = OBJECT_NULL;
+	struct object *obj, *known_obj = NULL;
+	struct object object_body = OBJECT_NULL, known_object_body = OBJECT_NULL;
 	bool fake = false;
 
 	char header[120];
@@ -1440,14 +1443,18 @@ static void desc_art_fake(int a_idx)
 	if (!obj) {
 		fake = true;
 		obj = &object_body;
+		known_obj = &known_object_body;
 
 		make_fake_artifact(obj, &a_info[a_idx]);
+		obj->known = known_obj;
+		known_obj->artifact = obj->artifact;
+		known_obj->kind = obj->kind;
 
 		/* Check the history entry, to see if it was fully known before it
 		 * was lost */
 		if (history_is_artifact_known(player, obj->artifact))
 			/* Be very careful not to influence anything but this object */
-			object_know(obj);
+			object_copy(known_obj, obj);
 	}
 
 	/* Hack -- Handle stuff */
@@ -1457,6 +1464,7 @@ static void desc_art_fake(int a_idx)
 	object_desc(header, sizeof(header), obj,
 		ODESC_PREFIX | ODESC_FULL | ODESC_CAPITAL, player);
 	if (fake) {
+		object_wipe(known_obj);
 		object_wipe(obj);
 	}
 
@@ -1511,7 +1519,7 @@ static bool artifact_is_known(int a_idx)
 
 	/* Check all objects to see if it exists but hasn't been IDed */
 	obj = find_artifact(&a_info[a_idx]);
-	if (obj && !obj_is_known_artifact(obj))
+	if (obj && !object_is_known_artifact(obj))
 		return false;
 
 	return true;
@@ -1966,6 +1974,157 @@ void textui_browse_object_knowledge(const char *name, int row)
 
 /**
  * ------------------------------------------------------------------------
+ * OBJECT RUNES
+ * ------------------------------------------------------------------------ */
+
+/**
+ * Description of each rune group.
+ */
+static const char *rune_group_text[] =
+{
+	"Combat",
+	"Modifiers",
+	"Resists",
+	"Brands",
+	"Slays",
+	"Curses",
+	"Other",
+	NULL
+};
+
+/**
+ * Display the runes in a group.
+ */
+static void display_rune(int col, int row, bool cursor, int oid )
+{
+	uint8_t attr = curs_attrs[CURS_KNOWN][(int)cursor];
+	const char *inscrip = quark_str(rune_note(oid));
+
+	c_prt(attr, rune_name(oid), row, col);
+
+	/* Show autoinscription if around */
+	if (inscrip)
+		c_put_str(COLOUR_YELLOW, inscrip, row, 47);
+}
+
+
+static const char *rune_var_name(int gid)
+{
+	return rune_group_text[gid];
+}
+
+static int rune_var(int oid)
+{
+	return (int) rune_variety(oid);
+}
+
+static void rune_lore(int oid)
+{
+	textblock *tb = textblock_new();
+	char *title = string_make(rune_name(oid));
+
+	my_strcap(title);
+	textblock_append_c(tb, COLOUR_L_BLUE, "%s", title);
+	textblock_append(tb, "\n");
+	textblock_append(tb, "%s", rune_desc(oid));
+	textblock_append(tb, "\n");
+	textui_textblock_show(tb, SCREEN_REGION, NULL);
+	textblock_free(tb);
+
+	string_free(title);
+}
+
+/**
+ * Display special prompt for rune inscription.
+ */
+static const char *rune_xtra_prompt(int oid)
+{
+	const char *no_insc = ", 'r'ecall, '{'";
+	const char *with_insc = ", 'r'ecall, '{', '}'";
+
+	/* Appropriate prompt */
+	return rune_note(oid) ? with_insc : no_insc;
+}
+
+/**
+ * Special key actions for rune inscription.
+ */
+static void rune_xtra_act(struct keypress ch, int oid)
+{
+	/* Uninscribe */
+	if (ch.code == '}') {
+		rune_set_note(oid, NULL);
+	} else if (ch.code == '{') {
+		/* Inscribe */
+		char note_text[80] = "";
+
+		/* Avoid the prompt getting in the way */
+		screen_save();
+
+		/* Prompt */
+		prt("Inscribe with: ", 0, 0);
+
+		/* Default note */
+		if (rune_note(oid))
+			strnfmt(note_text, sizeof(note_text), "%s",
+					quark_str(rune_note(oid)));
+
+		/* Get an inscription */
+		if (askfor_aux(note_text, sizeof(note_text), NULL)) {
+			/* Remove old inscription if existent */
+			if (rune_note(oid))
+				rune_set_note(oid, NULL);
+
+			/* Add the autoinscription */
+			rune_set_note(oid, note_text);
+			rune_autoinscribe(player, oid);
+
+			/* Redraw gear */
+			player->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
+		}
+
+		/* Reload the screen */
+		screen_load();
+	}
+}
+
+
+
+/**
+ * Display rune knowledge.
+ */
+static void do_cmd_knowledge_runes(const char *name, int row)
+{
+	group_funcs rune_var_f = {rune_var_name, NULL, rune_var, 0,
+							  N_ELEMENTS(rune_group_text), false};
+
+	member_funcs rune_f = {display_rune, rune_lore, NULL, NULL,
+						   rune_xtra_prompt, rune_xtra_act, 0};
+
+	int *runes;
+	int rune_max = max_runes();
+	int count = 0;
+	int i;
+	char buf[30];
+
+	runes = mem_zalloc(rune_max * sizeof(int));
+
+	for (i = 0; i < rune_max; i++) {
+		/* Ignore unknown runes */
+		if (!player_knows_rune(player, i))
+			continue;
+
+		runes[count++] = i;
+	}
+
+	strnfmt(buf, sizeof(buf), "runes (%d unknown)", rune_max - count);
+
+	display_knowledge(buf, runes, count, rune_var_f, rune_f, "Inscribed");
+	mem_free(runes);
+}
+
+/**
+ * ------------------------------------------------------------------------
  * TERRAIN FEATURES
  * ------------------------------------------------------------------------ */
 
@@ -2332,6 +2491,7 @@ static void do_cmd_knowledge_history(const char *name, int row)
 static menu_action knowledge_actions[] =
 {
 { 0, 0, "Display object knowledge",   	   textui_browse_object_knowledge },
+{ 0, 0, "Display rune knowledge",          do_cmd_knowledge_runes },
 { 0, 0, "Display artifact knowledge", 	   do_cmd_knowledge_artifacts },
 { 0, 0, "Display special item knowledge",  do_cmd_knowledge_ego_items },
 { 0, 0, "Display monster knowledge",  	   do_cmd_knowledge_monsters  },
