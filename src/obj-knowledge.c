@@ -764,6 +764,18 @@ void player_know_object(struct player *p, struct object *obj)
 		return;
 	}
 
+	/* Know flavored objects with Item Lore */
+	if (player_active_ability(p, "Item Lore")) {
+		object_flavor_aware(p, obj);
+	}
+
+	/* Know worn objects with Lore-Master */
+	if (player_active_ability(p, "Lore-Master")) {
+		while (!object_runes_known(obj)) {
+			object_learn_unknown_rune(p, obj);
+		}
+	}
+
 	/* Get the combat properties, and the pval for anything but chests */
 	obj->known->dd = obj->dd * p->obj_k->dd;
 	obj->known->ds = obj->ds * p->obj_k->ds;
