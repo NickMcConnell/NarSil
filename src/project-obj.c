@@ -249,7 +249,7 @@ static void project_object_handler_KILL_DOOR(project_object_handler_context_t *c
 		unlock_chest((struct object * const)context->obj);
 
 		/* Notice */
-		if (object_is_known(context->obj)) {
+		if (context->obj->pval == context->obj->known->pval) {
 			msg("Click!");
 			context->obvious = true;
 		}
@@ -269,7 +269,7 @@ static void project_object_handler_KILL_TRAP(project_object_handler_context_t *c
 		unlock_chest((struct object * const)context->obj);
 
 		/* Notice */
-		if (object_is_known(context->obj)) {
+		if (context->obj->pval == context->obj->known->pval) {
 			msg("Click!");
 			context->obvious = true;
 		}

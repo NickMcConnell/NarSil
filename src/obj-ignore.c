@@ -147,6 +147,63 @@ void ignore_birth_init(void)
 
 
 /**
+ * Make or extend a rune autoinscription
+ */
+static void rune_add_autoinscription(struct object *obj, int i)
+{
+	char current_note[80] = "";
+
+	/* No autoinscription, or already there, don't bother */
+	if (!rune_note(i)) return;
+	if (obj->note && strstr(quark_str(obj->note), quark_str(rune_note(i))))
+		return;
+
+	/* Extend any current note */
+	if (obj->note)
+		my_strcpy(current_note, quark_str(obj->note), sizeof(current_note));
+	my_strcat(current_note, quark_str(rune_note(i)), sizeof(current_note));
+
+	/* Add the inscription */
+	obj->note = quark_add(current_note);
+}
+
+/**
+ * Put a rune autoinscription on all available objects
+ */
+void rune_autoinscribe(struct player *p, int i)
+{
+	struct object *obj;
+
+	/* Check the player knows the rune */
+	if (!player_knows_rune(p, i)) {
+		return;
+	}
+
+	/* Autoinscribe each object on the ground */
+	if (cave)
+		for (obj = square_object(cave, p->grid); obj; obj = obj->next)
+			if (object_has_rune(obj, i))
+				rune_add_autoinscription(obj, i);
+
+	/* Autoinscribe each object in the inventory */
+	for (obj = p->gear; obj; obj = obj->next)
+		if (object_has_rune(obj, i))
+			rune_add_autoinscription(obj, i);
+}
+
+/**
+ * Put all appropriate rune autoinscriptions on an object
+ */
+static void runes_autoinscribe(struct player *p, struct object *obj)
+{
+	int i, rune_max = max_runes();
+
+	for (i = 0; i < rune_max; i++)
+		if (object_has_rune(obj, i) && player_knows_rune(p, i))
+			rune_add_autoinscription(obj, i);
+}
+
+/**
  * Return an object kind autoinscription
  */
 const char *get_autoinscription(struct object_kind *kind, bool aware)
@@ -172,6 +229,9 @@ int apply_autoinscription(struct player *p, struct object *obj)
 	if (aware && quark_str(obj->note) && quark_str(obj->kind->note_unaware) &&
 		streq(quark_str(obj->note), quark_str(obj->kind->note_unaware)))
 		obj->note = 0;
+
+	/* Make rune autoinscription go first, for now */
+	runes_autoinscribe(p, obj);
 
 	/* No note - don't inscribe */
 	if (!note)
@@ -384,7 +444,7 @@ uint8_t ignore_level_of(const struct object *obj)
 	uint8_t value = 0;
 
 	/* Now just do bad, average, good, ego */
-	if (object_is_known(obj)) {
+	if (object_runes_known(obj)) {
 		int isgood = is_object_good(obj);
 
 		/* Values for items not egos or artifacts, may be updated */
@@ -401,7 +461,7 @@ uint8_t ignore_level_of(const struct object *obj)
 		else if (obj->artifact)
 			value = IGNORE_MAX;
 	} else {
-		if (object_is_known(obj) && !obj->artifact)
+		if ((obj->known->notice & OBJ_NOTICE_ASSESSED) && !obj->artifact)
 			value = IGNORE_ALL;
 		else
 			value = IGNORE_MAX;
@@ -475,11 +535,11 @@ bool object_is_ignored(const struct object *obj)
 	uint8_t type;
 
 	/* Objects that aren't yet known can't be ignored */
-	if (!object_is_known(obj) && !(obj->notice & OBJ_NOTICE_SENSE))
+	if (!obj->known)
 		return false;
 
 	/* Do ignore individual objects that marked ignore */
-	if (obj->notice & OBJ_NOTICE_IGNORE)
+	if (obj->known->notice & OBJ_NOTICE_IGNORE)
 		return true;
 
 	/* Don't ignore artifacts unless marked to be ignored */
@@ -498,11 +558,11 @@ bool object_is_ignored(const struct object *obj)
 		return false;
 
 	/* Ignore ego items if known */
-	if (obj->ego && object_is_known(obj) && ego_is_ignored(obj->ego->eidx,type))
+	if (obj->known->ego && ego_is_ignored(obj->ego->eidx,type))
 		return true;
 
 	/* Ignore items known not to be artifacts */
-	if (object_is_known(obj) && !obj->artifact &&
+	if ((obj->known->notice & OBJ_NOTICE_ASSESSED) && !obj->artifact &&
 		ignore_level[type] == IGNORE_ALL)
 		return true;
 

@@ -629,7 +629,7 @@ void start_tutorial(void)
 						}
 						player->body.slots[slot].obj =
 							eobj;
-						ident_on_wield(player, eobj);
+						object_learn_on_wield(player, eobj);
 						player->upkeep->total_weight +=
 							eobj->weight;
 						++player->upkeep->equip_cnt;

@@ -39,6 +39,7 @@
 #include "mon-move.h"
 #include "mon-spell.h"
 #include "monster.h"
+#include "obj-knowledge.h"
 #include "obj-tval.h"
 #include "obj-util.h"
 #include "object.h"
@@ -591,7 +592,7 @@ static void cave_clear(struct chunk *c, struct player *p)
 			for (x = 0; x < c->width; x++) {
 				struct object *obj = square_object(c, loc(x, y));
 				while (obj) {
-					if (obj->artifact && obj_is_known_artifact(obj)) {
+					if (obj->artifact && object_is_known_artifact(obj)) {
 						history_lose_artifact(p, obj->artifact);
 						mark_artifact_created(obj->artifact, true);
 					}
