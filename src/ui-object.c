@@ -1343,7 +1343,7 @@ void textui_cmd_ignore_menu(struct object *obj)
 	type = ignore_type_of(obj);
 
 	/* Ego ignoring */
-	if (obj->ego && object_is_known(obj) && type != ITYPE_MAX) {
+	if (obj->known->ego && type != ITYPE_MAX) {
 		struct ego_desc choice;
 		struct ego_item *ego = obj->ego;
 		char tmp[80] = "";

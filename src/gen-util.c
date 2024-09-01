@@ -385,7 +385,6 @@ void place_item_near_player(struct chunk *c, struct player *p, int tval,
 	} else {
 		obj->number = 1;
 	}
-	object_know(obj);
 	drop_near(c, &obj, 0, grid, false, false);	
 }
 

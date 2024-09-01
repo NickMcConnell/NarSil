@@ -1372,8 +1372,8 @@ int square_pit_difficulty(struct chunk *c, struct loc grid) {
  * \param c Is the chunk to use.  Usually it is the player's version of the
  * chunk.
  * \param grid Is the grid to use.
- * \param name is a field to write the name to
- * \param size is the length of the field the name is written to
+ * \param name Is the buffer to hold the returned name.
+ * \param size Is the maximum number of characters name can hold.
  */
 void square_apparent_name(struct chunk *c, struct loc grid, char *name,
 						  int size)
@@ -1412,7 +1412,7 @@ void square_apparent_name(struct chunk *c, struct loc grid, char *name,
  * The prefix is usually an indefinite article.  It may be an empty string.
  */
 const char *square_apparent_look_prefix(struct chunk *c, struct loc grid) {
-	int actual = square(c, grid)->feat;
+	int actual = square_isknown(c, grid) ? square(c, grid)->feat : 0;
 	const struct feature *fp = f_info[actual].mimic ?
 		f_info[actual].mimic : &f_info[actual];
 	return (fp->look_prefix) ? fp->look_prefix :

@@ -227,15 +227,15 @@ void take_hit(struct player *p, int dam, const char *kb_str)
 }
 
 /**
- * Win or not, know inventory, home items and history upon death, enter score
+ * Win or not, know inventory and history upon death, enter score
  */
 void death_knowledge(struct player *p)
 {
 	struct object *obj;
 	time_t death_time = (time_t)0;
 
+	player_learn_all_runes(p);
 	for (obj = p->gear; obj; obj = obj->next) {
-		object_know(obj);
 		object_flavor_aware(p, obj);
 	}
 
@@ -283,6 +283,7 @@ void player_regen_hp(struct player *p)
 
 	/* Notice changes */
 	if (old_chp != p->chp) {
+		equip_learn_flag(p, OF_REGEN);
 		p->upkeep->redraw |= (PR_HP);
 	}
 }
@@ -314,6 +315,7 @@ void player_regen_mana(struct player *p)
 
 	/* Notice changes */
 	if (old_csp != p->csp) {
+		equip_learn_flag(p, OF_REGEN);
 		p->upkeep->redraw |= (PR_MANA);
 	}
 }
@@ -408,11 +410,11 @@ bool player_radiates(struct player *p)
 	struct object *boots = equipped_item_by_slot_name(p, "feet");
 	if (boots && of_has(boots->flags, OF_RADIANCE) &&
 		!square_isglow(cave, p->grid)) {
-		if (!object_is_known(boots) && one_in_(10)) {
+		if (!of_has(boots->known->flags, OF_RADIANCE) && one_in_(10)) {
 			char short_name[80];
 			char full_name[80];
 			object_desc(short_name, sizeof(short_name), boots, ODESC_BASE, p);
-			object_know(boots);
+			player_learn_flag(p, OF_RADIANCE);
 			object_desc(full_name, sizeof(full_name), boots, ODESC_FULL, p);
 			msg("Your footsteps leave a trail of light!");
 			msg("You recognize your %s to be %s", short_name, full_name);
@@ -1531,7 +1533,7 @@ static void search_square(struct player *p, struct loc grid, int dist,
 			}
 
 			/* Traps on chests */
-			if (obj && !object_is_known(obj)) {
+			if (obj && obj->known && !obj->known->pval) {
 				msg("You have discovered a trap on the chest!");
 				obj->known->pval = obj->pval;
 				disturb(p, false);

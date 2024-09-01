@@ -2017,6 +2017,7 @@ static struct init_module *modules[] = {
 	&arrays_module,
 	&generate_module,
 	&player_module,
+	&rune_module,
 	&obj_make_module,
 	&ignore_module,
 	&mon_make_module,
