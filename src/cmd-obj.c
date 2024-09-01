@@ -290,7 +290,7 @@ void do_cmd_wield(struct command *cmd)
 	if (of_has(obj->flags, OF_TWO_HANDED) && slot_object(player, shield_slot)) {
 		bool shield = tval_is_shield(slot_object(player, shield_slot));
 		const char *thing = shield ? "shield" : "off-hand weapon";
-		if (object_is_cursed(slot_object(player, shield_slot))) {
+		if (obj_is_cursed(slot_object(player, shield_slot))) {
 			msg("You would need to remove your %s, but cannot bear to part with it.", thing);
 
 			/* Cancel the command */
@@ -314,7 +314,7 @@ void do_cmd_wield(struct command *cmd)
 	 * a two handed weapon */
 	if ((slot == shield_slot) && weapon
 			&& of_has(weapon->flags, OF_TWO_HANDED)) {
-		if (object_is_cursed(weapon)) {
+		if (obj_is_cursed(weapon)) {
 			msg("You would need to remove your weapon, but cannot bear to part with it.");
 
 			/* Cancel the command */
@@ -356,9 +356,8 @@ void do_cmd_wield(struct command *cmd)
 	}
 
 	/* Ask about two weapon fighting if necessary */
-	for (ability = obj->abilities; ability; ability = ability->next) {
-		if (streq(ability->name, "Two Weapon Fighting") &&
-			object_is_known(obj)) {
+	for (ability = obj->known->abilities; ability; ability = ability->next) {
+		if (streq(ability->name, "Two Weapon Fighting")) {
 			two_weapon = true;
 		}
 	}
@@ -759,7 +758,7 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 			} else {
 				msg("You have %s (%c).", name, label);
 			}
-		} else if (used && use == USE_CHARGE && object_is_known(work_obj)) {
+		} else if (used && use == USE_CHARGE) {
 			/* Describe charges */
 			if (from_floor)
 				floor_item_charges(work_obj);

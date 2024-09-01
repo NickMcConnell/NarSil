@@ -38,20 +38,1057 @@
 #include "project.h"
 
 /**
- * Check if an ego item type is known to the player
+ * Overview
+ * ========
+ * This file deals with the new "rune-based ID" system.  This system operates
+ * as follows:
+ * - struct player has an object struct attached to it (obj_k) which contains
+ *   the player's knowledge of object properties (runes)
+ * - whenever the player learns a rune, 
+ *   - if it's an object flag, that flag is set in obj_k
+ *   - if it's an integer value, that value in obj_k is set to 1
+ *   - if it's element info, the res_level value is set to 1
+ *   - if it's a brand, a brand is added to obj_k with the relevant element
+ *   - if it's a slay, a slay is added to obj_k with the right race flag or name
+ * - every object has a known version which is filled in with details as the
+ *   player learns them
+ * - whenever the player learns a rune, that knowledge is applied to the known
+ *   version of every object that the player has picked up or walked over
+ */
+
+/**
+ * ------------------------------------------------------------------------
+ * Object knowledge data
+ * This section covers initialisation, access and cleanup of rune data
+ * ------------------------------------------------------------------------ */
+static size_t rune_max;
+static struct rune *rune_list;
+
+/**
+ * Initialise the rune module
+ */
+static void init_rune(void)
+{
+	int i, j, count;
+
+	/* Count runes */
+	for (i = 1; i < OF_MAX; i++) {
+		struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
+		if (prop->subtype == OFT_NONE) continue;
+		if (prop->subtype == OFT_LIGHT) continue;
+		if (prop->subtype == OFT_DIG) continue;
+		if (prop->subtype == OFT_THROW) continue;
+		count++;
+	}
+	for (i = 0; i < OBJ_MOD_MAX; i++) {
+		count++;
+	}
+	for (i = 0; i < ELEM_MAX; i++) {
+		count++;
+	}
+	/* Note brand runes cover all brands with the same name */
+	for (i = 1; i < z_info->brand_max; i++) {
+		bool counted = false;
+		if (brands[i].name) {
+			for (j = 1; j < i; j++) {
+				if (streq(brands[i].name, brands[j].name)) {
+					counted = true;
+				}
+			}
+			if (!counted) {
+				count++;
+			}
+		}
+	}
+	/* Note slay runes cover all slays with the same flag/base */
+	for (i = 1; i < z_info->slay_max; i++) {
+		bool counted = false;
+		if (slays[i].name) {
+			for (j = 1; j < i; j++) {
+				if (same_monsters_slain(i, j)) {
+					counted = true;
+				}
+			}
+			if (!counted) {
+				count++;
+			}
+		}
+	}
+
+	/* Now allocate and fill the rune list */
+	rune_max = count;
+	rune_list = mem_zalloc(rune_max * sizeof(struct rune));
+	count = 0;
+	for (i = 0; i < OBJ_MOD_MAX; i++) {
+		struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_MOD, i);
+		rune_list[count++] = (struct rune) { RUNE_VAR_MOD, i, 0, prop->name };
+	}
+	for (i = 0; i < ELEM_MAX; i++) {
+		rune_list[count++] = (struct rune) { RUNE_VAR_RESIST, i, 0, projections[i].name };
+	}
+	for (i = 1; i < z_info->brand_max; i++) {
+		bool counted = false;
+		if (brands[i].name) {
+			for (j = 1; j < i; j++) {
+				if (streq(brands[i].name, brands[j].name)) {
+					counted = true;
+				}
+			}
+			if (!counted) {
+				rune_list[count++] =
+					(struct rune) { RUNE_VAR_BRAND, i, 0, brands[i].name };
+			}
+		}
+	}
+	for (i = 1; i < z_info->slay_max; i++) {
+		bool counted = false;
+		if (slays[i].name) {
+			for (j = 1; j < i; j++) {
+				if (same_monsters_slain(i, j)) {
+					counted = true;
+				}
+			}
+			if (!counted) {
+				rune_list[count++] =
+					(struct rune) { RUNE_VAR_SLAY, i, 0, slays[i].name };
+			}
+		}
+	}
+	for (i = 1; i < OF_MAX; i++) {
+		struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
+		if (prop->subtype == OFT_NONE) continue;
+		if (prop->subtype == OFT_LIGHT) continue;
+		if (prop->subtype == OFT_DIG) continue;
+		if (prop->subtype == OFT_THROW) continue;
+
+		rune_list[count++] = (struct rune)
+			{ RUNE_VAR_FLAG, i, 0, prop->name };
+	}
+}
+
+/**
+ * Get a rune by variety and index
+ */
+static int rune_index(size_t variety, int index)
+{
+	size_t i;
+
+	/* Look for the rune */
+	for (i = 0; i < rune_max; i++)
+		if ((rune_list[i].variety == variety) && (rune_list[i].index == index))
+			return i;
+
+	/* Can't find it */
+	return -1;
+}
+
+/**
+ * Cleanup the rune module
+ */
+static void cleanup_rune(void)
+{
+	mem_free(rune_list);
+}
+
+struct init_module rune_module = {
+	.name = "rune",
+	.init = init_rune,
+	.cleanup = cleanup_rune
+};
+
+/**
+ * ------------------------------------------------------------------------
+ * Rune knowledge functions
+ * These functions provide details about the rune list for use in 
+ * player knowledge screens
+ * ------------------------------------------------------------------------ */
+/**
+ * The number of runes
+ */
+int max_runes(void)
+{
+	return rune_max;
+}
+
+/**
+ * The variety of a rune
+ */
+enum rune_variety rune_variety(size_t i)
+{
+	return rune_list[i].variety;
+}
+
+/**
+ * Reports if the player knows a given rune
  *
  * \param p is the player
- * \param ego is the ego item type
+ * \param i is the rune's number in the rune list
  */
-bool player_knows_ego(struct player *p, struct ego_item *ego)
+bool player_knows_rune(struct player *p, size_t i)
 {
-	if (!ego) return false;
-	return ego->aware;
+	struct rune *r = &rune_list[i];
+
+	switch (r->variety) {
+		/* Mod runes */
+		case RUNE_VAR_MOD: {
+			if (p->obj_k->modifiers[r->index])
+				return true;
+			break;
+		}
+		/* Element runes */
+		case RUNE_VAR_RESIST: {
+			if (p->obj_k->el_info[r->index].res_level)
+				return true;
+			break;
+		}
+		/* Brand runes */
+		case RUNE_VAR_BRAND: {
+			assert(r->index < z_info->brand_max);
+			if (p->obj_k->brands[r->index]) {
+				return true;
+			}
+			break;
+		}
+		/* Slay runes */
+		case RUNE_VAR_SLAY: {
+			assert(r->index < z_info->slay_max);
+			if (p->obj_k->slays[r->index]) {
+				return true;
+			}
+			break;
+		}
+		/* Flag runes */
+		case RUNE_VAR_FLAG: {
+			if (of_has(p->obj_k->flags, r->index))
+				return true;
+			break;
+		}
+		default: {
+			break;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * The name of a rune
+ */
+const char *rune_name(size_t i)
+{
+	struct rune *r = &rune_list[i];
+
+	if (r->variety == RUNE_VAR_BRAND)
+		return format("%s brand", r->name);
+	else if (r->variety == RUNE_VAR_SLAY)
+		return format("slay %s", r->name);
+	else if (r->variety == RUNE_VAR_RESIST)
+		return format("resist %s", r->name);
+	else
+		return format("%s", r->name);
+
+	return NULL;
+}
+
+/**
+ * The description of a rune
+ */
+const char *rune_desc(size_t i)
+{
+	struct rune *r = &rune_list[i];
+
+	switch (r->variety) {
+		/* Mod runes */
+		case RUNE_VAR_MOD: {
+			return format("Object gives the player a magical bonus to %s.",
+						  r->name);
+			break;
+		}
+		/* Element runes */
+		case RUNE_VAR_RESIST: {
+			return format("Object affects the player's resistance to %s.",
+						  r->name);
+			break;
+		}
+		/* Brand runes */
+		case RUNE_VAR_BRAND: {
+			return format("Object brands the player's attacks with %s.",
+						  r->name);
+			break;
+		}
+		/* Slay runes */
+		case RUNE_VAR_SLAY: {
+			return format("Object makes the player's attacks against %s more powerful.", r->name);
+			break;
+		}
+		/* Flag runes */
+		case RUNE_VAR_FLAG: {
+			return format("Object gives the player the property of %s.",
+						  r->name);
+			break;
+		}
+		default: {
+			break;
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * The autoinscription index (if any) of a rune
+ */
+quark_t rune_note(size_t i)
+{
+	return rune_list[i].note;
+}
+
+/**
+ * Set an autoinscription on a rune
+ */
+void rune_set_note(size_t i, const char *inscription)
+{
+	struct rune *r = &rune_list[i];
+
+	if (!inscription)
+		r->note = 0;
+	else
+		r->note = quark_add(inscription);
 }
 
 /**
  * ------------------------------------------------------------------------
- * Functions for learning from the behaviour of indvidual objects or shapes
+ * Object knowledge predicates
+ * These functions tell how much the player knows about an object
+ * ------------------------------------------------------------------------ */
+
+/**
+ * Check if a flag is known to the player
+ *
+ * \param p is the player
+ * \param f is the flag index
+ */
+bool player_knows_flag(struct player *p, int f)
+{
+	return of_has(p->obj_k->flags, f);
+}
+
+/**
+ * Check if a brand is known to the player
+ *
+ * \param p is the player
+ * \param i is the brand index
+ */
+bool player_knows_brand(struct player *p, int i)
+{
+	return p->obj_k->brands[i];
+}
+
+/**
+ * Check if a slay is known to the player
+ *
+ * \param p is the player
+ * \param i is the slay index
+ */
+bool player_knows_slay(struct player *p, int i)
+{
+	return p->obj_k->slays[i];
+}
+
+/**
+ * Check if an ego item type is known to the player
+ *
+ * \param p is the player
+ * \param ego is the ego item type
+ * \param obj may be NULL to test whether the player knows the ego in general;
+ *     if obj is not NULL, the test is for whether the ego is know for that
+ *     specific object (allows for the ego to be known for the object in the
+ *     case where an ego has range of at least two values, including zero, for
+ *     a modifier, the player doesn't know that modifier,  and the object has
+ *     zero for that modifier)
+ */
+bool player_knows_ego(struct player *p, struct ego_item *ego)
+{
+	int i;
+
+	if (!ego) return false;
+
+	/* All flags known */
+	if (!of_is_subset(p->obj_k->flags, ego->flags)) return false;
+
+	/* All modifiers known */
+	for (i = 0; i < OBJ_MOD_MAX; i++) {
+		if ((ABS(ego->modifiers[i]) > 0) && !p->obj_k->modifiers[i]) {
+				return false;
+		}
+	}
+
+	/* All elements known */
+	for (i = 0; i < ELEM_MAX; i++)
+		if (ego->el_info[i].res_level && !p->obj_k->el_info[i].res_level)
+			return false;
+
+	/* All brands known */
+	for (i = 1; i < z_info->brand_max; i++) {
+		if (ego->brands && ego->brands[i] && !player_knows_brand(p, i)) {
+			return false;
+		}
+	}
+
+	/* All slays known */
+	for (i = 1; i < z_info->slay_max; i++) {
+		if (ego->slays && ego->slays[i] && !player_knows_slay(p, i)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Checks whether the object is known to be an artifact
+ *
+ * \param obj is the object
+ */
+bool object_is_known_artifact(const struct object *obj)
+{
+	if (!obj->known) return false;
+	return obj->known->artifact ? true : false;
+}
+
+/**
+ * Check if an object has a rune
+ *
+ * \param obj is the object
+ * \param rune_no is the rune's number in the rune list
+ */
+bool object_has_rune(const struct object *obj, int rune_no)
+{
+	struct rune *r = &rune_list[rune_no];
+
+	switch (r->variety) {
+		/* Mod runes */
+		case RUNE_VAR_MOD: {
+			if (obj->modifiers[r->index] != 0)
+				return true;
+			break;
+		}
+		/* Element runes */
+		case RUNE_VAR_RESIST: {
+			if (obj->el_info[r->index].res_level != 0)
+				return true;
+			break;
+		}
+		/* Brand runes */
+		case RUNE_VAR_BRAND: {
+			if (obj->brands) {
+				int i;
+				for (i = 0; i < z_info->brand_max; i++) {
+					if (obj->brands[i] && streq(brands[i].name, r->name)) {
+						return true;
+					}
+				}
+			}
+			break;
+		}
+		/* Slay runes */
+		case RUNE_VAR_SLAY: {
+			if (obj->slays) {
+				int i;
+				for (i = 0; i < z_info->slay_max; i++) {
+					if (obj->slays[i] && same_monsters_slain(r->index, i)) {
+						return true;
+					}
+				}
+			}
+			break;
+		}
+		/* Flag runes */
+		case RUNE_VAR_FLAG: {
+			if (of_has(obj->flags, r->index))
+				return true;
+			break;
+		}
+		default: break;
+	}
+
+	return false;
+}
+
+/**
+ * Check if all the runes on an object are known to the player
+ *
+ * \param obj is the object
+ */
+bool object_runes_known(const struct object *obj)
+{
+	int i;
+
+	/* No known object */
+	if (!obj->known) return false;
+
+	/* Not all modifiers known */
+	for (i = 0; i < OBJ_MOD_MAX; i++)
+		if (obj->modifiers[i] != obj->known->modifiers[i])
+			return false;
+
+	/* Not all elements known */
+	for (i = 0; i < ELEM_MAX; i++)
+		if ((obj->el_info[i].res_level != 0) &&
+			(obj->known->el_info[i].res_level == 0))
+			return false;
+
+	/* Not all brands known */
+	if (obj->brands) {
+		if (!obj->known->brands)
+			return false;
+		for (i = 0; i < z_info->brand_max; i++) {
+			if (obj->brands[i] && !obj->known->brands[i]) {
+				return false;
+			}
+		}
+	}
+
+	/* Not all slays known */
+	if (obj->slays) {
+		if (!obj->known->slays)
+			return false;
+		for (i = 0; i < z_info->slay_max; i++) {
+			if (obj->slays[i] && !obj->known->slays[i]) {
+				return false;
+			}
+		}
+	}
+
+	/* Not all flags known */
+	if (!of_is_subset(obj->known->flags, obj->flags)) return false;
+
+	return true;
+}
+
+/**
+ * Checks whether a player knows whether an object has a given flag
+ *
+ * \param p is the player
+ * \param obj is the object
+ * \param flag is the flag
+ */
+bool object_flag_is_known(const struct player *p, const struct object *obj,
+	int flag)
+{
+	/* Object runes known means OK */
+	if (object_runes_known(obj)) return true;
+
+	/* Player knows the flag means OK */
+	if (of_has(p->obj_k->flags, flag)) return true;
+
+	/* Object has had a chance to display the flag means OK */
+	if (of_has(obj->known->flags, flag)) return true;
+
+	return false;
+}
+
+/**
+ * Checks whether a player knows the given element properties of an object
+ *
+ * \param p is the player
+ * \param obj is the object
+ * \param element is the element
+ */
+bool object_element_is_known(const struct player *p, const struct object *obj,
+	int element)
+{
+	if (element < 0 || element >= ELEM_MAX) return false;
+
+	/* Object runes known means OK */
+	if (object_runes_known(obj)) return true;
+
+	/* Player knows the element means OK */
+	if (p->obj_k->el_info[element].res_level) return true;
+
+	/* Object has been exposed to the element means OK */
+	if (obj->known->el_info[element].res_level) return true;
+
+	return false;
+}
+
+/**
+ * ------------------------------------------------------------------------
+ * Object knowledge propagators
+ * These functions transfer player knowledge to objects
+ * ------------------------------------------------------------------------ */
+/**
+ * Sets the basic details on a known object
+ */
+void object_set_base_known(struct player *p, struct object *obj)
+{
+	assert(obj->known);
+	obj->known->kind = obj->kind;
+	obj->known->tval = obj->tval;
+	obj->known->sval = obj->sval;
+	obj->known->weight = obj->weight;
+	obj->known->number = obj->number;
+
+	/* Dice, attack and evasion */
+	if (!obj->known->dd) {
+		obj->known->dd = obj->kind->dd * p->obj_k->dd;
+	}
+	if (!obj->known->ds) {
+		obj->known->ds = obj->kind->ds * p->obj_k->ds;
+	}
+	if (!obj->known->pd) {
+		obj->known->pd = obj->kind->pd * p->obj_k->pd;
+	}
+	if (!obj->known->ps) {
+		obj->known->ps = obj->kind->ps * p->obj_k->ps;
+	}
+	if (!obj->known->att) {
+		obj->known->att = obj->kind->att * p->obj_k->att;
+	}
+	if (!obj->known->evn) {
+		obj->known->evn = obj->kind->evn * p->obj_k->evn;
+	}
+
+	/* Aware flavours and unflavored non-wearables get info now */
+	if ((obj->kind->aware && obj->kind->flavor) ||
+		(!tval_is_wearable(obj) && !obj->kind->flavor)) {
+		obj->known->pval = obj->pval;
+	}
+}
+
+/**
+ * Gain knowledge based on seeing an object on the floor
+ */
+void object_see(struct player *p, struct object *obj)
+{
+	struct object *known_obj = p->cave->objects[obj->oidx];
+	struct loc grid = obj->grid;
+
+	/* Make new known objects, fully know sensed ones, relocate old ones */
+	if (known_obj == NULL) {
+		/* Make a new one */
+		struct object *new_obj;
+
+		assert(! obj->known);
+		new_obj = object_new();
+		obj->known = new_obj;
+		object_set_base_known(p, obj);
+
+		/* List the known object */
+		p->cave->objects[obj->oidx] = new_obj;
+		new_obj->oidx = obj->oidx;
+
+		/* If monster held, we're done */
+		if (obj->held_m_idx) return;
+
+		/* Attach it to the current floor pile */
+		new_obj->grid = grid;
+		pile_insert_end(&p->cave->squares[grid.y][grid.x].obj, new_obj);
+	} else {
+		struct loc old = known_obj->grid;
+
+		/* Make sure knowledge is correct */
+		assert(known_obj == obj->known);
+
+		if (known_obj->kind != obj->kind) {
+			/* Copy over actual details */
+			object_set_base_known(p, obj);
+		} else {
+			known_obj->number = obj->number;
+		}
+
+		/* If monster held, we're done */
+		if (obj->held_m_idx) return;
+
+		/* Attach it to the current floor pile if necessary */
+		if (! square_holds_object(p->cave, grid, known_obj)) {
+			/* Detach from any old pile */
+			if (!loc_is_zero(old) && square_holds_object(p->cave, old, known_obj)) {
+				square_excise_object(p->cave, old, known_obj);
+			}
+
+			known_obj->grid = grid;
+			pile_insert_end(&p->cave->squares[grid.y][grid.x].obj, known_obj);
+		}
+	}
+}
+
+/**
+ * Gain knowledge based on being an the same square as an object
+ */
+void object_touch(struct player *p, struct object *obj)
+{
+	/* Automatically notice artifacts, mark as assessed */
+	obj->known->artifact = obj->artifact;
+	obj->known->notice |= OBJ_NOTICE_ASSESSED;
+
+	/* Apply known properties to the object */
+	player_know_object(p, obj);
+
+	/* Log artifacts if found */
+	if (obj->artifact && !is_artifact_seen(obj->artifact)) {
+		const struct artifact *art = obj->artifact;
+		int new_exp = 100;
+
+		/* Mark */
+		mark_artifact_seen(art, true);
+
+		/* Gain experience for identification */
+		player_exp_gain(p, new_exp);
+		p->ident_exp += new_exp;
+
+		/* Record in the history */
+		history_find_artifact(p, art);
+	}
+}
+
+/**
+ * Transfer player object knowledge to an object
+ *
+ * \param p is the player
+ * \param obj is the object
+ */
+void player_know_object(struct player *p, struct object *obj)
+{
+	int i, flag;
+	bool seen = true;
+
+	/* Unseen or only sensed objects don't get any ID */
+	if (!obj) return;
+	if (!obj->known) return;
+	if (obj->kind != obj->known->kind) return;
+
+	/* Distant objects just get base properties */
+	if (obj->kind && !(obj->known->notice & OBJ_NOTICE_ASSESSED)) {
+		object_set_base_known(p, obj);
+		return;
+	}
+
+	/* Get the combat properties, and the pval for anything but chests */
+	obj->known->dd = obj->dd * p->obj_k->dd;
+	obj->known->ds = obj->ds * p->obj_k->ds;
+	obj->known->pd = obj->pd * p->obj_k->pd;
+	obj->known->ps = obj->ps * p->obj_k->ps;
+	obj->known->att = obj->att * p->obj_k->att;
+	obj->known->evn = obj->evn * p->obj_k->evn;
+	if (!tval_is_chest(obj))
+		obj->known->pval = obj->pval;
+
+	/* Set modifiers */
+	for (i = 0; i < OBJ_MOD_MAX; i++) {
+		if (p->obj_k->modifiers[i]) {
+			obj->known->modifiers[i] = obj->modifiers[i];
+		} else {
+			obj->known->modifiers[i] = 0;
+		}
+	}
+
+	/* Set elements */
+	for (i = 0; i < ELEM_MAX; i++) {
+		if (p->obj_k->el_info[i].res_level == 1) {
+			obj->known->el_info[i].res_level = obj->el_info[i].res_level;
+			obj->known->el_info[i].flags = obj->el_info[i].flags;
+		} else {
+			obj->known->el_info[i].res_level = 0;
+			obj->known->el_info[i].flags = 0;
+		}
+	}
+
+	/* Set object flags */
+	of_wipe(obj->known->flags);
+	for (flag = of_next(p->obj_k->flags, FLAG_START); flag != FLAG_END;
+		 flag = of_next(p->obj_k->flags, flag + 1)) {
+		if (of_has(obj->flags, flag)) {
+			of_on(obj->known->flags, flag);
+		}
+	}
+
+	/* Set brands */
+	if (obj->brands) {
+		bool known_brand = false;
+
+		for (i = 1; i < z_info->brand_max; i++) {
+			if (player_knows_brand(p, i) && obj->brands[i]) {
+				if (!obj->known->brands) {
+					obj->known->brands = mem_zalloc(
+						z_info->brand_max *
+						sizeof(bool));
+				}
+				obj->known->brands[i] = true;
+				known_brand = true;
+			} else if (obj->known->brands) {
+				obj->known->brands[i] = false;
+			}
+		}
+		if (!known_brand && obj->known->brands) {
+			mem_free(obj->known->brands);
+			obj->known->brands = NULL;
+		}
+	}
+
+	/* Set slays */
+	if (obj->slays) {
+		bool known_slay = false;
+
+		for (i = 1; i < z_info->slay_max; i++) {
+			if (player_knows_slay(p, i) && obj->slays[i]) {
+				if (!obj->known->slays) {
+					obj->known->slays = mem_zalloc(
+						z_info->slay_max *
+						sizeof(bool));
+				}
+				obj->known->slays[i] = true;
+				known_slay = true;
+			} else if (obj->known->slays) {
+				obj->known->slays[i] = false;
+			}
+		}
+		if (!known_slay && obj->known->slays) {
+			mem_free(obj->known->slays);
+			obj->known->slays = NULL;
+		}
+	}
+
+	/* Set ego type, jewellery type if known */
+	if (player_knows_ego(p, obj->ego)) {
+		seen = obj->ego->everseen;
+		obj->known->ego = obj->ego;
+	} else {
+		obj->known->ego = NULL;
+	}
+
+	if (tval_is_jewelry(obj)) {
+		if (object_runes_known(obj)) {
+			seen = (obj->artifact) ? true : obj->kind->everseen;
+			object_flavor_aware(p, obj);
+		}
+	} else if (obj->kind->kidx >= z_info->ordinary_kind_max) {
+		/*
+		 * Become aware if it is a special artifact that isn't
+		 * jewelry.
+		 */
+		seen = true;
+		object_flavor_aware(p, obj);
+	}
+
+	/* Report on new stuff */
+	if (!seen) {
+		char o_name[80];
+
+		/* Describe the object if it's available */
+		if (object_is_carried(p, obj)) {
+			object_desc(o_name, sizeof(o_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
+			msg("You have %s (%c).", o_name, gear_to_label(p, obj));
+		} else if (cave && square_holds_object(cave, p->grid, obj)) {
+			object_desc(o_name, sizeof(o_name), obj,
+				ODESC_PREFIX | ODESC_FULL, p);
+			msg("On the ground: %s.", o_name);
+		}
+	}
+
+	/* Fully known objects have their known element and flag info set to 
+	 * match the actual info, rather than showing what elements and flags
+	 * the would be displaying if they had them */
+	if (object_runes_known(obj)) {
+		for (i = 0; i < ELEM_MAX; i++) {
+			obj->known->el_info[i].res_level = obj->el_info[i].res_level;
+			obj->known->el_info[i].flags = obj->el_info[i].flags;
+		}
+		of_wipe(obj->known->flags);
+		of_copy(obj->known->flags, obj->flags);
+	}
+}
+
+/**
+ * Propagate player knowledge of objects to all objects
+ *
+ * \param p is the player
+ */
+void update_player_object_knowledge(struct player *p)
+{
+	int i;
+	struct object *obj;
+
+	/* Level objects */
+	if (cave)
+		for (i = 0; i < cave->obj_max; i++)
+			player_know_object(p, cave->objects[i]);
+
+	/* Player objects */
+	for (obj = p->gear; obj; obj = obj->next)
+		player_know_object(p, obj);
+
+	/* Update */
+	if (cave)
+		autoinscribe_ground(p);
+	autoinscribe_pack(p);
+	event_signal(EVENT_INVENTORY);
+	event_signal(EVENT_EQUIPMENT);
+}
+
+/**
+ * ------------------------------------------------------------------------
+ * Object knowledge learners
+ * These functions are for increasing player knowledge of object properties
+ * ------------------------------------------------------------------------ */
+/**
+ * Learn a given rune
+ *
+ * \param p is the player
+ * \param i is the rune index
+ * \param message is whether or not to print a message
+ */
+static void player_learn_rune(struct player *p, size_t i, bool message)
+{
+	struct rune *r = &rune_list[i];
+	bool learned = false;
+
+	switch (r->variety) {
+		/* Mod runes */
+		case RUNE_VAR_MOD: {
+			if (!p->obj_k->modifiers[r->index]) {
+				p->obj_k->modifiers[r->index] = 1;
+				learned = true;
+			}
+			break;
+		}
+		/* Element runes */
+		case RUNE_VAR_RESIST: {
+			if (!p->obj_k->el_info[r->index].res_level) {
+				p->obj_k->el_info[r->index].res_level = 1;
+				learned = true;
+			}
+			break;
+		}
+		/* Brand runes */
+		case RUNE_VAR_BRAND: {
+			assert(r->index < z_info->brand_max);
+
+			/* If the brand was unknown, add it to known brands */
+			if (!player_knows_brand(p, r->index)) {
+				int j;
+				for (j = 1; j < z_info->brand_max; j++) {
+					/* Check base and race flag */
+					if (streq(brands[r->index].name, brands[j].name)) {
+						p->obj_k->brands[j] = true;
+						learned = true;
+					}
+				}
+			}
+			break;
+		}
+		/* Slay runes */
+		case RUNE_VAR_SLAY: {
+			assert(r->index < z_info->slay_max);
+
+			/* If the slay was unknown, add it to known slays */
+			if (!player_knows_slay(p, r->index)) {
+				int j;
+				for (j = 1; j < z_info->slay_max; j++) {
+					/* Check base and race flag */
+					if (same_monsters_slain(r->index, j)) {
+						p->obj_k->slays[j] = true;
+						learned = true;
+					}
+				}
+			}
+			break;
+		}
+		/* Flag runes */
+		case RUNE_VAR_FLAG: {
+			if (of_on(p->obj_k->flags, r->index))
+				learned = true;
+			break;
+		}
+		default: {
+			learned = false;
+			break;
+		}
+	}
+
+	/* Nothing learned */
+	if (!learned) return;
+
+	/* Give a message */
+	if (message)
+		msgt(MSG_RUNE, "You have learned the property of %s.", rune_name(i));
+
+	/* Update knowledge */
+	update_player_object_knowledge(p);
+}
+
+/**
+ * Learn a flag
+ */
+void player_learn_flag(struct player *p, int flag)
+{
+	player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+	update_player_object_knowledge(p);
+}
+
+/**
+ * Learn a slay.
+ */
+void player_learn_slay(struct player *p, int index)
+{
+	/* Learn about the slay */
+	if (!player_knows_slay(p, index)) {
+		int i;
+
+		/* Find the rune index */
+		for (i = 1; i < z_info->slay_max; i++) {
+			if (same_monsters_slain(i, index)) {
+				break;
+			}
+		}
+		assert(i < z_info->slay_max);
+
+		/* Learn the rune */
+		player_learn_rune(p, rune_index(RUNE_VAR_SLAY, i), true);
+		update_player_object_knowledge(p);
+	}
+}
+
+/**
+ * Learn a brand.
+ */
+void player_learn_brand(struct player *p, int index)
+{
+	/* Learn about the brand */
+	if (!player_knows_brand(p, index)) {
+		int i;
+
+		/* Find the rune index */
+		for (i = 1; i < z_info->brand_max; i++) {
+			if (streq(brands[i].name, brands[index].name)) {
+				break;
+			}
+		}
+		assert(i < z_info->brand_max);
+
+		/* Learn the rune */
+		player_learn_rune(p, rune_index(RUNE_VAR_BRAND, i), true);
+		update_player_object_knowledge(p);
+	}
+}
+
+/**
+ * Learn absolutely everything
+ *
+ * \param p is the player
+ */
+void player_learn_all_runes(struct player *p)
+{
+	size_t i;
+
+	for (i = 0; i < rune_max; i++)
+		player_learn_rune(p, i, false);
+}
+
+/**
+ * ------------------------------------------------------------------------
+ * Functions for learning from the behaviour of indvidual objects
  * ------------------------------------------------------------------------ */
 /**
  * Print a message when an object modifier is identified by use.
@@ -141,6 +1178,270 @@ static void mod_message(struct object *obj, int mod)
 }
 
 /**
+ * Get a random unknown rune from an object
+ *
+ * \param p is the player
+ * \param obj is the object
+ * \return the index into the rune list, or -1 for no unknown runes
+ */
+static int object_find_unknown_rune(struct player *p, struct object *obj)
+{
+	size_t i, num = 0;
+	int *poss_runes;
+	int chosen = -1;
+
+	if (object_runes_known(obj)) return -1;
+
+	poss_runes = mem_zalloc(rune_max * sizeof(int));
+	for (i = 0; i < rune_max; i++)
+		if (object_has_rune(obj, i) && !player_knows_rune(p, i))
+			poss_runes[num++] = i;
+
+	/* Grab a random rune from among the unknowns  */
+	if (num) {
+		chosen = poss_runes[randint0(num)];
+	}
+
+	mem_free(poss_runes);
+	return chosen;
+}
+
+/**
+ * Learn a random unknown rune from an object
+ *
+ * \param p is the player
+ * \param obj is the object
+ */
+void object_learn_unknown_rune(struct player *p, struct object *obj)
+{
+	/* Get a random unknown rune from the object */
+	int i = object_find_unknown_rune(p, obj);
+
+	/* No unknown runes */
+	if (i < 0) {
+		obj->known->notice |= OBJ_NOTICE_ASSESSED;
+		player_know_object(player, obj);
+		return;
+	}
+
+	/* Learn the rune */
+	player_learn_rune(p, i, true);
+}
+
+/**
+ * Learn object properties that become obvious on wielding or wearing
+ *
+ * \param p is the player
+ * \param obj is the wielded object
+ */
+void object_learn_on_wield(struct player *p, struct object *obj)
+{
+	bitflag f[OF_SIZE], obvious_mask[OF_SIZE];
+	int i, flag;
+	char o_name[80];
+
+	assert(obj->known);
+	object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
+
+	/* Check the worn flag */
+	if (obj->known->notice & OBJ_NOTICE_WORN) {
+		return;
+	} else {
+		obj->known->notice |= OBJ_NOTICE_WORN;
+	}
+
+	/* Worn means tried (for flavored wearables) */
+	object_flavor_tried(obj);
+
+	/* Get the obvious object flags */
+	create_obj_flag_mask(obvious_mask, true, OFID_WIELD, OFT_MAX);
+
+	/* Make sustains obvious for items with that stat bonus */
+	for (i = 0; i < STAT_MAX; i++) {
+		int sust = sustain_flag(i);
+		if (obj->modifiers[i]) {
+			of_on(obvious_mask, sust);
+		}
+	}
+
+	/* Learn about obvious, previously unknown flags */
+	object_flags(obj, f);
+	of_inter(f, obvious_mask);
+	for (flag = of_next(f, FLAG_START); flag != FLAG_END;
+		 flag = of_next(f, flag + 1)) {
+		if (!of_has(p->obj_k->flags, flag)) {
+			if (p->upkeep->playing) {
+				flag_message(flag, o_name);
+			}
+			player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+		}
+	}
+
+	/* Learn all modifiers */
+	for (i = 0; i < OBJ_MOD_MAX; i++) {
+		if (obj->modifiers[i] && !p->obj_k->modifiers[i]) {
+			if (p->upkeep->playing) {
+				mod_message(obj, i);
+			}
+			player_learn_rune(p, rune_index(RUNE_VAR_MOD, i), true);
+		}
+	}
+
+	/* Learn abilities from special item types */
+	if (obj->ego && obj->ego->abilities) {
+		struct ability *ability = obj->ego->abilities;
+		while (ability) {
+			msg("You have gained the ability '%s'.", ability->name);
+			ability = ability->next;
+		}
+	}
+
+	/* Learn abilities from artefacts */
+	if (obj->artifact && obj->artifact->abilities) {
+		struct ability *ability = obj->artifact->abilities;
+		while (ability) {
+			msg("You have gained the ability '%s'.", ability->name);
+			ability = ability->next;
+		}
+	}
+
+}
+
+/**
+ * ------------------------------------------------------------------------
+ * Functions for learning about equipment properties
+ * These functions are for gaining object knowledge from the behaviour of
+ * the player's equipment or shape
+ * ------------------------------------------------------------------------ */
+/**
+ * Learn a given object flag on wielded items.
+ *
+ * \param p is the player
+ * \param flag is the flag to notice
+ */
+void equip_learn_flag(struct player *p, int flag)
+{
+	int i;
+	bitflag f[OF_SIZE];
+	of_wipe(f);
+	of_on(f, flag);
+
+	/* No flag */
+	if (!flag) return;
+
+	/* All wielded items eligible */
+	for (i = 0; i < p->body.count; i++) {
+		struct object *obj = slot_object(p, i);
+		if (!obj) continue;
+		assert(obj->known);
+
+		/* Does the object have the flag? */
+		if (of_has(obj->flags, flag)) {
+			if (!of_has(p->obj_k->flags, flag)) {
+				char o_name[80];
+				object_desc(o_name, sizeof(o_name), obj,
+					ODESC_BASE, p);
+				flag_message(flag, o_name);
+				player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+			}
+		} else if (!object_runes_known(obj)) {
+			/* Objects not fully known yet get marked as having had a chance
+			 * to display the flag */
+			of_on(obj->known->flags, flag);
+		}
+	}
+}
+
+/**
+ * Learn the elemental resistance properties on wielded items.
+ *
+ * \param p is the player
+ * \param element is the element to notice
+ */
+void equip_learn_element(struct player *p, int element)
+{
+	int i;
+
+	/* Invalid element or element already known */
+	if (element < 0 || element >= ELEM_MAX) return;
+	if (p->obj_k->el_info[element].res_level == 1) return;
+
+	/* All wielded items eligible */
+	for (i = 0; i < p->body.count; i++) {
+		struct object *obj = slot_object(p, i);
+		if (!obj) continue;
+		assert(obj->known);
+
+		/* Does the object affect the player's resistance to the element? */
+		if (obj->el_info[element].res_level != 0) {
+			char o_name[80];
+			object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
+
+			/* Message */
+			msg("Your %s glows.", o_name);
+
+			/* Learn the element properties */
+			player_learn_rune(p, rune_index(RUNE_VAR_RESIST, element), true);
+		} else if (!object_runes_known(obj)) {
+			/* Objects not fully known yet get marked as having had a chance
+			 * to display the element */
+			obj->known->el_info[element].res_level = 1;
+			obj->known->el_info[element].flags = obj->el_info[element].flags;
+		}
+	}
+}
+
+/**
+ * Learn things that would be noticed in time.
+ *
+ * \param p is the player
+ */
+void equip_learn_after_time(struct player *p)
+{
+	int i, flag;
+	bitflag f[OF_SIZE], timed_mask[OF_SIZE];
+
+	/* Get the timed flags */
+	create_obj_flag_mask(timed_mask, true, OFID_TIMED, OFT_MAX);
+
+	/* Get the unknown timed flags, and return if there are none */
+	object_flags(p->obj_k, f);
+	of_negate(f);
+	of_inter(timed_mask, f);
+	if (of_is_empty(timed_mask)) return;
+
+	/* All wielded items eligible */
+	for (i = 0; i < p->body.count; i++) {
+		char o_name[80];
+		struct object *obj = slot_object(p, i);
+
+		if (!obj) continue;
+		assert(obj->known);
+		object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
+
+		/* Get the unknown timed flags for this object */
+		object_flags(obj, f);
+		of_inter(f, timed_mask);
+
+		/* Attempt to learn every flag */
+		for (flag = of_next(f, FLAG_START); flag != FLAG_END;
+			 flag = of_next(f, flag + 1)) {
+			if (!of_has(p->obj_k->flags, flag)) {
+				flag_message(flag, o_name);
+			}
+			player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+		}
+
+		if (!object_runes_known(obj)) {
+			/* Objects not fully known yet get marked as having had a chance
+			 * to display all the timed flags */
+			of_union(obj->known->flags, timed_mask);
+		}
+	}
+}
+
+
+/**
  * ------------------------------------------------------------------------
  * Object kind functions
  * These deal with knowledge of an object's kind
@@ -202,6 +1503,8 @@ void object_flavor_aware(struct player *p, struct object *obj)
 	/* Gain experience for identification */
 	player_exp_gain(p, new_exp);
 	p->ident_exp += new_exp;
+	update_player_object_knowledge(p);
+	p->upkeep->notice |= PN_IGNORE;
 
 	/* Some objects change tile on awareness, so update display for all
 	 * floor objects of this kind */
@@ -239,986 +1542,6 @@ void object_flavor_tried(struct object *obj)
 	obj->kind->tried = true;
 }
 
-/**
- * ------------------------------------------------------------------------
- * Object knowledge propagators
- * These functions transfer player knowledge to objects
- * ------------------------------------------------------------------------ */
-/**
- * Sets the basic details on a known object
- */
-void object_set_base_known(struct player *p, struct object *obj)
-{
-	assert(obj->known);
-	obj->known->kind = obj->kind;
-	obj->known->tval = obj->tval;
-	obj->known->sval = obj->sval;
-	obj->known->weight = obj->weight;
-	obj->known->number = obj->number;
-
-	/* Generic dice, attack and evasion for non-rings */
-	if (!tval_is_ring(obj)) {
-		if (!obj->known->dd) {
-			obj->known->dd = obj->kind->dd * p->obj_k->dd;
-		}
-		if (!obj->known->ds) {
-			obj->known->ds = obj->kind->ds * p->obj_k->ds;
-		}
-		if (!obj->known->pd) {
-			obj->known->pd = obj->kind->pd * p->obj_k->pd;
-		}
-		if (!obj->known->ps) {
-			obj->known->ps = obj->kind->ps * p->obj_k->ps;
-		}
-		if (!obj->known->att) {
-			obj->known->att = obj->kind->att * p->obj_k->att;
-		}
-		if (!obj->known->evn) {
-			obj->known->evn = obj->kind->evn * p->obj_k->evn;
-		}
-	}
-
-	/* Aware flavours and unflavored non-wearables get info now */
-	if ((obj->kind->aware && obj->kind->flavor) ||
-		(!tval_is_wearable(obj) && !obj->kind->flavor)) {
-		obj->known->pval = obj->pval;
-	}
-}
-
-/**
- * This function does a few book keeping things for item identification.
- *
- * It identifies visible objects for the Lore-Master ability, marks
- * artefacts/specials as seen and grants experience for the first sighting.
- *
- * \param p is the player
- * \param obj is the object
- */
-static void player_know_object(struct player *p, struct object *obj)
-{
-	/* Identify seen items with Lore-Master */
-	if (!object_is_known(obj) && player_active_ability(p, "Lore-Master") &&
-        !tval_is_chest(obj)) {
-		ident(obj);
-	}
-
-	/* Mark new identified artefacts/specials and gain experience for them */
-	if (object_is_known(obj)) {
-		int new_exp = 100;
-		if (obj->artifact) {
-			const struct artifact *art = obj->artifact;
-			if (!is_artifact_seen(art)) {
-				/* Mark */
-				mark_artifact_seen(art, true);
-
-				/* Gain experience for identification */
-				player_exp_gain(p, new_exp);
-				p->ident_exp += new_exp;
-
-				/* Record in the history */
-				history_find_artifact(p, art);
-			}
-		} else if (obj->ego) {
-			/* We now know about the special item type */
-			obj->ego->everseen = true;
-
-			if (!obj->ego->aware) {
-				/* Mark */
-				obj->ego->aware = true;
-
-				/* Gain experience for identification */
-				player_exp_gain(p, new_exp);
-				p->ident_exp += new_exp;
-			}
-		}
-	}
-}
-
-/**
- * Gain knowledge based on seeing an object on the floor
- */
-void object_see(struct player *p, struct object *obj)
-{
-	struct object *known_obj = p->cave->objects[obj->oidx];
-	struct loc grid = obj->grid;
-
-	/* Make new known objects, fully know sensed ones, relocate old ones */
-	if (known_obj == NULL) {
-		/* Make a new one */
-		struct object *new_obj;
-
-		assert(! obj->known);
-		new_obj = object_new();
-		obj->known = new_obj;
-		object_set_base_known(p, obj);
-
-		/* List the known object */
-		p->cave->objects[obj->oidx] = new_obj;
-		new_obj->oidx = obj->oidx;
-
-		/* If monster held, we're done */
-		if (obj->held_m_idx) return;
-
-		/* Attach it to the current floor pile */
-		new_obj->grid = grid;
-		pile_insert_end(&p->cave->squares[grid.y][grid.x].obj, new_obj);
-	} else {
-		struct loc old = known_obj->grid;
-
-		/* Make sure knowledge is correct */
-		assert(known_obj == obj->known);
-
-		if (known_obj->kind != obj->kind) {
-			/* Copy over actual details */
-			object_set_base_known(p, obj);
-		} else {
-			known_obj->number = obj->number;
-		}
-
-		/* If monster held, we're done */
-		if (obj->held_m_idx) return;
-
-		/* Attach it to the current floor pile if necessary */
-		if (! square_holds_object(p->cave, grid, known_obj)) {
-			/* Detach from any old pile */
-			if (!loc_is_zero(old) && square_holds_object(p->cave, old, known_obj)) {
-				square_excise_object(p->cave, old, known_obj);
-			}
-
-			known_obj->grid = grid;
-			pile_insert_end(&p->cave->squares[grid.y][grid.x].obj, known_obj);
-		}
-	}
-}
-
-/**
- * Gain knowledge based on being an the same square as an object
- */
-void object_touch(struct player *p, struct object *obj)
-{
-	/* Automatically notice artifacts, mark as assessed */
-	obj->known->artifact = obj->artifact;
-	obj->known->notice |= OBJ_NOTICE_ASSESSED;
-
-	/* Apply known properties to the object */
-	player_know_object(p, obj);
-
-	/* Log artifacts if found */
-	if (obj->artifact)
-		history_find_artifact(p, obj->artifact);
-}
-
-
-/**
- * Propagate player knowledge of objects to all objects
- *
- * \param p is the player
- */
-void update_player_object_knowledge(struct player *p)
-{
-	int i;
-	struct object *obj;
-
-	/* Level objects */
-	if (cave) {
-		for (i = 0; i < cave->obj_max; i++) {
-			obj = cave->objects[i];
-
-			/* Skip dead objects */
-			if (!obj) continue;
-
-			/* Skip held objects */
-			if (object_is_carried(p, obj)) continue;
-
-			/* If the object is in sight, or under the player... */
-			if (square_isseen(cave, obj->grid) || loc_eq(obj->grid, p->grid)) {
-				player_know_object(p, obj);
-			}
-		}
-	}
-
-	/* Player objects */
-	for (obj = p->gear; obj; obj = obj->next) {
-		player_know_object(p, obj);
-	}
-
-	/* Update */
-	if (cave)
-		autoinscribe_ground(p);
-	autoinscribe_pack(p);
-	event_signal(EVENT_INVENTORY);
-	event_signal(EVENT_EQUIPMENT);
-}
-
-
-/**
- * ------------------------------------------------------------------------
- * Sil pseudo-ID functions
- * ------------------------------------------------------------------------ */
-bool object_is_cursed(const struct object *obj)
-{
-	return obj->notice & OBJ_NOTICE_CURSED ? true : false;
-}
-
-bool object_is_broken(const struct object *obj)
-{
-	return obj->notice & OBJ_NOTICE_BROKEN ? true : false;
-}
-
-/**
- * Return a "feeling" (or NULL) about an item.  Method 1 (Weak).
- * Sil - this method can't distinguish artefacts from ego items
- */
-int pseudo_id_check_weak(const struct object *obj)
-{
-	/* Artefacts and Ego-Items*/
-	if (obj->artifact || obj->ego) {
-		return OBJ_PSEUDO_SPECIAL;
-	}
-
-	/* Default to "average" */
-	return OBJ_PSEUDO_AVERAGE;
-}
-
-
-/**
- * Return a "feeling" (or NULL) about an item.  Method 2 (Strong).
- * Sil - this method can distinguish artefacts from special items
- */
-int pseudo_id_check_strong(const struct object *obj)
-{
-	/* Artefacts */
-	if (obj->artifact) {
-		/* Cursed */
-		if (object_is_cursed(obj)) return OBJ_PSEUDO_CURSED_ART;
-
-		/* Normal */
-		return OBJ_PSEUDO_ARTEFACT;
-	}
-
-	/* Ego-Items */
-	if (obj->ego) {
-		/* Cursed */
-		if (object_is_cursed(obj)) return OBJ_PSEUDO_CURSED_SPEC;
-
-		/* Normal */
-		return OBJ_PSEUDO_SPECIAL;
-	}
-
-	/* Default to "average" */
-	return OBJ_PSEUDO_AVERAGE;
-}
-
-
-/**
- * Returns true if this object can be pseudo-ided.
- */
-bool can_be_pseudo_ided(const struct object *obj)
-{
-	if (tval_is_weapon(obj)) return true;
-	if (tval_is_armor(obj)) return true;
-	if (tval_is_light(obj) && !easy_know(obj)) return true;
-  	return false;
-}
-
-
-/**
- * Pseudo-id an item
- */
-void pseudo_id(struct object *obj)
-{
-	/* Skip non-sense machines */
-	if (!can_be_pseudo_ided(obj)) return;
-
-	/* It is known, no information needed */
-	if (object_is_known(obj)) return;
-
-	/* Sense the object */
-	if (player_active_ability(player, "Lore-Keeper")) {
-		obj->pseudo = pseudo_id_check_strong(obj);
-	} else {
-		obj->pseudo = pseudo_id_check_weak(obj);
-	}
-
-	/* The object has been "sensed" */
-	obj->notice |= OBJ_NOTICE_SENSE;
-}
-
-
-/**
- * Pseudo-id all objects
- */
-void pseudo_id_everything(void)
-{
-	int i;
-	struct object *obj;
-
-	/* Dungeon objects */
-	for (i = 1; i < cave->obj_max; i++) {
-		/* Get the next object from the dungeon */
-		obj = cave->objects[i];
-
-		/* Skip dead objects */
-		if (!obj || !obj->kind) continue;
-
-		/* Ignore known objects */
-		if (object_is_known(obj)) continue;
-
-		/* Pseudo-id it */
-		pseudo_id(obj);
-	}
-
-	/* Player's gear */
-	for (obj = player->gear; obj; obj = obj->next) {
-		/* Ignore known objects */
-		if (object_is_known(obj)) continue;
-
-		/* Pseudo-id it */
-		pseudo_id(obj);
-	}
-
-	player->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
-	handle_stuff(player);
-}
-
-/**
- * ------------------------------------------------------------------------
- * Sil ID functions
- * ------------------------------------------------------------------------ */
-bool object_is_known(const struct object *obj)
-{
-	if (easy_know(obj)) return true;
-	return obj->notice & OBJ_NOTICE_KNOWN ? true : false;
-}
-
-void object_know(struct object *obj)
-{
-	/* Remove special inscription, if any */
-	obj->pseudo = OBJ_PSEUDO_NONE;
-
-	/* The object is not "sensed" */
-	obj->notice &= ~(OBJ_NOTICE_SENSE);
-
-	/* Clear the "Empty" info */
-	obj->notice &= ~(OBJ_NOTICE_EMPTY);
-
-	/* Now we know about the item */
-	obj->notice |= (OBJ_NOTICE_KNOWN);
-}
-
-void ident(struct object *obj)
-{	
-	/* Identify it */
-	object_flavor_aware(player, obj);
-	object_know(obj);
-
-	/* Apply an autoinscription, if necessary */
-	apply_autoinscription(player, obj);
-
-	/* Recalculate bonuses */
-	player->upkeep->update |= (PU_BONUS);
-
-	/* Combine / Reorder the pack (later) */
-	player->upkeep->notice |= (PN_COMBINE);
-
-	/* Redraw stuff */
-	player->upkeep->redraw |= (PR_BASIC | PR_INVEN | PR_EQUIP);
-
-	return;
-}
-
-void ident_on_wield(struct player *p, struct object *obj)
-{
-	bool notice = false;
-	char o_name[80];
-	struct object_kind *kind = obj->kind;
-	bitflag flags[OF_SIZE];
-
-	/* Get the flags */
-	of_copy(flags, obj->flags);
-
-	/* Ignore previously identified items */
-	if (object_is_known(obj)) return;
-	
-	/* Identify the special item types that do nothing much
-	 * (since they have no hidden abilities, they must already be obvious) */
-	if (obj->ego) {
-		struct ego_item *ego = obj->ego;
-		bool mods = false;
-		bool elements = false;
-		int i;
-		for (i = 0; i < OBJ_MOD_MAX; i++) {
-			if (obj->ego->modifiers[i]) mods = true;
-		}
-		for (i = 0; i < ELEM_MAX; i++) {
-			if (obj->ego->el_info[i].res_level) elements = true;
-		}
-		if (of_is_empty(ego->flags) && (ego->abilities == NULL) &&
-			!ego->slays && !ego->brands && !mods && !elements) {
-			notice = true;
-		}
-	}
-
-    /* Identify true sight if it cures blindness */
-	if (p->timed[TMD_BLIND] && of_has(obj->flags, OF_SEE_INVIS)) {
-		notice = true;
-	}
-
-	if (obj->artifact || obj->ego) {
-		/* For special items and artefacts, we need to ignore the flags that
-		 * are basic to the object type and focus on the special/artefact ones.
-		 * We can do this by subtracting out the basic flags */
-		of_diff(flags, kind->flags);
-	}
-
-	/* Identify noticed flags */
-	if (of_has(flags, OF_DARKNESS)) {
-		notice = true;
-		msg("It creates an unnatural darkness.");
-	} else if (of_has(flags, OF_LIGHT)) {
-		if (!tval_is_light(obj)) {
-			notice = true;
-			msg("It glows with a wondrous light.");
-		} else if (of_has(flags, OF_NO_FUEL) || (obj->timeout > 0)) {
-			notice = true;
-			msg("It glows very brightly.");
-		}
-	} else if (of_has(flags, OF_SPEED)) {
-		notice = true;
-		msg("It speeds your movement.");
-	}
-
-	/* Identify noticed mods */
-	if (!notice) {
-		int i;
-		for (i = 0; i < OBJ_MOD_MAX; i++) {
-			/* Can identify <+0> items if you already know the flavour */
-			if (kind->flavor && object_flavor_is_aware(obj) &&
-				randcalc_varies(kind->modifiers[i])) {
-				notice = true;
-				break;
-			} else if (obj->modifiers[i] != 0) {
-				mod_message(obj, i);
-				notice = true;
-				break;
-			}
-		}
-	}
-				
-
-	/* Identify the special item types that grant abilities */
-	if (!notice && obj->ego) {
-		struct ego_item *ego = obj->ego;
-
-		if (ego->abilities) {
-			notice = true;
-			msg("You have gained the ability '%s'.", ego->abilities->name);
-		}
-	}
-
-	/* Identify the artefacts that grant abilities */
-	if (!notice && obj->artifact) {
-		struct artifact *art = (struct artifact *) obj->artifact;
-
-		if (art->abilities) {
-			notice = true;
-			msg("You have gained the ability '%s'.", art->abilities->name);
-		}
-	}
-
-    /* Can identify <+0> items if you already know the flavour */
-	if (!notice && kind->flavor) {
-		if (object_flavor_is_aware(obj)) {
-			notice = true;
-		} else if (obj->att > 0) {
-			notice = true;
-			msg("You somehow feel more accurate in combat.");
-		} else if (obj->att < 0) {
-			notice = true;
-			msg("You somehow feel less accurate in combat.");
-		} else if (obj->evn > 0) {
-			notice = true;
-			msg("You somehow feel harder to hit.");
-		} else if (obj->evn < 0) {
-			notice = true;
-			msg("You somehow feel more vulnerable.");
-		} else if (obj->pd > 0) {
-			notice = true;
-			msg("You somehow feel more protected.");
-		}
-	}
-
-	if (notice) {
-		/* Identify the object */
-		ident(obj);
-
-		/* Full object description */
-		object_desc(o_name, sizeof(o_name), obj,
-			ODESC_PREFIX | ODESC_FULL, p);
-
-		/* Print the messages */
-		msg("You recognize it as %s.", o_name);
-	}
-
-	return;
-}
-
-void ident_flag(struct player *p, int flag)
-{
-	int i;
-
-	/* Scan the equipment */
-	for (i = 0; i < p->body.count; i++) {
-		struct object *obj = slot_object(p, i);
-		struct object_kind *kind = obj ? obj->kind : NULL;
-		bitflag flags[OF_SIZE];
-		char o_full_name[80];
-		char o_short_name[80];
-
-		/* Skip non-objects */
-		if (!kind) continue;
-
-		/* Ignore previously identified items */
-		if (object_is_known(obj)) continue;
-	
-		/* Get the flags */
-		of_copy(flags, obj->flags);
-
-		if (obj->artifact || obj->ego) {
-			/* For special items and artefacts, we need to ignore the flags that
-			 * are basic to the object type and focus on the special/artefact
-			 * ones.  We can do this by subtracting out the basic flags */
-			of_diff(flags, kind->flags);
-		}
-
-		/* Short, pre-identification object description */
-		object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-
-		/* Check for presence */
-		if (of_has(flags, flag)) {
-			flag_message(flag, o_short_name);
-
-			/* Identify the object */
-			ident(obj);
-
-			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj,
-				ODESC_PREFIX | ODESC_FULL, p);
-
-			/* Print the message */
-			msg("You realize that it is %s.", o_full_name);
-			return;
-		}
-	}
-}
-
-
-void ident_element(struct player *p, int element)
-{
-	int i;
-
-	/* Scan the equipment */
-	for (i = 0; i < p->body.count; i++) {
-		bool notice = false;
-		struct object *obj = slot_object(p, i);
-		struct object_kind *kind = obj ? obj->kind : NULL;
-		char o_full_name[80];
-		char o_short_name[80];
-
-		/* Skip non-objects */
-		if (!kind) continue;
-
-		/* Ignore previously identified items */
-		if (object_is_known(obj)) continue;
-	
-		/* Ignore base object properties for special items and artefacts */
-		if (obj->artifact || obj->ego) {
-			if (kind->el_info[element].res_level ==
-				obj->el_info[element].res_level) continue;
-		}
-
-		/* Short, pre-identification object description */
-		object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-
-		/* Check for presence */
-		if (obj->el_info[element].res_level > 0) {
-			notice = true;
-			element_message(element, o_short_name, false);
-		} else if (obj->el_info[element].res_level < 0) {
-			notice = true;
-			element_message(element, o_short_name, true);
-		}
-
-		if (notice) {
-			/* Identify the object */
-			ident(obj);
-
-			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj,
-				ODESC_PREFIX | ODESC_FULL, p);
-
-			/* Print the message */
-			msg("You realize that it is %s.", o_full_name);
-			return;
-		}
-	}
-}
-
-
-void ident_passive(struct player *p)
-{
-	int i;
-
-	/* Scan the equipment */
-	for (i = 0; i < p->body.count; i++) {
-		struct object *obj = slot_object(p, i);
-		struct object_kind *kind = obj ? obj->kind : NULL;
-		char o_short_name[80];
-		char o_full_name[80];
-		bool notice = false;
-
-		/* Skip non-objects */
-		if (!kind) continue;
-
-		/* Ignore previously identified items */
-		if (object_is_known(obj)) continue;
-	
-		if (of_has(obj->flags, OF_REGEN) && (p->chp < p->mhp)) {
-				notice = true;
-				msg("You notice that you are recovering much faster than usual.");
-		} else if (of_has(obj->flags, OF_AGGRAVATE)) {
-			notice = true;
-			msg("You notice that you are enraging your enemies.");
-		} else if (of_has(obj->flags, OF_DANGER)) {
-			notice = true;
-			msg("You notice that you are attracting more powerful enemies.");
-		}
-
-		if (notice) {
-			/* Short, pre-identification object description */
-			object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-
-			/* Identify the object */
-			ident(obj);
-
-			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj,
-				ODESC_PREFIX | ODESC_FULL, p);
-
-			/* Print the message */
-			msg("You realize that your %s is %s.", o_short_name,
-					   o_full_name);
-			return;
-		}
-	}
-}
-
-
-void ident_see_invisible(const struct monster *mon, struct player *p)
-{
-	int i;
-
-	/* Scan the equipment */
-	for (i = 0; i < p->body.count; i++) {
-		struct object *obj = slot_object(p, i);
-		struct object_kind *kind = obj ? obj->kind : NULL;
-
-		/* Skip non-objects */
-		if (!kind) continue;
-
-		/* Ignore previously identified items */
-		if (object_is_known(obj)) continue;
-	
-		if (of_has(obj->flags, OF_SEE_INVIS)) {
-			char m_name[80];
-			char o_full_name[80];
-			char o_short_name[80];
-
-			/* Get the monster name */
-			monster_desc(m_name, sizeof(m_name), mon, MDESC_DEFAULT);
-
-			/* Short, pre-identification object description */
-			object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-
-			/* Identify the object */
-			ident(obj);
-
-			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj,
-				ODESC_PREFIX | ODESC_FULL, p);
-			
-			/* Print the messages */
-			msg("You notice that you can see %s very clearly.", m_name);
-			msg("You realize that your %s is %s.", o_short_name,
-					   o_full_name);
-			return;
-		}
-	}
-}
-
-void ident_haunted(struct player *p)
-{
-	int i;
-
-	/* Scan the equipment */
-	for (i = 0; i < p->body.count; i++) {
-		struct object *obj = slot_object(p, i);
-		struct object_kind *kind = obj ? obj->kind : NULL;
-
-		/* Skip non-objects */
-		if (!kind) continue;
-
-		/* Ignore previously identified items */
-		if (object_is_known(obj)) continue;
-	
-		if (of_has(obj->flags, OF_HAUNTED)) {
-			char o_full_name[80];
-			char o_short_name[80];
-
-			/* Short, pre-identification object description */
-			object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-
-			/* Identify the object */
-			ident(obj);
-
-			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj,
-				ODESC_PREFIX | ODESC_FULL, p);
-			
-			/* Print the messages */
-			msg("You notice that wraiths are being drawn to you.");
-			msg("You realize that your %s is %s.", o_short_name,
-					   o_full_name);
-			return;
-		}
-	}
-}
-
-void ident_cowardice(struct player *p)
-{
-	int i;
-
-	/* Scan the equipment */
-	for (i = 0; i < p->body.count; i++) {
-		struct object *obj = slot_object(p, i);
-		struct object_kind *kind = obj ? obj->kind : NULL;
-
-		/* Skip non-objects */
-		if (!kind) continue;
-
-		/* Ignore previously identified items */
-		if (object_is_known(obj)) continue;
-	
-		if (of_has(obj->flags, OF_COWARDICE)) {
-			char o_full_name[80];
-			char o_short_name[80];
-
-			/* Short, pre-identification object description */
-			object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-
-			/* Identify the object */
-			ident(obj);
-
-			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj,
-				ODESC_PREFIX | ODESC_FULL, p);
-			
-			/* Print the messages */
-			msg("You realize that your %s is %s.", o_short_name,
-					   o_full_name);
-			return;
-		}
-	}
-}
-
-/**
- * Identifies a hunger or sustenance item and prints a message
- */
-void ident_hunger(struct player *p)
-{
-	int i;
-
-	/* Scan the equipment */
-	for (i = 0; i < p->body.count; i++) {
-		bool notice = false;
-		struct object *obj = slot_object(p, i);
-		struct object_kind *kind = obj ? obj->kind : NULL;
-		char o_full_name[80];
-		char o_short_name[80];
-
-		/* Skip non-objects */
-		if (!kind) continue;
-
-		/* Ignore previously identified items */
-		if (object_is_known(obj)) continue;
-	
-		if ((of_has(obj->flags, OF_HUNGER) &&
-			 (p->state.flags[OF_HUNGER] > 0))) {
-			notice = true;
-		}
-		if ((of_has(obj->flags, OF_SLOW_DIGEST) &&
-			 (p->state.flags[OF_HUNGER] < 0))) {
-			notice = true;
-		}
-
-		if (notice) {
-			/* Short, pre-identification object description */
-			object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-
-			/* Identify the object */
-			ident(obj);
-
-			/* Full object description */
-			object_desc(o_full_name, sizeof(o_full_name), obj,
-				ODESC_PREFIX | ODESC_FULL, p);
-
-			/* Print the messages */
-            if (of_has(obj->flags, OF_HUNGER)) {
-				msg("You notice that you are growing hungry much faster than before.");
-            } else if (of_has(obj->flags, OF_SLOW_DIGEST)) {
-				msg("You notice that you are growing hungry slower than before.");
-            }
-			msg("You realize that your %s is %s.", o_short_name, o_full_name);
-
-			return;
-		}
-	}
-}
-
-/**
- * Describes the effect of a slay
- */
-static void slay_desc(char *desc, int len, int flag, int brand, char *m_name)
-{
-	bool done = false;
-
-	/* Description depends on the type of 'slay' */
-	if (flag) {
-		done = flag_slay_message(flag, m_name, desc, len);
-	} else if (brand) {
-		done = brand_message(brand, m_name, desc, len);
-	}
-
-	if (!done) {
-		my_strcpy(desc, "strikes truly", len);
-	}
-}
-
-/**
- * Identifies a weapon from one of its slays being active and prints a message
- */
-void ident_weapon_by_use(struct object *obj, char *m_name, int flag, int brand,
-						 int slay, struct player *p)
-{	
-	char o_short_name[80];
-	char o_full_name[80];
-	char slay_description[160];
-
-	if (!obj || object_is_known(obj)) return;
-
-	/* Short, pre-identification object description */
-	object_desc(o_short_name, sizeof(o_short_name), obj, ODESC_BASE, p);
-	
-	/* identify the object */
-	ident(obj);
-	
-	/* Full object description */
-	object_desc(o_full_name, sizeof(o_full_name), obj,
-		ODESC_PREFIX | ODESC_FULL, p);
-	
-	/* Description of the 'slay' */
-	slay_desc(slay_description, sizeof(slay_description), flag, brand, m_name);
-
-	/* Print the messages */
-	msg("Your %s %s.", o_short_name, slay_description);
-	msg("You recognize it as %s.", o_full_name);
-}
-
-void ident_bow_arrow_by_use(struct object *bow, struct object *arrows,
-							char *m_name, int bow_brand, int bow_slay,
-							int arrow_flag, int arrow_brand, int arrow_slay,
-							struct player *p)
-{
-	char a_short_name[80];
-	char a_full_name[80];
-	char b_short_name[80];
-	char b_full_name[80];
-	char slay_description[160];
-
-	/* Short, pre-identification bow and arrow description */
-	object_desc(b_short_name, sizeof(b_short_name), bow, ODESC_BASE, p);
-	object_desc(a_short_name, sizeof(a_short_name), arrows, ODESC_BASE, p);
-
-	if (arrow_flag || arrow_brand || arrow_slay) {
-		/* Identify the arrows */
-		ident(arrows);
-
-		/* Full arrow description */
-		object_desc(a_full_name, sizeof(a_full_name), arrows,
-			ODESC_PREFIX | ODESC_FULL | ODESC_ALTNUM | (1 << 16),
-			p);
-
-		slay_desc(slay_description, sizeof(slay_description), arrow_flag,
-				  arrow_brand, m_name);
-
-		msg("Your %s %s.", a_short_name, slay_description);
-		msg("You recognize it as %s.", a_full_name);
-
-		/* Don't carry on to identify the bow on the same shot */
-		return;
-	}
-
-	if (bow_brand || bow_slay) {
-		/* Identify the bow */
-		ident(bow);
-
-		/* Full bow description */
-		object_desc(b_full_name, sizeof(b_full_name), bow,
-			ODESC_PREFIX | ODESC_FULL, p);
-
-		slay_desc(slay_description, sizeof(slay_description), 0, bow_brand,
-				  m_name);
-
-		msg("Your shot %s.", slay_description);
-		msg("You recognize your %s to be %s.", b_short_name,
-				   b_full_name);
-	}
-}
-
-/**
- * Automatically identify items of {special} types that the player knows about
- */
-void id_known_specials(void)
-{
-	int i;
-	struct object *obj;
-
-	/* Dungeon objects */
-	for (i = 1; i < cave->obj_max; i++) {
-		/* Get the next object from the dungeon */
-		obj = cave->objects[i];
-
-		/* Skip dead objects */
-		if (!obj || !obj->kind) continue;
-
-		/* Automatically identify any special items you have seen before */
-		if (obj->ego && !object_is_known(obj) &&
-			player_knows_ego(player, obj->ego)){
-			ident(obj);
-		}
-	}
-
-	/* Player's gear */
-	for (obj = player->gear; obj; obj = obj->next) {
-		/* Automatically identify any special items you have seen before */
-		if (obj->ego && !object_is_known(obj) &&
-			player_knows_ego(player, obj->ego)){
-			ident(obj);
-		}
-	}
-
-	player->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
-}
 
 /**
  * ------------------------------------------------------------------------
@@ -1254,7 +1577,7 @@ static int object_value_base(const struct object *obj)
 		value += (obj->dd - kind->dd) * obj->ds * 100;
 		
 		/* Arrows are worth less since they are perishable */
-		if (obj->tval == TV_ARROW) value /= 10;
+		if (tval_is_ammo(obj)) value /= 10;
 		
 		/* Add in the base cost from the template */
 		value += kind->cost;
@@ -1317,7 +1640,7 @@ static int object_value_real(const struct object *obj)
 	value = kind->cost;
 
 	/* Artefact */
-	if (obj->artifact) {
+	if (obj->known->artifact) {
 		const struct artifact *art = obj->artifact;
 
 		/* Hack -- "worthless" artefacts */
@@ -1325,7 +1648,7 @@ static int object_value_real(const struct object *obj)
 
 		/* Hack -- Use the artefact cost instead */
 		value = art->cost;
-	} else if (obj->ego) {
+	} else if (obj->known->ego) {
 		/* Ego-Item */
 		struct ego_item *ego = obj->ego;
 
@@ -1358,24 +1681,24 @@ static int object_value_real(const struct object *obj)
 		case TV_RING: {
 			for (i = 0; i < OBJ_MOD_MAX; i++) {
 				if (i < STAT_MAX) {
-					value += (obj->modifiers[i] * 300);
+					value += (obj->known->modifiers[i] * 300);
 				} else if (i < SKILL_MAX) {
-					if (obj->modifiers[i] < 0) {
+					if (obj->known->modifiers[i] < 0) {
 						return 0;
 					} else {
-						value += (obj->modifiers[i] * 100);
+						value += (obj->known->modifiers[i] * 100);
 					}
 				} else if (i == OBJ_MOD_TUNNEL) {
-					if (obj->modifiers[i] < 0) {
+					if (obj->known->modifiers[i] < 0) {
 						return 0;
 					} else {
-						value += (obj->modifiers[i] * 50);
+						value += (obj->known->modifiers[i] * 50);
 					}
 				}
 			}
 
 			/* Give credit for speed bonus */
-			if (of_has(obj->flags, OF_SPEED)) value += 1000;
+			if (of_has(obj->known->flags, OF_SPEED)) value += 1000;
 
 			break;
 		}
@@ -1390,7 +1713,7 @@ static int object_value_real(const struct object *obj)
 			/* Pay extra for charges, depending on standard number of
 			 * charges.  Handle new-style wands correctly.
 			 */
-			value += ((value / 20) * (obj->pval / obj->number));
+			value += ((value / 20) * (obj->known->pval / obj->known->number));
 
 			/* Done */
 			break;
@@ -1400,11 +1723,12 @@ static int object_value_real(const struct object *obj)
 		case TV_RING:
 		case TV_AMULET: {
 			/* Hack -- negative bonuses are bad */
-			if (obj->att < 0) return 0;
-			if (obj->evn < 0) return 0;
+			if (obj->known->att < 0) return 0;
+			if (obj->known->evn < 0) return 0;
 
 			/* Give credit for bonuses */
-			value += ((obj->att + obj->evn + obj->ps) * 100);
+			value += ((obj->known->att + obj->known->evn + obj->known->ps)
+					  * 100);
 
 			/* Done */
 			break;
@@ -1420,16 +1744,16 @@ static int object_value_real(const struct object *obj)
 		case TV_SOFT_ARMOR:
 		case TV_MAIL: {
 			/* Give credit for hit bonus */
-			value += ((obj->att - kind->att) * 100);
+			value += ((obj->known->att - kind->att) * 100);
 
 			/* Give credit for evasion bonus */
-			value += ((obj->evn - kind->evn) * 100);
+			value += ((obj->known->evn - kind->evn) * 100);
 
 			/* Give credit for sides bonus */
-			value += ((obj->ps - kind->ps) * obj->pd * 50);
+			value += ((obj->known->ps - kind->ps) * obj->pd * 50);
 
 			/* Give credit for dice bonus */
-			value += ((obj->pd - kind->pd) * obj->ps * 50);
+			value += ((obj->known->pd - kind->pd) * obj->ps * 50);
 
 			/* Done */
 			break;
@@ -1442,16 +1766,16 @@ static int object_value_real(const struct object *obj)
 		case TV_SWORD:
 		case TV_POLEARM: {
 			/* Give credit for hit bonus */
-			value += ((obj->att - kind->att) * 100);
+			value += ((obj->known->att - kind->att) * 100);
 
 			/* Give credit for evasion bonus */
-			value += ((obj->evn - kind->evn) * 100);
+			value += ((obj->known->evn - kind->evn) * 100);
 
 			/* Give credit for sides bonus */
-			value += ((obj->ds - kind->ds) * obj->dd * 51);
+			value += ((obj->known->ds - kind->ds) * obj->known->dd * 51);
 
 			/* Give credit for dice bonus */
-			value += ((obj->dd - kind->dd) * obj->ds * 51);
+			value += ((obj->known->dd - kind->dd) * obj->known->ds * 51);
 
 			/* Done */
 			break;
@@ -1460,7 +1784,7 @@ static int object_value_real(const struct object *obj)
 		/* Arrows */
 		case TV_ARROW: {
 			/* Give credit for hit bonus */
-			value += ((obj->att - kind->att) * 10);
+			value += ((obj->known->att - kind->att) * 10);
 
 			/* Done */
 			break;
@@ -1488,24 +1812,10 @@ int object_value(const struct object *obj)
 	int value;
 
 	/* Known items acquire the actual value, unknown items the base value */
-	if (object_is_known(obj)) {
-		/* Broken items -- worthless */
-		if (object_is_broken(obj)) return 0;
-
-		/* Cursed items -- worthless */
-		if (object_is_cursed(obj)) return 0;
-
+	if (obj->known) {
 		/* Real value (see above) */
 		value = object_value_real(obj);
 	} else {
-		/* Hack -- Felt broken items */
-		if ((obj->notice & (OBJ_NOTICE_SENSE)) && object_is_broken(obj))
-			return 0;
-
-		/* Hack -- Felt cursed items */
-		if ((obj->notice & (OBJ_NOTICE_SENSE)) && object_is_cursed(obj))
-			return 0;
-
 		/* Base value (see above) */
 		value = object_value_base(obj);
 	}
