@@ -374,8 +374,7 @@ void object_list_format_name(const object_list_entry_t *entry,
 
 	base_obj = cave->objects[entry->object->oidx];
 	grid = entry->object->grid;
-	object_is_recognized_artifact = base_obj->artifact &&
-		object_is_known(base_obj);
+	object_is_recognized_artifact = object_is_known_artifact(base_obj);
 
 	/* Hack - these don't have a prefix when there is only one, so just pad
 	 * with a space. */

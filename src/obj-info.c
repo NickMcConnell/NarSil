@@ -125,19 +125,17 @@ static bool describe_stats(textblock *tb, const struct object *obj,
 	/* Fact of but not size of mods is known for egos and flavoured items
 	 * the player is aware of */
 	bool known_effect = false;
+	if (obj->known->ego)
+		known_effect = true;
 	if (tval_can_have_flavor_k(obj->kind) && object_flavor_is_aware(obj)) {
 		known_effect = true;
-	}
-
-	/* Detail only for known objects */
-	if (object_is_known(obj)) {
-		detail = true;
 	}
 
 	/* See what we've got */
 	for (i = 0; i < OBJ_MOD_MAX; i++) {
 		if (obj->modifiers[i]) {
 			count++;
+			detail = true;
 		}
 	}
 
@@ -146,7 +144,7 @@ static bool describe_stats(textblock *tb, const struct object *obj,
 
 	for (i = 0; i < OBJ_MOD_MAX; i++) {
 		const char *desc = lookup_obj_property(OBJ_PROPERTY_MOD, i)->name;
-		int val = obj->modifiers[i];
+		int val = obj->known->modifiers[i];
 		if (!val) continue;
 
 		/* Actual object */
@@ -331,19 +329,16 @@ static bool describe_abilities(textblock *tb, const struct object *obj,
 	struct ability *ability;
 	bool known, known_kind, known_ego;
 
-	/*
-	 * Count its abilities.  If the object isn't known and we're not
-	 * spoiling nor smithing, only include abilities from parts the
-	 * kind or ego) that are known.
-	 */
-	known = object_is_known(obj) || (mode & OINFO_SPOIL)
-		|| (mode & OINFO_SMITH);
+	/* Count its abilities.  If we're neither spoiling nor smithing, only
+	 * include known abilities or those known from the kind or ego. */
+	known = (mode & OINFO_SPOIL) || (mode & OINFO_SMITH);
 	known_kind = obj->kind && obj->kind->aware;
 	known_ego = obj->ego && obj->ego->aware;
 	for (ability = obj->abilities; ability; ability = ability->next) {
 		if (!known
-				&& (!known_kind || !locate_ability(obj->kind->abilities, ability))
-				&& (!known_ego || !locate_ability(obj->ego->abilities, ability))) {
+			&& (!known_kind || !locate_ability(obj->kind->abilities, ability))
+			&& (!known_ego || !locate_ability(obj->ego->abilities, ability))
+			&& (!locate_ability(obj->known->abilities, ability))) {
 			continue;
 		}
 		assert(ac < (int)N_ELEMENTS(name));
@@ -431,22 +426,17 @@ static bool describe_slays(textblock *tb, const struct object *obj,
 		oinfo_detail_t mode)
 {
 	int i, count = 0;
-	const bool *s = obj->slays;
-	bool known, known_kind, known_ego;
+	bool known = (mode & OINFO_SPOIL) || (mode & OINFO_SMITH);
+	const bool *s = known ? obj->slays : obj->known->slays;
 
 	if (!s) return false;
 
-	/*
-	 * If the object isn't known and we're not spoiling nor smithing, only
-	 * include slays from parts (the kind or ego) that are known.
-	 */
-	known = object_is_known(obj) || (mode & OINFO_SPOIL)
-		|| (mode & OINFO_SMITH);
-	known_kind = obj->kind && obj->kind->aware && obj->kind->slays;
-	known_ego = obj->ego && obj->ego->aware && obj->ego->slays;
+
+	/* Count its slays.  If we're neither spoiling nor smithing, only
+	 * include known slays or those known from the kind or ego. */
+	known = (mode & OINFO_SPOIL) || (mode & OINFO_SMITH);
 	for (i = 1; i < z_info->slay_max; i++) {
-		if (s[i] && (known || (known_kind && obj->kind->slays[i])
-				|| (known_ego && obj->ego->slays[i]))) {
+		if (s[i]) {
 			count++;
 		}
 	}
@@ -459,10 +449,7 @@ static bool describe_slays(textblock *tb, const struct object *obj,
 
 	assert(count >= 1);
 	for (i = 1; i < z_info->slay_max; i++) {
-		if (!s[i] || (!known && (!known_kind || !obj->kind->slays[i])
-				&& (!known_ego || !obj->ego->slays[i]))) {
-			continue;
-		}
+		if (!s[i]) continue;
 
 		textblock_append(tb, "%s", slays[i].name);
 		if (count > 1)
@@ -482,22 +469,15 @@ static bool describe_brands(textblock *tb, const struct object *obj,
 		oinfo_detail_t mode)
 {
 	int i, count = 0;
-	bool *b = obj->brands;
-	bool known, known_kind, known_ego;
+	bool known = (mode & OINFO_SPOIL) || (mode & OINFO_SMITH);
+	bool *b = known ? obj->brands : obj->known->brands;
 
 	if (!b) return false;
 
-	/*
-	 * If the object isn't known and we're not spoiling nor smithing, only
-	 * include brands from parts (the kind or ego) that are known.
-	 */
-	known = object_is_known(obj) || (mode & OINFO_SPOIL)
-		|| (mode & OINFO_SMITH);
-	known_kind = obj->kind && obj->kind->aware && obj->kind->slays;
-	known_ego = obj->ego && obj->ego->aware && obj->ego->slays;
+	/* Count its brands.  If we're neither spoiling nor smithing, only
+	 * include known brands or those known from the kind or ego. */
 	for (i = 1; i < z_info->brand_max; i++) {
-		if (b[i] && (known || (known_kind && obj->kind->brands[i])
-				|| (known_ego && obj->ego->brands[i]))) {
+		if (b[i]) {
 			count++;
 		}
 	}
@@ -510,10 +490,7 @@ static bool describe_brands(textblock *tb, const struct object *obj,
 
 	assert(count >= 1);
 	for (i = 1; i < z_info->brand_max; i++) {
-		if (!b[i] || (!known && (!known_kind || !obj->kind->brands[i])
-				&& (!known_ego || !obj->ego->brands[i]))) {
-			continue;
-		}
+		if (!b[i]) continue;
 
 		textblock_append(tb, "%s", brands[i].name);
 		if (count > 1)
@@ -558,11 +535,11 @@ static void get_known_elements(const struct object *obj,
 	/* Grab the element info */
 	for (i = 0; i < ELEM_MAX; i++) {
 		/* Report fake egos or known element info */
-		if (object_is_known(obj) || (mode & OINFO_SPOIL))
-			el_info[i].res_level = obj->el_info[i].res_level;
+		if (player->obj_k->el_info[i].res_level || (mode & OINFO_SPOIL))
+			el_info[i].res_level = obj->known->el_info[i].res_level;
 		else
 			el_info[i].res_level = 0;
-		el_info[i].flags = obj->el_info[i].flags;
+		el_info[i].flags = obj->known->el_info[i].flags;
 
 		/* Ignoring an element: */
 		if (obj->el_info[i].flags & EL_INFO_IGNORE) {
@@ -785,10 +762,10 @@ static textblock *object_info_out(const struct object *obj, int mode)
 	bool smith = mode & OINFO_SMITH ? true : false;
 	textblock *tb = textblock_new();
 
-	assert(obj);
+	assert(obj->known);
 
 	/* Unaware objects get simple descriptions */
-	if (!obj->kind) {
+	if (obj->kind != obj->known->kind) {
 		textblock_append(tb, "\n\nYou do not know what this is.\n");
 		return tb;
 	}
@@ -802,7 +779,8 @@ static textblock *object_info_out(const struct object *obj, int mode)
 	if (subjective) describe_origin(tb, obj, terse);
 	if (!terse) describe_flavor_text(tb, obj, ego, smith);
 
-	if (!object_is_known(obj)) {
+	if (!object_runes_known(obj) &&	(obj->known->notice & OBJ_NOTICE_ASSESSED)
+		&& !tval_is_useable(obj)) {
 		textblock_append(tb, "You do not know the full extent of this item's powers.\n");
 		something = true;
 	}
