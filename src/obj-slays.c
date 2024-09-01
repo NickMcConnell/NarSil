@@ -19,6 +19,7 @@
 
 #include "angband.h"
 #include "init.h"
+#include "mon-desc.h"
 #include "mon-lore.h"
 #include "mon-predicate.h"
 #include "mon-util.h"
@@ -246,16 +247,159 @@ int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
  * \param brand is the brand being noticed
  * \param name is the monster name 
  */
-bool brand_message(int brand, char *name, char *message, int len)
+static bool brand_message(struct brand *brand, const struct monster *mon)
 {
 	char buf[1024] = "\0";
+	char m_name[80];
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, sizeof(m_name), mon, MDESC_TARG);
 
 	/* See if we have a message */
-	if (!brands[brand].desc) return false;
+	if (!brand->desc) return false;
 
 	/* Insert */
-	insert_name(buf, 1024, brands[brand].desc, name);
-	my_strcpy(message, buf, len);
+	insert_name(buf, 1024, brand->desc, m_name);
+	msg("%s", buf);
 	return true;
 }
 
+/**
+ * Help learn_brand_slay_{melee,launch,throw}().
+ *
+ * \param p is the player learning from the experience.
+ * \param obj1 is an object directly involved in the attack.
+ * \param obj2 is an auxiliary object (i.e. a launcher) involved in the attack.
+ * \param mon is the monster being attacked.
+ * \param allow_off is whether to include brands or slays from equipment that
+ * isn't a weapon or launcher.
+ * \param allow_temp is whether to include temporary brands or slays.
+ */
+static void learn_brand_slay_helper(struct player *p, struct object *obj1,
+		struct object *obj2, const struct monster *mon)
+{
+	struct monster_lore *lore = get_lore(mon->race);
+	int i;
+
+	/* Handle brands. */
+	for (i = 1; i < z_info->brand_max; i++) {
+		struct brand *b;
+		bool learn = false;
+
+		/* Check the objects directly involved. */
+		if (obj1 && obj1->brands && obj1->brands[i]) {
+			learn = true;
+		}
+		if (obj2 && obj2->brands && obj2->brands[i]) {
+			learn = true;
+		}
+
+		b = &brands[i];
+		if (!rf_has(mon->race->flags, b->resist_flag)) {
+			/* Learn the brand */
+			if (learn && !player_knows_brand(p, i)) {
+				player_learn_brand(p, i);
+				brand_message(b, mon);
+			}
+
+			/* Learn about the monster. */
+			lore_learn_flag_if_visible(lore, mon, b->resist_flag);
+			if (b->vuln_flag) {
+				lore_learn_flag_if_visible(lore, mon,
+					b->vuln_flag);
+			}
+		} else if (player_knows_brand(p, i)) {
+			/* Learn about the monster. */
+			lore_learn_flag_if_visible(lore, mon, b->resist_flag);
+			if (b->vuln_flag) {
+				lore_learn_flag_if_visible(lore, mon,
+					b->vuln_flag);
+			}
+		}
+	}
+
+	/* Handle slays. */
+	for (i = 1; i < z_info->slay_max; ++i) {
+		struct slay *s;
+		bool learn = false;
+
+		/* Check the objects directly involved. */
+		if (obj1 && obj1->slays && obj1->slays[i]) {
+			learn = true;
+		}
+		if (obj2 && obj2->slays && obj2->slays[i]) {
+			learn = true;
+		}
+
+		s = &slays[i];
+		if (react_to_slay(s, mon)) {
+			/* Learn about the monster. */
+			lore_learn_flag_if_visible(lore, mon, s->race_flag);
+			if (monster_is_visible(mon)) {
+				/* Learn the slay */
+				if (learn && !player_knows_slay(p, i)) {
+					char o_name[80];
+					object_desc(o_name, sizeof(o_name), obj1, ODESC_BASE, p);
+					msg("Your %s strikes truly.", o_name);
+					player_learn_slay(p, i);
+				}
+			}
+		} else if (player_knows_slay(p, i)) {
+			/* Learn about unaffected monsters. */
+			lore_learn_flag_if_visible(lore, mon, s->race_flag);
+		}
+	}
+}
+
+
+/**
+ * Learn about object and monster properties related to slays and brands from
+ * a melee attack.
+ *
+ * \param p is the player learning from the experience.
+ * \param weapon is the equipped weapon used in the attack; this is a parameter
+ * to allow for the possibility of dual-wielding or body types with multiple
+ * equipped weapons.  May be NULL for an unarmed attack.
+ * \param mon is the monster being attacked.
+ */
+void learn_brand_slay_from_melee(struct player *p, struct object *weapon,
+		const struct monster *mon)
+{
+	learn_brand_slay_helper(p, weapon, NULL, mon);
+}
+
+
+/**
+ * Learn about object and monster properties related to slays and brands
+ * from a ranged attack with a missile launcher.
+ *
+ * \param p is the player learning from the experience.
+ * \param missile is the missile used in the attack.  Must not be NULL.
+ * \param launcher is the launcher used in the attack; this is a parameter
+ * to allow for body types with multiple equipped launchers.  Must not be NULL.
+ * \param mon is the monster being attacked.
+ */
+void learn_brand_slay_from_launch(struct player *p, struct object *missile,
+		struct object *launcher, const struct monster *mon)
+{
+	assert(missile && launcher);
+	learn_brand_slay_helper(p, missile, launcher, mon);
+}
+
+
+/**
+ * Learn about object and monster properties related to slays and brands
+ * from a ranged attack with a thrown object.
+ *
+ * \param p is the player learning from the experience.
+ * \param missile is the missile used in the attack.  Must not be NULL.
+ * \param launcher is the launcher used in the attack; this is a parameter
+ * to allow for body types with multiple equipped launchers.
+ * \param mon is the monster being attacked.
+ */
+void learn_brand_slay_from_throw(struct player *p, struct object *missile,
+		const struct monster *mon)
+{
+	assert(missile);
+	learn_brand_slay_helper(p, missile, NULL, mon);
+}

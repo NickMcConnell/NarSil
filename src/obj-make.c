@@ -288,12 +288,6 @@ void ego_apply_magic(struct object *obj, bool smithing)
 		ability = ability->next;
 	}
 
-	/* Hack -- acquire "broken" flag */
-	if (!ego->cost) obj->notice |= (OBJ_NOTICE_BROKEN);
-
-	/* Hack -- acquire "cursed" flag */
-	if (of_has(ego->flags, OF_CURSED)) obj->notice |= (OBJ_NOTICE_CURSED);
-
 	/* Bonuses apply differently for smithed objects */
 	if (smithing) {
 		/* Apply extra ego bonuses */
@@ -358,9 +352,6 @@ void ego_apply_magic(struct object *obj, bool smithing)
 		/* Union of flags so as to know when ignoring is notable */
 		obj->el_info[i].flags |= ego->el_info[i].flags;
 	}
-
-	/* Pseudo-id the item */
-	pseudo_id(obj);
 }
 
 /**
@@ -529,9 +520,6 @@ static struct object *make_artifact_special(int level)
 		/* Mark the artifact as "created" */
 		mark_artifact_created(art, true);
 
-		/* Pseudo-id the item */
-		pseudo_id(new_obj);
-
 		/* Success */
 		return new_obj;
 	}
@@ -606,7 +594,6 @@ static bool make_artifact(struct object *obj, int lev)
 	if (obj->artifact) {
 		copy_artifact_data(obj, obj->artifact);
 		mark_artifact_created(obj->artifact, true);
-		pseudo_id(obj);
 		return true;
 	}
 
@@ -855,13 +842,10 @@ void apply_magic(struct object *obj, int lev, bool allow_artifacts, bool good,
 		/* For jewellery, some negative values mean cursed and broken */
 		if ((obj->att < 0) || (obj->evn < 0)) {
 			of_on(obj->flags, OF_CURSED);
-			obj->notice |= (OBJ_NOTICE_CURSED | OBJ_NOTICE_BROKEN);
 		}
 		for (i = 0; i < OBJ_MOD_MAX; i++) {
 			if (obj->modifiers[i] < 0) {
 				of_on(obj->flags, OF_CURSED);
-				obj->notice |=
-					(OBJ_NOTICE_CURSED | OBJ_NOTICE_BROKEN);
 			}
 		}
 	} else if (tval_is_light(obj)) {
@@ -874,20 +858,6 @@ void apply_magic(struct object *obj, int lev, bool allow_artifacts, bool good,
 		if (fine) obj->pval += 2;
 		if (special) obj->pval += 2;
 		obj->pval = MAX(1, MIN(obj->pval, 25));
-	}
-
-	/* Done with special items */
-	if (obj->ego) return;
-
-	/* Hack -- acquire "broken" flag */
-	if (!obj->kind->cost) obj->notice |= (OBJ_NOTICE_BROKEN);
-
-	/* Hack -- acquire "cursed" flag */
-	if (of_has(obj->kind->flags, OF_CURSED)) obj->notice |= (OBJ_NOTICE_CURSED);
-
-	/* Identify non-special non-artefact weapons/armour */
-	if (tval_has_variable_power(obj) && !tval_is_jewelry(obj)) {
-		object_know(obj);
 	}
 }
 
@@ -1040,12 +1010,6 @@ void object_prep(struct object *obj, struct object_kind *k, int lev,
 		add_ability(&obj->abilities, ability);
 		ability = ability->next;
 	}
-
-	/* Hack -- acquire "broken" flag */
-	if (k->cost <= 0) obj->notice |= (OBJ_NOTICE_BROKEN);
-
-	/* Hack -- acquire "cursed" flag */
-	if (of_has(k->flags, OF_CURSED)) obj->notice |= (OBJ_NOTICE_CURSED);
 }
 
 /**

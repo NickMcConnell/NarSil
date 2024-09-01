@@ -803,9 +803,9 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 				state->to_ads += obj->modifiers[OBJ_MOD_DAMAGE_SIDES];
 			}
 
-			/* Apply element info, noting vulnerabilites for later processing */
+			/* Apply element info */
 			for (j = 0; j < ELEM_MAX; j++) {
-				if (object_is_known(obj) || !known_only) {
+				if (!known_only || obj->known->el_info[j].res_level) {
 					state->el_info[j].res_level += obj->el_info[j].res_level;
 				}
 			}
@@ -1166,14 +1166,6 @@ static void update_bonuses(struct player *p)
 
 	/* Propagate knowledge */
 	update_player_object_knowledge(p);
-	if (player_active_ability(p, "Lore-Keeper")) {
-		pseudo_id_everything();
-	}
-
-	/* Identify {special} items when the type has been seen before */
-	if (character_dungeon) {
-		id_known_specials();
-	}
 }
 
 
