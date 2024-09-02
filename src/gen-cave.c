@@ -778,7 +778,7 @@ static bool connect_two_rooms(struct chunk *c, int r1, int r2, bool tentative,
 	/* If we have vertical or horizontal overlap, connect a straight tunnel
 	 * at a random point where they overlap */
 	if ((top_left1.x <= bottom_right2.x) && (top_left2.x <= bottom_right1.x)) {
-		/* If vertical overlap */
+		/* If horizontal overlap */
 		int x = rand_range(MAX(top_left1.x, top_left2.x),
 						   MIN(bottom_right1.x, bottom_right2.x));
 		struct loc grid1 = loc(x, cent1.y);
@@ -794,7 +794,7 @@ static bool connect_two_rooms(struct chunk *c, int r1, int r2, bool tentative,
 			(desperate) ? TUNNEL_DESPERATE : TUNNEL_ROOM_TO_ROOM);
 	} else if ((top_left1.y <= bottom_right2.y) &&
 			   (top_left2.y <= bottom_right1.y)) {
-		/* If horizontal overlap */
+		/* If vertical overlap */
 		int y = rand_range(MAX(top_left1.y, top_left2.y),
 						   MIN(bottom_right1.y, bottom_right2.y));
 		struct loc grid1 = loc(cent1.x, y);
