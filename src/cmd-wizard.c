@@ -1207,7 +1207,7 @@ void do_cmd_wiz_jump_level(struct command *cmd)
 		char prompt[80], s[80];
 
 		strnfmt(prompt, sizeof(prompt), "Jump to level (0-%d): ",
-			z_info->max_depth - 1);
+			z_info->dun_depth);
 
 		/* Set default */
 		strnfmt(s, sizeof(s), "%d", player->depth);
@@ -1218,7 +1218,7 @@ void do_cmd_wiz_jump_level(struct command *cmd)
 	}
 
 	/* Paranoia */
-	if (level < 0 || level >= z_info->max_depth) return;
+	if (level < 0 || level > z_info->dun_depth) return;
 
 	if (cmd_get_arg_choice(cmd, "choice", &choose_gen) != CMD_OK) {
 		choose_gen = (get_check("Choose cave profile? ")) ? 1 : 0;
