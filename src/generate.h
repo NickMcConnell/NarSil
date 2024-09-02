@@ -247,6 +247,7 @@ int alloc_object(struct chunk *c, int set, int typ, int num, int depth,
 	uint8_t origin);
 struct room_profile lookup_room_profile(const char *name);
 void uncreate_artifacts(struct chunk *c);
+void uncreate_greater_vaults(struct chunk *c, struct player *p);
 void chunk_validate_objects(struct chunk *c);
 void dump_level_simple(const char *basefilename, const char *title,
 	struct chunk *c);

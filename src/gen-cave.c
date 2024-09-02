@@ -1067,6 +1067,7 @@ struct chunk *cave_gen(struct player *p)
 			p->upkeep->force_forge = false;
 			if (OPT(p, cheat_room)) msg("failed.");
 			uncreate_artifacts(c);
+			uncreate_greater_vaults(c, p);
 			wipe_mon_list(c, p);
 			cave_free(c);
 			return NULL;
@@ -1111,6 +1112,7 @@ struct chunk *cave_gen(struct player *p)
 	if (dun->cent_n < z_info->level_room_min) {
 		if (OPT(p, cheat_room)) msg("Not enough rooms.");
 		uncreate_artifacts(c);
+		uncreate_greater_vaults(c, p);
 		wipe_mon_list(c, p);
 		cave_free(c);
 		return NULL;
@@ -1121,6 +1123,7 @@ struct chunk *cave_gen(struct player *p)
 	if (!connect_rooms_stairs(c)) {
 		if (OPT(p, cheat_room)) msg("Couldn't connect the rooms.");
 		uncreate_artifacts(c);
+		uncreate_greater_vaults(c, p);
 		wipe_mon_list(c, p);
 		cave_free(c);
 		return NULL;
@@ -1155,6 +1158,7 @@ struct chunk *cave_gen(struct player *p)
 	if (!check_connectivity(c)) {
 		if (OPT(p, cheat_room)) msg("Failed connectivity.");
 		uncreate_artifacts(c);
+		uncreate_greater_vaults(c, p);
 		wipe_mon_list(c, p);
 		cave_free(c);
 		return NULL;

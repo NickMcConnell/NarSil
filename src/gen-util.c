@@ -813,6 +813,23 @@ void uncreate_artifacts(struct chunk *c)
 }
 
 /**
+ * Mark greater vaults in a failed chunk as not created.
+ */
+void uncreate_greater_vaults(struct chunk *c, struct player *p)
+{
+	const struct vault *v;
+
+	if (!c->vault_name) return;
+	for (v = vaults; v; v = v->next) {
+		if (streq(v->typ, "Greater vault")
+				&& streq(c->vault_name, v->name)) {
+			p->vaults[v->index] = false;
+			break;
+		}
+	}
+}
+
+/**
  * Validate that the chunk contains no NULL objects.
  * Only checks for nonzero tval.
  * \param c is the chunk to validate.

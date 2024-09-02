@@ -642,6 +642,7 @@ static struct chunk *cave_generate(struct player *p)
 				msg("Generation restarted: %s.", error);
 			}
 			uncreate_artifacts(chunk);
+			uncreate_greater_vaults(chunk, p);
 			cave_clear(chunk, p);
 			p->unique_forge_made = forge_made;
 			event_signal_flag(EVENT_GEN_LEVEL_END, false);
