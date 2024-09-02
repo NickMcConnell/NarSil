@@ -1038,15 +1038,15 @@ bool build_crossed(struct chunk *c, struct loc centre)
 
 		case 4: {
 			if ((v_wid == 1) && (h_hgt == 1)) {
-				event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "pinched");
+				event_signal_string(EVENT_GEN_ROOM_CHOOSE_SUBTYPE, "hollow plus");
 
-				set_marked_granite(c, loc(centre.x - 1, centre.y - 1),
+				set_marked_granite(c, loc(centre.x - 1, centre.y),
 								   SQUARE_WALL_INNER);
-				set_marked_granite(c, loc(centre.x - 1, centre.y + 1),
+				set_marked_granite(c, loc(centre.x + 1, centre.y),
 								   SQUARE_WALL_INNER);
-				set_marked_granite(c, loc(centre.x + 1, centre.y - 1),
+				set_marked_granite(c, loc(centre.x, centre.y - 1),
 								   SQUARE_WALL_INNER);
-				set_marked_granite(c, loc(centre.x + 1, centre.y + 1),
+				set_marked_granite(c, loc(centre.x, centre.y + 1),
 								   SQUARE_WALL_INNER);
 			}
 			break;
