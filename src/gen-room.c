@@ -804,7 +804,7 @@ static bool build_vault_type(struct chunk *c, struct loc centre,
 	}
 
 	/* Make sure that the location is empty */
-	if (!solid_rock(c, y1 - 3, x1 - 3, y2 + 3,	x2 + 3)) {
+	if (!solid_rock(c, y1 - 2, x1 - 2, y2 + 2, x2 + 2)) {
 		return false;
 	}
 
@@ -814,8 +814,8 @@ static bool build_vault_type(struct chunk *c, struct loc centre,
 	}
 
 	/* Save the corner locations */
-	dun->corner[dun->cent_n].top_left = loc(x1, y1);
-	dun->corner[dun->cent_n].bottom_right = loc(x2, y2);
+	dun->corner[dun->cent_n].top_left = loc(x1 + 1, y1 + 1);
+	dun->corner[dun->cent_n].bottom_right = loc(x2 - 1, y2 - 1);
 
 	/* Save the room location */
 	dun->cent[dun->cent_n] = centre;
