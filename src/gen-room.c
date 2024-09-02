@@ -827,6 +827,7 @@ static bool build_vault_type(struct chunk *c, struct loc centre,
 	if (streq(typ, "Greater vault")) {
 		player->vaults[v->index] = true;
 		generate_mark(c, y1, x1, y2, x2, SQUARE_G_VAULT);
+		assert(!c->vault_name);
 		c->vault_name = string_make(v->name);
 	}
 
@@ -1094,6 +1095,10 @@ bool build_lesser_vault(struct chunk *c, struct loc centre)
 
 bool build_greater_vault(struct chunk *c, struct loc centre)
 {
+	/* Can only have one greater vault per level */
+	if (c->vault_name) {
+		return false;
+	}
 	return build_vault_type(c, centre, "Greater vault", false);
 }
 
@@ -1126,6 +1131,7 @@ bool build_throne(struct chunk *c, struct loc centre)
 
 	/* Memorise and mark */
 	generate_mark(c, y1, x1, y2, x2, SQUARE_G_VAULT);
+	assert(!c->vault_name);
 	c->vault_name = string_make(v->name);
 
 	return true;
@@ -1159,6 +1165,7 @@ bool build_gates(struct chunk *c, struct loc centre)
 
 	/* Memorise and mark */
 	generate_mark(c, y1, x1, y2, x2, SQUARE_G_VAULT);
+	assert(!c->vault_name);
 	c->vault_name = string_make(v->name);
 
 	return true;
