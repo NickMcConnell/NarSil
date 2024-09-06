@@ -156,8 +156,8 @@ static bool doubled_wall(struct chunk *c, int y1, int x1, int y2, int x2)
 
 	/* Check right wall */
 	for (y = y1; y < y2; y++) {
-		if (square_iswall_outer(c, loc(x1 + 2, y)) &&
-			square_iswall_outer(c, loc(x1 + 2, y + 1)))
+		if (square_iswall_outer(c, loc(x2 + 2, y)) &&
+			square_iswall_outer(c, loc(x2 + 2, y + 1)))
 			return true;
 	}
 
