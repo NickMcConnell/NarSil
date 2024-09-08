@@ -774,7 +774,7 @@ static enum parser_error parse_prefs_feat(struct parser *p)
 	if (d->bypass) return PARSE_ERROR_NONE;
 
 	idx = lookup_feat_code(sym);
-	if (idx >= FEAT_MAX)
+	if (idx < 0 || idx >= FEAT_MAX)
 		return PARSE_ERROR_OUT_OF_BOUNDS;
 
 	lighting = parser_getsym(p, "lighting");
