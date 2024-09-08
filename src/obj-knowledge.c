@@ -72,6 +72,7 @@ static void init_rune(void)
 	int i, j, count;
 
 	/* Count runes */
+	count = 0;
 	for (i = 1; i < OF_MAX; i++) {
 		struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
 		if (prop->subtype == OFT_NONE) continue;
