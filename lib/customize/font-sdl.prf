@@ -15,4 +15,4 @@
 ### Terrain features ###
 
 # Floors (white : centered dot)
-feat:OPEN:*:1:7
+feat:FLOOR:*:1:7
