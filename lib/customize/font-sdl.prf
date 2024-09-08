@@ -17,4 +17,4 @@
 # This works with the .fon files bundled with the game, but doesn't work
 # well with fonts like LiberationMono.
 # Floors (white : centered dot)
-feat:OPEN:*:1:7
+feat:FLOOR:*:1:7
