@@ -781,10 +781,6 @@ static int pick_trap(struct chunk *c, int feat, int trap_level)
     if (!feat_is_trap_holding(feat))
 		return -1;
 
-    /* No traps in town */
-    if (c->depth == 0)
-		return -1;
-
     /* Get trap probabilities */
 	trap_probs = mem_zalloc(z_info->trap_max * sizeof(int));
 	for (i = 0; i < z_info->trap_max; i++) {
