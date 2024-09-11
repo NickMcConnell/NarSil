@@ -449,12 +449,9 @@ static bool tunnel_ok(struct chunk *c, struct loc grid1, struct loc grid2,
 		if (grid1.x < grid2.x) {
 			grid_lo = grid1;
 			grid_hi = grid2;
-		} else if (grid2.x < grid1.x) {
+		} else {
 			grid_lo = grid2;
 			grid_hi = grid1;
-		} else {
-			/* Same grid, no tunnel */
-			return false;
 		}
 	} else {
 		/* Vertical */
@@ -633,12 +630,9 @@ static int lay_tunnel(struct chunk *c, struct loc grid1, struct loc grid2,
 		if (grid1.x < grid2.x) {
 			grid_lo = grid1;
 			grid_hi = grid2;
-		} else if (grid2.x < grid1.x) {
+		} else {
 			grid_lo = grid2;
 			grid_hi = grid1;
-		} else {
-			/* Same grid, no tunnel (should be unnecessary) */
-			return ncnvt;
 		}
 	} else {
 		/* Vertical */
