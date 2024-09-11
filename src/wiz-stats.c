@@ -2909,6 +2909,12 @@ static bool is_easily_traversed(struct chunk *c, struct loc grid)
 		square_isrubble(c, grid);
 }
 
+static bool is_floor_trap(struct chunk *c, struct loc grid)
+{
+	/* Using square_istrap by itself will include locked doors. */
+	return square_istrap(c, grid) && !square_iscloseddoor(c, grid);
+}
+
 /**
  * Use stat_grid_counter() to get the grid counts and immediate neighborhood
  * characteristics most likely to be useful for assessing map quality and
@@ -2931,7 +2937,7 @@ void stat_grid_counter_simple(struct chunk *c, struct grid_counts counts[3])
 		{ square_isfloor, 0, 0, 0 },
 		{ square_isupstairs, 0, 0, 0 },
 		{ square_isdownstairs, 0, 0, 0 },
-		{ square_istrap, 0, 0, 0 },
+		{ is_floor_trap, 0, 0, 0 },
 		{ square_isforge, 0, 0, 0 },
 		{ square_isrubble, 0, 0, 0 },
 		{ square_isopendoor, 0, 0, 0 },
