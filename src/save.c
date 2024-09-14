@@ -75,8 +75,8 @@ static void wr_item(const struct object *obj)
 	struct ability *ability;
 
 	wr_u16b(0xffff);
-	/* Ugly hack */
-	wr_byte(obj->used);
+	/* Unused */
+	wr_byte(0);
 
 	wr_u16b(obj->oidx);
 
@@ -129,6 +129,7 @@ static void wr_item(const struct object *obj)
 	}
 
 	wr_s16b(obj->timeout);
+	wr_byte(obj->used);
 
 	wr_s16b(obj->att);
 	wr_byte(obj->dd);
