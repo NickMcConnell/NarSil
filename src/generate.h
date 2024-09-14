@@ -163,7 +163,7 @@ struct vault {
     uint8_t hgt;				/*!< Vault height */
     uint8_t wid;				/*!< Vault width */
     uint8_t depth;				/*!< Vault depth */
-    uint8_t rarity;				/*!< Vault rarity */
+    uint32_t rarity;				/*!< Vault rarity */
     bool forge;					/*!< Is there a forge in it? */
 };
 

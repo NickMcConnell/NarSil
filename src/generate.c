@@ -400,8 +400,59 @@ static errr run_parse_vault(struct parser *p) {
 }
 
 static errr finish_parse_vault(struct parser *p) {
+	uint32_t rarity_denom = 1;
+	struct vault *v;
+
 	vaults = parser_priv(p);
 	parser_destroy(p);
+
+	/*
+	 * For use in random_vault(), convert rarities from the 1 per value
+	 * specified in vault.txt to use a fixed denominator that is the
+	 * smallest integer positive integer divisible by all the rarities.
+	 */
+	for (v = vaults; v; v = v->next) {
+		if (v->rarity > 0) {
+			/*
+			 * Find the greatest common divisor of rarity_denom and
+			 * v->rarity using the division-based version of
+			 * Euclid's algorithm.
+			 */
+			uint32_t g = rarity_denom;
+			uint32_t b = v->rarity;
+
+			while (b) {
+				uint32_t t = b;
+
+				b = g % b;
+				g = t;
+			}
+
+			/*
+			 * Update rarity_denom with the factors from v->rarity
+			 * not already present.
+			 */
+			if (rarity_denom > 4294967295 / (v->rarity / g)) {
+				plog("Smallest integer divisible by all vault rarities is too large.");
+				return PARSE_ERROR_OUT_OF_BOUNDS;
+			}
+			rarity_denom *= v->rarity / g;
+		}
+	}
+	/*
+	 * Avoid the potential of overflow in random_vault() as it accumulates
+	 * the rarities of possible vaults.
+	 */
+	if (rarity_denom > 4294967295 / z_info->v_max) {
+		plog("Product of number of vaults and smallest integer divisible by all vault rarities is too large.");
+		return PARSE_ERROR_OUT_OF_BOUNDS;
+	}
+	for (v = vaults; v; v = v->next) {
+		if (v->rarity > 0) {
+			v->rarity = rarity_denom / v->rarity;
+		}
+	}
+
 	return 0;
 }
 

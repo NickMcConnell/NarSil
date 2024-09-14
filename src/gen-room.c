@@ -62,10 +62,10 @@ struct vault *random_vault(int depth, const char *typ, bool forge)
 {
 	struct vault *v = vaults;
 	struct vault *r = NULL;
-	int n = 1;
+	uint32_t rarity_sum = 0;
 	do {
 		if (streq(v->typ, typ) && (v->depth <= depth)) {
-			bool valid = true;
+			bool valid = v->rarity > 0;
 			/* Check if we need a forge and don't have one */
 			if (forge && !v->forge) {
 				valid = false;
@@ -77,8 +77,8 @@ struct vault *random_vault(int depth, const char *typ, bool forge)
 			}
 
 			if (valid) {
-				if (one_in_(n)) r = v;
-				n++;
+				rarity_sum += v->rarity;
+				if (Rand_div(rarity_sum) < v->rarity) r = v;
 			}
 		}
 		v = v->next;
