@@ -1919,7 +1919,7 @@ D:    $$$$$$#$$
 name:Maze with chasm
 type:Interesting room
 depth:5
-rarity:5:9:15
+rarity:5
 flags:NO_ROTATION
 D:$$$$$$$$$$$$$$$
 D:$.......#.....$
