@@ -91,8 +91,8 @@ static struct object *rd_item(void)
 	char buf[128];
 
 	rd_u16b(&tmp16u);
-	/* Ugly hack */
-	rd_byte(&obj->used);
+	/* Unused */
+	rd_byte(&tmp8u);
 	if (tmp16u != 0xffff)
 		return NULL;
 
@@ -149,6 +149,7 @@ static struct object *rd_item(void)
 	}
 
 	rd_s16b(&obj->timeout);
+	rd_byte(&obj->used);
 
 	rd_s16b(&obj->att);
 	rd_byte(&obj->dd);
@@ -1126,7 +1127,7 @@ int rd_gear(void)
 		return -1;
 
 	/* Get known gear */
-	if (rd_gear_aux(rd_item, &player->gear_k))
+	if (rd_gear_aux(&player->gear_k))
 		return -1;
 
 	/* Align the two, add weight */
@@ -1408,7 +1409,7 @@ int rd_objects(void)
 {
 	if (rd_objects_aux(cave))
 		return -1;
-	if (rd_objects_aux(rd_item, player->cave))
+	if (rd_objects_aux(player->cave))
 		return -1;
 
 	return 0;
