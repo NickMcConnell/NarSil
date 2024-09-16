@@ -53,7 +53,7 @@ struct grid_counts {
 	int downstair;
 	int trap;
 	int forge;
-	int pass_rubble;
+	int rubble;
 	int open_door;
 	int closed_door;
 	int broken_door;
