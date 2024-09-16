@@ -1132,7 +1132,7 @@ struct chunk *cave_gen(struct player *p)
 	
 	/* Place some rubble, occasionally much more on deep levels */
 	rubble_gen = randint1((blocks * blocks) / 3);
-	if ((c->depth >= 10) && one_in_(2)) {
+	if ((c->depth >= 10) && one_in_(10)) {
 		rubble_gen += blocks * blocks * 2;
 	}
 	alloc_object(c, SET_BOTH, TYP_RUBBLE, rubble_gen, c->depth,
