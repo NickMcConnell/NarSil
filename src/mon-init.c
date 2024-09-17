@@ -175,10 +175,12 @@ static enum parser_error parse_meth_message_type(struct parser *p)
 static enum parser_error parse_meth_act_msg(struct parser *p) {
 	const char *message = parser_getstr(p, "act");
 	struct blow_method *meth = parser_priv(p);
-	struct blow_message *msg = mem_zalloc(sizeof(*msg));
-	if (!meth)
-		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	struct blow_message *msg;
 
+	if (!meth) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	msg = mem_zalloc(sizeof(*msg));
 	msg->act_msg = string_make(message);
 	msg->next = meth->messages;
 	meth->messages = msg;
