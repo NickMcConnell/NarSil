@@ -29,8 +29,10 @@ textblock *textblock_new(void);
 void textblock_free(textblock *tb);
 
 
-void textblock_append(textblock *tb, const char *fmt, ...);
-void textblock_append_c(textblock *tb, int attr, const char *fmt, ...);
+void textblock_append(textblock *tb, const char *fmt, ...)
+	ATTRIBUTE ((format (printf, 2, 3)));
+void textblock_append_c(textblock *tb, int attr, const char *fmt, ...)
+	ATTRIBUTE ((format (printf, 3, 4)));
 void textblock_append_pict(textblock *tb, int attr, int c);
 void textblock_append_textblock(textblock *tb, const textblock *tba);
 
@@ -49,9 +51,12 @@ extern int text_out_indent;
 extern int text_out_pad;
 
 extern void text_out_to_file(int attr, const char *str);
-extern void text_out(const char *fmt, ...);
-extern void text_out_c(int a, const char *fmt, ...);
-extern void text_out_e(const char *fmt, ...);
+extern void text_out(const char *fmt, ...)
+	ATTRIBUTE ((format (printf, 1, 2)));
+extern void text_out_c(int a, const char *fmt, ...)
+	ATTRIBUTE ((format (printf, 2, 3)));
+extern void text_out_e(const char *fmt, ...)
+	ATTRIBUTE ((format (printf, 1, 2)));
 
 typedef void (*text_writer)(ang_file *f);
 errr text_lines_to_file(const char *path, text_writer writer);

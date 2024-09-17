@@ -201,7 +201,8 @@ bool file_put(ang_file *f, const char *buf);
 /**
  * Format (using strnfmt) the given args, and then call file_put().
  */
-bool file_putf(ang_file *f, const char *fmt, ...);
+bool file_putf(ang_file *f, const char *fmt, ...)
+	ATTRIBUTE ((format (printf, 2, 3)));
 bool file_vputf(ang_file *f, const char *fmt, va_list vp);
 
 
