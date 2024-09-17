@@ -220,7 +220,7 @@ Eat some food (``E``)
   inventory. Note that you can sometimes find food in the dungeon, but it
   is not always wise to eat strange food. This command takes some energy.
 
-Fuel your lantern/torch (``^F``)
+Fuel your lantern/torch (``^f``)
   If you are using a lantern and have flasks of oil in your pack, then you
   can "refuel" them with this command. Torches and Lanterns are limited
   in their maximal fuel. In general, two flasks will fully fuel a lantern.
@@ -342,7 +342,7 @@ Target closest monster (``'``)
 
 Forging
 =======
-Forge an item (``0``) or (``^D``)
+Forge an item (``0``) or (``^d``)
   If you are standing on a forge with uses remaining, this will begin the
   process of smithing an item. If you are not on a forge, or on a forge which
   is exhausted, this command allows you to see what you could smith if you were
@@ -399,7 +399,7 @@ List visible items (``]``)
 Message Commands
 ================
 
-View previous messages ('^P')
+View previous messages ('^p')
   This command shows you all the recent messages. You can scroll through
   them, or exit with ESCAPE.
 
@@ -437,13 +437,13 @@ Check knowledge (``~``)
 Saving and Exiting Commands
 ===========================
 
-Save and Quit ('Ctrl-X')
+Save and Quit ('Ctrl-x')
   To save your game so that you can return to it later, use this command.
   Save files will also be generated (hopefully) if the game crashes due to
   a system error. After you die, you can use your savefile to play again
   with the same options and such.
 
-Save ('Ctrl-S')
+Save ('Ctrl-s')
   This command saves the game but doesn't exit NarSil. Use this frequently
   if you are paranoid about having your computer crash (or your power go
   out) while you are playing.
@@ -473,7 +473,7 @@ Interact with keymaps - option submenu
 Interact with visuals - option submenu
   Allow you to interact with visuals. You may load or save visuals from
   user pref files, or modify the attr/char mappings for the monsters,
-  objects, and terrain features. You must use the "redraw" command ('^R')
+  objects, and terrain features. You must use the "redraw" command ('^r')
   to redraw the map after changing attr/char mappings. NOTE: It is
   generally easier to modify visuals via the "knowledge" menus.
 
@@ -500,9 +500,9 @@ Identify Symbol (``|``) or Identify Symbol (``/``)
 
   There are three special symbols you can use with the Identify Symbol
   command to access specific parts of your monster memory. Typing
-  'Ctrl-A' when asked for a symbol will recall details about all
-  monsters, typing 'Ctrl-U' will recall details about all unique
-  monsters, and typing 'Ctrl-N' will recall details about all non-unique
+  'Ctrl-a' when asked for a symbol will recall details about all
+  monsters, typing 'Ctrl-u' will recall details about all unique
+  monsters, and typing 'Ctrl-n' will recall details about all non-unique
   monsters.
 
   If the character stands for a creature, you are asked if you want to
@@ -520,11 +520,11 @@ Game Version (``V``)
 Extra Commands
 ==============
 
-Toggle Choice Window ('^E')
+Toggle Choice Window ('^e')
   Toggles the display in any sub-windows (if available) which are
   displaying your inventory or equipment.
 
-Redraw Screen ('^R')
+Redraw Screen ('^r')
   This command adapts to various changes in global options, and redraws all
   of the windows. It is normally only necessary in abnormal situations,
   such as after changing the visual attr/char mappings, or enabling
@@ -545,14 +545,14 @@ Certain special keys may be intercepted by the operating system or the host
 machine, causing unexpected results. In general, these special keys are
 control keys, and often, you can disable their special effects.
 
-If you are playing on a UNIX or similar system, then Ctrl-C will interrupt
+If you are playing on a UNIX or similar system, then Ctrl-c will interrupt
 NarSil. The second and third interrupt will induce a warning bell, and the
 fourth will induce both a warning bell and a special message, since the
-fifth will quit the game, after killing your character. Also, 'Ctrl-Z'
+fifth will quit the game, after killing your character. Also, 'Ctrl-z'
 will suspend the game, and return you to the original command shell, until
 you resume the game with the 'fg' command. There is now a compilation
 option to force the game to prevent the "double 'ctrl-z' escape death
-trick". The 'Ctrl-\\' and 'Ctrl-D' and 'Ctrl-S' keys should not be
+trick". The 'Ctrl-\\' and 'Ctrl-d' and 'Ctrl-s' keys should not be
 intercepted.
 
 It is often possible to specify "control-keys" without actually pressing

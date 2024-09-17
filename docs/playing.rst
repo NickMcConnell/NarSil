@@ -113,32 +113,32 @@ Original Keyset Command Summary
 ``x``  Examine an item               ``X``   Exchange places
 ``y``  (unused)                      ``Y``   (unused)
 ``z``  Stay still                    ``Z``   Rest for a period
-``!``  (unused)                      ``^A``  (special - debug command)
-``@``  Character description         ``^B``  (hjkl - bash a door)
-``#``  (unused)                      ``^C``  (special - break)
-``$``  (unused)                      ``^D``  (unused)
-``%``  (unused)                      ``^E``  Toggle inven/equip window
-``^``  (special - control key)       ``^F``  Fuel your light source
-``&``  (unused)                      ``^G``  Do autopickup
-``*``  Target monster or location    ``^H``  (unused)
-``(``  (unused)                      ``^I``  (special - tab)
-``)``  Dump screen to a file         ``^J``  (special - linefeed)
-``{``  Inscribe an object            ``^K``  (hjkl - destroy an item)
-``}``  Uninscribe an object          ``^L``  (hjkl - look around)
-``[``  Display visible monster list  ``^M``  (special - return)
-``]``  Display visible object list   ``^N``  (hjkl - repeat previous command)
-``-``  (unused)                      ``^O``  Show previous message
-``_``  Walk into a trap              ``^P``  Show previous messages
-``/``  Alter grid                    ``^Q``  (unused)
-``=``  (unused)                      ``^R``  Redraw the screen
-``;``  Walk                          ``^S``  Save and don't quit
-``:``  Take notes                    ``^T``  Throw automatically
-``'``  Target closest monster        ``^U``  (hjkl - use an item)
-``"``  Enter a user pref command     ``^V``  (unused)
-``,``  (unused)                      ``^W``  (special - wizard mode)
-``<``  Go up staircase               ``^X``  Save and quit
-``.``  Run                           ``^Y``  (unused)
-``>``  Go down staircase             ``^Z``  (unused)
+``!``  (unused)                      ``^a``  (special - debug command)
+``@``  Character description         ``^b``  (hjkl - bash a door)
+``#``  (unused)                      ``^c``  (special - break)
+``$``  (unused)                      ``^d``  (unused)
+``%``  (unused)                      ``^e``  Toggle inven/equip window
+``^``  (special - control key)       ``^f``  Fuel your light source
+``&``  (unused)                      ``^g``  Do autopickup
+``*``  Target monster or location    ``^h``  (unused)
+``(``  (unused)                      ``^i``  (special - tab)
+``)``  Dump screen to a file         ``^j``  (special - linefeed)
+``{``  Inscribe an object            ``^k``  (hjkl - destroy an item)
+``}``  Uninscribe an object          ``^l``  (hjkl - look around)
+``[``  Display visible monster list  ``^m``  (special - return)
+``]``  Display visible object list   ``^n``  (hjkl - repeat previous command)
+``-``  (unused)                      ``^o``  Show previous message
+``_``  Walk into a trap              ``^p``  Show previous messages
+``/``  Alter grid                    ``^q``  (unused)
+``=``  (unused)                      ``^r``  Redraw the screen
+``;``  Walk                          ``^s``  Save and don't quit
+``:``  Take notes                    ``^t``  Throw automatically
+``'``  Target closest monster        ``^u``  (hjkl - use an item)
+``"``  Enter a user pref command     ``^v``  (unused)
+``,``  (unused)                      ``^w``  (special - wizard mode)
+``<``  Go up staircase               ``^x``  Save and quit
+``.``  Run                           ``^y``  (unused)
+``>``  Go down staircase             ``^z``  (unused)
 ``\``  (special - bypass keymap)      ``~``  Check knowledge
  \`    (special - escape)             ``?``  Display help
 ``|``  Identify symbol               ``Tab`` Display ability menu
@@ -175,32 +175,32 @@ Angband-like Keyset Command Summary
 ``x``  (unused)                      ``X``   Exchange places
 ``y``  (unused)                      ``Y``   (unused)
 ``z``  (unused)                      ``Z``   (unused)
-``!``  (unused)                      ``^A``  (special - debug command)
-``@``  Center map                    ``^B``  (hjkl - bash a door)
-``#``  (unused)                      ``^C``  (special - break)
-``$``  (unused)                      ``^D``  Forge an item
-``%``  (unused)                      ``^E``  Toggle inven/equip window
-``^``  (special - control key)       ``^F``  Fuel your light source
-``&``  (unused)                      ``^G``  Do autopickup
-``*``  Target monster or location    ``^H``  (unused)
-``(``  (unused)                      ``^I``  (special - tab)
-``)``  Dump screen to a file         ``^J``  (special - linefeed)
-``{``  Inscribe an object            ``^K``  (hjkl - destroy an item)
-``}``  Uninscribe an object          ``^L``  (hjkl - look around)
-``[``  Display visible monster list  ``^M``  (special - return)
-``]``  Display visible object list   ``^N``  (hjkl - repeat previous command)
-``-``  (unused)                      ``^O``  Show previous message
-``_``  Walk into a trap              ``^P``  Show previous messages
-``+``  Alter grid                    ``^Q``  (unused)
-``=``  Set options                   ``^R``  Redraw the screen
-``;``  Walk                          ``^S``  Save and don't quit
-``:``  Take notes                    ``^T``  Throw automatically
-``'``  Target closest monster        ``^U``  (hjkl - use an item)
-``"``  Enter a user pref command     ``^V``  (unused)
-``,``  (unused)                      ``^W``  (special - wizard mode)
-``<``  Go up staircase               ``^X``  Save and quit
-``.``  Run                           ``^Y``  (unused)
-``>``  Go down staircase             ``^Z``  (unused)
+``!``  (unused)                      ``^a``  (special - debug command)
+``@``  Center map                    ``^b``  (hjkl - bash a door)
+``#``  (unused)                      ``^c``  (special - break)
+``$``  (unused)                      ``^d``  Forge an item
+``%``  (unused)                      ``^e``  Toggle inven/equip window
+``^``  (special - control key)       ``^f``  Fuel your light source
+``&``  (unused)                      ``^g``  Do autopickup
+``*``  Target monster or location    ``^h``  (unused)
+``(``  (unused)                      ``^i``  (special - tab)
+``)``  Dump screen to a file         ``^j``  (special - linefeed)
+``{``  Inscribe an object            ``^k``  (hjkl - destroy an item)
+``}``  Uninscribe an object          ``^l``  (hjkl - look around)
+``[``  Display visible monster list  ``^m``  (special - return)
+``]``  Display visible object list   ``^n``  (hjkl - repeat previous command)
+``-``  (unused)                      ``^o``  Show previous message
+``_``  Walk into a trap              ``^p``  Show previous messages
+``+``  Alter grid                    ``^q``  (unused)
+``=``  Set options                   ``^r``  Redraw the screen
+``;``  Walk                          ``^s``  Save and don't quit
+``:``  Take notes                    ``^t``  Throw automatically
+``'``  Target closest monster        ``^u``  (hjkl - use an item)
+``"``  Enter a user pref command     ``^v``  (unused)
+``,``  (unused)                      ``^w``  (special - wizard mode)
+``<``  Go up staircase               ``^x``  Save and quit
+``.``  Run                           ``^y``  (unused)
+``>``  Go down staircase             ``^z``  (unused)
 ``\``  (special - bypass keymap)     ``~``   Check knowledge
  \`    (special - escape)            ``?``   Display help
 ``/``  Identify symbol               ``Tab`` Display ability menu
@@ -214,14 +214,14 @@ Certain special keys may be intercepted by the operating system or the host
 machine, causing unexpected results. In general, these special keys are
 control keys, and often, you can disable their special effects.
 
-If you are playing on a UNIX or similar system, then 'Ctrl-C' will
+If you are playing on a UNIX or similar system, then 'Ctrl-c' will
 interrupt NarSil. The second and third interrupt will induce a warning
 bell, and the fourth will induce both a warning bell and a special message,
 since the fifth will quit the game, after killing your character. Also,
-'Ctrl-Z' will suspend the game, and return you to the original command
+'Ctrl-z' will suspend the game, and return you to the original command
 shell, until you resume the game with the 'fg' command. There is now a
 compilation option to force the game to prevent the "double 'ctrl-z'
-escape death trick". The 'Ctrl-\\' and 'Ctrl-D' and 'Ctrl-S' keys
+escape death trick". The 'Ctrl-\\' and 'Ctrl-d' and 'Ctrl-s' keys
 should not be intercepted.
  
 It is often possible to specify "control-keys" without actually pressing

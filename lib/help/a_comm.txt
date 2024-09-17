@@ -61,32 +61,32 @@ combination and does not pass it on):
   x    -                               X    Exchange places
   y    -                               Y    -
   z    -                               Z    -
-  !    -                               ^A   (special - debug command)
-  @    Center map                      ^B   (hjkl - bash a door)
-  #    -                               ^C   (special - break)
-  $    -                               ^D   Forge an item
-  %    -                               ^E   Toggle inven/equip window
-  ^    (special - control key)         ^F   Fuel your light source
-  &    -                               ^G   Do autopickup
-  *    Target monster or location      ^H   -
-  (    -                               ^I   (special - tab)
-  )    Dump screen to a file           ^J   (special - linefeed)
-  {    Inscribe an object              ^K   (hjkl - destroy an item)
-  }    Uninscribe an object            ^L   (hjkl - look around)
-  [    Display visible monster list    ^M   (special - return)
-  ]    Display visible object list     ^N   (hjkl - repeat previous command)
-  -    -                               ^O   Show previous message
-  _    Walk into a trap                ^P   Show previous messages
-  +    Alter grid                      ^Q   -
-  =    Set options                     ^R   Redraw the screen
-  ;    Walk                            ^S   Save and don't quit
-  :    Take notes                      ^T   Throw automatically
-  '    Target closest monster          ^U   (hjkl - use an item)
-  "    Enter a user pref command       ^V   -
-  ,    -                               ^W   (special - wizard mode)
-  <    Go up staircase                 ^X   Save and quit
-  .    Run                             ^Y   -
-  >    Go down staircase               ^Z   -
+  !    -                               ^a   (special - debug command)
+  @    Center map                      ^b   (hjkl - bash a door)
+  #    -                               ^c   (special - break)
+  $    -                               ^d   Forge an item
+  %    -                               ^e   Toggle inven/equip window
+  ^    (special - control key)         ^f   Fuel your light source
+  &    -                               ^g   Do autopickup
+  *    Target monster or location      ^h   -
+  (    -                               ^i   (special - tab)
+  )    Dump screen to a file           ^j   (special - linefeed)
+  {    Inscribe an object              ^k   (hjkl - destroy an item)
+  }    Uninscribe an object            ^l   (hjkl - look around)
+  [    Display visible monster list    ^m   (special - return)
+  ]    Display visible object list     ^n   (hjkl - repeat previous command)
+  -    -                               ^o   Show previous message
+  _    Walk into a trap                ^p   Show previous messages
+  +    Alter grid                      ^q   -
+  =    Set options                     ^r   Redraw the screen
+  ;    Walk                            ^s   Save and don't quit
+  :    Take notes                      ^t   Throw automatically
+  '    Target closest monster          ^u   (hjkl - use an item)
+  "    Enter a user pref command       ^v   -
+  ,    -                               ^w   (special - wizard mode)
+  <    Go up staircase                 ^x   Save and quit
+  .    Run                             ^y   -
+  >    Go down staircase               ^z   -
   \    (special - bypass keymap)       ~    Check knowledge
   `    (special - escape)              ?    Display help
   /    Identify symbol                 Tab  Display ability menu
