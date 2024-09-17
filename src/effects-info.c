@@ -148,7 +148,7 @@ textblock *effect_describe(const struct effect *e, const char *prefix)
 						value.m_bonus);
 				} else {
 					strnfmt(min_string, sizeof(min_string),
-						"");
+						"%s", "");
 				}
 				strnfmt(desc, sizeof(desc), edesc, dice_string,
 					min_string);
@@ -235,7 +235,7 @@ textblock *effect_describe(const struct effect *e, const char *prefix)
 			break;
 
 		default:
-			strnfmt(desc, sizeof(desc), "");
+			strnfmt(desc, sizeof(desc), "%s", "");
 			msg("Bad effect description passed to effect_info().  Please report this bug.");
 			break;
 		}
@@ -333,7 +333,7 @@ size_t effect_get_menu_name(char *buf, size_t max, const struct effect *e)
 			if (actstr && actarg) {
 				len = strnfmt(buf, max, fmt, actstr, actarg);
 			} else {
-				len = strnfmt(buf, max, "");
+				len = strnfmt(buf, max, "%s", "");
 			}
 		}
 		break;
@@ -363,7 +363,7 @@ size_t effect_get_menu_name(char *buf, size_t max, const struct effect *e)
 		break;
 
 	default:
-		len = strnfmt(buf, max, "");
+		len = strnfmt(buf, max, "%s", "");
 		msg("Bad effect description passed to effect_get_menu_name().  Please report this bug.");
 		break;
 	}

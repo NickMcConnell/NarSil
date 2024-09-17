@@ -1178,7 +1178,7 @@ static void post_process_stats(void)
 	file_putf(stats_log,"80\t\t\t85\t\t\t90\t\t\t95\t\t\t100\n");
 	
 	for (i = 1; i < ST_FF_END; i++) {
-			file_putf(stats_log, stat_ff_message[i].name);
+			file_putf(stats_log, "%s", stat_ff_message[i].name);
 			prob_of_find(stat_all[stat_ff_message[i].st][0]);
 			mean_and_stdv(stat_ff_all[i]);
 	}

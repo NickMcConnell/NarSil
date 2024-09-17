@@ -171,7 +171,8 @@ static void spell_message(struct monster *mon,
 	is_leading = (next == in_cursor);
 	while (next) {
 		/* Copy the text leading up to this { */
-		strnfcat(buf, 1024, &end, "%.*s", next - in_cursor, in_cursor);
+		strnfcat(buf, 1024, &end, "%.*s", (int) (next - in_cursor),
+			in_cursor);
 
 		s = next + 1;
 		while (*s && isalpha((unsigned char) *s)) s++;
@@ -197,7 +198,8 @@ static void spell_message(struct monster *mon,
 					monster_desc(m_name, sizeof(m_name),
 						mon, mdesc_mode);
 
-					strnfcat(buf, sizeof(buf), &end, m_name);
+					strnfcat(buf, sizeof(buf), &end, "%s",
+						m_name);
 					break;
 				}
 
@@ -207,7 +209,8 @@ static void spell_message(struct monster *mon,
 					/* Get the monster possessive ("his"/"her"/"its") */
 					monster_desc(m_poss, sizeof(m_poss), mon, MDESC_PRO_VIS | MDESC_POSS);
 
-					strnfcat(buf, sizeof(buf), &end, m_poss);
+					strnfcat(buf, sizeof(buf), &end, "%s",
+						m_poss);
 					break;
 				}
 
@@ -223,7 +226,7 @@ static void spell_message(struct monster *mon,
 		next = strchr(in_cursor, '{');
 		is_leading = false;
 	}
-	strnfcat(buf, 1024, &end, in_cursor);
+	strnfcat(buf, 1024, &end, "%s", in_cursor);
 
 	msgt(spell->msgt, "%s", buf);
 }

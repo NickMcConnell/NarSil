@@ -240,10 +240,12 @@ size_t obj_desc_name_format(char *buf, size_t max, size_t end,
 			if (!singular || !plural || !endmark) return end;
 
 			if (!pluralise)
-				strnfcat(buf, max, &end, "%.*s", plural - singular - 1,
-						 singular);
+				strnfcat(buf, max, &end, "%.*s",
+					(int) (plural - singular) - 1,
+					singular);
 			else
-				strnfcat(buf, max, &end, "%.*s", endmark - plural, plural);
+				strnfcat(buf, max, &end, "%.*s",
+					(int) (endmark - plural), plural);
 
 			fmt = endmark;
 		} else if (*fmt == '#') {
@@ -321,7 +323,7 @@ static size_t obj_desc_chest(const struct object *obj, char *buf, size_t max,
 	if (obj->pval && !object_is_known(obj)) return end;
 
 	/* Describe the traps */
-	strnfcat(buf, max, &end, format(" (%s)", chest_trap_name(obj)));
+	strnfcat(buf, max, &end, " (%s)", chest_trap_name(obj));
 
 	return end;
 }

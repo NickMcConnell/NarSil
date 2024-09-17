@@ -275,7 +275,7 @@ static void ability_browser(int oid, void *data, const region *loc)
 			text_out_c(attr, "Current price:");
 			Term_gotoxy(text_out_indent + 2, 18);
 			if (have_exp) {
-				text_out_c(attr, "%d experience", exp_cost, player->new_exp);
+				text_out_c(attr, "%d experience", exp_cost);
 			} else {
 				text_out_c(attr, "%d experience (you have %d)", exp_cost,
 						   player->new_exp);

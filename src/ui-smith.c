@@ -1322,23 +1322,23 @@ static void smithing_menu_browser(int oid, void *data, const region *loc)
 	region_erase(&area);
 	Term_gotoxy(COL_SMT2, ROW_SMT1);
 	if (no_forge && (oid == 5)) {
-		text_out_c(attr, extra[4]);
+		text_out_c(attr, "%s", extra[4]);
 	} else if (exhausted && (oid == 5)) {
-		text_out_c(attr, extra[2]);
+		text_out_c(attr, "%s", extra[2]);
 	} else if (numbers_changed && (oid == 1)) {
-		text_out_c(attr, extra[0]);
+		text_out_c(attr, "%s", extra[0]);
 	} else {
-		text_out_c(attr, desc[oid * 2]);
+		text_out_c(attr, "%s", desc[oid * 2]);
 	}
 	Term_gotoxy(COL_SMT2, ROW_SMT1 + 1);
 	if (no_forge && (oid == 5)) {
-		text_out_c(attr, extra[5]);
+		text_out_c(attr, "%s", extra[5]);
 	} else if (exhausted && (oid == 5)) {
-		text_out_c(attr, extra[3]);
+		text_out_c(attr, "%s", extra[3]);
 	} else if (numbers_changed && (oid == 1)) {
-		text_out_c(attr, extra[1]);
+		text_out_c(attr, "%s", extra[1]);
 	} else {
-		text_out_c(attr, desc[oid * 2 + 1]);
+		text_out_c(attr, "%s", desc[oid * 2 + 1]);
 	}
 	if (smith_obj->kind) {
 		show_smith_obj();

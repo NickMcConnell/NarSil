@@ -259,7 +259,7 @@ static void build_obj_list(int last, struct object **list, item_tester tester,
 					  sizeof(items[num_obj].equip_label));
 		} else {
 			strnfmt(items[num_obj].equip_label,
-					sizeof(items[num_obj].equip_label), "");
+				sizeof(items[num_obj].equip_label), "%s", "");
 		}
 
 		/* Save the object */
@@ -285,7 +285,7 @@ static void set_obj_names(bool terse, const struct player *p)
 		/* Null objects are used to skip lines, or display only a label */		
 		if (!obj) {
 			if (i < num_head)
-				strnfmt(items[i].o_name, sizeof(items[i].o_name), "");
+				strnfmt(items[i].o_name, sizeof(items[i].o_name), "%s", "");
 			else
 				strnfmt(items[i].o_name, sizeof(items[i].o_name), "(nothing)");
 		} else {

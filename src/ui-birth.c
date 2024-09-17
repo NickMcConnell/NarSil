@@ -346,7 +346,7 @@ static void house_help(int i, void *db, const region *l)
 	}
 
 	Term_gotoxy(HOUSE_AUX_COL, HIST_INSTRUCT_ROW);
-	text_out_c(COLOUR_L_WHITE, h->desc);
+	text_out_c(COLOUR_L_WHITE, "%s", h->desc);
 
 	/* Reset text_out() indentation */
 	text_out_indent = 0;

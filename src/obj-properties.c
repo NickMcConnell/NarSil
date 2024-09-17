@@ -92,7 +92,8 @@ void insert_name(char *buf, size_t size, char *msg, char *name)
 	next = strchr(in_cursor, '{');
 	while (next) {
 		/* Copy the text leading up to this { */
-		strnfcat(buf, 1024, &end, "%.*s", next - in_cursor, in_cursor); 
+		strnfcat(buf, 1024, &end, "%.*s", (int) (next - in_cursor),
+			in_cursor);
 
 		s = next + 1;
 		while (*s && isalpha((unsigned char) *s)) s++;
@@ -113,7 +114,7 @@ void insert_name(char *buf, size_t size, char *msg, char *name)
 
 		next = strchr(in_cursor, '{');
 	}
-	strnfcat(buf, 1024, &end, in_cursor);
+	strnfcat(buf, 1024, &end, "%s", in_cursor);
 }
 
 /**

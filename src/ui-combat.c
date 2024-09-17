@@ -453,7 +453,7 @@ void display_combat_rolls(game_event_type type, game_event_data *data, void *use
 									combat_rolls[round][i].ps);
 							Term_addstr(-1, a_prot_roll, buf);
 						} else {
-							strnfmt(buf, sizeof (buf), "  [dd%d]",
+							strnfmt(buf, sizeof (buf), "  [%dd%d]",
 									combat_rolls[round][i].pd,
 									combat_rolls[round][i].ps);
 							Term_addstr(-1, a_prot_roll, buf);
@@ -514,7 +514,7 @@ void display_combat_rolls(game_event_type type, game_event_data *data, void *use
 									combat_rolls[round][i].ps);
 							Term_addstr(-1, a_prot_roll, buf);
 						} else {
-							strnfmt(buf, sizeof (buf), "  [dd%d]",
+							strnfmt(buf, sizeof (buf), "  [%dd%d]",
 									combat_rolls[round][i].pd,
 									combat_rolls[round][i].ps);
 							Term_addstr(-1, a_prot_roll, buf);

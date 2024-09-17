@@ -376,7 +376,8 @@ static bool describe_abilities(textblock *tb, const struct object *obj,
 static bool describe_archery(textblock *tb, const struct object *obj)
 {
 	if (tval_is_launcher(obj)) {
-		textblock_append(tb, format("It can shoot arrows %d squares (with your current strength).", archery_range(obj)));
+		textblock_append(tb, "It can shoot arrows %d squares (with "
+			"your current strength).", archery_range(obj));
 		textblock_append(tb, "\n");
 		return true;
 	}
@@ -384,9 +385,13 @@ static bool describe_archery(textblock *tb, const struct object *obj)
 		struct object *bow = equipped_item_by_slot_name(player, "shooting");
 		if (bow) {
 			if (obj->number == 1) {
-				textblock_append(tb, format("It can be shot %d squares (with your current strength and bow).", archery_range(bow)));
+				textblock_append(tb, "It can be shot %d "
+					"squares (with your current strength "
+					"and bow).", archery_range(bow));
 			} else {
-				textblock_append(tb, format("They can be shot %d squares (with your current strength and bow).", archery_range(bow)));
+				textblock_append(tb, "They can be shot %d "
+					"squares (with your current strength "
+					"and bow).", archery_range(bow));
 			}
 		} else {
 			if (obj->number == 1) {
@@ -409,7 +414,9 @@ static bool describe_archery(textblock *tb, const struct object *obj)
 static bool describe_throwing(textblock *tb, const struct object *obj)
 {
 	if (obj_is_throwing(obj)) {
-		textblock_append(tb, format("It can be thrown effectively (%d squares with your current strength).", throwing_range(obj)));
+		textblock_append(tb, "It can be thrown effectively (%d "
+			"squares with your current strength).",
+			throwing_range(obj));
 		textblock_append(tb, "\n");
 		return true;
 	}

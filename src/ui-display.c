@@ -620,7 +620,7 @@ static int prt_exp_short(int row, int col)
 	long xp = (long)player->exp;
 
 	/* Format XP */
-	strnfmt(out_val, sizeof(out_val), "%d", xp);
+	strnfmt(out_val, sizeof(out_val), "%ld", xp);
 
 	put_str("EXP:", row, col);
 	c_put_str(COLOUR_L_GREEN, out_val, row, col + 4);
