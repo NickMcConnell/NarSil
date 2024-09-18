@@ -328,7 +328,7 @@ static void cruel_blow(struct monster *mon, struct player *p, int dice)
 		msg("You reel in pain!");
 
 		/* Confuse the player */
-		player_inc_timed(p, TMD_CONFUSED, dice, true, true);
+		player_inc_timed(p, TMD_CONFUSED, dice, true, true, true);
 	}
 }
 
@@ -517,13 +517,15 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 		/* Handle cut */
 		if ((do_cut) && monster_cut_or_stun(crit_bonus_dice, net_dam, effect)) {
 			/* Apply the cut */
-			(void)player_inc_timed(p, TMD_CUT, dam / 2, true, true);
+			(void)player_inc_timed(p, TMD_CUT, dam / 2,
+				 true, true, true);
 		}
 
 		/* Handle stun */
 		if ((do_stun) && monster_cut_or_stun(crit_bonus_dice, net_dam, effect)){
 			/* Apply the stun */
-			(void)player_inc_timed(p, TMD_STUN, dam, true, true);
+			(void)player_inc_timed(p, TMD_STUN, dam,
+				true, true, true);
 		}
 
 		/* Deal with Cruel Blow */
@@ -556,8 +558,8 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 		if ((p->state.flags[OF_COWARDICE] > 0) &&
 			(net_dam >= 10 / p->state.flags[OF_COWARDICE])) {
 			if (!p->timed[TMD_AFRAID]) {
-				if (player_inc_timed(p, TMD_AFRAID, damroll(10, 4), true,true)){
-					player_inc_timed(p, TMD_FAST, damroll(5, 4), true, true);
+				if (player_inc_timed(p, TMD_AFRAID, damroll(10, 4), true, true, true)) {
+					player_inc_timed(p, TMD_FAST, damroll(5, 4), true, true, true);
 
 					/* Give the player a chance to identify what's causing it */
 					ident_cowardice(p);

@@ -219,7 +219,7 @@ void take_hit(struct player *p, int dam, const char *kb_str)
 	}
 
 	/* Cancel entrancement */
-	player_set_timed(p, TMD_ENTRANCED, 0, false); 
+	player_set_timed(p, TMD_ENTRANCED, 0, false, true);
 }
 
 /**
@@ -338,7 +338,7 @@ void player_digest(struct player *p)
 	if (p->timed[TMD_FOOD] >= PY_FOOD_MAX) i *= 9;
 
 	/* Digest some food */
-	(void)player_dec_timed(p, TMD_FOOD, i, false);
+	(void)player_dec_timed(p, TMD_FOOD, i, false, true);
 
 	/* Starve to death (slowly) */
 	if (p->timed[TMD_FOOD] < PY_FOOD_STARVE) {
@@ -467,8 +467,8 @@ void player_fall_in_pit(struct player *p, bool spiked)
 			take_hit(p, net_dam, name);
 				
 			(void)player_inc_timed(p, TMD_CUT,
-								   p->timed[TMD_CUT] + (net_dam + 1) / 2,
-								   true, false);
+				p->timed[TMD_CUT] + (net_dam + 1) / 2,
+				true, true, false);
 		} else {				
 			msg("Your armour protects you.");
 		}
@@ -511,7 +511,7 @@ void player_falling_damage(struct player *p, bool stun)
 	take_hit(p, dam, message);
 
 	if (stun) { 
-		(void)player_inc_timed(p, TMD_STUN, dam * 5, true, true);
+		(void)player_inc_timed(p, TMD_STUN, dam * 5, true, true, true);
 	}
 
 	/* Reset staircasiness */
@@ -765,7 +765,7 @@ void player_blast_ceiling(struct player *p)
 								   100, PROJ_HURT, false);
 
 		take_hit(p, net_dam, "a collapsing ceiling");
-		(void)player_inc_timed(p, TMD_STUN, dam * 4, true, true);
+		(void)player_inc_timed(p, TMD_STUN, dam * 4, true, true, true);
 	} else {
 		msg("The blast hits the ceiling, but you did not blow hard enough to bring it down.");
 	}

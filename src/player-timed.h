@@ -101,13 +101,16 @@ const char *player_get_timed_grade(const struct player *p, int idx);
 bool player_timed_grade_eq(const struct player *p, int idx, const char *match);
 bool player_timed_grade_gt(const struct player *p, int idx, const char *match);
 bool player_timed_grade_lt(const struct player *p, int idx, const char *match);
-bool player_set_timed(struct player *p, int idx, int v, bool notify);
+bool player_set_timed(struct player *p, int idx, int v, bool notify,
+	bool can_disturb);
 bool player_saving_throw(struct player *p, struct monster *mon, int resistance);
 bool player_inc_check(struct player *p, int idx, bool lore);
 bool player_inc_timed(struct player *p, int idx, int v, bool notify,
-					  bool check);
-bool player_dec_timed(struct player *p, int idx, int v, bool notify);
-bool player_clear_timed(struct player *p, int idx, bool notify);
+	bool can_disturb, bool check);
+bool player_dec_timed(struct player *p, int idx, int v, bool notify,
+	bool can_disturb);
+bool player_clear_timed(struct player *p, int idx, bool notify,
+	bool can_disturb);
 bool player_timed_inc_happened(struct player *p, int old[], int len);
 
 #endif /* !PLAYER_TIMED_H */

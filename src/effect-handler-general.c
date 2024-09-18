@@ -166,10 +166,13 @@ bool effect_handler_NOURISH(effect_handler_context_t *context)
 	int amount = effect_calculate_value(context);
 	if (context->subtype == 0) {
 		/* Increase food level by amount */
-		player_inc_timed(player, TMD_FOOD, MAX(amount, 0), false, false);
+		player_inc_timed(player, TMD_FOOD, MAX(amount, 0), false,
+			context->origin.what != SRC_PLAYER || !context->aware,
+			false);
 	} else if (context->subtype == 1) {
 		/* Decrease food level by amount */
-		player_dec_timed(player, TMD_FOOD, MAX(amount, 0), false);
+		player_dec_timed(player, TMD_FOOD, MAX(amount, 0), false,
+			context->origin.what != SRC_PLAYER || !context->aware);
 	} else {
 		return false;
 	}
@@ -193,7 +196,8 @@ bool effect_handler_NOURISH(effect_handler_context_t *context)
 bool effect_handler_CURE(effect_handler_context_t *context)
 {
 	int type = context->subtype;
-	(void) player_clear_timed(player, type, true);
+	(void) player_clear_timed(player, type, true,
+		context->origin.what != SRC_PLAYER || !context->aware);
 	context->ident = true;
 	return true;
 }
@@ -204,7 +208,9 @@ bool effect_handler_CURE(effect_handler_context_t *context)
 bool effect_handler_TIMED_SET(effect_handler_context_t *context)
 {
 	int amount = effect_calculate_value(context);
-	if (player_set_timed(player, context->subtype, MAX(amount, 0), true)) {
+	if (player_set_timed(player, context->subtype, MAX(amount, 0), true,
+			context->origin.what != SRC_PLAYER ||
+			!context->aware)) {
 		context->ident = true;
 	}
 	return true;
@@ -216,7 +222,8 @@ bool effect_handler_TIMED_SET(effect_handler_context_t *context)
 bool effect_handler_TIMED_INC(effect_handler_context_t *context)
 {
 	int amount = effect_calculate_value(context);
-	player_inc_timed(player, context->subtype, MAX(amount, 0), true, true);
+	player_inc_timed(player, context->subtype, MAX(amount, 0), true,
+		context->origin.what != SRC_PLAYER || !context->aware, true);
 	context->ident = true;
 	return true;
 }
@@ -238,7 +245,8 @@ bool effect_handler_TIMED_INC_CHECK(effect_handler_context_t *context)
 bool effect_handler_TIMED_INC_NO_RES(effect_handler_context_t *context)
 {
 	int amount = effect_calculate_value(context);
-	player_inc_timed(player, context->subtype, MAX(amount, 0), true, false);
+	player_inc_timed(player, context->subtype, MAX(amount, 0), true,
+		context->origin.what != SRC_PLAYER || !context->aware, false);
 	context->ident = true;
 	return true;
 }
@@ -254,8 +262,12 @@ bool effect_handler_TERROR(effect_handler_context_t *context)
 		fear_amount = damroll(context->value.dice, context->value.sides);
 		haste_amount = damroll(context->value.dice / 2, context->value.sides);
 		context->ident = !player->timed[TMD_AFRAID] || !player->timed[TMD_FAST];
-		player_inc_timed(player, TMD_AFRAID, MAX(fear_amount, 0), true, false);
-		player_inc_timed(player, TMD_FAST, MAX(haste_amount, 0), true, false);
+		player_inc_timed(player, TMD_AFRAID, MAX(fear_amount, 0), true,
+			context->origin.what != SRC_PLAYER || !context->aware,
+			false);
+		player_inc_timed(player, TMD_FAST, MAX(haste_amount, 0), true,
+			context->origin.what != SRC_PLAYER || !context->aware,
+			false);
 	} else {
 		msg("You feel nervous for a moment.");
 		context->ident = true;
@@ -1133,7 +1145,7 @@ bool effect_handler_SONG_OF_BINDING(effect_handler_context_t *context)
 	 * round it wears off */
     if (result > 0) {
 		int slow = MAX(player->timed[TMD_SLOW], 2);
-        player_set_timed(player, TMD_SLOW, slow, false);
+        player_set_timed(player, TMD_SLOW, slow, false, true);
     }
 
 	return true;

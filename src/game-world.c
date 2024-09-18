@@ -209,7 +209,7 @@ static void decrease_timeouts(void)
 			continue;
 
 		/* Decrement the effect */
-		player_dec_timed(player, i, decr, false);
+		player_dec_timed(player, i, decr, false, true);
 	}
 }
 

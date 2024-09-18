@@ -99,7 +99,7 @@ static void project_player_handler_COLD(project_player_handler_context_t *contex
 
 static void project_player_handler_POIS(project_player_handler_context_t *context)
 {
-	player_inc_timed(player, TMD_POISONED, context->dam, true, false);
+	player_inc_timed(player, TMD_POISONED, context->dam, true, true, false);
 	ident_element(player, ELEM_POIS);
 }
 
@@ -107,7 +107,8 @@ static void project_player_handler_DARK(project_player_handler_context_t *contex
 {
 	int resistance = MAX(1, square_light(cave, player->grid));
 	if (one_in_(resistance)) {
-		(void)player_inc_timed(player, TMD_BLIND, damroll(2, 4), true, true);
+		(void)player_inc_timed(player, TMD_BLIND, damroll(2, 4),
+			true, true, true);
 	}
 }
 
@@ -138,7 +139,8 @@ static void project_player_handler_ACID(project_player_handler_context_t *contex
 static void project_player_handler_SOUND(project_player_handler_context_t *context)
 {
 	/* Stun */
-	if (!player_inc_timed(player, TMD_STUN, context->dam, true, true)) {
+	if (!player_inc_timed(player, TMD_STUN, context->dam, true, true,
+			true)) {
 		msg("You are unfazed");
 	}}
 
@@ -291,8 +293,9 @@ static void monster_ranged_attack(project_player_handler_context_t *context,
 					}
 					msg("The shot tears into your thigh!");
 					/* Slow the player */
-					player_inc_timed(player, TMD_SLOW, crit_bonus_dice,
-						true, false);
+					player_inc_timed(player, TMD_SLOW,
+						crit_bonus_dice,
+						true, true, false);
 				}
 			}
 		}

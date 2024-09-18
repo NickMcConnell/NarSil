@@ -1318,7 +1318,7 @@ static bool do_cmd_bash_aux(struct loc grid)
 		}
 
 		/* Stuns */
-		(void)player_inc_timed(player, TMD_STUN, 10, true, true);
+		(void)player_inc_timed(player, TMD_STUN, 10, true, true, true);
 		if (player->timed[TMD_STUN] > old_stun) {
 			/* Allow repeated bashing */
 			more = true;

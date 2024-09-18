@@ -367,7 +367,8 @@ bool effect_handler_DEADFALL(effect_handler_context_t *context)
 		event_signal_combat_damage(EVENT_COMBAT_DAMAGE, 6, 8, dam, -1, -1, prt,
 								   100, PROJ_HURT, false);
 
-		(void)player_inc_timed(player, TMD_STUN, dam * 4, true, true);
+		(void)player_inc_timed(player, TMD_STUN, dam * 4, true, true,
+			true);
 	} else {
 		/* Destroy the grid, and push the player to safety */
 		if (check_hit(20, true, context->origin)) {
@@ -381,7 +382,8 @@ bool effect_handler_DEADFALL(effect_handler_context_t *context)
 									   prt, 100, PROJ_HURT, false);
 			net_dam = (dam - prt > 0) ? (dam - prt) : 0;
 
-			(void)player_inc_timed(player, TMD_STUN, dam * 4, true, true);
+			(void)player_inc_timed(player, TMD_STUN, dam * 4, true,
+				true, true);
 		} else {
 			msg("You nimbly dodge the falling rock!");
 		}
@@ -539,7 +541,8 @@ bool effect_handler_EARTHQUAKE(effect_handler_context_t *context)
 					take_hit(player, net_dam, "an earthquake");
 				}
 
-				player_inc_timed(player, TMD_STUN, net_dam * 4, true, true);
+				player_inc_timed(player, TMD_STUN, net_dam * 4,
+					true, true, true);
 
 				/* Update combat rolls */
 				event_signal_combat_attack(EVENT_COMBAT_ATTACK, context->origin,
