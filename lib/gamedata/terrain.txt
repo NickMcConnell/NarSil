@@ -224,6 +224,7 @@ priority:20
 info:0:0:0
 flags:LOS | PROJECT | PASSABLE | FORGE | EASY | TORCH | INTERESTING
 desc:A forge for smithing objects.
+look-in-preposition:in
 
 # 0x46 --> good forge -- 0 uses
 
@@ -233,6 +234,7 @@ priority:20
 info:3:0:0
 flags:LOS | PROJECT | PASSABLE | FORGE | EASY | TORCH | INTERESTING
 desc:An enchanted forge for smithing objects.
+look-in-preposition:in
 
 # 0x4C --> unique forge -- 0 uses
 
@@ -242,6 +244,8 @@ priority:20
 info:7:0:0
 flags:LOS | PROJECT | PASSABLE | FORGE | EASY | TORCH | INTERESTING
 desc:A uniquely enchanted forge for smithing objects.
+look-prefix:the
+look-in-preposition:in
 
 # # 0x11 --> visible trap -- open pit
 

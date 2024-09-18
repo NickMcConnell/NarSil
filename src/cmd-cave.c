@@ -1830,17 +1830,10 @@ void move_player(int dir, bool disarm)
 					history_add(player, "Entered the forge 'Orodruth'",
 								HIST_FORGE_FOUND);
 				} else {
-					const char *article;
+					const char *article = square_apparent_look_prefix(cave, grid);
 					char name[50];
 					square_apparent_name(cave, grid, name, sizeof(name));
-					if (feat->fidx == FEAT_FORGE_UNIQUE) {
-						article = "the";
-					} else if (feat->fidx == FEAT_FORGE_GOOD) {
-						article = "an";
-					} else {
-						article = "a";
-					}
-					msg("You enter %s %s.", article, name);
+					msg("You enter %s%s.", article, name);
 				}
 				square_mark(cave, grid);
 				square_light_spot(cave, grid);

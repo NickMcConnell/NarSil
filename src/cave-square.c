@@ -1261,10 +1261,20 @@ int square_pit_difficulty(struct chunk *c, struct loc grid) {
 	return 0;
 }
 
+/*
+ * Return the name for the terrain in a grid.  Accounts for the fact that
+ * some terrain mimics another terrain.
+ *
+ * \param c Is the chunk to use.  Usually it is the player's version of the
+ * chunk.
+ * \param grid Is the grid to use.
+ * \param name Is the buffer to hold the returned name.
+ * \param size Is the maximum number of characters name can hold.
+ */
 void square_apparent_name(struct chunk *c, struct loc grid, char *name,
 						  int size)
 {
-	int actual = square_isknown(cave, grid) ? square(cave, grid)->feat : 0;
+	int actual = square_isknown(c, grid) ? square(c, grid)->feat : 0;
 	char *mimic_name = f_info[actual].mimic;
 	int f = mimic_name ? lookup_feat(mimic_name) : actual;
 	char forge_string[40];
@@ -1287,14 +1297,33 @@ void square_apparent_name(struct chunk *c, struct loc grid, char *name,
 	strnfmt(name, size, "%s%s", f_info[f].name, forge_string);
 }
 
+/*
+ * Return the prefix, appropriate for describing looking at the grid in
+ * question, for the name returned by square_name().
+ *
+ * \param c Is the chunk to use.  Usually it is the player's version of the
+ * chunk.
+ * \param grid Is the grid to use.
+ *
+ * The prefix is usually an indefinite article.  It may be an empty string.
+ */
 const char *square_apparent_look_prefix(struct chunk *c, struct loc grid) {
-	int actual = square_isknown(cave, grid) ? square(cave, grid)->feat : 0;
+	int actual = square_isknown(c, grid) ? square(c, grid)->feat : 0;
 	char *mimic_name = f_info[actual].mimic;
 	int f = mimic_name ? lookup_feat(mimic_name) : actual;
 	return (f_info[f].look_prefix) ? f_info[f].look_prefix :
 		(is_a_vowel(f_info[f].name[0]) ? "an " : "a ");
 }
 
+/*
+ * Return a preposition, appropriate for describing the grid the viewer is on,
+ * for the name returned by square_name().  May return an empty string when
+ * the name doesn't require a preposition.
+ *
+ * \param c Is the chunk to use.  Usually it is the player's version of the
+ * chunk.
+ * \param grid Is the grid to use.
+ */
 const char *square_apparent_look_in_preposition(struct chunk *c, struct loc grid) {
 	int actual = square_isknown(cave, grid) ? square(cave, grid)->feat : 0;
 	char *mimic_name = f_info[actual].mimic;

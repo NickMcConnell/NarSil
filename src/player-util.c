@@ -425,10 +425,11 @@ void player_fall_in_pit(struct player *p, bool spiked)
 {
 	/* Falling damage */
 	int dam = damroll(2, 4);
+	const char *prefix = square_apparent_look_prefix(cave, p->grid);
 	char name[50];
 	square_apparent_name(cave, p->grid, name, sizeof(name));
 
-	msg("You fall into a %s!", name);
+	msg("You fall into %s%s!", prefix, name);
 
 	/* Update combat rolls */
 	event_signal_combat_attack(EVENT_COMBAT_ATTACK, source_grid(p->grid),
