@@ -431,6 +431,7 @@ bool effect_handler_EARTHQUAKE(effect_handler_context_t *context)
 	struct loc offset, pit = loc(0, 0);
 	bool fall_in = false;
 	struct loc centre = origin_get_loc(context->origin);
+	int player_damage = 0, player_dd = 0, player_ds = 0;
 
 	context->ident = true;
 
@@ -529,27 +530,9 @@ bool effect_handler_EARTHQUAKE(effect_handler_context_t *context)
 
 			/* If the player is on the square... */
 			if (square_isplayer(cave, grid)) {
-				/* Appropriate message */
-				msg("You are pummeled with debris!");
-
-				/* Apply protection */
-				prt = protection_roll(player, PROJ_HURT, false, RANDOMISE);
-				net_dam = damage - prt;
-
-				/* Take the damage */
-				if (net_dam > 0) {
-					take_hit(player, net_dam, "an earthquake");
-				}
-
-				player_inc_timed(player, TMD_STUN, net_dam * 4,
-					true, true, true);
-
-				/* Update combat rolls */
-				event_signal_combat_attack(EVENT_COMBAT_ATTACK, context->origin,
-										   source_player(), vis, -1, -1, -1,
-										   -1, false);
-				event_signal_combat_damage(EVENT_COMBAT_DAMAGE, dd, ds, damage,
-										   -1, -1, prt, 100, PROJ_HURT, false);
+				player_damage = damage;
+				player_dd = dd;
+				player_ds = ds;
 			} else if (mon) {
 				/* If a monster is on the square... */
 				char m_name[80];
@@ -691,8 +674,36 @@ bool effect_handler_EARTHQUAKE(effect_handler_context_t *context)
 		}
 	}
 
+	if (player_damage) {
+		int prt, net_dam;
+
+		/* Appropriate message */
+		msg("You are pummeled with debris!");
+
+		/* Apply protection */
+		prt = protection_roll(player, PROJ_HURT, false, RANDOMISE);
+		net_dam = player_damage - prt;
+
+		/* Take the damage */
+		if (net_dam > 0) {
+			take_hit(player, net_dam, "an earthquake");
+		}
+
+		if (!player->is_dead) {
+			player_inc_timed(player, TMD_STUN, net_dam * 4,
+				true, true, true);
+		}
+
+		/* Update combat rolls */
+		event_signal_combat_attack(EVENT_COMBAT_ATTACK, context->origin,
+			source_player(), vis, -1, -1, -1, -1, false);
+		event_signal_combat_damage(EVENT_COMBAT_DAMAGE, player_dd,
+			player_ds, player_damage, -1, -1, prt, 100, PROJ_HURT,
+			false);
+	}
+
 	/* Fall into the pit if there were no safe squares to jump to */
-	if (fall_in && square_ispit(cave, pgrid)) {
+	if (fall_in && !player->is_dead && square_ispit(cave, pgrid)) {
 		int damage;
 		msg("You fall back into the newly made pit!");
 
