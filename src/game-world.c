@@ -733,12 +733,18 @@ static void process_player_post_energy_use_cleanup(void)
 	if (player->timed[TMD_POISONED]) {
 		/* Amount is one fifth of the poison, rounding up */
 		take_hit(player, (player->timed[TMD_POISONED] + 4) / 5, "poison");
+		if (player->is_dead) {
+			return;
+		}
 	}
 
 	/* Take damage from cuts, worse from serious cuts */
 	if (player->timed[TMD_CUT]) {
 		/* Take damage */
 		take_hit(player, (player->timed[TMD_CUT] + 4) / 5, "a fatal wound");
+		if (player->is_dead) {
+			return;
+		}
 	}
 
 	/* Reduce the wrath counter */
@@ -759,6 +765,9 @@ static void process_player_post_energy_use_cleanup(void)
 
 	/* Digest */
 	player_digest(player);
+	if (player->is_dead) {
+		return;
+	}
 
 	/* Regenerate Hit Points if needed */
 	if (player->chp < player->mhp) {
