@@ -10,13 +10,15 @@
 
 int setup_tests(void **state) {
 	player = &test_player;
-    player->body = test_player_body;
+	player->body = test_player_body;
 	player->body.slots = &test_slot_light;
 	z_info = mem_zalloc(sizeof(struct angband_constants));
 	z_info->fuel_torch = 5000;
 	z_info->default_torch = 2000;
 	z_info->fuel_lamp = 15000;
 	z_info->default_lamp = 7500;
+	z_info->k_max = 1;
+	k_info = mem_zalloc(z_info->k_max * sizeof(*k_info));
 
 	quarks_init();
     return 0;
@@ -24,6 +26,7 @@ int setup_tests(void **state) {
 
 int teardown_tests(void *state) {
 	quarks_free();
+	mem_free(k_info);
 	mem_free(z_info);
 	return 0;
 }
