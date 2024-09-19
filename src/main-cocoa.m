@@ -6121,9 +6121,10 @@ static void cocoa_reinit(void)
     {
         /*
          * we only want to be able to send commands during an active game
-         * after the birth screens
+         * after the birth screens when the core is waiting for a player
+         * command
          */
-        return !!game_in_progress && character_generated;
+        return !!game_in_progress && character_generated && inkey_flag;
     }
     else if (sel == @selector(saveGame:))
     {
@@ -6131,7 +6132,7 @@ static void cocoa_reinit(void)
          * Saving is much like sending commands, but also disable when in
          * the tutorial.
          */
-        return !!game_in_progress && character_generated
+        return !!game_in_progress && character_generated && inkey_flag
             && game_mode != GAME_TUTORIAL;
     }
     else return YES;
