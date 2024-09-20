@@ -408,7 +408,7 @@ bool project_p(struct source origin, struct loc grid, int dd, int ds, int typ)
 		}
 
 		default: {
-			/* Assume the caller has set the killer variable */
+			my_strcpy(killer, "a bug", sizeof(killer));
 			break;
 		}
 	}
