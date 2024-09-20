@@ -48,7 +48,7 @@ struct init_module tutorial_module = {
 	"tutorial", NULL, tutorial_cleanup_parsed_data
 };
 struct tutorial_parsed_result tutorial_parsed_data = {
-	{ NULL }, NULL, NULL, NULL, NULL, NULL, 0, 0
+	{ NULL }, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0
 };
 
 
