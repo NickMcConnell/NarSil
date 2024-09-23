@@ -615,7 +615,8 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify,
 	struct timed_grade *new_grade = effect->grade;
 	struct timed_grade *current_grade = effect->grade;
 	struct object *weapon = equipped_item_by_slot_name(p, "weapon");
-	struct timed_grade *blackout_grade = timed_effects[TMD_STUN].grade;
+	struct timed_grade *blackout_grade = (idx == TMD_STUN) ?
+		timed_effects[TMD_STUN].grade : NULL;
 
 	/* Lower bound */
 	v = MAX(v, (idx == TMD_FOOD) ? 1 : 0);
@@ -625,14 +626,16 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify,
 		return false;
 	}
 
-	/* Don't increase stunning if stunning value is greater than 100.
-	 * this is an effort to eliminate the "knocked out" instadeath. */
-	if (blackout_grade->grade) {
-		while (!streq(blackout_grade->name, "Heavy Stun")) {
+	/* Don't increase stunning if stunning value is greater than the
+	 * limit for heavy stunning.  This is an effort to eliminate the
+	 * "knocked out" instadeath. */
+	if (blackout_grade) {
+		while (!blackout_grade->name
+				|| !streq(blackout_grade->name, "Heavy Stun")) {
 			blackout_grade = blackout_grade->next;
+			assert(blackout_grade);
 		}
-		if ((idx == TMD_STUN) && (p->timed[idx] > blackout_grade->max) &&
-			(v > p->timed[idx])) {
+		if (p->timed[idx] > blackout_grade->max && v > p->timed[idx]) {
 			return false;
 		}
 	}
@@ -662,7 +665,7 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify,
 		}
 
 		/* Knocked out */
-		if ((idx == TMD_STUN) && v > 100) {
+		if (blackout_grade && v > blackout_grade->max) {
 			p->timed[TMD_BLIND] = MAX(p->timed[TMD_BLIND], 2);
 		}
 
@@ -684,7 +687,7 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify,
 
 			/* Special cases */
 			if (idx == TMD_FOOD) ident_hunger(p);
-			if ((idx == TMD_STUN) && (v < blackout_grade->max)) {
+			if (blackout_grade && v < blackout_grade->max) {
 				msg("You wake up.");
 				p->timed[TMD_BLIND] = MAX(p->timed[TMD_BLIND] - 1, 0);
 			}
