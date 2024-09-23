@@ -204,9 +204,9 @@ int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
  
 		/* Is the monster vulnerable? */
 		if (!rf_has(mon->race->flags, b->resist_flag)) {
-			dice += 1;
+			dice += b->dice;
 			if (b->vuln_flag && rf_has(mon->race->flags, b->vuln_flag)) {
-				dice += 1;
+				dice += b->vuln_dice;
 				scare = true;
 			}
 			*brand = i;
@@ -224,7 +224,7 @@ int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
  
 		/* Is the monster vulnerable? */
 		if (react_to_slay(s, mon)) {
-			dice += 1;
+			dice += s->dice;
 			scare = true;
 			*slay = i;
 		} else {
