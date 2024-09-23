@@ -690,12 +690,14 @@ bool obj_is_useable(const struct object *obj)
 bool obj_nourishes(const struct object *obj)
 {
 	struct effect *effect = obj->kind->effect;
-	random_value rv;
 	if (!effect) return false;
 	while (effect) {
-		(void) dice_roll(effect->dice, &rv);
-		if ((effect->index == EF_NOURISH) && rv.base > 0) {
-			return true;
+		if (effect->index == EF_NOURISH && effect->dice) {
+			random_value rv;
+			(void) dice_roll(effect->dice, &rv);
+			if (rv.base > 0) {
+				return true;
+			}
 		}
 		effect = effect->next;
 	}
