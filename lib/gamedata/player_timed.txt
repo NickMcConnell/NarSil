@@ -114,8 +114,8 @@ fail:PROT_HALLU
 
 name:POISONED
 desc:poisoning
-change-grade:g:20:Poisoned
-change-grade:G:100:Poisoned
+change-grade:g:20:3:Poisoned
+change-grade:G:100:3:Poisoned
 change-inc:10:You have been poisoned.:You have been further poisoned.
 change-inc:20:You have been badly poisoned.
 change-inc:100:You have been severely poisoned.
@@ -125,8 +125,9 @@ msgt:POISONED
 
 name:CUT
 desc:wounds
-change-grade:R:20:Bleeding
-change-grade:r:100:Bleeding
+change-grade:R:20:2:Bleeding
+change-grade:r:99:2:Bleeding
+change-grade:r:100:0:Mortal wound
 change-inc:10:You have been given a cut.
 change-inc:20:You have been given a deep cut.
 change-inc:100:You have been given a severe cut.

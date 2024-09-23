@@ -54,6 +54,7 @@ struct timed_change_grade {
 	int c_grade;
 	uint8_t color;
 	int max;
+	int digits;
 	char *name;
 	struct timed_change_grade *next;
 };

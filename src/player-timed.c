@@ -286,9 +286,21 @@ static enum parser_error parse_player_timed_change_grade(struct parser *p)
 	struct timed_effect_data *t = parser_priv(p);
 	struct timed_change_grade *current = t->c_grade;
 	struct timed_change_grade *l = mem_zalloc(sizeof(*l));
-    const char *color = parser_getsym(p, "color");
-    int attr = 0;
+	const char *color = parser_getsym(p, "color");
+	int grade_max = parser_getint(p, "max");
+	int attr;
+
 	assert(t);
+
+	/*
+	 * The maximum should be greater than zero so it does not interfere
+	 * with the implicit "off" grade.  Because the player's timed array
+	 * has int16_t elements, ensure that the maximum is compatible with
+	 * that.
+	 */
+	if (grade_max <= 0 || grade_max > 32767) {
+		return PARSE_ERROR_INVALID_VALUE;
+	}
 
 	/* Make a zero grade structure if there isn't one */
 	if (!current) {
@@ -305,16 +317,18 @@ static enum parser_error parse_player_timed_change_grade(struct parser *p)
 	current->next = l;
 	l->c_grade = current->c_grade + 1;
 
-    if (strlen(color) > 1) {
+	if (strlen(color) > 1) {
 		attr = color_text_to_attr(color);
-    } else {
+	} else {
 		attr = color_char_to_attr(color[0]);
 	}
-    if (attr < 0)
+	if (attr < 0) {
 		return PARSE_ERROR_INVALID_COLOR;
-    l->color = attr;
+	}
+	l->color = attr;
 
-	l->max = parser_getint(p, "max");
+	l->max = grade_max;
+	l->digits = parser_getint(p, "digits");
 	l->name = string_make(parser_getsym(p, "name"));
 
 	/* Name may be a dummy (eg hunger)*/
@@ -373,7 +387,7 @@ static struct parser *init_parse_player_timed(void)
 	parser_reg(p, "fail str flag", parse_player_timed_fail);
 	parser_reg(p, "grade sym color int max sym name sym up_msg ?sym down_msg",
 			   parse_player_timed_grade);
-	parser_reg(p, "change-grade sym color int max sym name",
+	parser_reg(p, "change-grade sym color int max int digits sym name",
 			   parse_player_timed_change_grade);
 	parser_reg(p, "resist sym elem", parse_player_timed_resist);
 	parser_reg(p, "este uint value", parse_player_timed_este);
@@ -702,10 +716,24 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify,
 			}
 		}
 	} else {
+		const struct timed_change_grade *last_grade = effect->c_grade;
 		int change;
 
 		/* There had better be a change grade */
-		assert(effect->c_grade);
+		assert(last_grade);
+
+		/* Upper bound is the maximum for the last change grade */
+		while (last_grade->next) last_grade = last_grade->next;
+		if (v > last_grade->max) {
+			if (p->timed[idx] == last_grade->max) {
+				/*
+				 * No change:  tried to exceed the maximum
+				 * possible but already at that maximum
+				 */
+				return false;
+			}
+			v = last_grade->max;
+		}
 
 		/* Find the change we will be using */
 		change = v - p->timed[idx];
@@ -713,25 +741,30 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify,
 		/* Increase */
 		if (change > 0) {
 			struct timed_change *inc = effect->increase;
-			while (change >= inc->max) {
+			while (change >= inc->max && inc->next) {
 				inc = inc->next;
 			}
 			if (p->timed[idx] && inc->inc_msg) {
 				/* Increasing from existing effect, and increase message */
 				msgt(effect->msgt, inc->inc_msg);
+				notify = true;
 			} else {
 				/* Effect starting, or no special increase message */
 				msgt(effect->msgt, inc->msg);
+				notify = true;
 			}
 		} else {
 			/* Decrease */
-			int div = effect->decrease.max;
-			if (-change > (p->timed[idx] + div - 1) / div) {
-				msgt(effect->msgt, effect->decrease.msg);
-			}
-			/* Finishing */
 			if (v == 0) {
+				/* Finishing */
 				msgt(effect->msgt, effect->on_end);
+				notify = true;
+			} else {
+				int div = effect->decrease.max;
+				if (-change > (p->timed[idx] + div - 1) / div) {
+					msgt(effect->msgt, effect->decrease.msg);
+					notify = true;
+				}
 			}
 		}
 	}

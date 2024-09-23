@@ -964,18 +964,38 @@ static size_t prt_tmd(int row, int col)
 
 	for (i = 0; i < TMD_MAX; i++) {
 		if (player->timed[i]) {
-			struct timed_grade *grade = timed_effects[i].grade;
-			if (!grade) continue;
-			while (player->timed[i] > grade->max) {
-				grade = grade->next;
-			}
-			if (!grade->name) continue;
-			c_put_str(grade->color, grade->name, row, col + len);
-			len += strlen(grade->name) + 1;
-			if (timed_effects[i].c_grade) {
-				char *meter = format(" %-3d", player->timed[i]);
-				c_put_str(grade->color, meter, row, col + len);
-				len += strlen(meter) + 1;
+			if (timed_effects[i].grade) {
+				const struct timed_grade *grade =
+					timed_effects[i].grade;
+
+				while (player->timed[i] > grade->max) {
+					grade = grade->next;
+				}
+				if (!grade->name) continue;
+				c_put_str(grade->color, grade->name, row,
+					col + len);
+				len += strlen(grade->name) + 1;
+			} else if (timed_effects[i].c_grade) {
+				const struct timed_change_grade *cg =
+					timed_effects[i].c_grade;
+
+				while (player->timed[i] > cg->max && cg->next) {
+					cg = cg->next;
+				}
+				if (!cg->name) continue;
+				if (cg->digits > 0) {
+					char *meter = format("%s %-*d",
+						cg->name, cg->digits,
+						player->timed[i]);
+
+					c_put_str(cg->color, meter, row,
+						col + len);
+					len += strlen(meter) + 1;
+				} else {
+					c_put_str(cg->color, cg->name, row,
+						col + len);
+					len += strlen(cg->name) + 1;
+				}
 			}
 		}
 	}
