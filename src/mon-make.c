@@ -1475,27 +1475,34 @@ bool pick_and_place_monster_on_stairs(struct chunk *c, struct player *p,
 
 		/* Display a message if seen */
 		if (monster_is_visible(mon1)) {
-			char m_name[80];
-			char who[80];
 			char message[240];
-			monster_desc(m_name, sizeof(m_name), mon1, MDESC_STANDARD);
 
 			if (monster_has_friends(mon1)) {
-				my_strcpy(message, format("A group of enemies come %s the stair", dir), 240);
+				strnfmt(message, sizeof(message),
+					"A group of enemies come %s the stair",
+					dir);
 			} else {
-				my_strcpy(message, format("%s comes %s the stair", m_name, dir), 240);
+				char m_name[80];
+				monster_desc(m_name, sizeof(m_name), mon1,
+					MDESC_STANDARD);
+				strnfmt(message, sizeof(message),
+					"%s comes %s the stair", m_name, dir);
 			}
 
 			if (displaced) {
+				char who[80];
+
 				if (loc_eq(p->grid, grid)) {
 					my_strcpy(who, "you", 80);
 				} else {
-					monster_desc(who, sizeof(who), square_monster(c, grid),
-								 MDESC_DIED_FROM);
+					monster_desc(who, sizeof(who),
+						square_monster(c, grid),
+						MDESC_DIED_FROM);
 				}
-				msg("%s, forcing %s out of the way!", message, who);
-				} else {
-					msg("%s!", message);
+				msg("%s, forcing %s out of the way!", message,
+					who);
+			} else {
+				msg("%s!", message);
 			}
 			return true;
 		}

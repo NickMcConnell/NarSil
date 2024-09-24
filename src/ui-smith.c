@@ -748,16 +748,16 @@ static void rename_artefact(void)
 			my_strcpy(smith_art->name, tmp, MAX_LEN_ART_NAME);
 			player->upkeep->redraw |= (PR_MISC);
 		} else {
-			my_strcpy(smith_art_name, format("of %s", player->full_name),
-					  sizeof(smith_art_name));
+			strnfmt(smith_art_name, sizeof(smith_art_name), "of %s",
+				player->full_name);
 			return;
 		}
 
 		if (tmp[0] != '\0')	{
 			name_selected = true;
 		} else {
-			my_strcpy(smith_art_name, format("of %s", player->full_name),
-					  sizeof(smith_art_name));
+			strnfmt(smith_art_name, sizeof(smith_art_name), "of %s",
+				player->full_name);
 		}
 	}
 }
@@ -960,8 +960,8 @@ static void artefact_menu(const char *name, int row)
 	}
 	smith_obj->artifact = smith_art;
 
-	my_strcpy(smith_art_name, format("of %s", player->full_name),
-			  sizeof(smith_art_name));
+	strnfmt(smith_art_name, sizeof(smith_art_name), "of %s",
+		player->full_name);
 	smith_art->name = smith_art_name;
 
 	/*
@@ -1258,7 +1258,8 @@ static void accept_item(const char *name, int row)
 	if (current_cost.drain > 0) {
 		char buf[80];
 
-		my_strcpy(buf, format("This will drain your smithing skill by %d points. Proceed? ", current_cost.drain), sizeof(buf));
+		strnfmt(buf, sizeof(buf), "This will drain your smithing "
+			"skill by %d points. Proceed? ", current_cost.drain);
 		if (!get_check(buf)) return;
 	}
 	create_smithed_item = true;

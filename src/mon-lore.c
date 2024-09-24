@@ -1008,8 +1008,8 @@ void lore_append_abilities(textblock *tb, const struct monster_race *race,
 	/* Describe abilities. */
 	create_mon_flag_mask(current_flags, RFT_ABIL, RFT_ABIL_OBV, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	my_strcpy(start, format("%s has the abilities: ", initial_pronoun),
-			  sizeof(start));
+	strnfmt(start, sizeof(start), "%s has the abilities: ",
+		initial_pronoun);
 	lore_append_clause(tb, current_flags, COLOUR_RED, start, "and", ".  ");
 
 	/* Describe light */
@@ -1030,13 +1030,13 @@ void lore_append_abilities(textblock *tb, const struct monster_race *race,
 	/* Describe movement abilities. */
 	create_mon_flag_mask(current_flags, RFT_MOVE, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	my_strcpy(start, format("%s can ", initial_pronoun), sizeof(start));
+	strnfmt(start, sizeof(start), "%s can ", initial_pronoun);
 	lore_append_clause(tb, current_flags, COLOUR_WHITE, start, "and", ".  ");
 
 	/* Describe special things */
 	create_mon_flag_mask(current_flags, RFT_NOTE, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	//my_strcpy(start, format("%s ", initial_pronoun), sizeof(start));
+	//strnfmt(start, sizeof(start), "%s ", initial_pronoun);
 	//lore_append_clause(tb, current_flags, COLOUR_WHITE, start, "and", ".  ");
 	for (flag = rf_next(current_flags, FLAG_START); flag;
 		 flag = rf_next(current_flags, flag + 1)) {
@@ -1047,28 +1047,25 @@ void lore_append_abilities(textblock *tb, const struct monster_race *race,
 	/* Describe detection traits */
 	create_mon_flag_mask(current_flags, RFT_MIND, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	my_strcpy(start, format("%s is ", initial_pronoun), sizeof(start));
+	strnfmt(start, sizeof(start), "%s is ", initial_pronoun);
 	lore_append_clause(tb, current_flags, COLOUR_WHITE, start, "and", ".  ");
 
 	/* Describe susceptibilities */
 	create_mon_flag_mask(current_flags, RFT_VULN, RFT_VULN_I, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	my_strcpy(start, format("%s is vulnerable to ", initial_pronoun),
-			  sizeof(start));
+	strnfmt(start, sizeof(start), "%s is vulnerable to ", initial_pronoun);
 	lore_append_clause(tb, current_flags, COLOUR_L_BLUE, start, "and", ".  ");
 
 	/* Describe resistances */
 	create_mon_flag_mask(current_flags, RFT_RES, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	my_strcpy(start, format("%s resists ", initial_pronoun),
-			  sizeof(start));
+	strnfmt(start, sizeof(start), "%s resists ", initial_pronoun);
 	lore_append_clause(tb, current_flags, COLOUR_WHITE, start, "and", ".  ");
 
 	/* Describe non-effects */
 	create_mon_flag_mask(current_flags, RFT_PROT, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	my_strcpy(start, format("%s cannot be ", initial_pronoun),
-			  sizeof(start));
+	strnfmt(start, sizeof(start), "%s cannot be ", initial_pronoun);
 	lore_append_clause(tb, current_flags, COLOUR_YELLOW, start, "or", ".  ");
 
 	/* Describe groups */
