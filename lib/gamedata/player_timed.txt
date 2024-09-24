@@ -5,43 +5,108 @@
 
 # Descriptions, messages and message types can be edited without bad effects.
 # Changing fail may have unpredictable results.
-# Changing the name, reordering, or adding whole new entries will severely
-# disrupt the game, and should only be done when list-player-timed.h
-# (and other code) is also  being changed, and the game recompiled.
+# Changing the name or adding whole new entries will severely disrupt the game.
+# It should only be done when list-player-timed.h (and other code) is also being
+# changed, and the game recompiled.
 # Changing a resist line will have to match to one of the hard-coded elements
-# from list-elements.h; currently, those resist lines are used to filter out
-# unnecessary messages when timed effects lapse and to affect selection of
-# randart activations.
-# Changing a flag-synonym line will have to match to an entry, of type flag, in
-# object_property.txt; those lines are currently used to filter out unnecessary
-# messages when timed effects lapse and to affect selection of randart
-# activations.
+# from list-elements.h; currently, those resist lines are used to generate
+# messages when the player has both a temporary and permanent resist.
 
 # Fields:
-# name - the effect name
+# name - the effect name; the name must match the first argument to one of the
+#        TMD() macros in list-player-timed.h
 # desc - the effect description
 # este - 1 if recovery from the effect is affected by Song of Este
-# grade - the message on increasing a grade of the effect.  Note that most
-#         effects only have two grades (on and off); for these, the message
-#         is just the message on beginning the effect
-# change-grade - the message on increasing a grade of the effect where the
-#                message is based on the amount of change rather than the total
-#                of the counter
+# grade - specify a grade for this effect; most effects only have two grades:
+#         off (implicit for all effects, maximum of 0, no transition messages)
+#         and on (the grade specified for the effect in this file); some
+#         effects do not use grade directives and instead use change-grade,
+#         change-inc, and change-dec
+#         param one: color used on the status line for this effect when in this
+#             grade; may be a one letter color code or the full color name
+#             (case insensitive)
+#         param two: is the maximum for this grade; to work properly must be
+#             greater than zero, less than 32768, and greater than the maximum
+#             for any previous grades specified for this effect
+#         param three: is the name of the grade and will be shown in the status
+#             line; use a one character long name for the grade to suppress
+#             showing the timed effect in the status line when in that grade
+#         param four: is the message to display when the effect enters this
+#             grade from a lower grade; no message will be displayed if the
+#             message is one character long
+#         param five (optional): is the message to display when the effect
+#             enters this grade from a higher grade; no message will be
+#             displayed if this parameter is omitted
+# change-grade - specify a grade for this effect; only relevant if the effect
+#                has no grade directives; may be used more than once for the
+#                same effect
+#                param one: color used on the status line for this effect
+#                    when in this grade; may be a one letter color code or
+#                    the full color name (case insensitive)
+#                param two: is the maximum for this grade; to work properly
+#                    must be greater than zero, less than 32768, and greater
+#                    than the maximum for any previous grades specified for
+#                    this effect; the maximum for the last grade specified
+#                    for an effect is the upper bound for the value of that
+#                    effect
+#                param three: if greater than zero, is the number of digits
+#                    to use when formatting the effect's value for display
+#                    on the status line when in this grade; if less than or
+#                    equal to zero, the effect's value is not shown on the
+#                    status line
+#                param four: is the name of the grade and will be shown on
+#                    the status line; use a one character long name for the
+#                    grade to suppress showning the timed effect in the status
+#                    line when in that grade
+# change-inc - specify a threshold and messages to display for increases to
+#              the effect that are less than that threshold; only used when
+#              the effect does not have any grade directives and has one or
+#              more change-grade directives; may be used more than once for
+#              the same effect; the last change-inc directive for an effect
+#              is the one that will be used for any change that exceeds the
+#              the thresholds specified in all the change-inc directives for
+#              that effect
+#              param one: is the threshold; to work as expected, the
+#                  threshold must be greater than the threshold in any
+#                  previous change-inc directives for this effect
+#              param two: is the message to display if the effect was
+#                  inactive prior to the change or the effect was active prior
+#                  to the change and no third parameter was for this threshold;
+#                  the message must not include a colon
+#              param three (optional): is the message to display if the
+#                  effect was active prior to the change
+# change-dec - specify a divisor and message to display for decreases to
+#              the effect whose absolute value is greater than the current
+#              value of the effect divided by the divisor; only used when
+#              the effect does not have any grade directives and has one
+#              or more change-grade directives
 # on-end - the message on ending the effect
-# on-increase - the message on the effect increasing
-# on-decrease - the message on the effect decreasing
-# msgt - the message type for this effect
-# fail - determines what makes the effect fail (after a skill check).
-# save - whether the player gets a save against the effect
+# on-increase - the message on the effect increasing; only used if the effect
+#               has one or more grade directives
+# on-decrease - the message on the effect decreasing; only used if the effect
+#               has one or more grade directives
+# msgt - the message type to use for the change of grade, on-increase,
+#        on-decrease, change-inc, and change-dec messages for this effect;
+#        the type must either match (case-insensitive) the first argument
+#        to one of the MSG() macros in list-message.h or be an unsigned integer
+#        less than MSG_MAX which is the index of the message type to use
+#        within list-message.h; on-end messages alwys use the RECOVER
+#        message type if the effect has one or more grade directives; for
+#        effects which do not have grade directives and use change-grade,
+#        on-end messages will use the message type set by msgt; for the
+#        textui user interface, the message type affects the message color
+#        (configured globally by lib/customize/message.prf; also configurable
+#        by preferences in the user's files) and the sound played when the
+#        message is displayed (configured globally by lib/customize/sound.prf;
+#        also configurable by preferences in the user's files)
+# fail - determines what makes the effect fail (after a skill check); the
+#        parameter is the name of the object flag that will cause the effect
+#        to fail; the flag must match the first argument to one of the OF()
+#        macros in the list-object-flags.h
+# save - whether the player gets a save against the effect; the one parameter
+#        is an integer which, if nonzero, means the player gets a save
 # resist - (optional) when this timed property is active, the recipient gains
-#         a temporary resistance to the named element
-# flag-synonym - (optional) indicate that this timed property is (largely)
-#         synonymous to the object property of type flag in
-#         object_property.txt with the code given by the first parameter; if
-#         the second parameter is not zero, this timed property is an exact
-#         synonym, except for duration; if the second parameter is zero, the
-#         timed property has other effects that are not implied by the named
-#         object property
+#          a temporary resistance to the named element
 
 name:FOOD
 desc:nourishment
