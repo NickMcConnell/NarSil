@@ -88,9 +88,8 @@ struct timed_effect_data {
  */
 extern int PY_FOOD_MAX; 	/* Food value (Bloated) */
 extern int PY_FOOD_FULL;	/* Food value (Normal) */
-extern int PY_FOOD_HUNGRY;	/* Food value (Hungry) */
+extern int PY_FOOD_ALERT;	/* Food value (Hungry) */
 extern int PY_FOOD_WEAK;	/* Food value (Weak) */
-extern int PY_FOOD_FAINT;	/* Food value (Fainting) */
 extern int PY_FOOD_STARVE;	/* Food value (Starving) */
 
 extern struct file_parser player_timed_parser;
