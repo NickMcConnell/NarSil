@@ -111,6 +111,50 @@ const char *stat_names_reduced[STAT_MAX] =
 };
 
 /**
+ * Help prt_tmd(), prt_cut(), and prt_poisoned(), print the indicator for
+ * the timed effect, ind.  Return the number of characters printed.
+ */
+static int prt_one_tmd(int row, int col, int ind)
+{
+	int printed = 0;
+
+	if (timed_effects[ind].grade) {
+		const struct timed_grade *grade = timed_effects[ind].grade;
+
+		while (player->timed[ind] > grade->max) {
+			grade = grade->next;
+			assert(grade);
+		}
+		if (grade->name) {
+			c_put_str(grade->color, grade->name, row, col);
+			printed = (int)strlen(grade->name);
+		}
+	} else if (timed_effects[ind].c_grade) {
+		const struct timed_change_grade *cg =
+			timed_effects[ind].c_grade;
+
+		while (player->timed[ind] > cg->max) {
+			cg = cg->next;
+			assert(cg);
+		}
+		if (cg->name) {
+			if (cg->digits > 0) {
+				char *meter = format("%s %-*d",
+					cg->name, cg->digits,
+					player->timed[ind]);
+
+				c_put_str(cg->color, meter, row, col);
+				printed = (int)strlen(meter);
+			} else {
+				c_put_str(cg->color, cg->name, row, col);
+				printed = (int)strlen(cg->name);
+			}
+		}
+	}
+	return printed;
+}
+
+/**
  * ------------------------------------------------------------------------
  * Sidebar display functions
  * ------------------------------------------------------------------------ */
@@ -514,23 +558,14 @@ static void prt_health(int row, int col)
  */
 static void prt_cut(int row, int col)
 {
-	int c = player->timed[TMD_CUT];
-	char buf[20];
 	int r = row;
 
 	if (player->timed[TMD_POISONED]) r--;
 
-	put_str("            ", r, col);
+	/* Clear out what was there before. */
+	put_str(format("%*s", col_map[SIDEBAR_LEFT] - col, " "), r, col);
 
-	if (c > 100) {
-		c_put_str(COLOUR_RED, "Mortal wound", r, col);
-	} else if (c > 20) {
-		my_strcpy(buf, format("Bleeding %-2d", c), sizeof(buf));
-		c_put_str(COLOUR_RED, buf, r, col);
-	} else if (c > 0) {
-		my_strcpy(buf, format("Bleeding %-2d", c), sizeof(buf));
-		c_put_str(COLOUR_L_RED, buf, r, col);
-	}
+	prt_one_tmd(r, col, TMD_CUT);
 }
 
 
@@ -540,18 +575,10 @@ static void prt_cut(int row, int col)
  */
 static void prt_poisoned(int row, int col)
 {
-	int p = player->timed[TMD_POISONED];
-	char buf[20];
+	/* Clear out what was there before. */
+	put_str(format("%*s", col_map[SIDEBAR_LEFT] - col, " "), row, col);
 
-	if (p > 20) {
-		my_strcpy(buf, format("Poisoned %-3d", p), sizeof(buf));
-		c_put_str(COLOUR_L_GREEN, buf, row, col);
-	} else if (p > 0) {
-		my_strcpy(buf, format("Poisoned %-3d", p), sizeof(buf));
-		c_put_str(COLOUR_GREEN, buf, row, col);
-	} else {
-		put_str("            ", row, col);
-	}
+	prt_one_tmd(row, col, TMD_POISONED);
 }
 
 /**
@@ -963,41 +990,15 @@ static size_t prt_tmd(int row, int col)
 	size_t i, len = 0;
 
 	for (i = 0; i < TMD_MAX; i++) {
-		if (player->timed[i]) {
-			if (timed_effects[i].grade) {
-				const struct timed_grade *grade =
-					timed_effects[i].grade;
-
-				while (player->timed[i] > grade->max) {
-					grade = grade->next;
-				}
-				if (!grade->name) continue;
-				c_put_str(grade->color, grade->name, row,
-					col + len);
-				len += strlen(grade->name) + 1;
-			} else if (timed_effects[i].c_grade) {
-				const struct timed_change_grade *cg =
-					timed_effects[i].c_grade;
-
-				while (player->timed[i] > cg->max && cg->next) {
-					cg = cg->next;
-				}
-				if (!cg->name) continue;
-				if (cg->digits > 0) {
-					char *meter = format("%s %-*d",
-						cg->name, cg->digits,
-						player->timed[i]);
-
-					c_put_str(cg->color, meter, row,
-						col + len);
-					len += strlen(meter) + 1;
-				} else {
-					c_put_str(cg->color, cg->name, row,
-						col + len);
-					len += strlen(cg->name) + 1;
-				}
-			}
+		/*
+		 * Cuts and poisoning are displayed in the sidebar, so skip
+		 * them here.
+		 */
+		if ((i == TMD_CUT || i == TMD_POISONED)
+				&& Term->sidebar_mode == SIDEBAR_LEFT) {
+			continue;
 		}
+		len += prt_one_tmd(row, col + len, i) + 1;
 	}
 
 	return len;
