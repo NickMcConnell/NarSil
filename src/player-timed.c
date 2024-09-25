@@ -175,6 +175,7 @@ static enum parser_error parse_player_timed_change_decrease(struct parser *p)
 	assert(t);
 
 	t->decrease.max = parser_getint(p, "max");
+	string_free(t->decrease.msg);
 	t->decrease.msg = string_make(parser_getsym(p, "msg"));
 	return PARSE_ERROR_NONE;
 }
@@ -439,6 +440,7 @@ static void cleanup_player_timed(void)
 		}
 		effect->increase = NULL;
 		string_free(effect->decrease.msg);
+		effect->decrease.msg = NULL;
 
 		string_free(effect->desc);
 
