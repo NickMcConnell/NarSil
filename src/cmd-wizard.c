@@ -848,10 +848,8 @@ void do_cmd_wiz_create_trap(struct command *cmd)
 		cmd_set_arg_number(cmd, "index", tidx);
 	}
 
-	if (!square_isfloor(cave, player->grid)) {
+	if (!square_player_trap_allowed(cave, player->grid)) {
 		msg("You can't place a trap there!");
-	} else if (player->depth == 0) {
-		msg("You can't place a trap in the town!");
 	} else if (tidx < 1 || tidx >= z_info->trap_max) {
 		msg("Trap not found.");
 	} else {
