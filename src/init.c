@@ -299,8 +299,8 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
 
 /**
  * Create any missing directories. We create only those dirs which may be
- * empty (user/, save/, scores/, info/, help/). The others are assumed 
- * to contain required files and therefore must exist at startup 
+ * empty (user/, save/, scores/, info/, help/). The others are assumed
+ * to contain required files and therefore must exist at startup
  * (edit/, pref/, file/, xtra/).
  *
  * ToDo: Only create the directories when actually writing files.
@@ -764,8 +764,10 @@ static enum parser_error parse_feat_mimic(struct parser *p) {
 	const char *mimic_feat = parser_getstr(p, "feat");
 	struct feature *f = parser_priv(p);
 
-	if (!f)
+	if (!f) {
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	string_free(f->mimic);
 	f->mimic = string_make(mimic_feat);
 	return PARSE_ERROR_NONE;
 }
@@ -781,29 +783,25 @@ static enum parser_error parse_feat_priority(struct parser *p) {
 }
 
 static enum parser_error parse_feat_flags(struct parser *p) {
-	char *flags;
 	struct feature *f = parser_priv(p);
-	char *s;
+	char *flags, *s;
 
-	if (!f)
+	if (!f) {
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
-
-	if (!parser_hasval(p, "flags"))
+	}
+	if (!parser_hasval(p, "flags")) {
 		return PARSE_ERROR_NONE;
+	}
 	flags = string_make(parser_getstr(p, "flags"));
-
 	s = strtok(flags, " |");
 	while (s) {
 		if (grab_flag(f->flags, TF_SIZE, terrain_flags, s)) {
-			mem_free(flags);
-			quit_fmt("bad f-flag: %s", s);
-			return PARSE_ERROR_INVALID_FLAG;
+			break;
 		}
 		s = strtok(NULL, " |");
 	}
-
-	mem_free(flags);
-	return PARSE_ERROR_NONE;
+	string_free(flags);
+	return s ? PARSE_ERROR_INVALID_FLAG : PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_info(struct parser *p) {
@@ -818,73 +816,91 @@ static enum parser_error parse_feat_info(struct parser *p) {
 }
 
 static enum parser_error parse_feat_desc(struct parser *p) {
-    struct feature *f = parser_priv(p);
-    assert(f);
+	struct feature *f = parser_priv(p);
 
-    f->desc = string_append(f->desc, parser_getstr(p, "text"));
-    return PARSE_ERROR_NONE;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	f->desc = string_append(f->desc, parser_getstr(p, "text"));
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_walk_msg(struct parser *p) {
-    struct feature *f = parser_priv(p);
-    assert(f);
+	struct feature *f = parser_priv(p);
 
-    f->walk_msg = string_append(f->walk_msg, parser_getstr(p, "text"));
-    return PARSE_ERROR_NONE;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	f->walk_msg = string_append(f->walk_msg, parser_getstr(p, "text"));
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_run_msg(struct parser *p) {
-    struct feature *f = parser_priv(p);
-    assert(f);
+	struct feature *f = parser_priv(p);
 
-    f->run_msg = string_append(f->run_msg, parser_getstr(p, "text"));
-    return PARSE_ERROR_NONE;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	f->run_msg = string_append(f->run_msg, parser_getstr(p, "text"));
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_hurt_msg(struct parser *p) {
-    struct feature *f = parser_priv(p);
-    assert(f);
+	struct feature *f = parser_priv(p);
 
-    f->hurt_msg = string_append(f->hurt_msg, parser_getstr(p, "text"));
-    return PARSE_ERROR_NONE;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	f->hurt_msg = string_append(f->hurt_msg, parser_getstr(p, "text"));
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_dig_msg(struct parser *p) {
-    struct feature *f = parser_priv(p);
-    assert(f);
+	struct feature *f = parser_priv(p);
 
-    f->dig_msg = string_append(f->dig_msg, parser_getstr(p, "text"));
-    return PARSE_ERROR_NONE;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	f->dig_msg = string_append(f->dig_msg, parser_getstr(p, "text"));
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_fail_msg(struct parser *p) {
-    struct feature *f = parser_priv(p);
-    assert(f);
+	struct feature *f = parser_priv(p);
 
-    f->fail_msg = string_append(f->fail_msg, parser_getstr(p, "text"));
-    return PARSE_ERROR_NONE;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	f->fail_msg = string_append(f->fail_msg, parser_getstr(p, "text"));
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_str_msg(struct parser *p) {
-    struct feature *f = parser_priv(p);
-    assert(f);
+	struct feature *f = parser_priv(p);
 
-    f->str_msg = string_append(f->str_msg, parser_getstr(p, "text"));
-    return PARSE_ERROR_NONE;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	f->str_msg = string_append(f->str_msg, parser_getstr(p, "text"));
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_die_msg(struct parser *p) {
-    struct feature *f = parser_priv(p);
-    assert(f);
+	struct feature *f = parser_priv(p);
 
-    f->die_msg = string_append(f->die_msg, parser_getstr(p, "text"));
-    return PARSE_ERROR_NONE;
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	f->die_msg = string_append(f->die_msg, parser_getstr(p, "text"));
+	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_feat_confused_msg(struct parser *p) {
 	struct feature *f = parser_priv(p);
-	assert(f);
 
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	f->confused_msg =
 		string_append(f->confused_msg, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
@@ -892,8 +908,10 @@ static enum parser_error parse_feat_confused_msg(struct parser *p) {
 
 static enum parser_error parse_feat_look_prefix(struct parser *p) {
 	struct feature *f = parser_priv(p);
-	assert(f);
 
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	f->look_prefix =
 		string_append(f->look_prefix, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
@@ -901,8 +919,10 @@ static enum parser_error parse_feat_look_prefix(struct parser *p) {
 
 static enum parser_error parse_feat_look_in_preposition(struct parser *p) {
 	struct feature *f = parser_priv(p);
-	assert(f);
 
+	if (!f) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	f->look_in_preposition =
 		string_append(f->look_in_preposition, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
@@ -917,14 +937,14 @@ struct parser *init_parse_feat(void) {
 	parser_reg(p, "priority uint priority", parse_feat_priority);
 	parser_reg(p, "flags ?str flags", parse_feat_flags);
 	parser_reg(p, "info int bonus int dig int pit", parse_feat_info);
-    parser_reg(p, "desc str text", parse_feat_desc);
-    parser_reg(p, "walk-msg str text", parse_feat_walk_msg);
-    parser_reg(p, "run-msg str text", parse_feat_run_msg);
-    parser_reg(p, "hurt-msg str text", parse_feat_hurt_msg);
-    parser_reg(p, "dig-msg str text", parse_feat_dig_msg);
-    parser_reg(p, "fail-msg str text", parse_feat_fail_msg);
-    parser_reg(p, "str-msg str text", parse_feat_str_msg);
-    parser_reg(p, "die-msg str text", parse_feat_die_msg);
+	parser_reg(p, "desc str text", parse_feat_desc);
+	parser_reg(p, "walk-msg str text", parse_feat_walk_msg);
+	parser_reg(p, "run-msg str text", parse_feat_run_msg);
+	parser_reg(p, "hurt-msg str text", parse_feat_hurt_msg);
+	parser_reg(p, "dig-msg str text", parse_feat_dig_msg);
+	parser_reg(p, "fail-msg str text", parse_feat_fail_msg);
+	parser_reg(p, "str-msg str text", parse_feat_str_msg);
+	parser_reg(p, "die-msg str text", parse_feat_die_msg);
 	parser_reg(p, "confused-msg str text", parse_feat_confused_msg);
 	parser_reg(p, "look-prefix str text", parse_feat_look_prefix);
 	parser_reg(p, "look-in-preposition str text", parse_feat_look_in_preposition);
@@ -1024,32 +1044,30 @@ static enum parser_error parse_body_body(struct parser *p) {
 
 static enum parser_error parse_body_slot(struct parser *p) {
 	struct player_body *b = parser_priv(p);
-	struct equip_slot *slot = b->slots;
-	char *slot_type;
+	struct equip_slot *slot;
 	int n;
 
-	if (!b)
+	if (!b) {
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
-
+	}
 	/* Go to the last valid slot, then allocate a new one */
+	slot = b->slots;
 	if (!slot) {
 		b->slots = mem_zalloc(sizeof(struct equip_slot));
 		slot = b->slots;
 	} else {
-		while (slot->next)
-			slot = slot->next;
+		while (slot->next) slot = slot->next;
 		slot->next = mem_zalloc(sizeof(struct equip_slot));
 		slot = slot->next;
 	}
 
-	slot_type = string_make(parser_getsym(p, "slot"));
-	n = lookup_flag(slots, slot_type);
-	if (!n)
+	n = lookup_flag(slots, parser_getsym(p, "slot"));
+	if (!n) {
 		return PARSE_ERROR_INVALID_FLAG;
+	}
 	slot->type = n;
 	slot->name = string_make(parser_getsym(p, "name"));
 	b->count++;
-	mem_free(slot_type);
 	return PARSE_ERROR_NONE;
 }
 
@@ -1157,7 +1175,7 @@ static enum parser_error parse_history_chart(struct parser *p) {
 	struct history_chart *c;
 	struct history_entry *e = mem_zalloc(sizeof *e);
 	unsigned int idx = parser_getuint(p, "chart");
-	
+
 	if (!(c = findchart(oc, idx))) {
 		c = mem_zalloc(sizeof *c);
 		c->next = oc;
@@ -1431,7 +1449,7 @@ static enum parser_error parse_race_play_flags(struct parser *p) {
 			break;
 		s = strtok(NULL, " |");
 	}
-	mem_free(flags);
+	string_free(flags);
 	return s ? PARSE_ERROR_INVALID_FLAG : PARSE_ERROR_NONE;
 }
 
@@ -1558,12 +1576,14 @@ static enum parser_error parse_house_name(struct parser *p) {
 
 static enum parser_error parse_house_alt_name(struct parser *p) {
 	struct player_house *h = parser_priv(p);
+	if (!h) return PARSE_ERROR_MISSING_RECORD_HEADER;
 	h->alt_name = string_make(parser_getstr(p, "name"));
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_house_short_name(struct parser *p) {
 	struct player_house *h = parser_priv(p);
+	if (!h) return PARSE_ERROR_MISSING_RECORD_HEADER;
 	h->short_name = string_make(parser_getstr(p, "name"));
 	return PARSE_ERROR_NONE;
 }
@@ -1572,6 +1592,7 @@ static enum parser_error parse_house_race(struct parser *p) {
 	struct player_house *h = parser_priv(p);
 	struct player_race *r;
 	const char *race_name = parser_getstr(p, "name");
+	if (!h) return PARSE_ERROR_MISSING_RECORD_HEADER;
 	for (r = races; r; r = r->next) {
 		if (streq(r->name, race_name)) {
 			h->race = r;
@@ -1628,7 +1649,7 @@ static enum parser_error parse_house_play_flags(struct parser *p) {
 			break;
 		s = strtok(NULL, " |");
 	}
-	mem_free(flags);
+	string_free(flags);
 	return s ? PARSE_ERROR_INVALID_FLAG : PARSE_ERROR_NONE;
 }
 
@@ -1838,11 +1859,13 @@ static enum parser_error parse_flavor_flavor(struct parser *p) {
 }
 
 static enum parser_error parse_flavor_kind(struct parser *p) {
-	flavor_glyph = parser_getchar(p, "glyph");
-	flavor_tval = tval_find_idx(parser_getsym(p, "tval"));
-	if (!flavor_tval)
-		return PARSE_ERROR_UNRECOGNISED_TVAL;
+	int tval = tval_find_idx(parser_getsym(p, "tval"));
 
+	if (tval <= 0) {
+		return PARSE_ERROR_UNRECOGNISED_TVAL;
+	}
+	flavor_glyph = parser_getchar(p, "glyph");
+	flavor_tval = tval;
 	return PARSE_ERROR_NONE;
 }
 
@@ -2012,7 +2035,7 @@ static struct init_module *modules[] = {
  * The only input/output in this file should be via event_signal_string().
  * We cannot rely on any particular UI as this part should be UI-agnostic.
  * We also cannot rely on anything else having being initialised into any
- * particlar state.  Which is why you'd be calling this function in the 
+ * particlar state.  Which is why you'd be calling this function in the
  * first place.
  *
  * Old comment, not sure if still accurate:

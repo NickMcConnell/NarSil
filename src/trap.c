@@ -147,25 +147,24 @@ static enum parser_error parse_trap_flags(struct parser *p) {
     s = strtok(flags, " |");
     while (s) {
 		if (grab_flag(t->flags, TRF_SIZE, trap_flags, s)) {
-			mem_free(flags);
-			return PARSE_ERROR_INVALID_FLAG;
+			break;
 		}
 		s = strtok(NULL, " |");
     }
 
-    mem_free(flags);
-    return PARSE_ERROR_NONE;
+    string_free(flags);
+    return s ? PARSE_ERROR_INVALID_FLAG : PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_effect(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-	struct effect *effect;
-	struct effect *new_effect = mem_zalloc(sizeof(*new_effect));
+	struct effect *effect, *new_effect;
 
 	if (!t)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 
 	/* Go to the next vacant effect and set it to the new one  */
+	new_effect = mem_zalloc(sizeof(*new_effect));
 	if (t->effect) {
 		effect = t->effect;
 		while (effect->next)
@@ -180,14 +179,15 @@ static enum parser_error parse_trap_effect(struct parser *p) {
 
 static enum parser_error parse_trap_dice(struct parser *p) {
 	struct trap_kind *t = parser_priv(p);
-	dice_t *dice = NULL;
-	struct effect *effect = t->effect;
-	const char *string = NULL;
+	struct effect *effect;
+	dice_t *dice;
+	const char *string;
 
 	if (!t)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 
 	/* If there is no effect, assume that this is human and not parser error. */
+	effect = t->effect;
 	if (effect == NULL)
 		return PARSE_ERROR_NONE;
 
@@ -201,9 +201,9 @@ static enum parser_error parse_trap_dice(struct parser *p) {
 	string = parser_getstr(p, "dice");
 
 	if (dice_parse_string(dice, string)) {
+		dice_free(effect->dice);
 		effect->dice = dice;
-	}
-	else {
+	} else {
 		dice_free(dice);
 		return PARSE_ERROR_INVALID_DICE;
 	}
@@ -213,17 +213,19 @@ static enum parser_error parse_trap_dice(struct parser *p) {
 
 static enum parser_error parse_trap_expr(struct parser *p) {
 	struct trap_kind *t = parser_priv(p);
-	struct effect *effect = t->effect;
-	expression_t *expression = NULL;
-	expression_base_value_f function = NULL;
+	struct effect *effect;
+	expression_t *expression;
+	expression_base_value_f function;
 	const char *name;
 	const char *base;
 	const char *expr;
+	enum parser_error result;
 
 	if (!t)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 
 	/* If there is no effect, assume that this is human and not parser error. */
+	effect = t->effect;
 	if (effect == NULL)
 		return PARSE_ERROR_NONE;
 
@@ -244,27 +246,29 @@ static enum parser_error parse_trap_expr(struct parser *p) {
 	function = effect_value_base_by_name(base);
 	expression_set_base_value(expression, function);
 
-	if (expression_add_operations_string(expression, expr) < 0)
-		return PARSE_ERROR_BAD_EXPRESSION_STRING;
-
-	if (dice_bind_expression(effect->dice, name, expression) < 0)
-		return PARSE_ERROR_UNBOUND_EXPRESSION;
+	if (expression_add_operations_string(expression, expr) < 0) {
+		result = PARSE_ERROR_BAD_EXPRESSION_STRING;
+	} else if (dice_bind_expression(effect->dice, name, expression) < 0) {
+		result = PARSE_ERROR_UNBOUND_EXPRESSION;
+	} else {
+		result = PARSE_ERROR_NONE;
+	}
 
 	/* The dice object makes a deep copy of the expression, so we can free it */
 	expression_free(expression);
 
-	return PARSE_ERROR_NONE;
+	return result;
 }
 
 static enum parser_error parse_trap_effect_xtra(struct parser *p) {
-    struct trap_kind *t = parser_priv(p);
-	struct effect *effect;
-	struct effect *new_effect = mem_zalloc(sizeof(*new_effect));
+	struct trap_kind *t = parser_priv(p);
+	struct effect *effect, *new_effect;
 
 	if (!t)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 
 	/* Go to the next vacant effect and set it to the new one  */
+	new_effect = mem_zalloc(sizeof(*new_effect));
 	if (t->effect_xtra) {
 		effect = t->effect_xtra;
 		while (effect->next)
@@ -279,14 +283,15 @@ static enum parser_error parse_trap_effect_xtra(struct parser *p) {
 
 static enum parser_error parse_trap_dice_xtra(struct parser *p) {
 	struct trap_kind *t = parser_priv(p);
-	dice_t *dice = NULL;
-	struct effect *effect = t->effect_xtra;
-	const char *string = NULL;
+	struct effect *effect;
+	dice_t *dice;
+	const char *string;
 
 	if (!t)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 
 	/* If there is no effect, assume that this is human and not parser error. */
+	effect = t->effect_xtra;
 	if (effect == NULL)
 		return PARSE_ERROR_NONE;
 
@@ -300,9 +305,9 @@ static enum parser_error parse_trap_dice_xtra(struct parser *p) {
 	string = parser_getstr(p, "dice");
 
 	if (dice_parse_string(dice, string)) {
+		dice_free(effect->dice);
 		effect->dice = dice;
-	}
-	else {
+	} else {
 		dice_free(dice);
 		return PARSE_ERROR_INVALID_DICE;
 	}
@@ -312,17 +317,19 @@ static enum parser_error parse_trap_dice_xtra(struct parser *p) {
 
 static enum parser_error parse_trap_expr_xtra(struct parser *p) {
 	struct trap_kind *t = parser_priv(p);
-	struct effect *effect = t->effect_xtra;
-	expression_t *expression = NULL;
-	expression_base_value_f function = NULL;
+	struct effect *effect;
+	expression_t *expression;
+	expression_base_value_f function;
 	const char *name;
 	const char *base;
 	const char *expr;
+	enum parser_error result;
 
 	if (!t)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 
 	/* If there is no effect, assume that this is human and not parser error. */
+	effect = t->effect_xtra;
 	if (effect == NULL)
 		return PARSE_ERROR_NONE;
 
@@ -343,86 +350,88 @@ static enum parser_error parse_trap_expr_xtra(struct parser *p) {
 	function = effect_value_base_by_name(base);
 	expression_set_base_value(expression, function);
 
-	if (expression_add_operations_string(expression, expr) < 0)
-		return PARSE_ERROR_BAD_EXPRESSION_STRING;
-
-	if (dice_bind_expression(effect->dice, name, expression) < 0)
-		return PARSE_ERROR_UNBOUND_EXPRESSION;
+	if (expression_add_operations_string(expression, expr) < 0) {
+		result = PARSE_ERROR_BAD_EXPRESSION_STRING;
+	} else if (dice_bind_expression(effect->dice, name, expression) < 0) {
+		result = PARSE_ERROR_UNBOUND_EXPRESSION;
+	} else {
+		result = PARSE_ERROR_NONE;
+	}
 
 	/* The dice object makes a deep copy of the expression, so we can free it */
 	expression_free(expression);
 
-	return PARSE_ERROR_NONE;
+	return result;
 }
 
 static enum parser_error parse_trap_desc(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->text = string_append(t->text, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_msg(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->msg = string_append(t->msg, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_msg2(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->msg2 = string_append(t->msg2, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_msg3(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->msg3 = string_append(t->msg3, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_msg_vis(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->msg_vis = string_append(t->msg_vis, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_msg_silence(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->msg_silence = string_append(t->msg_silence, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_msg_good(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->msg_good = string_append(t->msg_good, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_msg_bad(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->msg_bad = string_append(t->msg_bad, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_trap_msg_xtra(struct parser *p) {
     struct trap_kind *t = parser_priv(p);
-    assert(t);
 
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
     t->msg_xtra = string_append(t->msg_xtra, parser_getstr(p, "text"));
     return PARSE_ERROR_NONE;
 }
