@@ -40,7 +40,8 @@ Quick messages ``quick_messages``
   Dismisses '-more-' and 'y/n' prompt with any key.  
 
 Angband-like commands ``angband_keyset``
-  Selects the "Angband-like" command set (see "command.txt" for info).
+  Selects the "Angband-like" command set.  See :ref:`Playing the Game` for
+  some descriptions of the comamnd sets.
 
 Stop singing at the rest command ``stop_singing_on_rest``
   The character will Stop singing the rest command starts.
