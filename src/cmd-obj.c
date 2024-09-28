@@ -558,7 +558,6 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 
 	/* Execute the effect */
 	if (can_use) {
-		int charges = 0;
 		uint16_t number;
 		bool ident = false, describe = false, deduct_before, used;
 		struct object *work_obj;
@@ -616,9 +615,9 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 			} else {
 				if (use == USE_CHARGE) {
 					deduct_before = true;
-					charges = obj->pval;
 					/* Use a single charge */
 					obj->pval--;
+					obj->used++;
 				} else {
 					deduct_before = false;
 				}
@@ -727,7 +726,9 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 			assert(!from_floor);
 			if (use == USE_CHARGE) {
 				obj->pval--;
+				obj->used++;
 				work_obj->pval--;
+				work_obj->used++;
 			} else if (use == USE_SINGLE) {
 				struct object *used_obj = gear_object_for_use(
 					player, obj, 1, false, &none_left);
@@ -762,12 +763,10 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 			}
 		} else if (used && use == USE_CHARGE) {
 			/* Describe charges */
-			if (use == USE_CHARGE && object_is_known(work_obj)) {
-				if (from_floor) {
-					floor_item_charges(work_obj);
-				} else {
-					inven_item_charges(work_obj);
-				}
+			if (from_floor) {
+				floor_item_charges(work_obj);
+			} else {
+				inven_item_charges(work_obj);
 			}
 		}
 
