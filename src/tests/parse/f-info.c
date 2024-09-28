@@ -158,7 +158,7 @@ static int test_name_bad0(void *state) {
 
 static int test_graphics0(void *state) {
 	struct parser *p = (struct parser*) state;
-	enum parser_error r = parser_parse(state, "graphics:::red");
+	enum parser_error r = parser_parse(state, "graphics:::Light Green");
 	struct feature *f;
 
 	eq(r, PARSE_ERROR_NONE);
