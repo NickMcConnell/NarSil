@@ -532,7 +532,7 @@ stealth:1
 will:5
 prot:4:3d4
 blow:HIT:HURT:6:3d7
-flags:UNIQUE | ESCORT
+flags:UNIQUE | NAME_COMMA | ESCORT
 flags:DROP_100 | DROP_GOOD | BASH_DOOR | UNLOCK_DOOR
 desc:A captain of a orcish band, Gorgol keeps his troop in
 desc: order with displays of violence.
@@ -739,7 +739,7 @@ stealth:1
 will:6
 prot:6:3d4
 blow:HIT:HURT:12:1d15
-flags:UNIQUE | ESCORTS | NO_FEAR
+flags:UNIQUE | NAME_COMMA | ESCORTS | NO_FEAR
 flags:BASH_DOOR | UNLOCK_DOOR
 flags:DROP_1D2 | DROP_GOOD
 ranged-freq:15
@@ -921,7 +921,7 @@ stealth:1
 will:7
 prot:8:3d4
 blow:HIT:HURT:10:3d10
-flags:UNIQUE | ESCORT
+flags:UNIQUE | NAME_COMMA | ESCORT
 flags:DROP_1D2 | DROP_GOOD | BASH_DOOR
 desc:The chief champion of the orcs of Morgoth.
 
@@ -1033,7 +1033,7 @@ will:8
 prot:9:4d4
 blow:HIT:HURT:15:2d9
 blow:WHIP:DISARM:12:2d4
-flags:UNIQUE | ESCORTS
+flags:UNIQUE | NAME_COMMA | ESCORTS
 flags:DROP_1D2 | DROP_GREAT | BASH_DOOR | UNLOCK_DOOR
 desc:The cruelty in the eyes of this massive orc belies
 desc: the intelligence that has kept him a favourite
@@ -1151,7 +1151,7 @@ spell-power:21
 spells:ARROW1
 drop:arrow:Arrow:37:2d8
 drop:light:Wooden Torch:33:1d1
-flags:UNIQUE | MALE | DROP_100 | ESCORT | SMART
+flags:UNIQUE | MALE | NAME_COMMA | DROP_100 | ESCORT | SMART
 flags:DROP_GOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | UNLOCK_DOOR
 flags:CRIPPLING
 desc:Son of Ulfang, the Black, and the leader in the treason against
@@ -1175,7 +1175,7 @@ will:10
 prot:8:3d4
 blow:TOUCH:LOSE_CON:15
 blow:HIT:HURT:15:2d9
-flags:UNIQUE | MALE | TERRITORIAL
+flags:UNIQUE | MALE | NAME_COMMA | TERRITORIAL
 flags:DROP_100 | DROP_GREAT | OPEN_DOOR | SPECIAL_GEN | SMART
 ranged-freq:20
 spells:SLOW | HOLD
@@ -1326,7 +1326,7 @@ will:11
 prot:13:4d4
 blow:HIT:FIRE:18:2d12
 blow:WHIP:DISARM:14:3d6
-flags:UNIQUE | MALE | GLOW
+flags:UNIQUE | MALE | NAME_COMMA | GLOW
 flags:DROP_1D2 | DROP_100 | DROP_GREAT
 flags:NO_FEAR | BASH_DOOR
 flags:RES_FIRE | HURT_COLD
@@ -1439,7 +1439,7 @@ prot:9:1d4
 blow:HIT:COLD:10:4d9
 flags:DROP_1D2 | DROP_GOOD
 flags:RES_COLD
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 ranged-freq:20
 spell-power:10
 spells:BOULDER
@@ -1553,7 +1553,7 @@ will:12
 prot:15:4d4
 blow:HIT:FIRE:20:3d10
 blow:WHIP:DISARM:16:3d8
-flags:UNIQUE | MALE | GLOW
+flags:UNIQUE | MALE | NAME_COMMA | GLOW
 flags:DROP_1D2 | DROP_100 | DROP_GREAT
 flags:NO_FEAR | BASH_DOOR
 flags:RES_FIRE | HURT_COLD
@@ -1580,7 +1580,7 @@ will:9
 prot:11:1d4
 blow:HIT:HURT:15:3d13
 flags:DROP_1D2 | DROP_GOOD
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 ranged-freq:10
 spell-power:12
 spells:BOULDER
@@ -1818,7 +1818,7 @@ stealth:10
 will:6
 prot:20:1d4
 blow:CLAW:WOUND:25:1d11
-flags:ESCORT | UNIQUE | MALE
+flags:ESCORT | UNIQUE | MALE | NAME_COMMA
 flags:DROP_100 | DROP_GOOD
 ranged-freq:50
 spell-power:21
@@ -1846,7 +1846,7 @@ will:13
 prot:17:4d4
 blow:HIT:FIRE:22:2d14
 blow:WHIP:DISARM:18:3d8
-flags:UNIQUE | MALE | GLOW
+flags:UNIQUE | MALE | NAME_COMMA | GLOW
 flags:DROP_1D2 | DROP_100 | DROP_GREAT
 flags:NO_FEAR | BASH_DOOR
 flags:RES_FIRE | HURT_COLD
@@ -2012,7 +2012,7 @@ stealth:10
 will:7
 prot:21:1d4
 blow:CLAW:WOUND:28:1d11
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 flags:UNIQUE_FRIEND | DROP_1D2 | DROP_GOOD
 desc:A fierce and warlike cat, thane of Tevildo
 desc: and ever at his side.
@@ -2134,7 +2134,7 @@ stealth:10
 will:8
 prot:22:1d4
 blow:CLAW:WOUND:26:1d13
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 flags:UNIQUE_FRIEND | DROP_1D2 | DROP_GREAT
 flags:CRUEL_BLOW
 desc:Renowned for his cruelty even among the cruel
@@ -2160,7 +2160,7 @@ will:15
 prot:19:5d4
 blow:HIT:FIRE:24:2d16
 blow:WHIP:DISARM:20:3d8
-flags:UNIQUE | MALE | GLOW
+flags:UNIQUE | MALE | NAME_COMMA | GLOW
 flags:DROP_1D2 | DROP_100 | DROP_GREAT
 flags:ESCORTS | NO_FEAR | BASH_DOOR
 flags:RES_FIRE | HURT_COLD
@@ -2297,7 +2297,7 @@ stealth:5
 will:18
 prot:23:5d4
 blow:HIT:HURT:33:2d8
-flags:UNIQUE | MALE | DROP_1D2 | UNLOCK_DOOR
+flags:UNIQUE | MALE | NAME_COMMA | DROP_1D2 | UNLOCK_DOOR
 flags:DROP_GREAT | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | SMART
 flags:RIPOSTE
 drop-artifact:of Maeglin
@@ -2426,7 +2426,7 @@ will:13
 prot:24:3d4
 blow:CLAW:WOUND:26:3d9
 blow:BITE:POISON:23:2d13
-flags:UNIQUE | MALE | ESCORT | SMART
+flags:UNIQUE | MALE | NAME_COMMA | ESCORT | SMART
 flags:RAND_25 | DROP_1D2
 flags:OPEN_DOOR | BASH_DOOR
 drop-artifact:of Draugluin
@@ -2453,7 +2453,7 @@ will:16
 prot:21:5d4
 blow:HIT:FIRE:26:3d12
 blow:WHIP:DISARM:22:3d8
-flags:UNIQUE | MALE | GLOW
+flags:UNIQUE | MALE | NAME_COMMA | GLOW
 flags:DROP_1D2 | DROP_100 | DROP_GREAT
 flags:NO_FEAR | BASH_DOOR
 flags:RES_FIRE | HURT_COLD
@@ -2542,7 +2542,7 @@ stealth:0
 will:8C
 prot:17:4d4
 blow:HIT:BATTER:17:4d10
-flags:UNIQUE | ESCORT | DROP_1D2 | DROP_GOOD | MALE | ELFBANE
+flags:UNIQUE | MALE | NAME_COMMA | ESCORT | DROP_1D2 | DROP_GOOD | ELFBANE
 desc:A mountain of a troll, clad in rusted iron plates.
 desc: He leads a patrol of the feared Troll Guard.
 
@@ -2563,7 +2563,7 @@ will:19
 prot:14:2d4
 blow:CLAW:HURT:24:3d13
 blow:BITE:WOUND:19:2d23
-flags:UNIQUE | MALE 
+flags:UNIQUE | MALE | NAME_COMMA
 flags:DROP_2D2 | DROP_GREAT
 ranged-freq:20
 spells:CONF | SCARE | HOLD
@@ -2660,7 +2660,7 @@ stealth:3
 will:14
 prot:20:2d4
 blow:BITE:ENTRANCE:25:2d15
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 flags:SMART | BASH_DOOR
 flags:HURT_LIGHT | RES_POIS
 desc:The line of Ungoliant seems to run true in this great
@@ -2686,7 +2686,7 @@ will:18
 prot:23:5d4
 blow:HIT:FIRE:28:2d18
 blow:WHIP:DISARM:24:3d10
-flags:UNIQUE | MALE | GLOW
+flags:UNIQUE | MALE | NAME_COMMA | GLOW
 flags:DROP_1D2 | DROP_100 | DROP_GREAT
 flags:NO_FEAR | BASH_DOOR
 flags:RES_FIRE | HURT_COLD
@@ -2791,7 +2791,7 @@ will:16
 prot:30:1d4
 blow:CLAW:WOUND:35:3d7
 blow:BITE:LOSE_ALL:29:2d9
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 flags:DROP_2D2 | DROP_GOOD | BASH_DOOR
 drop-artifact:of Thuringwethil
 desc:Chief messenger between Sauron and Morgoth, she is surely the most
@@ -2820,7 +2820,7 @@ will:20
 prot:25:6d4
 blow:HIT:FIRE:30:3d14
 blow:WHIP:DISARM:26:3d10
-flags:UNIQUE | MALE | GLOW
+flags:UNIQUE | MALE | NAME_COMMA | GLOW
 flags:DROP_1D2 | DROP_100 | DROP_GREAT
 flags:NO_FEAR | BASH_DOOR
 flags:RES_FIRE | HURT_COLD
@@ -2848,7 +2848,7 @@ stealth:3
 will:17
 prot:20:3d4
 blow:BITE:POISON:24:2d21
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 flags:SMART | BASH_DOOR
 flags:HURT_LIGHT | RES_POIS
 ranged-freq:15
@@ -2878,7 +2878,7 @@ will:21
 prot:16:2d4
 blow:CLAW:HURT:29:3d15
 blow:BITE:FIRE:24:2d25
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 flags:DROP_3D2 | DROP_GREAT
 flags:RES_FIRE | HURT_COLD
 ranged-freq:40
@@ -2909,7 +2909,7 @@ song:21
 prot:29:3d4
 blow:CLAW:WOUND:31:3d11
 blow:BITE:POISON:28:2d15
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 flags:DROP_2D2
 flags:DROP_GREAT | SMART
 flags:OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
@@ -2945,7 +2945,7 @@ will:20
 song:20
 prot:20:6d4
 blow:HIT:SHATTER:20:6d10
-flags:UNIQUE | QUESTOR | MALE
+flags:UNIQUE | QUESTOR | MALE | NAME_COMMA
 flags:OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
 flags:TUNNEL_WALL
 flags:DROP_3D2 | DROP_GREAT
@@ -2984,7 +2984,7 @@ stealth:5
 will:17
 prot:30:2d4
 blow:BITE:POISON:29:2d17
-flags:UNIQUE | MALE | FORCE_DEPTH
+flags:UNIQUE | MALE | NAME_COMMA | FORCE_DEPTH
 flags:SMART
 #D:The first guard of Angband, Carcharoth, also known as 'The Red Maw',
 #D: is the greatest wolf to ever walk the earth.  He is highly
@@ -3015,7 +3015,7 @@ depth:30
 rarity:5
 glyph:@
 color:Z
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 302
@@ -3035,7 +3035,7 @@ depth:30
 rarity:5
 glyph:@
 color:s
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 304
@@ -3045,7 +3045,7 @@ depth:30
 rarity:5
 glyph:@
 color:u
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 305
@@ -3055,7 +3055,7 @@ depth:30
 rarity:5
 glyph:C
 color:Y
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 306
@@ -3075,7 +3075,7 @@ depth:30
 rarity:10
 glyph:b
 color:w
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 308
@@ -3108,7 +3108,7 @@ depth:30
 rarity:10
 glyph:V
 color:w
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 
 
 # Index 322
@@ -3118,7 +3118,7 @@ depth:30
 rarity:20
 glyph:V
 color:b
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 324
@@ -3128,7 +3128,7 @@ depth:30
 rarity:30
 glyph:V
 color:G
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 
 
 # Index 325
@@ -3138,7 +3138,7 @@ depth:30
 rarity:10
 glyph:V
 color:D
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 326
@@ -3148,7 +3148,7 @@ depth:30
 rarity:40
 glyph:V
 color:y
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 
 
 # Index 327
@@ -3158,7 +3158,7 @@ depth:30
 rarity:40
 glyph:V
 color:r
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 328
@@ -3168,7 +3168,7 @@ depth:30
 rarity:40
 glyph:V
 color:s
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 
 
 # Index 329
@@ -3178,7 +3178,7 @@ depth:30
 rarity:40
 glyph:V
 color:v
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 
 
 # Index 330
@@ -3188,7 +3188,7 @@ depth:30
 rarity:10
 glyph:V
 color:o
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 331
@@ -3198,7 +3198,7 @@ depth:30
 rarity:40
 glyph:V
 color:B
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 
 
 # Index 332
@@ -3208,7 +3208,7 @@ depth:30
 rarity:40
 glyph:V
 color:v
-flags:UNIQUE | MALE
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 333
@@ -3218,7 +3218,7 @@ depth:30
 rarity:40
 glyph:V
 color:W
-flags:UNIQUE | FEMALE
+flags:UNIQUE | FEMALE | NAME_COMMA
 
 
 
