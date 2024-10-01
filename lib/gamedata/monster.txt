@@ -3098,7 +3098,15 @@ glyph:T
 color:g
 flags:FEMALE
 
-flags:UNIQUE | MALE
+
+# Index 320
+name:Manwe, Lord of the Breath of Arda
+base:hallucinatory
+depth:30
+rarity:10
+glyph:V
+color:v
+flags:UNIQUE | MALE | NAME_COMMA
 
 
 # Index 321
