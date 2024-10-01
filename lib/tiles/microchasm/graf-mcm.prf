@@ -1,0 +1,556 @@
+# File: graf-new.prf
+
+#
+# This file defines special attr/char mappings for use in "graphics" mode
+# with the MicroChasm Tileset
+#
+# See "docs/customize.rst" and "src/ui-prefs.c" for more information.
+#
+# Adapted from the file "graf-new.prf" in Sil-q 1.5 along with the pixmap
+# file itself.
+
+
+##### Spell attr/char values #####
+
+# Use the pink error indicator by default.  Override that for any effects
+# that the player will see.
+GF:*:0:0x83:0x9F
+GF:*:135:0x83:0x9F
+GF:*:45:0x83:0x9F
+GF:*:90:0x83:0x9F
+# Generic "impact"
+GF:*:static:0x8B:0x90
+
+GF:ARROW | CONFUSION:0:0x8B:0x93
+GF:ARROW | CONFUSION:135:0x8B:0x96
+GF:ARROW | CONFUSION:45:0x8B:0x95
+GF:ARROW | CONFUSION:90:0x8B:0x94
+GF:ARROW | CONFUSION:static:0x8B:0x92
+
+GF:ACID | BOULDER | EARTHQUAKE:0:0x8B:0x97
+GF:ACID | BOULDER | EARTHQUAKE:135:0x8B:0x9A
+GF:ACID | BOULDER | EARTHQUAKE:45:0x8B:0x98
+GF:ACID | BOULDER | EARTHQUAKE:90:0x8B:0x99
+GF:ACID | BOULDER | EARTHQUAKE:static:0x8B:0x9E
+
+GF:FIRE:0:0x8B:0x8E
+GF:FIRE:135:0x8B:0x8E
+GF:FIRE:45:0x8B:0x8E
+GF:FIRE:90:0x8B:0x8E
+GF:FIRE:static:0x8B:0x8E
+
+GF:COLD:0:0x8B:0x8D
+GF:COLD:135:0x8B:0x8D
+GF:COLD:45:0x8B:0x8D
+GF:COLD:90:0x8B:0x8D
+GF:COLD:static:0x8B:0x8D
+
+GF:POIS:0:0x8B:0x8F
+GF:POIS:135:0x8B:0x8F
+GF:POIS:45:0x8B:0x8F
+GF:POIS:90:0x8B:0x8F
+GF:POIS:static:0x8B:0x8F
+
+GF:DARK | DARK_WEAK:0:0x8B:0x90
+GF:DARK | DARK_WEAK:135:0x8B:0x90
+GF:DARK | DARK_WEAK:45:0x8B:0x90
+GF:DARK | DARK_WEAK:90:0x8B:0x90
+GF:DARK | DARK_WEAK:static:0x8B:0x90
+
+
+
+
+##### Feature attr/char definitions #####
+
+# <darkness>
+feat:unknown grid:*:0x80:0x80
+
+# open floor
+feat:open floor:*:0x80:0x81
+
+# closed door
+feat:closed door:*:0x80:0x8A
+
+# open door
+feat:open door:*:0x80:0x8B
+
+# broken door
+feat:broken door:*:0x80:0x8C
+
+# up staircase
+feat:up staircase:*:0x80:0x96
+
+# down staircase
+feat:down staircase:*:0x80:0x99
+
+# up shaft
+feat:up shaft:*:0x80:0x9D
+
+# down shaft
+feat:down shaft:*:0x80:0x9C
+
+# chasm
+feat:chasm:*:0x8B:0x85
+
+# secret door
+feat:secret door:*:0x80:0x84
+
+# pile of rubble
+feat:pile of rubble:*:0x80:0x95
+
+# quartz vein
+feat:quartz vein:*:0x80:0x86
+
+# granite wall
+feat:granite wall:*:0x80:0x84
+
+# permanent wall
+feat:permanent wall:*:0x80:0x84
+
+# forge (assumes 3 uses remaining)
+feat:forge:*:0x8F:0x82
+
+# good forge (assumes 3 uses remaining)
+feat:enchanted forge:*:0x8F:0x88
+
+# unique forge (assumes 3 uses remaining)
+feat:forge 'Orodruth':*:0x8F:0x8B
+
+# pit
+feat:pit:*:0x80:0x91
+
+# spiked pit
+feat:spiked pit:*:0x8A:0x96
+
+
+
+# glyph of warding
+trap:glyph of warding:*:0x8B:0x86
+
+# false floor
+trap:false floor:*:0x8A:0x9C
+
+# pit
+trap:pit:*:0x80:0x91
+
+# spiked pit
+trap:spiked pit:*:0x8A:0x96
+
+# dart trap
+trap:dart:*:0x8A:0x94
+
+# gas trap (confusion)
+trap:confusion gas trap:*:0x80:0x93
+
+# alarm
+trap:bell:*:0x8A:0x9A
+
+# flash trap
+trap:flash:*:0x8B:0x82
+
+# caltrop field
+trap:caltrops:*:0x80:0x97
+
+# roost
+trap:roost:*:0x8B:0x80
+
+# web
+trap:web:*:0x80:0x9A
+
+# deadfall trap
+trap:deadfall trap:*:0x8A:0x98
+
+# discoloured spot
+trap:acid trap:*:0x8A:0x9E
+
+
+
+##### Object attr/char definitions #####
+
+##### Non-kind (contains the "pile" picture) #####
+
+# Reusing the "?" tile; should have its own.
+object:none:<pile>:0x8C:0x8A
+
+
+
+
+##### The 'Special Artifacts' #####
+
+object:ring:Ring:0x8B:0x9D
+object:amulet:Amulet:0x8B:0x9B
+object:hafted:Mighty Hammer:0x86:0x93
+object:crown:Massive Iron Crown:0x85:0x9C
+
+
+
+
+##### The Normal Item Types #####
+
+##### Armor #####
+
+# Reusing robe's tile here; should have its own.
+object:soft armor:Filthy Rag:0x85:0x84
+object:soft armor:Robe:0x85:0x84
+object:soft armor:Leather Armour:0x85:0x8C
+object:soft armor:Studded Leather:0x85:0x8D
+object:soft armor:Galvorn Armour:0x89:0x91
+object:mail:Mail Corslet:0x85:0x8F
+object:mail:Hauberk:0x85:0x8E
+object:mail:Mithril Corslet:0x85:0x90
+
+
+
+
+##### Shields #####
+
+object:shield:Round Shield:0x85:0x91
+object:shield:Kite Shield:0x85:0x92
+object:shield:Mithril Shield:0x85:0x93
+
+
+
+
+##### Edged Weapons #####
+
+# Reusing dagger's tile here; should have its own.
+object:sword:Broken Sword:0x86:0x80
+object:sword:Dagger:0x86:0x80
+object:sword:Curved Sword:0x86:0x81
+object:sword:Shortsword:0x86:0x82
+# Reusing longsword's tile here; should have its own.
+object:sword:Deathblade:0x86:0x83
+object:sword:Longsword:0x86:0x83
+object:sword:Bastard Sword:0x86:0x87
+object:sword:Greatsword:0x86:0x85
+object:sword:Mithril Longsword:0x86:0x84
+object:sword:Mithril Greatsword:0x86:0x86
+
+
+
+
+##### Axes & Polearms #####
+
+object:polearm:Spear:0x86:0x89
+object:polearm:Great Spear:0x86:0x8A
+object:polearm:Glaive:0x86:0x8B
+object:polearm:Throwing Axe:0x86:0x8D
+object:polearm:Battle Axe:0x86:0x8E
+object:polearm:Great Axe:0x86:0x8F
+
+
+
+
+##### Blunt Weapons #####
+
+object:hafted:Quarterstaff:0x86:0x88
+object:hafted:War Hammer:0x86:0x8C
+# Reusing aspen staff's tile; should have its own.
+object:hafted:Sceptre:0x84:0x8F
+
+
+
+##### Digging Tools #####
+
+object:digger:Shovel:0x86:0x90
+object:digger:Mattock:0x86:0x91
+
+
+
+
+##### Helms/Crowns #####
+
+object:helm:Helm:0x85:0x97
+object:helm:Great Helm:0x85:0x98
+object:helm:Dwarf Mask:0x85:0x9A
+object:helm:Mithril Helm:0x85:0x99
+object:crown:Crown:0x81:0x89
+# Reusing crown's tile here; should have its own.
+object:crown:Jewelled Crown:0x81:0x89
+
+
+
+
+##### Cloaks #####
+
+object:cloak:Cloak:0x85:0x82
+object:cloak:Shadow Cloak:0x85:0x83
+object:cloak:Wolf-Hame:0x8B:0x87
+object:cloak:Bat-Fell:0x86:0x92
+
+
+
+
+##### Bows #####
+
+object:bow:Shortbow:0x85:0x9D
+object:bow:Longbow:0x85:0x9E
+object:bow:Dragon-horn Bow:0x85:0x9F
+
+
+
+
+##### Arrows #####
+
+object:arrow:Arrow:0x85:0x9B
+
+
+
+
+##### Boots #####
+
+object:boots:Pair of Boots:0x85:0x89
+object:boots:Pair of Greaves:0x85:0x8A
+object:boots:Pair of Mithril Greaves:0x85:0x8B
+
+
+
+
+##### Gloves #####
+
+object:gloves:Set of Gloves:0x85:0x94
+object:gloves:Set of Gauntlets:0x85:0x95
+object:gloves:Set of Mithril Gauntlets:0x85:0x96
+
+
+
+
+##### Lights #####
+
+object:light:Wooden Torch:0x82:0x9E
+object:light:Brass Lantern:0x82:0x9D
+object:light:Lesser Jewel:0x82:0x9B
+object:light:Feanorian Lamp:0x82:0x9F
+object:light:Silmaril:0x8C:0x90
+
+
+
+
+##### Amulets #####
+# Graphics are sourced from flavor entries in flvr-mcm.prf
+
+
+
+
+##### Rings #####
+# Graphics are sourced from flavor entries in flvr-mcm.prf
+
+
+
+
+##### Staves #####
+# Graphics are sourced from flavor entries in flvr-mcm.prf
+
+
+
+
+###### Horns #####
+# Graphics are sourced from flavor entries in flvr-mcm.prf
+
+
+
+
+##### Potions #####
+# Graphics are sourced from flavor entries in flvr-mcm.prf
+
+
+
+##### Chests #####
+
+object:chest:Small wooden chest:0x81:0x80
+object:chest:Small steel chest:0x81:0x82
+object:chest:Small jewelled chest:0x81:0x84
+object:chest:Large wooden chest:0x81:0x81
+object:chest:Large steel chest:0x81:0x83
+object:chest:Large jewelled chest:0x81:0x85
+object:chest:Finely wrapped present:0x81:0x86
+
+
+
+
+##### Herbs #####
+# Graphics are sourced from flavor entries in flvr-mcm.prf
+
+
+
+
+##### Food #####
+
+object:food:Piece of Dark Bread:0x85:0x85
+object:food:Strip of Dried Meat:0x85:0x86
+object:food:Fragment of Lembas:0x85:0x87
+
+
+
+
+##### Various #####
+
+object:flask:Flask of oil:0x85:0x88
+object:metal:Piece of Mithril:0x81:0x95
+object:skeleton:Orc Skeleton:0x83:0x9C
+object:skeleton:Human Skeleton:0x83:0x9D
+object:skeleton:Elf Skeleton:0x83:0x9E
+object:note:Tutorial Note:0x80:0x9F
+
+
+
+
+##### Monster attr/char definitions #####
+
+monster:<player>:0x8D:0x80
+monster:Wolf:0x88:0x91
+monster:Tanglethorn:0x86:0x9D
+monster:Orc:0x87:0x9B
+monster:Grimhawk:0x86:0x9A
+monster:Orc scout:0x87:0x99
+monster:Spider hatchling:0x87:0x81
+monster:Blue serpent:0x88:0x98
+monster:Orc soldier:0x87:0x9D
+monster:Madthorn:0x86:0x9E
+monster:Gorcrow:0x86:0x9B
+monster:Orc archer:0x87:0x9A
+monster:White wolf:0x88:0x92
+monster:Red serpent:0x88:0x99
+monster:Gorgol, the Butcher:0x88:0x83
+monster:Orc warrior:0x87:0x9C
+monster:Sword spider:0x87:0x83
+monster:Crebain:0x86:0x9C
+monster:Mewlip:0x88:0x8B
+# Reusing orc scout's tile; should have its own.
+monster:Orc thief:0x87:0x99
+monster:Nightthorn:0x86:0x9F
+monster:Green serpent:0x88:0x9A
+monster:Mountain troll:0x89:0x8D
+monster:Tattered wight:0x87:0x8B
+monster:Boldog, the Merciless:0x88:0x84
+monster:Orc champion:0x87:0x9E
+monster:Easterling warrior:0x89:0x86
+monster:Hummerhorn:0x88:0x89
+monster:Orc captain:0x87:0x9F
+monster:Warg:0x88:0x93
+monster:Grave wight:0x87:0x8C
+monster:Dark serpent:0x88:0x98
+monster:Orcobal, Champion of the Orcs:0x88:0x87
+monster:Whispering shadow:0x87:0x95
+monster:Distended spider:0x87:0x84
+monster:Easterling archer:0x89:0x87
+monster:Twisted bat:0x87:0x8E
+monster:Othrod, the Orc Lord:0x88:0x88
+monster:Snow troll:0x89:0x8C
+monster:Barrow wight:0x87:0x8D
+monster:Lurking horror:0x88:0x8C
+monster:Giant:0x89:0x92
+monster:Uldor, the Accursed:0x89:0x89
+monster:Aldor, the Risen King:0x87:0x93
+monster:Easterling spy:0x89:0x88
+monster:Shadow bat:0x88:0x8A
+monster:Sulrauko:0x8A:0x84
+monster:Fire-drake hatchling:0x89:0x9A
+monster:Ulfang the Black:0x89:0x8A
+monster:Duruin, Least of the Balrogs:0x8A:0x8A
+monster:Werewolf:0x88:0x94
+monster:Shadow spider:0x87:0x85
+monster:Shadow:0x87:0x97
+monster:Sapphire serpent:0x88:0x9C
+monster:Gilim, the Giant of Eruman:0x89:0x93
+monster:Ruby serpent:0x88:0x9D
+monster:Creeping horror:0x88:0x8D
+monster:Ringrauko:0x8A:0x85
+# Currently chosen to match the tile for the deathblade object.
+monster:Deathblade:0x86:0x83
+monster:Delthaur, Balrog of Terror:0x8A:0x8B
+monster:Nan, the Giant:0x89:0x94
+monster:Cave troll:0x89:0x8E
+monster:Emerald serpent:0x88:0x9E
+monster:Oathwraith:0x87:0x94
+monster:Cat warrior:0x89:0x95
+# Currently chosen to match the tile for the deathblade object.
+monster:The Deathblade 'Delmereth':0x86:0x83
+monster:Amethyst serpent:0x88:0x9F
+monster:Kemenrauko:0x8A:0x86
+monster:Grotesque:0x86:0x99
+monster:Young cold-drake:0x89:0x9D
+monster:Umuiyan, the Doorkeeper:0x89:0x97
+monster:Belegwath, Balrog of Shadow:0x8A:0x8C
+monster:Spider of Gorgoroth:0x87:0x86
+monster:Greater werewolf:0x88:0x95
+monster:Adamant serpent:0x89:0x80
+monster:Lesser vampire:0x87:0x8F
+monster:Cat assassin:0x89:0x96
+monster:Scatha the Worm:0x89:0x9F
+monster:Oikeroi, Guard of Tevildo:0x89:0x98
+monster:Young fire-drake:0x89:0x9B
+monster:Darting horror:0x88:0x8E
+monster:Unmourned:0x87:0x8A
+monster:Ururauko:0x8A:0x87
+monster:Tevildo, Prince of Cats:0x89:0x99
+monster:Turkano, Balrog of the Hosts:0x8A:0x8D
+monster:Ancient sapphire serpent:0x89:0x81
+monster:Troll guard:0x89:0x8F
+monster:Vampire:0x87:0x90
+monster:Nameless thing:0x88:0x90
+monster:Smaug the Golden:0x8A:0x80
+monster:Maeglin, Betrayer of Gondolin:0x89:0x8B
+monster:Ancient ruby serpent:0x89:0x82
+monster:Great cold-drake:0x89:0x9E
+monster:Silent watcher:0x86:0x98
+monster:Gwathrauko:0x8A:0x88
+monster:Draugluin, Sire of Werewolves:0x88:0x96
+monster:Vallach, Balrog of Sudden Flame:0x8A:0x8E
+monster:Ancient spider:0x87:0x87
+monster:Ancient emerald serpent:0x89:0x83
+monster:Vampire lord:0x87:0x91
+monster:Dagorhir, the Elfbane:0x89:0x90
+monster:Gostir, the Dread Glance:0x8A:0x81
+monster:Ancient amethyst serpent:0x89:0x84
+monster:Great fire-drake:0x89:0x9C
+monster:Hithrauko:0x8A:0x89
+monster:Shelob, Spider of Darkness:0x87:0x89
+monster:Lungorthin, Lord of Balrogs:0x8A:0x8F
+monster:Ancient adamant serpent:0x89:0x85
+monster:Unrelenting horror:0x88:0x8F
+monster:Ancalagon the Black:0x8A:0x82
+monster:Thuringwethil, the Vampire Messenger:0x87:0x92
+monster:Gothmog:0x8A:0x90
+monster:Ungoliant:0x87:0x80
+monster:Glaurung:0x8A:0x83
+monster:Gorthaur:0x8A:0x91
+monster:Morgoth:0x8A:0x92
+monster:Carcharoth:0x88:0x97
+
+
+
+
+##### Hallucinatory #####
+
+monster:Feanor, High King of the Noldor:0x8A:0x93
+monster:Luthien Tinuviel:0x88:0x88
+monster:Thingol, the Hidden King:0x8A:0x93
+monster:Beren, Son of Barahir:0x8A:0x93
+monster:Huan, Hound of Valinor:0x8B:0x8C
+monster:Eagle of Manwe:0x8B:0x8B
+monster:Thorondor, King of Eagles:0x8B:0x8B
+monster:Ent:0x8B:0x89
+monster:Ent-wife:0x8B:0x8A
+monster:Varda, Lady of the Stars:0x8B:0x88
+monster:Ulmo, Lord of Waters:0x8A:0x93
+monster:Yavanna, the Giver of Fruits:0x8B:0x88
+monster:Mandos, Doomsman of the Valar:0x8A:0x93
+monster:Vaire, the Weaver:0x8B:0x88
+monster:Lorien, Master of Dreams:0x8A:0x93
+monster:Este, the Healer:0x8B:0x88
+monster:Nienna, Lady of Mourning:0x8B:0x88
+monster:Tulkas, the Valiant:0x8A:0x93
+monster:Nessa, the Dancer:0x8B:0x88
+monster:Orome, Lord of Forests:0x8A:0x93
+monster:Vana, the Ever Young:0x8B:0x88
+monster:Melkor, Rightful Lord of Arda:0x8B:0x84
+
+
+
+
+# Load the special player pictures
+%:xtra-mcm.prf
+
+# Load the flavored objects
+%:flvr-mcm.prf

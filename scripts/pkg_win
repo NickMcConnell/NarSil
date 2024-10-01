@@ -47,6 +47,7 @@ mkdir lib/tiles
 mkdir lib/tiles/adam-bolt
 mkdir lib/tiles/gervais
 mkdir lib/tiles/nomad
+mkdir lib/tiles/microchasm
 mkdir lib/tiles/old
 mkdir lib/tiles/shockbolt
 mkdir lib/sounds
@@ -115,6 +116,7 @@ for f in `find ../lib/tiles \( -name '*.txt' -o -name '*.prf' \) -print` ; do
 done
 cp ../lib/tiles/adam-bolt/*.png lib/tiles/adam-bolt
 cp ../lib/tiles/gervais/*.png lib/tiles/gervais
+cp ../lib/tiles/microchasm/*.png lib/tiles/microchasm
 cp ../lib/tiles/nomad/*.png lib/tiles/nomad
 cp ../lib/tiles/old/*.png lib/tiles/old
 cp ../lib/tiles/shockbolt/*.png lib/tiles/shockbolt

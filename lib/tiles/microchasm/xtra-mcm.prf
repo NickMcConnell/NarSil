@@ -1,0 +1,19 @@
+# File xtra-mcm.prf
+
+#
+# This file defines special attr/char mappings for use in "graphics" mode
+#
+# See "docs/customize.rst" and "src/ui-prefs.c" for more information.
+#
+
+
+##### Remap the player icon #####
+
+?:[EQU $RACE Noldor]
+monster:<player>:0x8D:0x80
+?:[EQU $RACE Sindar]
+monster:<player>:0x8D:0x90
+?:[EQU $RACE Naugrim]
+monster:<player>:0x8E:0x80
+?:[EQU $RACE Edain]
+monster:<player>:0x8E:0x90

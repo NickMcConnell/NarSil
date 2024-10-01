@@ -513,6 +513,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <Image Include="lib\icons\luthien-512.png" />
     <Image Include="lib\tiles\adam-bolt\16x16.png" />
     <Image Include="lib\tiles\gervais\32x32.png" />
+    <Image Include="lib\tiles\microchasm\16x16.png" />
     <Image Include="lib\tiles\nomad\8x16.png" />
     <Image Include="lib\tiles\old\8x8.png" />
     <Image Include="lib\tiles\shockbolt\64x64.png" />
@@ -562,6 +563,9 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <None Include="lib\tiles\gervais\flvr-dvg.prf" />
     <None Include="lib\tiles\gervais\graf-dvg.prf" />
     <None Include="lib\tiles\gervais\xtra-dvg.prf" />
+    <None Include="lib\tiles\microchasm\flvr-mcm.prf" />
+    <None Include="lib\tiles\microchasm\graf-mcm.prf" />
+    <None Include="lib\tiles\microchasm\xtra-mcm.prf" />
     <None Include="lib\tiles\nomad\flvr-nmd.prf" />
     <None Include="lib\tiles\nomad\graf-nmd.prf" />
     <None Include="lib\tiles\nomad\xtra-nmd.prf" />

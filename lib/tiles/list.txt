@@ -66,3 +66,9 @@ directory:shockbolt
 size:64:64:64x64.png
 pref:graf-shb-light.prf
 extra:1:27:31
+
+name:7:MicroChasm
+directory:microchasm
+size:16:16:16x16.png
+pref:graf-mcm.prf
+extra:0:0:0

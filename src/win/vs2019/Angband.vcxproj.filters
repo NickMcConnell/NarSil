@@ -37,6 +37,8 @@
     <Filter Include="Resource Files\tiles\gervais">
       <UniqueIdentifier>{ffcb2da1-8a10-4aeb-bc47-d4bbdf86c25b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\tiles\microchasm">
+    </Filter>
     <Filter Include="Resource Files\tiles\shockbolt">
       <UniqueIdentifier>{17f9ff36-5291-48d6-ab97-aa69c0796699}</UniqueIdentifier>
     </Filter>
@@ -1096,6 +1098,9 @@
     <Image Include="lib\tiles\gervais\32x32.png">
       <Filter>Resource Files\tiles\gervais</Filter>
     </Image>
+    <Image Include="lib\tiles\microchasm\16x16.png">
+      <Filter>Resource Files\tiles\microchasm</Filter>
+    </Image>
     <Image Include="lib\tiles\nomad\8x16.png">
       <Filter>Resource Files\tiles\nomad</Filter>
     </Image>
@@ -1231,6 +1236,15 @@
     </None>
     <None Include="lib\tiles\gervais\xtra-dvg.prf">
       <Filter>Resource Files\tiles\gervais</Filter>
+    </None>
+    <None Include="lib\tiles\microchasm\flvr-mcm.prf">
+      <Filter>Resource Files\tiles\microchasm</Filter>
+    </None>
+    <None Include="lib\tiles\microchasm\graf-mcm.prf">
+      <Filter>Resource Files\tiles\microchasm</Filter>
+    </None>
+    <None Include="lib\tiles\microchasm\xtra-mcm.prf">
+      <Filter>Resource Files\tiles\microchasm</Filter>
     </None>
     <None Include="lib\tiles\nomad\flvr-nmd.prf">
       <Filter>Resource Files\tiles\nomad</Filter>
