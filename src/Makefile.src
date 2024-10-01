@@ -81,7 +81,7 @@ WINMAINFILES = \
 
 X11MAINFILES = main-x11.o
 
-ANGFILES = \
+ANGFILES0 = \
 	cave.o \
 	cave-fire.o \
 	cave-map.o \
@@ -220,5 +220,5 @@ STATSMAINFILES = main-stats.o \
 
 SPOILMAINFILES = main-spoil.o
 
-buildid.o: $(ANGFILES)
-ANGFILES += buildid.o
+buildid.o: $(ANGFILES0)
+ANGFILES = $(ANGFILES0) buildid.o
