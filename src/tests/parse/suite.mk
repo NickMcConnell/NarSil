@@ -1,6 +1,7 @@
 TESTPROGS += parse/a-info \
 	parse/blowe \
 	parse/blowm \
+	parse/body \
 	parse/e-info \
 	parse/f-info \
 	parse/flavor \
@@ -12,6 +13,9 @@ TESTPROGS += parse/a-info \
 	parse/names \
 	parse/p-info \
 	parse/parse \
+	parse/partrap \
 	parse/r-info \
+	parse/sex-info \
 	parse/v-info \
+	parse/world \
 	parse/z-info

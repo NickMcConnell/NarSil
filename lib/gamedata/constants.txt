@@ -17,27 +17,12 @@ level-max:monsters:300
 # 1/per-turn-chance of new monster generation
 mon-gen:chance:160
 
-# Minimum number of monsters generated on a level
-mon-gen:level-min:14
-
-# Maximum number of breeding monsters allowed on a level
-mon-gen:repro-max:100
-
-# Maximum out-of-depth amount for monster generation
-mon-gen:ood-amount:10
-
 # Maximum number of monsters in a group
 mon-gen:group-max:25
-
-# Maximum distance of a group of monsters from a related group
-mon-gen:group-dist:5
 
 #---------------------------------------------------------------------
 # Monster Gameplay
 #---------------------------------------------------------------------
-
-# Rune of protection resistance to monster breaking
-mon-play:break-glyph:550
 
 # High value slows multiplication
 mon-play:mult-rate:8
@@ -114,15 +99,6 @@ world:flow-max:250
 
 # Max number of pack slots for carrying inventory
 carry-cap:pack-size:23
-
-# Max number of quiver slots for carrying missiles
-carry-cap:quiver-size:10
-
-# Max number of missiles per quiver slot
-carry-cap:quiver-slot-size:40
-
-# For computing quiver capacity, is the multiplier for non-ammo thrown items
-carry-cap:thrown-quiver-mult:5
 
 # Maximum number of objects allowed in a single dungeon grid.
 #

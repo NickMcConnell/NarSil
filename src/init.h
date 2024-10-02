@@ -61,17 +61,9 @@ struct angband_constants
 
 	/* Monster generation constants, read from constants.txt */
 	uint16_t alloc_monster_chance;	/**< 1/per-turn-chance of generation */
-	uint16_t level_monster_min;	/**< Minimum number generated */
-	uint16_t town_monsters_day;	/**< Townsfolk generated - day */
-	uint16_t town_monsters_night;	/**< Townsfolk generated  - night */
-	uint16_t repro_monster_max;	/**< Maximum breeders on a level */
-	uint16_t ood_monster_chance;	/**< Chance of OoD monster is 1 in this */
-	uint16_t ood_monster_amount;	/**< Max number of levels OoD */
 	uint16_t monster_group_max;	/**< Maximum size of a group */
-	uint16_t monster_group_dist;	/**< Max dist of a group from a related group */
 
 	/* Monster gameplay constants, read from constants.txt */
-	uint16_t glyph_hardness;	/**< How hard for a monster to break a glyph */
 	uint16_t repro_monster_rate;	/**< Monster reproduction rate-slower */
 	uint16_t mana_cost;			/**< Mana it costs a monster to cast a  spell */
 	uint16_t mana_max;			/**< Maximum amount of mana a monster can have*/
@@ -99,9 +91,6 @@ struct angband_constants
 
 	/* Carrying capacity constants, read from constants.txt */
 	uint16_t pack_size;		/**< Maximum number of pack slots */
-	uint16_t quiver_size;		/**< Maximum number of quiver slots */
-	uint16_t quiver_slot_size;	/**< Maximum number of missiles per quiver slot */
-	uint16_t thrown_quiver_mult;	/**< Size multiplier for non-ammo in quiver */
 	uint16_t floor_size;		/**< Maximum number of items per floor grid */
 
 	/* Object creation constants, read from constants.txt */
@@ -153,28 +142,28 @@ extern char *ANGBAND_DIR_SCORES;
 extern char *ANGBAND_DIR_ARCHIVE;
 
 extern struct parser *init_parse_artifact(void);
-extern struct parser *init_parse_race(void);
-extern struct parser *init_parse_house(void);
-extern struct parser *init_parse_sex(void);
 extern struct parser *init_parse_ego(void);
-extern struct parser *init_parse_feat(void);
-extern struct parser *init_parse_history(void);
 extern struct parser *init_parse_object(void);
 extern struct parser *init_parse_object_base(void);
 extern struct parser *init_parse_pain(void);
-extern struct parser *init_parse_p_race(void);
 extern struct parser *init_parse_pit(void);
 extern struct parser *init_parse_monster(void);
 extern struct parser *init_parse_vault(void);
-extern struct parser *init_parse_constants(void);
-extern struct parser *init_parse_flavor(void);
-extern struct parser *init_parse_names(void);
-extern struct parser *init_parse_hints(void);
-extern struct parser *init_parse_trap(void);
 extern struct parser *init_parse_chest_trap(void);
 extern struct parser *init_parse_quest(void);
 
+/* These are public primarily to facilitate writing test cases */
+extern struct file_parser body_parser;
+extern struct file_parser constants_parser;
+extern struct file_parser feat_parser;
 extern struct file_parser flavor_parser;
+extern struct file_parser history_parser;
+extern struct file_parser house_parser;
+extern struct file_parser names_parser;
+extern struct file_parser race_parser;
+extern struct file_parser sex_parser;
+extern struct file_parser trap_parser;
+extern struct file_parser world_parser;
 
 errr grab_effect_data(struct parser *p, struct effect *effect);
 extern void init_file_paths(const char *config, const char *lib, const char *data);

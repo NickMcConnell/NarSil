@@ -322,8 +322,7 @@ int equipped_item_slot(struct player_body body, struct object *item)
 void calc_inventory(struct player *p)//TODO make two quivers (= quiver slots?)
 {
 	int old_inven_cnt = p->upkeep->inven_cnt;
-	int n_max = 1 + z_info->pack_size + z_info->quiver_size
-		+ p->body.count;
+	int n_max = 1 + z_info->pack_size + p->body.count;
 	struct object **old_pack = mem_zalloc(z_info->pack_size
 		* sizeof(*old_pack));
 	bool *assigned = mem_alloc(n_max * sizeof(*assigned));
@@ -332,7 +331,7 @@ void calc_inventory(struct player *p)//TODO make two quivers (= quiver slots?)
 
 	/*
 	 * Equipped items are already taken care of.  Only the others need
-	 * to be tested for assignment to the quiver or pack.
+	 * to be tested for assignment to the pack.
 	 */
 	for (current = p->gear, j = 0; current; current = current->next, ++j) {
 		assert(j < n_max);

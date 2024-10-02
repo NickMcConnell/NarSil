@@ -1176,8 +1176,7 @@ int scan_distant_floor(struct object **items, int max_size, struct player *p,
  * Returns the number of items placed into the list.
  *
  * Maximum space that can be used is
- * z_info->pack_size + z_info->quiver_size + player->body.count +
- * z_info->floor_size,
+ * z_info->pack_size + player->body.count + z_info->floor_size,
  * though practically speaking much smaller numbers are likely.
  */
 int scan_items(struct object **item_list, size_t item_max, struct player *p,

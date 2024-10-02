@@ -364,22 +364,8 @@ static enum parser_error parse_constants_mon_gen(struct parser *p) {
 
 	if (streq(label, "chance"))
 		z->alloc_monster_chance = value;
-	else if (streq(label, "level-min"))
-		z->level_monster_min = value;
-	else if (streq(label, "town-day"))
-		z->town_monsters_day = value;
-	else if (streq(label, "town-night"))
-		z->town_monsters_night = value;
-	else if (streq(label, "repro-max"))
-		z->repro_monster_max = value;
-	else if (streq(label, "ood-chance"))
-		z->ood_monster_chance = value;
-	else if (streq(label, "ood-amount"))
-		z->ood_monster_amount = value;
 	else if (streq(label, "group-max"))
 		z->monster_group_max = value;
-	else if (streq(label, "group-dist"))
-		z->monster_group_dist = value;
 	else
 		return PARSE_ERROR_UNDEFINED_DIRECTIVE;
 
@@ -398,9 +384,7 @@ static enum parser_error parse_constants_mon_play(struct parser *p) {
 	if (value < 0)
 		return PARSE_ERROR_INVALID_VALUE;
 
-	if (streq(label, "break-glyph"))
-		z->glyph_hardness = value;
-	else if (streq(label, "mult-rate"))
+	if (streq(label, "mult-rate"))
 		z->repro_monster_rate = value;
 	else if (streq(label, "mana-cost"))
 		z->mana_cost = value;
@@ -496,12 +480,6 @@ static enum parser_error parse_constants_carry_cap(struct parser *p) {
 
 	if (streq(label, "pack-size"))
 		z->pack_size = value;
-	else if (streq(label, "quiver-size"))
-		z->quiver_size = value;
-	else if (streq(label, "quiver-slot-size"))
-		z->quiver_slot_size = value;
-	else if (streq(label, "thrown-quiver-mult"))
-		z->thrown_quiver_mult = value;
 	else if (streq(label, "floor-size"))
 		z->floor_size = value;
 	else
@@ -574,7 +552,7 @@ static enum parser_error parse_constants_player(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_constants(void) {
+static struct parser *init_parse_constants(void) {
 	struct angband_constants *z = mem_zalloc(sizeof *z);
 	struct parser *p = parser_new();
 
@@ -605,7 +583,7 @@ static void cleanup_constants(void)
 	mem_free(z_info);
 }
 
-static struct file_parser constants_parser = {
+struct file_parser constants_parser = {
 	"constants",
 	init_parse_constants,
 	run_parse_constants,
@@ -716,7 +694,7 @@ static void cleanup_world(void)
 	}
 }
 
-static struct file_parser world_parser = {
+struct file_parser world_parser = {
 	"world",
 	init_parse_world,
 	run_parse_world,
@@ -928,7 +906,7 @@ static enum parser_error parse_feat_look_in_preposition(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_feat(void) {
+static struct parser *init_parse_feat(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "name str name", parse_feat_name);
@@ -1019,7 +997,7 @@ static void cleanup_feat(void) {
 	mem_free(f_info);
 }
 
-static struct file_parser feat_parser = {
+struct file_parser feat_parser = {
 	"terrain",
 	init_parse_feat,
 	run_parse_feat,
@@ -1147,7 +1125,7 @@ static void cleanup_body(void)
 	}
 }
 
-static struct file_parser body_parser = {
+struct file_parser body_parser = {
 	"body",
 	init_parse_body,
 	run_parse_body,
@@ -1201,7 +1179,7 @@ static enum parser_error parse_history_phrase(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_history(void) {
+static struct parser *init_parse_history(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "chart uint chart int next int roll", parse_history_chart);
@@ -1267,7 +1245,7 @@ static void cleanup_history(void)
 	}
 }
 
-static struct file_parser history_parser = {
+struct file_parser history_parser = {
 	"history",
 	init_parse_history,
 	run_parse_history,
@@ -1294,6 +1272,7 @@ static enum parser_error parse_sex_possess(struct parser *p) {
 	struct player_sex *s = parser_priv(p);
 	if (!s)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	string_free((char*)s->possessive);
 	s->possessive = string_make(parser_getstr(p, "pronoun"));
 	return PARSE_ERROR_NONE;
 }
@@ -1302,11 +1281,12 @@ static enum parser_error parse_sex_poetry(struct parser *p) {
 	struct player_sex *s = parser_priv(p);
 	if (!s)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	string_free((char*)s->poetry_name);
 	s->poetry_name = string_make(parser_getstr(p, "name"));
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_sex(void) {
+static struct parser *init_parse_sex(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "name str name", parse_sex_name);
@@ -1347,7 +1327,7 @@ static void cleanup_sex(void)
 	}
 }
 
-static struct file_parser sex_parser = {
+struct file_parser sex_parser = {
 	"sex",
 	init_parse_sex,
 	run_parse_sex,
@@ -1496,7 +1476,7 @@ static enum parser_error parse_race_desc(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_race(void) {
+static struct parser *init_parse_race(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "name str name", parse_race_name);
@@ -1551,7 +1531,7 @@ static void cleanup_race(void)
 	}
 }
 
-static struct file_parser race_parser = {
+struct file_parser race_parser = {
 	"race",
 	init_parse_race,
 	run_parse_race,
@@ -1577,6 +1557,7 @@ static enum parser_error parse_house_name(struct parser *p) {
 static enum parser_error parse_house_alt_name(struct parser *p) {
 	struct player_house *h = parser_priv(p);
 	if (!h) return PARSE_ERROR_MISSING_RECORD_HEADER;
+	string_free((char*)h->alt_name);
 	h->alt_name = string_make(parser_getstr(p, "name"));
 	return PARSE_ERROR_NONE;
 }
@@ -1584,6 +1565,7 @@ static enum parser_error parse_house_alt_name(struct parser *p) {
 static enum parser_error parse_house_short_name(struct parser *p) {
 	struct player_house *h = parser_priv(p);
 	if (!h) return PARSE_ERROR_MISSING_RECORD_HEADER;
+	string_free((char*)h->short_name);
 	h->short_name = string_make(parser_getstr(p, "name"));
 	return PARSE_ERROR_NONE;
 }
@@ -1663,7 +1645,7 @@ static enum parser_error parse_house_desc(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_house(void) {
+static struct parser *init_parse_house(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "name str name", parse_house_name);
@@ -1710,7 +1692,7 @@ static void cleanup_house(void)
 	}
 }
 
-static struct file_parser house_parser = {
+struct file_parser house_parser = {
 	"house",
 	init_parse_house,
 	run_parse_house,
@@ -1757,7 +1739,7 @@ static enum parser_error parse_names_word(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_names(void) {
+static struct parser *init_parse_names(void) {
 	struct parser *p = parser_new();
 	struct names_parse *n = mem_zalloc(sizeof *n);
 	n->section = 0;
@@ -1870,7 +1852,7 @@ static enum parser_error parse_flavor_kind(struct parser *p) {
 }
 
 
-struct parser *init_parse_flavor(void) {
+static struct parser *init_parse_flavor(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 

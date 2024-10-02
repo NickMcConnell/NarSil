@@ -436,7 +436,7 @@ static enum parser_error parse_trap_msg_xtra(struct parser *p) {
     return PARSE_ERROR_NONE;
 }
 
-struct parser *init_parse_trap(void) {
+static struct parser *init_parse_trap(void) {
     struct parser *p = parser_new();
     parser_setpriv(p, NULL);
     parser_reg(p, "name sym name str desc", parse_trap_name);
