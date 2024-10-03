@@ -2227,9 +2227,6 @@ static enum parser_error parse_lore_drop(struct parser *p) {
 	if (sval < 0)
 		return PARSE_ERROR_UNRECOGNISED_SVAL;
 
-	if (parser_getuint(p, "min") > 99 || parser_getuint(p, "max") > 99)
-		return PARSE_ERROR_INVALID_ITEM_NUMBER;
-
 	k = lookup_kind(tval, sval);
 	if (!k)
 		return PARSE_ERROR_UNRECOGNISED_SVAL;
@@ -2290,7 +2287,7 @@ static struct parser *init_parse_lore(void) {
 	parser_reg(p, "spells str spells", parse_lore_spells);
 	parser_reg(p, "message-vis sym spell ?str message", ignored);
 	parser_reg(p, "message-invis sym spell ?str message", ignored);
-	parser_reg(p, "drop sym tval sym sval uint chance uint min uint max", parse_lore_drop);
+	parser_reg(p, "drop sym tval sym sval uint chance rand dice", parse_lore_drop);
 	parser_reg(p, "drop-artifact str name", parse_lore_drop_artifact);
 	parser_reg(p, "color-cycle sym group sym cycle", ignored);
 	return p;
