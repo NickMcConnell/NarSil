@@ -1145,7 +1145,6 @@ static enum parser_error parse_object_cost(struct parser *p) {
 static enum parser_error parse_object_attack(struct parser *p) {
 	struct object_kind *k = parser_priv(p);
 	struct random hd;
-	assert(k);
 
 	if (!k) {
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
@@ -1173,12 +1172,13 @@ static enum parser_error parse_object_defence(struct parser *p) {
 
 static enum parser_error parse_object_alloc(struct parser *p) {
 	struct object_kind *k = parser_priv(p);
-	struct allocation *a = k->alloc;
+	struct allocation *a;
 
 	if (!k) {
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 	}
 	/* Go to the last valid allocation, then allocate a new one */
+	a = k->alloc;
 	if (!a) {
 		k->alloc = mem_zalloc(sizeof(struct allocation));
 		a = k->alloc;
