@@ -137,100 +137,103 @@ effect_index effect_lookup(const char *name)
  */
 int effect_subtype(int index, const char *type)
 {
-	int val = -1;
+	char *pe;
+	long lv;
 
+	lv = strtol(type, &pe, 10);
+	if (pe != type) {
+		/*
+		 * Got a plain numeric value.  Verify that there isn't garbage
+		 * after it and that it doesn't overflow.  Also reject INT_MIN
+		 * and INT_MAX so don't have to check errno to detect overflow
+		 * when sizeof(long) == sizeof(int).
+		 */
+		return (contains_only_spaces(pe) && lv < INT_MAX
+			&& lv > INT_MIN) ? (int)lv : -1;
+	}
 	/* If not a numerical value, assign according to effect index */
-	if (sscanf(type, "%d", &val) != 1) {
-		switch (index) {
-				/* Projection name */
-			case EF_PROJECT_LOS:
-			case EF_PROJECT_LOS_GRIDS:
-			case EF_LIGHT_AREA:
-			case EF_EXPLOSION:
-			case EF_SPOT:
-			case EF_SPHERE:
-			case EF_BREATH:
-			case EF_BOLT:
-			case EF_BEAM:
-			case EF_TERRAIN_BEAM: {
-				val = proj_name_to_idx(type);
-				break;
-			}
+	switch (index) {
+		/* Projection name */
+		case EF_PROJECT_LOS:
+		case EF_PROJECT_LOS_GRIDS:
+		case EF_LIGHT_AREA:
+		case EF_EXPLOSION:
+		case EF_SPOT:
+		case EF_SPHERE:
+		case EF_BREATH:
+		case EF_BOLT:
+		case EF_BEAM:
+		case EF_TERRAIN_BEAM:
+			return proj_name_to_idx(type);
 
-				/* Timed effect name */
-			case EF_CURE:
-			case EF_TIMED_SET:
-			case EF_TIMED_INC:
-			case EF_TIMED_INC_CHECK:
-			case EF_TIMED_INC_NO_RES: {
-				val = timed_name_to_idx(type);
-				break;
-			}
+		/* Timed effect name */
+		case EF_CURE:
+		case EF_TIMED_SET:
+		case EF_TIMED_INC:
+		case EF_TIMED_INC_CHECK:
+		case EF_TIMED_INC_NO_RES:
+			return timed_name_to_idx(type);
 
-				/* Nourishment types */
-			case EF_NOURISH: {
-				if (streq(type, "INC_BY"))
-					val = 0;
-				else if (streq(type, "DEC_BY"))
-					val = 1;
-				break;
+		/* Nourishment types */
+		case EF_NOURISH:
+			if (streq(type, "INC_BY")) {
+				return 0;
+			} else if (streq(type, "DEC_BY")) {
+				return 1;
 			}
+			break;
 
-				/* Summon name */
-			case EF_SUMMON: {
-				val = summon_name_to_idx(type);
-				break;
-			}
+		/* Summon name */
+		case EF_SUMMON:
+			return summon_name_to_idx(type);
 
-				/* Stat name */
-			case EF_RESTORE_STAT:
-			case EF_DRAIN_STAT:
-			case EF_DART: {
-				val = stat_name_to_idx(type);
-				break;
-			}
+		/* Stat name */
+		case EF_RESTORE_STAT:
+		case EF_DRAIN_STAT:
+		case EF_DART:
+			return stat_name_to_idx(type);
 
-				/* Inscribe a glyph */
-			case EF_GLYPH: {
-				if (streq(type, "WARDING"))
-					val = GLYPH_WARDING;
-				break;
+		/* Inscribe a glyph */
+		case EF_GLYPH:
+			if (streq(type, "WARDING")) {
+				return GLYPH_WARDING;
 			}
+			break;
 
-				/* Allow monster teleport toward */
-			case EF_TELEPORT_TO: {
-				if (streq(type, "SELF"))
-					val = 1;
-				break;
+		/* Allow monster teleport toward */
+		case EF_TELEPORT_TO:
+			if (streq(type, "SELF")) {
+				return 1;
 			}
+			break;
 
-				/* Pit types */
-			case EF_PIT: {
-				if (streq(type, "SPIKED"))
-					val = 1;
-				else if (streq(type, "NORMAL"))
-					val = 0;
-				break;
+		/* Pit types */
+		case EF_PIT:
+			if (streq(type, "SPIKED")) {
+				return 1;
+			} else if (streq(type, "NORMAL")) {
+				return 0;
 			}
+			break;
 
-				/* Monster listen types */
-			case EF_NOISE: {
-				if (streq(type, "PLAYER"))
-					val = 1;
-				else if (streq(type, "MONSTER"))
-					val = 0;
-				break;
+		/* Monster listen types */
+		case EF_NOISE:
+			if (streq(type, "PLAYER")) {
+				return 1;
+			} else if (streq(type, "MONSTER")) {
+				return 0;
 			}
+			break;
 
-				/* Some effects only want a radius, so this is a dummy */
-			default: {
-				if (streq(type, "NONE"))
-					val = 0;
+		/* Some effects only want a radius, so this is a dummy */
+		default:
+			if (streq(type, "NONE")) {
+				return 0;
 			}
-		}
+			break;
 	}
 
-	return val;
+	return -1;
 }
 
 static int32_t effect_value_base_zero(void)

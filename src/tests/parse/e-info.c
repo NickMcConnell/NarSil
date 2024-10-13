@@ -234,6 +234,27 @@ static int test_alloc_bad0(void *state) {
 	eq(r, PARSE_ERROR_OUT_OF_BOUNDS);
 	r = parser_parse(p, "alloc:40:268 to 500");
 	eq(r, PARSE_ERROR_OUT_OF_BOUNDS);
+	/* Check missing whitespace. */
+	r = parser_parse(p, "alloc:40:2to 7");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
+	r = parser_parse(p, "alloc:40:2 to7");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
+	/* Check when either integer is invalid or out of range. */
+	r = parser_parse(p, "alloc:40:a to 7");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
+	r = parser_parse(p, "alloc:40:2 to b");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
+	r = parser_parse(p, "alloc:40:-989999988989898889389 to 1");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
+	r = parser_parse(p, "alloc:40:1 to 3892867393957396729696739023");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
+	/* Check an invalid separating string. */
+	r = parser_parse(p, "alloc:40:2 x 7");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
+	r = parser_parse(p, "alloc:40:2 sto 7");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
+	r = parser_parse(p, "alloc:40:2 top 7");
+	eq(r, PARSE_ERROR_INVALID_ALLOCATION);
 	ok;
 }
 
@@ -515,6 +536,16 @@ static int test_values_bad0(void *state) {
 	eq(r, PARSE_ERROR_INVALID_VALUE);
 	/* Try an unrecognized element. */
 	r = parser_parse(p, "values:RES_XYZZY[3]");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	/* Check handling of a missing opening bracket. */
+	r = parser_parse(p, "values:STEALTH1]");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	r = parser_parse(p, "values:RES_POIS1]");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	/* Check handling of missing closing bracket. */
+	r = parser_parse(p, "values:STEALTH[1");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	r = parser_parse(p, "values:RES_POIS[1");
 	eq(r, PARSE_ERROR_INVALID_VALUE);
 	ok;
 }

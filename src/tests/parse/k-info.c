@@ -716,6 +716,19 @@ static int test_values_bad0(void *state) {
 	/* Check for invalid resistance. */
 	r = parser_parse(p, "values:RES_XYZZY[-1]");
 	eq(r, PARSE_ERROR_INVALID_VALUE);
+	/* Check handling of missing opening bracket. */
+	r = parser_parse(p, "values:STEALTH1]");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	r = parser_parse(p, "values:RES_COLD1]");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	/* Check handling of missing closing bracket. */
+	r = parser_parse(p, "values:STEALTH[1");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	r = parser_parse(p, "values:RES_COLD[1");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	/* Check handling of long dice string. */
+	r = parser_parse(p, "values:STEALTH[-1+0000000000000000000000000001d000000000000000000000001M0000000000000000000001]");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
 	ok;
 }
 
