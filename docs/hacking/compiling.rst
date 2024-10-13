@@ -1,10 +1,10 @@
 Compiling Instructions
 ======================
 
-The methods for compiling Angband vary by platform and by build system. If
-you get Angband working on a different platform or build system please let us
+The methods for compiling NarSil vary by platform and by build system. If
+you get NarSil working on a different platform or build system please let us
 know so we can add to this file.  Unless otherwise noted, all the commands
-listed are to be run from top-level directory of the Angband source files.
+listed are to be run from top-level directory of the NarSil source files.
 
 .. contents:: Contents
    :local:
@@ -17,7 +17,7 @@ To build the new Cocoa front-end::
     cd src
     make -f Makefile.osx
 
-That'll create a self-contained Mac application, Angband.app, in the directory
+That'll create a self-contained Mac application, NarSil.app, in the directory
 above src.  You may use that application where it is or move it to wherever
 is convenient for you.
 
@@ -62,8 +62,8 @@ UndefinedBehaviorSanitizer tools.
 To run the generated executable under Xcode's command-line debugger, lldb, do
 this if you are already in the src directory from the compilation step::
 
-    cd ../Angband.app/Contents/MacOS
-    lldb ./angband
+    cd ../NarSil.app/Contents/MacOS
+    lldb ./narsil
 
 Test cases
 ~~~~~~~~~~
@@ -85,7 +85,7 @@ versions, the second line above would be::
     bin/monster/attack
 
 The reason for changing directories to src/tests is to match up with how the
-tests were compiled:  they expect Angband's configuration data to be in
+tests were compiled:  they expect NarSil's configuration data to be in
 ../../lib.
 
 Statistics build
@@ -115,15 +115,16 @@ can optionally build (GCU, SDL, SDL2, and X11) using arguments to configure
 such as --enable-sdl, --disable-x11, etc. Each front end has different
 dependencies (e.g. ncurses, SDL libraries, etc).
 
-If your source files are from cloning the git repository, you'll first need
-to run this to create the configure script::
+If your source files are from a "Source code" link on the github releases page
+or from cloning the git repository, you'll first need to run this to create
+the configure script::
 
     ./autogen.sh
 
-That is not necessary if your source files are from the source archive,
-a .tar.gz file, for a release.
+That is not necessary for source files that are from the github releases page
+but not from a "Source code" link on that page.
 
-To build Angband to be run in-place, then run this::
+To build NarSil to be run in-place, then run this::
 
     ./configure --with-no-install [other options as needed]
     make
@@ -131,20 +132,20 @@ To build Angband to be run in-place, then run this::
 That'll create an executable in the src directory.  You can run it from the
 same directory where you ran make with::
 
-    src/angband
+    src/narsil
 
 To see what command line options are accepted, use::
 
-    src/angband -?
+    src/narsil -?
 
-Note that some of Angband's makefiles (src/Makefile and src/tests/Makefile are
+Note that some of NarSil's makefiles (src/Makefile and src/tests/Makefile are
 the primary offenders) assume features present in GNU make.  If the default
 make on your system is not GNU make, you'll likely have to replace instances
 of make in the quoted commands with whatever will run GNU make.  On OpenBSD,
 for instance, that is gmake (which can be installed by running "pkg_add gmake").
 
 On systems where there's several C compilers, ./configure may choose the
-wrong one.  One example of that is on OpenBSD 6.9 when building Angband with
+wrong one.  One example of that is on OpenBSD 6.9 when building NarSil with
 SDL2:  ./configure chooses gcc but the installed version of gcc can't handle
 the SDL2 header files that are installed via pkg_add.  To override ./configure's
 default selection of the compiler, use::
@@ -155,7 +156,7 @@ Replace the_good_compiler in that command with the command for running the
 compiler that you want.  For OpenBSD 6.9 when compiling with SDL2, you'd
 replace the_good_compiler with cc or clang.
 
-To build Angband to be installed in some other location, run this::
+To build NarSil to be installed in some other location, run this::
 
     ./configure --prefix /path/to [other options as needed]
     make
@@ -173,9 +174,9 @@ one or more of the other graphical front ends are selected. The graphical front
 ends are: GCU, SDL, SDL2 and X11.  All of the following generate a
 self-contained directory, build, that you can move elsewhere or rename.  To
 run the result, change directories to build (or whatever you renamed it to) and
-run ./Angband .
+run ./NarSil .
 
-To build Angband with the X11 front end::
+To build NarSil with the X11 front end::
 
     mkdir build && cd build
     cmake ..
@@ -184,19 +185,19 @@ To build Angband with the X11 front end::
 If you want to build the X11 front end while building one of the other
 graphical front ends, the option to pass to cmake is -DSUPPORT_X11_FRONTEND=ON .
 
-To build Angband with the SDL front end::
+To build NarSil with the SDL front end::
 
     mkdir build && cd build
     cmake -DSUPPORT_SDL_FRONTEND=ON ..
     make
 
-To build Angband with the SDL2 front end::
+To build NarSil with the SDL2 front end::
 
     mkdir build && cd build
     cmake -DSUPPORT_SDL2_FRONTEND=ON ..
     make
 
-To build Angband with the GCU front end::
+To build NarSil with the GCU front end::
 
     mkdir build && cd build
     cmake -DSUPPORT_GCU_FRONTEND=ON ..
@@ -232,14 +233,24 @@ the name or number of the group to use.  If you do not set the group, the games
 group will be used.  Another option creates a read-only installation with any
 variable state, including the high score and save files, stored on a per-user
 basis in the user's own directories.  To enable that option, pass
--DREADONLY_INSTALL=ON to cmake.  Turning on both SHARED_INSTALL and
-READONLY_INSTALL is not supported and will cause cmake to exit with an error.
-Turning either SHARED_INSTALL or READONLY_INSTALL when SUPPORT_WINDOWS_FRONTEND
-is on is also not supported and will cause cmake to exit with an error.  To
-customize where the shared and read-only installations place files, pass
--DCMAKE_INSTALL_PREFIX=prefix to install all the files within the given prefix
-(i.e. using -DCMAKE_INSTALL_PREFIX=/opt/Angband-4.2.3 would place all the files
-within /opt/Angband-4.2.3 or its subdirectories).  For finer-grained placement
+-DREADONLY_INSTALL=ON to cmake.  With either SHARED_INSTALL or READONLY_INSTALL,
+you will need to run 'make install' after the other steps for compiling with
+CMake.  As an example, this would build a shared installation with an
+executable that is set gid for the games group::
+
+    mkdir build && cd build
+    cmake -DSHARED_INSTALL=ON -DSUPPORT_GCU_FRONTEND=ON ..
+    make
+    sudo make install
+
+Turning on both SHARED_INSTALL and READONLY_INSTALL is not supported and will
+cause cmake to exit with an error.  Turning either SHARED_INSTALL or
+READONLY_INSTALL when SUPPORT_WINDOWS_FRONTEND is on is also not supported and
+will cause cmake to exit with an error.  To customize where the shared and
+read-only installations place files, pass -DCMAKE_INSTALL_PREFIX=prefix to
+install all the files within the given prefix (i.e. using
+-DCMAKE_INSTALL_PREFIX=/opt/NarSil-1.3.0 would place all the files
+within /opt/NarSil-1.3.0 or its subdirectories).  For finer-grained placement
 of the files within the given prefix, you could also set CMAKE_INSTALL_BINDIR
 (for the subdirectory of prefix where the executable will be placed; by
 default that is bin), CMAKE_INSTALL_DATAROOTDIR (for the subdirectory of
@@ -255,7 +266,7 @@ set the destination when running cmake by setting the variables mentioned above.
 Cross-building for Windows with Mingw
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Many developers (as well as the auto-builder) build Angband for Windows using
+Many developers (as well as the auto-builder) build NarSil for Windows using
 Mingw on Linux. This requires that the necessary Mingw packages are all
 installed.
 
@@ -263,13 +274,14 @@ This type of build now also uses autotools so the overall procedure is very
 similar to that for a native build.  The key difference is setting up to
 cross-compile when running configure.
 
-If your source files are from cloning the git repository, you'll first need
-to run this to create the configure script::
+If your source files are from a "Source code" link on the github releases page
+or from cloning the git repository, you'll first need to run this to create the
+configure script::
 
         ./autogen.sh
 
-That is not necessary if your source files are from the source archive,
-a .tar.gz file, for a release.
+That is not necessary for source files that are from the github releases page
+but not from a "Source code" link on that page.
 
 Then configure the cross-compilation and perform the compilation itself::
 
@@ -281,26 +293,15 @@ system. Mingw installs commands like 'i686-w64-mingw32-gcc'. The value of --host
 should be that same command with the '-gcc' removed. Instead of i686 you may
 see i686, amd64, etc. The value of --build should be the host you're building
 on (see http://www.gnu.org/savannah-checkouts/gnu/autoconf/manual/autoconf-2.68/html_node/Specifying-Target-Triplets.html#Specifying%20Names for
-gory details of how these triplets are arrived at).  The 'make install' step
-only works with very recent version.  For older ones, use this instead of the
-last step::
-
-	make
-	cp src/angband.exe .
-	cp src/win/dll/*.dll .
+gory details of how these triplets are arrived at).
 
 To run the result, you can use wine like this::
 
-	wine angband.exe
+	wine narsil.exe
 
-TODO: except for recent versions (after Angband 4.2.3) you likely need to
-manually disable curses (add --disable-curses to the options passed to
-configure), or the host curses installation will be found causing the build
-process to fail when linking angband.exe (the error message will likely be
-"cannot find -lncursesw" and "cannot find -ltinfo").  Most of the --with or
---enable options for configure are not appropriate when using --enable-win.
-The ones that are okay are --with-private-dirs (on by default),
---with-gamedata-in-lib (has no effect), and --enable-release.
+TODO: most of the --with or --enable options for configure are not appropriate
+when using --enable-win.  The ones that are okay are --with-private-dirs (on
+by default), --with-gamedata-in-lib (has no effect), and --enable-release.
 
 A build using Mingw cross-compiler is also possible with CMake.  You will
 need to have a toolchain file appropriate for Mingw on your system.  Some
@@ -325,17 +326,17 @@ use this to perform the build::
 	cmake -DCMAKE_TOOLCHAIN_FILE=/home/user/mingw-cross.cmake ..
 	make
 
-That will leave an Angband.exe and the needed .dll files in the directory
+That will leave an NarSil.exe and the needed .dll files in the directory
 where make was run.  That executable can be run with wine:
 
-	wine Angband.exe
+	wine NarSil.exe
 
 Debug build
 ~~~~~~~~~~~
 
 **WARNING** this build is intended primarily for debugging purposes. It might have a somewhat slower performance, higher memory requirements and panic saves don't always work (in case of a crash there is a higher chance of losing progress).
 
-When debugging crashes it can be very useful to get more information about *what exactly* went wrong. There are many tools that can detect common issues and provide useful information. Two such tools that are best used together are AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan). To use them you'll need to enable them when compiling angband::
+When debugging crashes it can be very useful to get more information about *what exactly* went wrong. There are many tools that can detect common issues and provide useful information. Two such tools that are best used together are AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan). To use them you'll need to enable them when compiling NarSil::
 
     ./configure [options]
     SANITIZE_FLAGS="-fsanitize=undefined -fsanitize=address" make
@@ -417,22 +418,19 @@ Using MinGW
 This build now also uses autotools, so should be very similar to the Linux
 build. Open the MinGW shell (MSYS) by running msys.bat.
 
-If your source files are from cloning the git repository, you'll first need
-to run this in the directory to create the configure script::
+If your source files are from a "Source code" link on the github releases page
+or from cloning the git repository, you'll first need to run this in the
+directory to create the configure script::
 
         ./autogen.sh
 
-That is not necessary if your source files are from the source archive,
-a .tar.gz file, for a release.
+That is not necessary for source files that are from the github releases page
+but not from a "Source code" link on that page.
 
 Then run these commands::
 
         ./configure --enable-win
         make install
-
-The last step only works with very recent versions.  For older ones, use
-"make" rather than "make install" and copy src/angband.exe,
-src/win/dll/libpng12.dll, and src/win/dll/zlib1.dll to the top-level directory.
 
 Using Cygwin (with MinGW)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -443,24 +441,21 @@ can run with or without Cygwin.
 Use the Cygwin setup.exe to install the mingw-gcc-core package and any
 dependencies suggested by the installer.
 
-If your source files are from cloning the git repository, you'll first need
-to run this in the directory to create the configure script::
+If your source files are from a "Source code" link on the github releases
+page or from cloning the git repository, you'll first need to run this in the
+directory to create the configure script::
 
         ./autogen.sh
 
-That is not necessary if your source files are from the source archive,
-a .tar.gz file, for a release.
+That is not necessary for source files that are from the github releases page
+but not from a "Source code" link on that page.
 
 Then run these commands::
 
 	./configure --enable-win --host=i686-pc-mingw32
 	make install
 
-The last step only works with very recent versions.  For older ones, use
-"make" rather than "make install" and copy src/angband.exe,
-src/win/dll/libpng12.dll, and src/win/zlib1.dll to the top-level directory.
-
-If you want to build the Unix version of Angband that uses X11 or
+If you want to build the Unix version of NarSil that uses X11 or
 Curses and run it under Cygwin, then follow the native build
 instructions (./autogen.sh; ./configure; make; make install).
 
@@ -501,9 +496,9 @@ Then the executable with SDL2 sound support can be built with::
 	cd src
 	make -f Makefile.msys2.sdl2 SOUND=yes
 
-Once built, go to the root of the source directory and start angband by::
+Once built, go to the root of the source directory and start NarSil by::
 
-	./angband.exe -uPLAYER
+	./narsil.exe -uPLAYER
 
 The ncurses client may not be able to start properly from msys2 shell, try::
 
@@ -512,7 +507,7 @@ The ncurses client may not be able to start properly from msys2 shell, try::
 and run::
 
 	export TERM=
-	./angband.exe -uPLAYER
+	./narsil.exe -uPLAYER
 
 Using eclipse (Indigo) on Windows (with MinGW)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -521,7 +516,7 @@ Using eclipse (Indigo) on Windows (with MinGW)
 * Clone your/the upstream repo, or Add your existing cloned repo, Next >
 * Select "Use the New Projects Wizard", Finish
 * In the New Project Wizard, select C/C++ | Makefile Project with Existing Code, Next >
-* Give the project a name (Angband),
+* Give the project a name (NarSil),
   * navigate to the repo you cloned in "Existing Code Location",
   * Select "C", but not "C++"
   * Choose "MinGW GCC" Toolchain, Finish
@@ -529,7 +524,8 @@ Using eclipse (Indigo) on Windows (with MinGW)
 * Go to C/C++ Build | Toolchain Editor, select "Gnu Make Builder" instead of "CDT Internal Builder"
 * go to C/C++ Build, uncheck "Generate Makefiles automatically"
 
-You still need to run ./autogen.sh, if your source files are from cloning the
+You still need to run ./autogen.sh, if your source files are from a
+"Source code" link on the github releases page or from cloning the
 git repository, and ./configure manually, outside eclipse (see above)
 
 Using Visual Studio
@@ -562,9 +558,9 @@ The executable can then be built using::
         cd src
         make -f Makefile.nds
 
-This will generate ``angband.nds`` in the current directory. For the Nintendo
+This will generate ``narsil.nds`` in the current directory. For the Nintendo
 3DS, replace the ``Makefile.nds`` part of the command with ``Makefile.3ds``,
-and ``angband.3dsx`` will be generated instead.
+and ``narsil.3dsx`` will be generated instead.
 
 Debugging
 ~~~~~~~~~
@@ -580,12 +576,12 @@ as this disables some optimization and enables more debugging information.
 Once the GDB server has been set up (and the host and port noted), the GDB client
 can be loaded with the executable information::
 
-        /path/to/devkitARM/bin/arm-none-eabi-gdb angband.elf
+        /path/to/devkitARM/bin/arm-none-eabi-gdb narsil.elf
 
-The ``angband.elf`` file is a byproduct from the build process, and it has to match
+The ``narsil.elf`` file is a byproduct from the build process, and it has to match
 the executable that is currently running in the emulator or on the device.
-It is always named ``angband.elf`` for the Nintendo 3DS, and it's always either
-``angband.arm7.elf`` or ``angband.arm9.elf`` for the Nintendo DS, depending on
+It is always named ``narsil.elf`` for the Nintendo 3DS, and it's always either
+``narsil.arm7.elf`` or ``narsil.arm9.elf`` for the Nintendo DS, depending on
 which processor should be debugged (as the main game runs on the ARM9 core exclusively,
 this will almost always be the core that should be debugged).
 
