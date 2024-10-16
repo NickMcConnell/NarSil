@@ -39,6 +39,13 @@ int setup_tests(void **state)
 		cleanup_angband();
 		return 1;
 	}
+	/*
+	 * Needed for scare_onlooking_friends().  For now, set mon_max
+	 * to zero so scare_onlooking_friends() does nothing, but at some
+	 * point, invest the effort to test that the morale changes are
+	 * correctly applied as a side effect of slay_bonus().
+	 */
+	cave = mem_zalloc(sizeof(*cave));
 	*state = ts;
 	return 0;
 }
@@ -129,7 +136,7 @@ static void fill_in_monster(struct monster *mon, struct monster_race *race)
 	mon->min_range = 0;
 	mon->best_range = 0;
 }
-#if 0
+
 static void fill_in_object_base(struct object_base *base)
 {
 	static char name[20] = "weapon";
@@ -139,8 +146,14 @@ static void fill_in_object_base(struct object_base *base)
 	base->next = NULL;
 	base->attr = COLOUR_WHITE;
 	of_wipe(base->flags);
-	kf_wipe(base->flags);
+	kf_wipe(base->kind_flags);
 	memset(base->el_info, 0, ELEM_MAX * sizeof(base->el_info[0]));
+	base->smith_attack_valid = false;
+	base->smith_attack_artistry = 0;
+	base->smith_attack_artefact = 0;
+	memset(base->smith_flags, 0, OF_SIZE * sizeof(base->smith_flags[0]));
+	memset(base->smith_el_info, 0, ELEM_MAX * sizeof(base->smith_el_info[0]));
+	memset(base->smith_modifiers, 0, OBJ_MOD_MAX * sizeof(base->smith_modifiers[0]));
 	base->break_perc = 0;
 	base->max_stack = 40;
 	base->num_svals = 1;
@@ -160,6 +173,11 @@ static void fill_in_object_kind(struct object_kind *kind,
 	kind->tval = base->tval;
 	kind->sval = 1;
 	kind->pval = 0;
+	kind->special1.base = 0;
+	kind->special1.dice = 0;
+	kind->special1.sides = 0;
+	kind->special1.m_bonus = 0;
+	kind->special2 = 0;
 	kind->att = 0,
 	kind->evn = 1,
 	kind->dd = 1,
@@ -170,6 +188,8 @@ static void fill_in_object_kind(struct object_kind *kind,
 	kind->cost = 0;
 	of_wipe(kind->flags);
 	kf_wipe(kind->kind_flags);
+	memset(kind->modifiers, 0, OBJ_MOD_MAX * sizeof(kind->modifiers[0]));
+	memset(kind->el_info, 0, OBJ_MOD_MAX * sizeof(kind->el_info[0]));
 	kind->brands = NULL;
 	kind->slays = NULL;
 	kind->d_attr = COLOUR_WHITE;
@@ -229,7 +249,7 @@ static void fill_in_object(struct object *obj, struct object_kind *kind)
 	obj->origin_race = NULL;
 	obj->note = 0;
 }
-#endif
+
 static int test_same_monsters_slain(void *state)
 {
 	int i1, i2;
@@ -254,8 +274,7 @@ static int test_same_monsters_slain(void *state)
 	ok;
 }
 
-#if 0 /* Turn this into a test of slay_bonus() */
-static int test_improve_attack_modifier(void *state)
+static int test_slay_bonus(void *state)
 {
 	struct slays_test_state *ts = state;
 	struct object_base weapon_base;
@@ -264,9 +283,7 @@ static int test_improve_attack_modifier(void *state)
 	struct monster_base dummy_base;
 	struct monster_race dummy_race;
 	struct monster dummy;
-	char *old_base;
-	int b, s, i1;
-	char verb[20];
+	int bonus, b, s, i1;
 
 	fill_in_object_base(&weapon_base);
 	fill_in_object_kind(&weapon_kind, &weapon_base);
@@ -274,29 +291,16 @@ static int test_improve_attack_modifier(void *state)
 	fill_in_monster_base(&dummy_base);
 	fill_in_monster_race(&dummy_race, &dummy_base);
 	fill_in_monster(&dummy, &dummy_race);
-	old_base = dummy_race.base->name;
 
 	/* Has no slays or brands that would be effective. */
 	b = 0;
 	s = 0;
-	my_strcpy(verb, "hit", sizeof(verb));
-	improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb, false);
-	require(b == 0 && s == 0 && streq(verb, "hit"));
+	bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+	require(bonus == 0 && b == 0 && s == 0);
 	b = 0;
 	s = 0;
-	my_strcpy(verb, "hit", sizeof(verb));
-	improve_attack_modifier(player, NULL, &dummy, &b, &s, verb, false);
-	require(b == 0 && s == 0 && streq(verb, "hit"));
-	b = 0;
-	s = 0;
-	my_strcpy(verb, "hit", sizeof(verb));
-	improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb, true);
-	require(b == 0 && s == 0 && streq(verb, "hit"));
-	b = 0;
-	s = 0;
-	my_strcpy(verb, "hit", sizeof(verb));
-	improve_attack_modifier(player, NULL, &dummy, &b, &s, verb, true);
-	require(b == 0 && s == 0 && streq(verb, "hit"));
+	bonus = slay_bonus(player, NULL, &dummy, &s, &b);
+	require(bonus == 0 && b == 0 && s == 0);
 
 	/*
 	 * Has no slays or brands that would be effective; check that preset
@@ -305,76 +309,21 @@ static int test_improve_attack_modifier(void *state)
 	i1 = rand_range(1, z_info->brand_max - 1);
 	b = i1;
 	s = 0;
-	my_strcpy(verb, "punch", sizeof(verb));
-	improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb, false);
-	require(b == i1 && s == 0 && streq(verb, "punch"));
+	bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+	require(bonus == 0 && b == i1 && s == 0);
 	b = i1;
 	s = 0;
-	my_strcpy(verb, "punch", sizeof(verb));
-	improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb, true);
-	require(b == i1 && s == 0 && streq(verb, "punch"));
-	b = i1;
-	s = 0;
-	my_strcpy(verb, "punch", sizeof(verb));
-	improve_attack_modifier(player, NULL, &dummy, &b, &s, verb, false);
-	require(b == i1 && s == 0 && streq(verb, "punch"));
-	b = i1;
-	s = 0;
-	my_strcpy(verb, "punch", sizeof(verb));
-	improve_attack_modifier(player, NULL, &dummy, &b, &s, verb, true);
-	require(b == i1 && s == 0 && streq(verb, "punch"));
+	bonus = slay_bonus(player, NULL, &dummy, &s, &b);
+	require(bonus == 0 && b == i1 && s == 0);
 	i1 = rand_range(1, z_info->slay_max - 1);
 	b = 0;
 	s = i1;
-	my_strcpy(verb, "punch", sizeof(verb));
-	improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb, false);
-	require(b == 0 && s == i1 && streq(verb, "punch"));
+	bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+	require(bonus == 0 && b == 0 && s == i1);
 	b = 0;
 	s = i1;
-	my_strcpy(verb, "punch", sizeof(verb));
-	improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb, true);
-	require(b == 0 && s == i1 && streq(verb, "punch"));
-	b = 0;
-	s = i1;
-	my_strcpy(verb, "punch", sizeof(verb));
-	improve_attack_modifier(player, NULL, &dummy, &b, &s, verb, false);
-	require(b == 0 && s == i1 && streq(verb, "punch"));
-	b = 0;
-	s = i1;
-	my_strcpy(verb, "punch", sizeof(verb));
-	improve_attack_modifier(player, NULL, &dummy, &b, &s, verb, true);
-	require(b == 0 && s == i1 && streq(verb, "punch"));
-
-	/* Check temporary slay or brand. */
-	for (i1 = 1; i1 < z_info->brand_max; ++i1) {
-		if (!set_temporary_brand(player, i1)) continue;
-		b = 0;
-		s = 0;
-		my_strcpy(verb, "punch", sizeof(verb));
-		improve_attack_modifier(player, NULL, &dummy, &b, &s,
-			verb, false);
-		require(b == i1 && s == 0 && streq(verb, brands[i1].verb));
-		require(clear_temporary_brand(player, i1));
-	}
-	for (i1 = 1; i1 < z_info->slay_max; ++i1) {
-		if (!slays[i1].base|| !slays[i1].race_flag) continue;
-		if (!set_temporary_slay(player, i1)) continue;
-		rf_on(dummy_race.flags, slays[i1].race_flag);
-		if (slays[i1].base) {
-			dummy_race.base->name = slays[i1].base;
-		}
-		b = 0;
-		s = 0;
-		my_strcpy(verb, "punch", sizeof(verb));
-		improve_attack_modifier(player, NULL, &dummy, &b, &s,
-			verb, false);
-		require(b == 0 && s == i1 && streq(verb, slays[i1].melee_verb));
-		require(clear_temporary_slay(player, i1));
-		rf_off(dummy_race.flags, slays[i1].race_flag);
-		if (slays[i1].base) {
-			dummy_race.base->name = old_base;
-		}
-	}
+	bonus = slay_bonus(player, NULL, &dummy, &s, &b);
+	require(bonus == 0 && b == 0 && s == i1);
 
 	memset(ts->slays, 0, z_info->slay_max * sizeof(*ts->slays));
 	memset(ts->brands, 0, z_info->brand_max * sizeof(*ts->brands));
@@ -388,32 +337,37 @@ static int test_improve_attack_modifier(void *state)
 
 		b = 0;
 		s = 0;
-		my_strcpy(verb, "hit", sizeof(verb));
-		improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb,
-			false);
-		require(b == i1 && s == 0 && streq(verb, brands[i1].verb));
-		b = 0;
-		s = 0;
-		my_strcpy(verb, "hit", sizeof(verb));
-		improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb,
-			true);
-		require(b == i1 && s == 0 && prefix(verb, brands[i1].verb)
-			&& suffix(verb, "s"));
+		bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+		require(bonus == brands[i1].dice && b == i1 && s == 0);
 
-		rf_on(dummy.race->flags, brands[i1].resist_flag);
-		b = 0;
-		s = 0;
-		my_strcpy(verb, "hit", sizeof(verb));
-		improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb,
-			false);
-		require(b == 0 && s == 0 && streq(verb, "hit"));
-		b = 0;
-		s = 0;
-		my_strcpy(verb, "hit", sizeof(verb));
-		improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb,
-			true);
-		require(b == 0 && s == 0 && streq(verb, "hit"));
-		rf_off(dummy.race->flags, brands[i1].resist_flag);
+		if (brands[i1].resist_flag) {
+			rf_on(dummy.race->flags, brands[i1].resist_flag);
+			b = 0;
+			s = 0;
+			bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+			require(bonus == 0 && b == 0 && s == 0);
+			rf_off(dummy.race->flags, brands[i1].resist_flag);
+		}
+
+		if (brands[i1].vuln_flag) {
+			rf_on(dummy.race->flags, brands[i1].vuln_flag);
+			b = 0;
+			s = 0;
+			bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+			require(bonus == brands[i1].dice + brands[i1].vuln_dice
+				&& b == i1 && s == 0);
+
+			if (brands[i1].resist_flag) {
+				rf_on(dummy.race->flags, brands[i1].resist_flag);
+				b = 0;
+				s = 0;
+				bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+				require(bonus == 0 && b == 0 && s == 0);
+				rf_off(dummy.race->flags, brands[i1].resist_flag);
+			}
+
+			rf_off(dummy.race->flags, brands[i1].vuln_flag);
+		}
 
 		weapon.brands[i1] = false;
 		weapon.brands = old_brands;
@@ -423,7 +377,7 @@ static int test_improve_attack_modifier(void *state)
 	for (i1 = 1; i1 < z_info->slay_max; ++i1) {
 		bool *old_slays;
 
-		if (!slays[i1].base|| !slays[i1].race_flag) continue;
+		if (!slays[i1].race_flag) continue;
 
 		old_slays = weapon.slays;
 		weapon.slays = ts->slays;
@@ -431,37 +385,15 @@ static int test_improve_attack_modifier(void *state)
 
 		b = 0;
 		s = 0;
-		my_strcpy(verb, "hit", sizeof(verb));
-		improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb,
-			false);
-		require(b == 0 && s == 0 && streq(verb, "hit"));
-		b = 0;
-		s = 0;
-		my_strcpy(verb, "hit", sizeof(verb));
-		improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb,
-			true);
-		require(b == 0 && s == 0 && streq(verb, "hit"));
+		bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+		require(bonus == 0 && b == 0 && s == 0);
 
 		rf_on(dummy_race.flags, slays[i1].race_flag);
-		if (slays[i1].base) {
-			dummy_race.base->name = slays[i1].base;
-		}
 		b = 0;
 		s = 0;
-		my_strcpy(verb, "hit", sizeof(verb));
-		improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb,
-			false);
-		require(b == 0 && s == i1 && streq(verb, slays[i1].melee_verb));
-		b = 0;
-		s = 0;
-		my_strcpy(verb, "hit", sizeof(verb));
-		improve_attack_modifier(player, &weapon, &dummy, &b, &s, verb,
-			true);
-		require(b == 0 && s == i1 && streq(verb, slays[i1].range_verb));
+		bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+		require(bonus == slays[i1].dice && b == 0 && s == i1);
 		rf_off(dummy_race.flags, slays[i1].race_flag);
-		if (slays[i1].base) {
-			dummy_race.base->name = old_base;
-		}
 
 		weapon.slays[i1] = false;
 		weapon.slays = old_slays;
@@ -476,10 +408,11 @@ static int test_improve_attack_modifier(void *state)
 
 		for (i2 = i1 + 1; i2 < z_info->brand_max; ++i2) {
 			bool *old_brands;
-			int expected;
 
-			if (brands[i1].resist_flag == brands[i2].resist_flag)
+			if (!brands[i1].resist_flag && brands[i1].resist_flag
+					== brands[i2].resist_flag) {
 				continue;
+			}
 
 			old_brands = weapon.brands;
 			weapon.brands = ts->brands;
@@ -487,118 +420,55 @@ static int test_improve_attack_modifier(void *state)
 			weapon.brands[i2] = true;
 
 			/* Susceptible to both */
-			if (brands[i1].multiplier >= brands[i2].multiplier) {
-				expected = i1;
-			} else {
-				expected = i2;
-			}
 			b = 0;
 			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == expected && s == 0
-				&& streq(verb, brands[expected].verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == expected && s == 0
-				&& prefix(verb, brands[expected].verb)
-				&& suffix(verb, "s"));
+			bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+			require(bonus == brands[i1].dice + brands[i2].dice
+				&& b == i2 && s == 0);
 
 			/* Only susceptible to the second */
-			rf_on(dummy.race->flags, brands[i1].resist_flag);
-			expected = i2;
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == expected && s == 0
-				&& streq(verb, brands[expected].verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == expected && s == 0
-				&& prefix(verb, brands[expected].verb)
-				&& suffix(verb, "s"));
-			rf_off(dummy.race->flags, brands[i1].resist_flag);
+			if (brands[i1].resist_flag) {
+				rf_on(dummy.race->flags, brands[i1].resist_flag);
+				b = 0;
+				s = 0;
+				bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+				require(bonus == brands[i2].dice && b == i2 && s == 0);
+				rf_off(dummy.race->flags, brands[i1].resist_flag);
+			}
 
 			/* Only susceptible to the first */
-			rf_on(dummy.race->flags, brands[i2].resist_flag);
-			expected = i1;
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == expected && s == 0
-				&& streq(verb, brands[expected].verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == expected && s == 0
-				&& prefix(verb, brands[expected].verb)
-				&& suffix(verb, "s"));
-			rf_off(dummy.race->flags, brands[i2].resist_flag);
+			if (brands[i2].resist_flag) {
+				rf_on(dummy.race->flags, brands[i2].resist_flag);
+				b = 0;
+				s = 0;
+				bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+				require(bonus == brands[i1].dice && b == i1 && s == 0);
+				rf_off(dummy.race->flags, brands[i2].resist_flag);
+			}
 
 			if (brands[i1].vuln_flag) {
 				/* Especially vulnerable to the first */
 				rf_on(dummy.race->flags, brands[i1].vuln_flag);
-				if (2 * brands[i1].multiplier
-						>= brands[i2].multiplier) {
-					expected = i1;
-				} else {
-					expected = i2;
-				}
 				b = 0;
 				s = 0;
-				my_strcpy(verb, "hit", sizeof(verb));
-				improve_attack_modifier(player, &weapon, &dummy,
-					&b, &s, verb, false);
-				require(b == expected && s == 0
-					&& streq(verb, brands[expected].verb));
-				b = 0;
-				s = 0;
-				my_strcpy(verb, "hit", sizeof(verb));
-				improve_attack_modifier(player, &weapon, &dummy,
-					&b, &s, verb, true);
-				require(b == expected && s == 0
-					&& prefix(verb, brands[expected].verb)
-					&& suffix(verb, "s"));
+				bonus = slay_bonus(player, &weapon, &dummy,
+					&s, &b);
+				require(bonus == brands[i1].dice
+					+ brands[i1].vuln_dice
+					+ brands[i2].dice
+					&& b == i2 && s == 0);
 				rf_off(dummy.race->flags, brands[i1].vuln_flag);
 			}
 
 			if (brands[i2].vuln_flag) {
 				/* Especially vulnerable to the second */
 				rf_on(dummy.race->flags, brands[i2].vuln_flag);
-				if (2 * brands[i2].multiplier
-						> brands[i1].multiplier) {
-					expected = i2;
-				} else {
-					expected = i1;
-				}
-				b = 0;
-				s = 0;
-				my_strcpy(verb, "hit", sizeof(verb));
-				improve_attack_modifier(player, &weapon, &dummy,
-					&b, &s, verb, false);
-				require(b == expected && s == 0
-					&& streq(verb, brands[expected].verb));
-				b = 0;
-				s = 0;
-				my_strcpy(verb, "hit", sizeof(verb));
-				improve_attack_modifier(player, &weapon, &dummy,
-					&b, &s, verb, true);
-				require(b == expected && s == 0
-					&& prefix(verb, brands[expected].verb)
-					&& suffix(verb, "s"));
+				bonus = slay_bonus(player, &weapon, &dummy,
+					&s, &b);
+				require(bonus == brands[i1].dice
+					+ brands[i2].dice
+					+ brands[i2].vuln_dice
+					&& b == i2 && s == 0);
 				rf_off(dummy.race->flags, brands[i2].vuln_flag);
 			}
 
@@ -610,10 +480,8 @@ static int test_improve_attack_modifier(void *state)
 		for (i2 = 1; i2 < z_info->slay_max; ++i2) {
 			bool *old_brands;
 			bool *old_slays;
-			int es, eb;
-			char em_verb[20], er_verb[20];
 
-			if (!slays[i2].base || !slays[i2].race_flag) continue;
+			if (!slays[i2].race_flag) continue;
 
 			old_brands = weapon.brands;
 			weapon.brands = ts->brands;
@@ -624,41 +492,12 @@ static int test_improve_attack_modifier(void *state)
 
 			/* Susceptible to both */
 			rf_on(dummy_race.flags, slays[i2].race_flag);
-			if (slays[i2].base) {
-				dummy_race.base->name = slays[i2].base;
-			}
-			if (brands[i1].multiplier >= slays[i2].multiplier) {
-				eb = i1;
-				es = 0;
-				my_strcpy(em_verb, brands[i1].verb,
-					sizeof(em_verb));
-				my_strcpy(er_verb, brands[i1].verb,
-					sizeof(er_verb));
-				my_strcat(er_verb, "s", sizeof(er_verb));
-			} else {
-				eb = 0;
-				es = i2;
-				my_strcpy(em_verb, slays[i2].melee_verb,
-					sizeof(em_verb));
-				my_strcpy(er_verb, slays[i2].range_verb,
-					sizeof(er_verb));
-			}
 			b = 0;
 			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == eb && s == es && streq(verb, em_verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == eb && s == es && streq(verb, er_verb));
+			bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+			require(bonus == brands[i1].dice + slays[i2].dice
+				&& b == i1 && s == i2);
 			rf_off(dummy_race.flags, slays[i2].race_flag);
-			if (slays[i2].base) {
-				dummy_race.base->name = old_base;
-			}
 
 			/*
 			 * Susceptible to both; especially vulnerable to the
@@ -667,95 +506,33 @@ static int test_improve_attack_modifier(void *state)
 			if (brands[i1].vuln_flag) {
 				rf_on(dummy_race.flags, brands[i1].vuln_flag);
 				rf_on(dummy_race.flags, slays[i2].race_flag);
-				if (slays[i2].base) {
-					dummy_race.base->name = slays[i2].base;
-				}
-				if (2 * brands[i1].multiplier
-						>= slays[i2].multiplier) {
-					eb = i1;
-					es = 0;
-					my_strcpy(em_verb, brands[i1].verb,
-						sizeof(em_verb));
-					my_strcpy(er_verb, brands[i1].verb,
-						sizeof(er_verb));
-					my_strcat(er_verb, "s",
-						sizeof(er_verb));
-				} else {
-					eb = 0;
-					es = i2;
-					my_strcpy(em_verb, slays[i2].melee_verb,
-						sizeof(em_verb));
-					my_strcpy(er_verb, slays[i2].range_verb,
-						sizeof(er_verb));
-				}
 				b = 0;
 				s = 0;
-				my_strcpy(verb, "hit", sizeof(verb));
-				improve_attack_modifier(player, &weapon, &dummy,
-					&b, &s, verb, false);
-				require(b == eb && s == es
-					&& streq(verb, em_verb));
-				b = 0;
-				s = 0;
-				my_strcpy(verb, "hit", sizeof(verb));
-				improve_attack_modifier(player, &weapon, &dummy,
-					&b, &s, verb, true);
-				require(b == eb && s == es
-					&& streq(verb, er_verb));
+				bonus = slay_bonus(player, &weapon, &dummy,
+					&s, &b);
+				require(bonus == brands[i1].dice
+					+ brands[i1].vuln_dice + slays[i2].dice
+					&& b == i1 && s == i2);
 				rf_off(dummy_race.flags, brands[i1].vuln_flag);
 				rf_off(dummy_race.flags, slays[i2].race_flag);
-				if (slays[i2].base) {
-					dummy_race.base->name = old_base;
-				}
 			}
 
 			/* Only susceptible to the brand */
-			eb = i1;
-			es = 0;
-			my_strcpy(em_verb, brands[i1].verb, sizeof(em_verb));
-			my_strcpy(er_verb, brands[i1].verb, sizeof(er_verb));
-			my_strcat(er_verb, "s", sizeof(er_verb));
 			b = 0;
 			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == eb && s == es && streq(verb, em_verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == eb && s == es && streq(verb, er_verb));
+			bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+			require(bonus == brands[i1].dice && b == i1 && s == 0);
 
 			/* Only susceptible to the slay */
-			rf_on(dummy_race.flags, brands[i1].resist_flag);
-			rf_on(dummy_race.flags, slays[i2].race_flag);
-			if (slays[i2].base) {
-				dummy_race.base->name = slays[i2].base;
-			}
-			eb = 0;
-			es = i2;
-			my_strcpy(em_verb, slays[i2].melee_verb,
-				sizeof(em_verb));
-			my_strcpy(er_verb, slays[i2].range_verb,
-				sizeof(er_verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == eb && s == es && streq(verb, em_verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == eb && s == es && streq(verb, er_verb));
-			rf_off(dummy_race.flags, brands[i1].resist_flag);
-			rf_off(dummy_race.flags, slays[i2].race_flag);
-			if (slays[i2].base) {
-				dummy_race.base->name = old_base;
+			if (brands[i1].resist_flag) {
+				rf_on(dummy_race.flags, brands[i1].resist_flag);
+				rf_on(dummy_race.flags, slays[i2].race_flag);
+				b = 0;
+				s = 0;
+				bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+				require(bonus == slays[i1].dice && b == 0 && s == i2);
+				rf_off(dummy_race.flags, brands[i1].resist_flag);
+				rf_off(dummy_race.flags, slays[i2].race_flag);
 			}
 
 			weapon.brands[i1] = false;
@@ -768,21 +545,13 @@ static int test_improve_attack_modifier(void *state)
 	for (i1 = 1; i1 < z_info->slay_max; ++i1) {
 		int i2;
 
-		if (!slays[i1].base || !slays[i1].race_flag) continue;
+		if (!slays[i1].race_flag) continue;
 
 		for (i2 = i1 + 1; i2 < z_info->slay_max; ++i2) {
 			bool *old_slays;
-			int expected;
 
-			if (!slays[i2].base || !slays[i2].race_flag) continue;
-			if (slays[i1].base && slays[i2].base
-					&& !streq(slays[i1].base,
-					slays[i2].base))
-				continue;
-			if (slays[i1].race_flag == slays[i2].race_flag
-					&& ((slays[i1].base && slays[i2].base)
-					|| (!slays[i1].base && !slays[i2].base)))
-				continue;
+			if (!slays[i2].race_flag) continue;
+			if (slays[i1].race_flag == slays[i2].race_flag) continue;
 
 			old_slays = weapon.slays;
 			weapon.slays = ts->slays;
@@ -791,90 +560,28 @@ static int test_improve_attack_modifier(void *state)
 
 			/* Susceptible to both */
 			rf_on(dummy_race.flags, slays[i1].race_flag);
-			if (slays[i1].base) {
-				dummy_race.base->name = slays[i1].base;
-			}
 			rf_on(dummy_race.flags, slays[i2].race_flag);
-			if (slays[i2].base) {
-				dummy_race.base->name = slays[i2].base;
-			}
-			if (slays[i1].multiplier >= slays[i2].multiplier) {
-				expected = i1;
-			} else {
-				expected = i2;
-			}
 			b = 0;
 			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == 0 && s == expected
-				&& streq(verb, slays[expected].melee_verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == 0 && s == expected
-				&& streq(verb, slays[expected].range_verb));
+			bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+			require(bonus == slays[i1].dice + slays[i2].dice
+				&& b == 0 && s == i2);
 			rf_off(dummy_race.flags, slays[i1].race_flag);
-			if (slays[i1].base) {
-				dummy_race.base->name = old_base;
-			}
 			rf_off(dummy_race.flags, slays[i2].race_flag);
-			if (slays[i2].base) {
-				dummy_race.base->name = old_base;
-			}
 
 			/* Only susceptible to the first */
 			rf_on(dummy_race.flags, slays[i1].race_flag);
-			if (slays[i1].base) {
-				dummy_race.base->name = slays[i1].base;
-			}
-			expected = i1;
 			b = 0;
 			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == 0 && s == expected
-				&& streq(verb, slays[expected].melee_verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == 0 && s == expected
-				&& streq(verb, slays[expected].range_verb));
+			bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+			require(bonus == slays[i1].dice && b == 0 && s == i1);
 			rf_off(dummy_race.flags, slays[i1].race_flag);
-			if (slays[i1].base) {
-				dummy_race.base->name = old_base;
-			}
 
 			/* Only susceptible to the second */
 			rf_on(dummy_race.flags, slays[i2].race_flag);
-			if (slays[i2].base) {
-				dummy_race.base->name = slays[i2].base;
-			}
-			expected = i2;
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, false);
-			require(b == 0 && s == expected
-				&& streq(verb, slays[expected].melee_verb));
-			b = 0;
-			s = 0;
-			my_strcpy(verb, "hit", sizeof(verb));
-			improve_attack_modifier(player, &weapon, &dummy,
-				&b, &s, verb, true);
-			require(b == 0 && s == expected
-				&& streq(verb, slays[expected].range_verb));
+			bonus = slay_bonus(player, &weapon, &dummy, &s, &b);
+			require(bonus == slays[i2].dice && b == 0 && s == i2);
 			rf_off(dummy_race.flags, slays[i2].race_flag);
-			if (slays[i2].base) {
-				dummy_race.base->name = old_base;
-			}
 
 			weapon.slays[i1] = false;
 			weapon.slays[i2] = false;
@@ -884,7 +591,7 @@ static int test_improve_attack_modifier(void *state)
 
 	ok;
 }
-#endif
+
 static int test_react_to_slay(void *state)
 {
 	struct monster_base dummy_base;
@@ -911,7 +618,7 @@ static int test_react_to_slay(void *state)
 const char *suite_name = "object/slays";
 struct test tests[] = {
 	{ "same_monsters_slain", test_same_monsters_slain },
-	//{ "slay_bonus", test_slay_bonus },
+	{ "slay_bonus", test_slay_bonus },
 	{ "react_to_slay", test_react_to_slay },
 	{ NULL, NULL }
 };
