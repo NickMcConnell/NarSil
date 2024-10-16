@@ -53,8 +53,6 @@ bool flag_has_dbg(const bitflag *flags, const size_t size, const int flag,
 		         fi, fl, flag, (unsigned int) size, (unsigned int) flag_offset, flag_binary);
 	}
 
-	assert(flag_offset < size);
-
 	if (flags[flag_offset] & flag_binary) return true;
 
 	return false;
