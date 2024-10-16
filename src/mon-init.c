@@ -445,10 +445,10 @@ static enum parser_error parse_pain_message(struct parser *p) {
 
 	if (!mp)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
-	for (i = 0; i < 7; i++)
+	for (i = 0; i < (int) N_ELEMENTS(mp->messages); i++)
 		if (!mp->messages[i])
 			break;
-	if (i == 7)
+	if (i == (int) N_ELEMENTS(mp->messages))
 		return PARSE_ERROR_TOO_MANY_ENTRIES;
 	mp->messages[i] = string_make(parser_getstr(p, "message"));
 	return PARSE_ERROR_NONE;
