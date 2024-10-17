@@ -12,17 +12,21 @@ TESTPROGS += parse/a-info \
 	parse/house-info \
 	parse/k-info \
 	parse/lore \
+	parse/mbase \
 	parse/mspell \
 	parse/names \
 	parse/objbase \
 	parse/objprop \
 	parse/p-info \
+	parse/pain \
 	parse/parse \
 	parse/partrap \
 	parse/proj \
+	parse/pursuit \
 	parse/r-info \
 	parse/sex-info \
 	parse/slay \
 	parse/v-info \
+	parse/warning \
 	parse/world \
 	parse/z-info
