@@ -1253,7 +1253,7 @@ static bool inven_can_stack_partial(const struct object *obj1,
 	}
 
 	/* Verify the numbers are suitable for uneven stacks.  Want the
-	 * the leading stack, obj1, to have its count maximized. */
+	 * leading stack, obj1, to have its count maximized. */
 	if (obj1->number == obj1->kind->base->max_stack) {
 		return false;
 	}

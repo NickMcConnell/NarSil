@@ -777,9 +777,9 @@ static enum game_mode_type select_savefile(bool retry)
 		if (suffix(savefile, details->fnam)) {
 			/*
 			 * Matches what's in savefile; put it third in the
-			 * the list and mark it as the default entry.  If
-			 * not forcing the name, clear savefile and arg_name
-			 * so the new game option won't be set up to overwrite
+			 * list and mark it as the default entry.  If not
+			 * forcing the name, clear savefile and arg_name so
+			 * the new game option won't be set up to overwrite
 			 * an existing savefile.
 			 */
 			if (count != 2) {

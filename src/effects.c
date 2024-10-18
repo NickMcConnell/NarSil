@@ -338,10 +338,9 @@ expression_base_value_f effect_value_base_by_name(const char *name)
  * \param aware  indicates whether the player is aware of the effect already
  * \param dir    is the direction the effect will go in
  * \param cmd    If the effect is invoked as part of a command, this is the
- *               the command structure - used primarily so repeating the
- *               command can use the same information without prompting the
- *               player again.  Use NULL for this if not invoked as part of
- *               a command.
+ *               command structure - used primarily so repeating the command
+ *               can use the same information without prompting the player
+ *               again.  Use NULL for this if not invoked as part of a command.
  */
 bool effect_do(struct effect *effect,
 		struct source origin,

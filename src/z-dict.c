@@ -131,7 +131,7 @@ void dict_destroy(dict_type d)
  * \param key is the key.
  * \param value is the value.  This must not be NULL.
  * \return true if the key is not already present in the dictionary and the
- * the insertion was successful.  In that case, the dictionary assumes ownership
+ * insertion was successful.  In that case, the dictionary assumes ownership
  * of key and value and will release their resources when necessary.  Otherwise,
  * return false.  In that case, the caller is responsible for releasing
  * whatever resources are associated with key and value.
