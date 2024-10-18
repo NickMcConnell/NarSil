@@ -174,6 +174,18 @@ void take_hit(struct player *p, int dam, const char *kb_str)
 
 	/* Dead player */
 	if (p->chp <= 0) {
+		/*
+		 * Note cause of death.  Do it here so EVENT_CHEAT_DEATH
+		 * handlers or things looking for the "Die? " prompt have
+		 * access to it.
+		 */
+		if (p->timed[TMD_IMAGE]) {
+			strnfmt(p->died_from, sizeof(p->died_from),
+					"%s (while halluciinating)", kb_str);
+		} else {
+			my_strcpy(p->died_from, kb_str, sizeof(p->died_from));
+		}
+
 		if ((p->wizard || OPT(p, cheat_live)) && !get_check("Die? ")) {
 			event_signal(EVENT_CHEAT_DEATH);
 		} else {
@@ -181,14 +193,6 @@ void take_hit(struct player *p, int dam, const char *kb_str)
 			msgt(MSG_DEATH, "You die.");
 			event_signal(EVENT_MESSAGE_FLUSH);
 			event_signal(EVENT_DEATH);
-
-			/* Note cause of death */
-			if (p->timed[TMD_IMAGE]) {
-				strnfmt(p->died_from, sizeof(p->died_from),
-						"%s (while halluciinating)", kb_str);
-			} else {
-				my_strcpy(p->died_from, kb_str, sizeof(p->died_from));
-			}
 
 			/* Note death */
 			p->is_dead = true;
