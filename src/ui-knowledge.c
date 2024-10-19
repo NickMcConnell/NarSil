@@ -159,22 +159,19 @@ static int default_group_id(int oid)
  */
 static int feat_order(int feat)
 {
-	struct feature *f = &f_info[feat];
-
-	switch (f->d_char)
-	{
-		case L'.': 				return 0;
-		case L'\'': case L'+': 	return 1;
-		case L'<': case L'>':	return 2;
-		case L'#':				return 3;
-		case L':': case L'%' :	return 4;
-		case L'0':			 	return 5;
-		case L'^':			 	return 6;
-		default:
-		{
-			return 7;
-		}
-	}
+	if (tf_has(f_info[feat].flags, TF_FLOOR)) return 0;
+	if (tf_has(f_info[feat].flags, TF_STAIR)) return 2;
+	if (tf_has(f_info[feat].flags, TF_SHAFT)) return 2;
+	if (tf_has(f_info[feat].flags, TF_DOOR_ANY)) return 1;
+	if (tf_has(f_info[feat].flags, TF_PIT)) return 6;
+	if (tf_has(f_info[feat].flags, TF_CHASM)) return 4;
+	if (tf_has(f_info[feat].flags, TF_FORGE)) return 5;
+	/* This also has WALL set so check them first before checking WALL. */
+	if (tf_has(f_info[feat].flags, TF_QUARTZ)) return 4;
+	/* These also have ROCK set so check them first before checking ROCK. */
+	if (tf_has(f_info[feat].flags, TF_WALL)) return 3;
+	if (tf_has(f_info[feat].flags, TF_ROCK)) return 4;
+	return 7;
 }
 
 
@@ -2113,9 +2110,9 @@ static void do_cmd_knowledge_features(const char *name, int row)
 	int f_count = 0;
 	int i;
 
-	features = mem_zalloc(z_info->f_max * sizeof(int));
+	features = mem_zalloc(FEAT_MAX * sizeof(int));
 
-	for (i = 0; i < z_info->f_max; i++) {
+	for (i = 0; i < FEAT_MAX; i++) {
 		/* Ignore non-features and mimics */
 		if (f_info[i].name == 0 || f_info[i].mimic)
 			continue;
@@ -2892,7 +2889,7 @@ static void lookup_symbol(char sym, char *buf, size_t max)
 	/* Look through features */
 	/* Note: We need a better way of doing this. Currently '#' matches secret
 	 * door, and '^' matches trap door (instead of the more generic "trap"). */
-	for (i = 1; i < z_info->f_max; i++) {
+	for (i = 1; i < FEAT_MAX; i++) {
 		if (char_matches_key(f_info[i].d_char, sym)) {
 			strnfmt(buf, max, "%c - %s.", sym, f_info[i].name);
 			return;

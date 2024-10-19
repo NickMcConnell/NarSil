@@ -115,9 +115,7 @@ struct feature {
 	char *desc;
 	int fidx;
 
-	struct feature *next;
-
-	char *mimic;		/**< Name of feature to mimic */
+	struct feature *mimic;	/**< Feature to mimic or NULL for no mimicry */
 	uint8_t priority;	/**< Display priority */
 
 	uint8_t forge_bonus;/**< What bonus does this get as a forge? */
@@ -220,39 +218,12 @@ struct chunk {
 };
 
 /*** Feature Indexes (see "lib/gamedata/terrain.txt") ***/
-
-/* Nothing */
-extern int FEAT_NONE;
-
-/* Various */
-extern int FEAT_FLOOR;
-extern int FEAT_CLOSED;
-extern int FEAT_OPEN;
-extern int FEAT_BROKEN;
-extern int FEAT_LESS;
-extern int FEAT_MORE;
-extern int FEAT_LESS_SHAFT;
-extern int FEAT_MORE_SHAFT;
-extern int FEAT_CHASM;
-extern int FEAT_PIT;
-extern int FEAT_SPIKED_PIT;
-
-/* Secret door */
-extern int FEAT_SECRET;
-
-/* Rubble */
-extern int FEAT_RUBBLE;
-
-/* Mineral seams */
-extern int FEAT_QUARTZ;
-
-/* Walls */
-extern int FEAT_GRANITE;
-extern int FEAT_PERM;
-extern int FEAT_FORGE;
-extern int FEAT_FORGE_GOOD;
-extern int FEAT_FORGE_UNIQUE;
-
+enum {
+	#define FEAT(x) FEAT_##x,
+	#include "list-terrain.h"
+	#undef FEAT
+	FEAT_MAX
+};
 
 /* Current level */
 extern struct chunk *cave;
@@ -457,7 +428,8 @@ struct loc next_grid(struct loc grid, int dir);
 int dir_from_delta(int delta_y, int delta_x);
 int rough_direction(struct loc grid1, struct loc grid2);
 int lookup_feat(const char *name);
-void set_terrain(void);
+int lookup_feat_code(const char *code);
+const char *get_feat_code_name(int idx);
 void flow_new(struct chunk *c, struct flow *flow);
 void flow_free(struct chunk *c, struct flow *flow);
 struct chunk *cave_new(int height, int width);

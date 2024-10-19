@@ -1275,8 +1275,8 @@ void square_apparent_name(struct chunk *c, struct loc grid, char *name,
 						  int size)
 {
 	int actual = square_isknown(c, grid) ? square(c, grid)->feat : 0;
-	char *mimic_name = f_info[actual].mimic;
-	int f = mimic_name ? lookup_feat(mimic_name) : actual;
+	const struct feature *fp = f_info[actual].mimic ?
+		f_info[actual].mimic : &f_info[actual];
 	char forge_string[40];
 
 	/* Handle forges */
@@ -1294,7 +1294,7 @@ void square_apparent_name(struct chunk *c, struct loc grid, char *name,
 		my_strcpy(forge_string, "", sizeof(forge_string));
 	}
 
-	strnfmt(name, size, "%s%s", f_info[f].name, forge_string);
+	strnfmt(name, size, "%s%s", fp->name, forge_string);
 }
 
 /*
@@ -1309,10 +1309,10 @@ void square_apparent_name(struct chunk *c, struct loc grid, char *name,
  */
 const char *square_apparent_look_prefix(struct chunk *c, struct loc grid) {
 	int actual = square_isknown(c, grid) ? square(c, grid)->feat : 0;
-	char *mimic_name = f_info[actual].mimic;
-	int f = mimic_name ? lookup_feat(mimic_name) : actual;
-	return (f_info[f].look_prefix) ? f_info[f].look_prefix :
-		(is_a_vowel(f_info[f].name[0]) ? "an " : "a ");
+	const struct feature *fp = f_info[actual].mimic ?
+		f_info[actual].mimic : &f_info[actual];
+	return (fp->look_prefix) ? fp->look_prefix :
+		(is_a_vowel(fp->name[0]) ? "an " : "a ");
 }
 
 /*
@@ -1326,10 +1326,9 @@ const char *square_apparent_look_prefix(struct chunk *c, struct loc grid) {
  */
 const char *square_apparent_look_in_preposition(struct chunk *c, struct loc grid) {
 	int actual = square_isknown(cave, grid) ? square(cave, grid)->feat : 0;
-	char *mimic_name = f_info[actual].mimic;
-	int f = mimic_name ? lookup_feat(mimic_name) : actual;
-	return (f_info[f].look_in_preposition) ?
-		 f_info[f].look_in_preposition : "on ";
+	const struct feature *fp = f_info[actual].mimic ?
+		f_info[actual].mimic : &f_info[actual];
+	return (fp->look_in_preposition) ? fp->look_in_preposition : "on ";
 }
 
 void square_mark(struct chunk *c, struct loc grid) {

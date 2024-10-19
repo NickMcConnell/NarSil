@@ -13,23 +13,39 @@
 #   level generation algorithms to include them, so adding new terrain
 #   features to this file will by itself have no effect.
 
-#   2. The game uses the names of the standard terrain features
-#   ("granite wall", etc) in terrain placement.  Changing the name of a terrain
-#   feature can thus stop the game from running; changing its properties will
-#   change game behaviour; and any changes during the playing of an individual
-#   game are likely to mess it up.
+#   2. Changing the properties (especially flags but also mimicry and extra
+#   info) can significantly change game behavior, and any changes will likely
+#   mess up a game which was started before the changes took place and is
+#   reloaded when the changes are in effect.
 
-#
+# You may more freely alter the graphics, names, messages, and descriptions.
+# Note that terrain feature zero contains the "darkness" picture.
+
 # === Understanding terrain.txt ===
 #
-# name : terrain name
+# code : code name from list-terrain.h
+# name : terrain printable name
 # graphics : symbol : color
-# mimic : feature to mimic
+# mimic : code name for the feature to mimic
 # priority : display priority on mini-map
 # flags : terrain flags
+# info : supply additional information when diggable, a forge, or pit
+# dig-msg : message for successfully digging
+# fail-msg : message for not having an appropriate digger
+# str-msg : message for when the player is not strong enough to dig
+# walk-msg : warning message - waliking
+# run-msg : warning message - running
+# hurt-msg : damage message
+# die-msg : death message
+# confused-msg : message for confused monster move into non-passable terrain
+# look-prefix : used before the name in the result from looking
+# look-in-preposition : preprosition when looking at one's own position
+
+# 'code' indicates the start of an entry.  The value used for the code
+# must match the argument to one of the FEAT() macros in list-terrain.h.
 #
-# 'name' indicates the beginning of an entry. The serial number must
-#     increase for each new item.
+# 'name' specifies the printable name for the terrain.  As this is displayed
+# in the status bar and various menus, a short name is preferable.
 #
 # 'graphics' is for graphics - symbol and color. There are 27 colors:
 #
@@ -41,17 +57,55 @@
 # i - Magenta-Pink T - Light Teal     V - Light Violet  I - Light Pink
 # M - Mustard      z - Blue Slate     Z - Deep Light Blue
 #
-# 'mimic' is the index of a feature to mimic.
+# 'mimic' is the code name (one of the arguments to the FEAT() macros in
+# list-terrain.h) of a feature to mimic; some features look like another
+# feature until they are discovered by the player.
 #
+# 'priority' is for display priority on the minimap, where only a selection
+# of grids are chosen.  This enables the minimap to display the information
+# most likely to be useful to the player.
 #
-# === Important notes ===
+# 'flags' is for terrain flags.
 #
-# Note that terrain feature zero contains the "darkness" picture.
-
-
+# 'info' is for other terrain information.  The first value is the bonus to
+# give to forging when on the terrain.  The second value is the difficulty
+# to dig out the terrain.  The third value is the difficulty for the player
+# to get out of the terrain (i.e. to exit a pit).  When an entry does not
+# have a 'info' line, all those values default to be zero.
+#
+# 'dig-msg' sets the message displayed when the terrain is dug out.  It is
+# only relevant for diggable terrain (no PERMANENT flag and meets the
+# criteria set by square_is_diggable() in cave-square.c).
+#
+# 'fail-msg' sets the message displayed when the player has a digger but
+# it is not good enough to dig out the terrain.  It is only relevant for
+# diggable terrain (see 'dig-msg' above).
+#
+# 'str-msg' sets the message displayed when the player has a digger that
+# is good enough to dig out the terrain but the player is not strong enough
+# to do the digging.  It is only relevant for diggable terrain (see 'dig-msg'
+# above.
+#
+# 'walk-msg', 'run-msg', 'hurt-msg', 'die-msg', and 'confused-msg' are parsed
+# but changes to the code would be needed to have them displayed to the
+# player when appropriate.
+#
+# 'look-prefix' is printed before the name in the result of looking at the
+# terrain.  If not set, the default is to use 'an' if the name starts with
+# a vowel or 'a' if the name does not start with a vowel.
+#
+# 'look-in-preposition' is the preposition that will be used when printing
+# the result for an observer looking at the observer's grid:  'You are
+# <preposition> <prefix> <name>'.  If not set, the default is to use 'on'.
+#
+# 'desc' is for description. As many desc: lines may be used as are neeeded
+# to describe the terrain. Note that lines will need spaces at their
+# ends or the beginning of the next line to prevent words from running
+# together.
 
 # 0x00 --> <darkness>
 
+code:NONE
 name:unknown grid
 graphics: :w
 priority:2
@@ -59,6 +113,7 @@ priority:2
 
 # 0x01 --> open floor
 
+code:FLOOR
 name:open floor
 graphics:.:W
 priority:5
@@ -68,6 +123,7 @@ desc: hold traps or items.  Does not break line of sight.
 
 # # 0x20 --> locked door (power 0) -- aka a normal door
 
+code:CLOSED
 name:closed door
 graphics:+:U
 priority:17
@@ -81,6 +137,7 @@ desc: valuable time by locking them.
 
 # 0x04 --> open door
 
+code:OPEN
 name:open door
 graphics:':U
 priority:15
@@ -91,6 +148,7 @@ desc: through as long as it stays open.
 
 # 0x05 --> broken door
 
+code:BROKEN
 name:broken door
 graphics:.:U
 priority:15
@@ -100,6 +158,7 @@ desc:A door so broken that it cannot be shut.
 
 # 0x50 --> up stairs (perm)
 
+code:LESS
 name:up staircase
 graphics:<:W
 priority:25
@@ -109,6 +168,7 @@ desc:A staircase up to a shallower part of the dungeon.
 
 # 0x51 --> down stairs (perm)
 
+code:MORE
 name:down staircase
 graphics:>:W
 priority:25
@@ -118,6 +178,7 @@ desc:A staircase down to a deeper part of the dungeon.
 
 # 0x52 --> up shaft (perm)
 
+code:LESS_SHAFT
 name:up shaft
 graphics:<:D
 priority:25
@@ -127,6 +188,7 @@ desc:A shaft up to a shallower part of the dungeon.
 
 # 0x53 --> down shaft (perm)
 
+code:MORE_SHAFT
 name:down shaft
 graphics:>:D
 priority:25
@@ -136,6 +198,7 @@ desc:A shaft down to a deeper part of the dungeon.
 
 # 0x02 --> unused
 
+code:CHASM
 name:chasm
 graphics:%:D
 priority:20
@@ -149,9 +212,10 @@ die-msg:falling off a precipice
 
 # 0x30 --> secret door
 
+code:SECRET
 name:secret door
 graphics:#:z
-mimic:granite wall
+mimic:GRANITE
 priority:10
 info:0:3:0
 flags:ROCK | DOOR_ANY | DOOR_CLOSED | GRANITE | TORCH
@@ -163,6 +227,7 @@ desc:A door that appears like a granite wall to untrained eyes.
 
 # 0x31 --> pile of rubble
 
+code:RUBBLE
 name:pile of rubble
 graphics:::s
 priority:13
@@ -177,6 +242,7 @@ desc: to normal floor.
 
 # 0x33 --> quartz vein
 
+code:QUARTZ
 name:quartz vein
 graphics:%:w
 priority:11
@@ -192,6 +258,7 @@ desc: sight.
 
 # 0x38 --> granite wall -- basic
 
+code:GRANITE
 name:granite wall
 graphics:#:W
 priority:20
@@ -207,9 +274,10 @@ desc: sight.
 
 # 0x3F --> granite wall -- permanent
 
+code:PERM
 name:permanent wall
 graphics:#:M
-mimic:granite wall
+mimic:GRANITE
 priority:20
 flags:WALL | ROCK | GRANITE | PERMANENT | NO_SCENT | NO_FLOW | TORCH
 confused-msg:bashes into a wall
@@ -218,6 +286,7 @@ desc: surrounded by these kinds of walls and some special rooms are made of them
 
 # 0x40 --> forge -- 0 uses
 
+code:FORGE
 name:forge
 graphics:0:s
 priority:20
@@ -228,6 +297,7 @@ look-in-preposition:in
 
 # 0x46 --> good forge -- 0 uses
 
+code:FORGE_GOOD
 name:enchanted forge
 graphics:0:Y
 priority:20
@@ -238,6 +308,7 @@ look-in-preposition:in
 
 # 0x4C --> unique forge -- 0 uses
 
+code:FORGE_UNIQUE
 name:forge 'Orodruth'
 graphics:0:D
 priority:20
@@ -249,6 +320,7 @@ look-in-preposition:in
 
 # # 0x11 --> visible trap -- open pit
 
+code:PIT
 name:pit
 graphics:^:s
 priority:20
@@ -259,6 +331,7 @@ run-msg:A pit blocks your path.  Step into it?
 
 # # 0x12 --> visible trap -- spiked pit
 
+code:SPIKED_PIT
 name:spiked pit
 graphics:^:W
 priority:20

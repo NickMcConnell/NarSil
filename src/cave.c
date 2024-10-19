@@ -36,27 +36,6 @@
 struct feature *f_info;
 struct chunk *cave = NULL;
 
-int FEAT_NONE;
-int FEAT_FLOOR;
-int FEAT_CLOSED;
-int FEAT_OPEN;
-int FEAT_BROKEN;
-int FEAT_LESS;
-int FEAT_MORE;
-int FEAT_LESS_SHAFT;
-int FEAT_MORE_SHAFT;
-int FEAT_CHASM;
-int FEAT_SECRET;
-int FEAT_RUBBLE;
-int FEAT_QUARTZ;
-int FEAT_GRANITE;
-int FEAT_PERM;
-int FEAT_FORGE;
-int FEAT_FORGE_GOOD;
-int FEAT_FORGE_UNIQUE;
-int FEAT_PIT;
-int FEAT_SPIKED_PIT;
-
 /**
  * Global array for looping through the "keypad directions".
  */
@@ -362,14 +341,14 @@ int rough_direction(struct loc grid1, struct loc grid2)
 }
 
 /**
- * Find a terrain feature index by name
+ * Find a terrain feature index by its printable name
  */
 int lookup_feat(const char *name)
 {
 	int i;
 
 	/* Look for it */
-	for (i = 0; i < z_info->f_max; i++) {
+	for (i = 0; i < FEAT_MAX; i++) {
 		struct feature *feat = &f_info[i];
 		if (!feat->name)
 			continue;
@@ -384,31 +363,40 @@ int lookup_feat(const char *name)
 	return -1;
 }
 
+static const char *feat_code_list[] = {
+	#define FEAT(x) #x,
+	#include "list-terrain.h"
+	#undef FEAT
+	NULL
+};
+
 /**
- * Set terrain constants to the indices from terrain.txt
+ * Find a terrain feature by its code name.
  */
-void set_terrain(void)
+int lookup_feat_code(const char *code)
 {
-	FEAT_NONE = lookup_feat("unknown grid");
-	FEAT_FLOOR = lookup_feat("open floor");
-	FEAT_CLOSED = lookup_feat("closed door");
-	FEAT_OPEN = lookup_feat("open door");
-	FEAT_BROKEN = lookup_feat("broken door");
-	FEAT_LESS = lookup_feat("up staircase");
-	FEAT_MORE = lookup_feat("down staircase");
-	FEAT_LESS_SHAFT = lookup_feat("up shaft");
-	FEAT_MORE_SHAFT = lookup_feat("down shaft");
-	FEAT_CHASM = lookup_feat("chasm");
-	FEAT_SECRET = lookup_feat("secret door");
-	FEAT_RUBBLE = lookup_feat("pile of rubble");
-	FEAT_QUARTZ = lookup_feat("quartz vein");
-	FEAT_GRANITE = lookup_feat("granite wall");
-	FEAT_PERM = lookup_feat("permanent wall");
-	FEAT_FORGE = lookup_feat("forge");
-	FEAT_FORGE_GOOD = lookup_feat("enchanted forge");
-	FEAT_FORGE_UNIQUE = lookup_feat("forge 'Orodruth'");
-	FEAT_PIT = lookup_feat("pit");
-	FEAT_SPIKED_PIT = lookup_feat("spiked pit");
+	int i = 0;
+
+	while (1) {
+		assert(i >= 0 && i < (int) N_ELEMENTS(feat_code_list));
+		if (!feat_code_list[i]) {
+			return -1;
+		}
+		if (streq(code, feat_code_list[i])) {
+			break;
+		}
+		++i;
+	}
+	return i;
+}
+
+/**
+ * Return the code name of feature, specified as an index.  Will return NULL
+ * if the index is invalid.
+ */
+const char *get_feat_code_name(int idx)
+{
+	return (idx < 0 || idx >= FEAT_MAX) ? NULL : feat_code_list[idx];
 }
 
 /**
@@ -442,7 +430,7 @@ struct chunk *cave_new(int height, int width) {
 	struct chunk *c = mem_zalloc(sizeof *c);
 	c->height = height;
 	c->width = width;
-	c->feat_count = mem_zalloc((z_info->f_max + 1) * sizeof(int));
+	c->feat_count = mem_zalloc((FEAT_MAX + 1) * sizeof(int));
 
 	c->squares = mem_zalloc(c->height * sizeof(struct square*));
 	for (y = 0; y < c->height; y++) {
