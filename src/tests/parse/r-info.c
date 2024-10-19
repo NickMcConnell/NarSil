@@ -148,6 +148,10 @@ static int test_missing_header_record0(void *state) {
 	null(mr);
 	r = parser_parse(p, "plural:red-hatted elves");
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "base:townsfolk");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "glyph:!");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	r = parser_parse(p, "depth:8");
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	r = parser_parse(p, "rarity:2");
@@ -171,6 +175,8 @@ static int test_missing_header_record0(void *state) {
 	r = parser_parse(p, "song:21");
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	r = parser_parse(p, "prot:2:1d4");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(state, "blow:CLAW:FIRE:9d12");
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	r = parser_parse(p, "flags:FRIEND");
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
