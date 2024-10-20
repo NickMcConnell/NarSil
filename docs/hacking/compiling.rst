@@ -238,7 +238,7 @@ basis in the user's own directories.  To enable that option, pass
 -DREADONLY_INSTALL=ON to cmake.  With either SHARED_INSTALL or READONLY_INSTALL,
 you will need to run 'make install' after the other steps for compiling with
 CMake.  As an example, this would build a shared installation with an
-executable that is set gid for the games group::
+executable that is setgid for the games group::
 
     mkdir build && cd build
     cmake -DSHARED_INSTALL=ON -DSUPPORT_GCU_FRONTEND=ON ..

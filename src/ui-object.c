@@ -391,7 +391,7 @@ void show_inven(int mode, item_tester tester)
 
 	bool in_term = (mode & OLIST_WINDOW) ? true : false;
 
-	/* Intialize */
+	/* Initialize */
 	wipe_obj_list();
 
 	/* Include burden for term windows */
@@ -429,7 +429,7 @@ void show_inven(int mode, item_tester tester)
  */
 void show_equip(int mode, item_tester tester)
 {
-	/* Intialize */
+	/* Initialize */
 	wipe_obj_list();
 
 	/* Build the object list */
@@ -449,7 +449,7 @@ void show_equip(int mode, item_tester tester)
 void show_floor(struct object **floor_list, int floor_num, int mode,
 				item_tester tester)
 {
-	/* Intialize */
+	/* Initialize */
 	wipe_obj_list();
 
 	if (floor_num > z_info->floor_size)
