@@ -1,0 +1,121 @@
+# File: ui_knowledge.txt
+
+# Configure some behavior of the knowledge menus.
+
+# === Understanding ui_knowledge.txt ===
+
+# monster-category:name
+# mcat-include-base:name
+# mcat-include-flag:flag | ...
+
+# 'monster-category' introduces a set of directives to define a category of
+# monsters in the monster knowledge menu.  It takes one parameter:  the name
+# that will be shown in the menu for the category.  One name,
+# "***Unclassified***" is reserved for internal use to catch any types of
+# monsters that do not fall into any of the categories specified in this file.
+# In the menu, the categories will appear in the same order that they are
+# defined in this file.
+
+# 'mcat-include-base' adds a monster base to be included in the most recent
+# category specified by a 'monster-category' directive.  It takes one
+# parameter:  the name of the monster base from monster_base.txt.  If that
+# base does not exist or there is no prior 'monster-category' directive,
+# that will trigger a parser error.  This directive may be used more than
+# once for the same category.  If a category includes multiple monster bases,
+# the knowledge menu will display those from a base specified earlier in this
+# file before those from a base that appear later in this file.  Within the
+# same monster base, the knowledge menu will sort the monster types by level
+# and then by name.
+
+# 'mcat-include-flag' adds one or more monster flags to be included in the most
+# recent category specified by a 'monster-category' directive.  It takes
+# one parameter:  a list of zero or more monster flags, separated by spaces
+# or '|'.  Each flag must match one of the first arguments (except 'NONE') to
+# a RF() macro in list-mon-race-flags.h.  All types of monsters that have a
+# flag specified by 'mcat-include-flag' will be included in the category.
+# This directive may be used more than once for the same category.  Monster
+# types which only appear in a category because they possess a flag will
+# appear, when displayed in the monster knowledge menu, after those that are
+# included  because of a monster base and will be sorted by level and then
+# by name.
+
+# 'mcat-include-glyph' adds a glyph to be included in the most recent category
+# specified by a 'monster-category' directive.  It takes one parameter:  the
+# glyph to include.  All types of monsters whose default display glyph matches
+# that glyph will be included in the category.  Monster types which only appear
+# in a category because they match a glyph will appear, when displayed in the
+# monster knowledge menu, after those that are included because of a monster
+# base or flag.  If a category includes multiple glyphs, the knowledge menu
+# will display the monster types included by a glyph specified earlier in this
+# file before those included by a glyph specified later in this file.  For
+# the same glyph, the monster types will be sorted by level and then by name.
+
+monster-category:Uniques
+mcat-include-flag:UNIQUE
+
+monster-category:Bats/Birds
+mcat-include-base:flyer
+# Pick up the birds with a hallucinatory base.
+mcat-include-glyph:b
+
+monster-category:Wolves
+mcat-include-base:wolf
+# Pick up the canines with a hallucinatory base.
+mcat-include-glyph:C
+
+monster-category:Dragons
+mcat-include-base:dragon
+mcat-include-base:great dragon
+
+monster-category:Cats
+mcat-include-base:cat
+
+monster-category:Giants
+mcat-include-base:giant
+
+monster-category:Horrors
+mcat-include-base:horror
+
+monster-category:Insects
+mcat-include-base:insect
+
+monster-category:Spiders
+mcat-include-base:spider
+
+monster-category:Nameless things
+mcat-include-base:nameless thing
+
+monster-category:Orcs
+mcat-include-base:orc
+
+monster-category:Raukar
+mcat-include-base:rauko
+
+monster-category:Serpents
+mcat-include-base:serpent
+mcat-include-base:ancient serpent
+
+monster-category:Trolls
+mcat-include-base:troll
+# Pick up the ents with a hallucinatory base.
+mcat-include-glyph:T
+
+monster-category:Vampires
+mcat-include-base:vampire
+
+monster-category:Valar
+mcat-include-glyph:V
+
+monster-category:Wights/Wraiths
+mcat-include-base:wraith
+
+monster-category:Men/Elves
+mcat-include-base:person
+# Pick up the men or elves with a hallucinatory base.
+mcat-include-glyph:@
+
+monster-category:Thorns
+mcat-include-base:thorn
+
+monster-category:Deathblades
+mcat-include-base:deathblade

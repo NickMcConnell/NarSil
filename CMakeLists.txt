@@ -765,6 +765,7 @@ SET(ANGBAND_TEST_CASE_SOURCES
     parse/r-info.c
     parse/sex-info.c
     parse/slay.c
+    parse/ui_knowledge.c
     parse/v-info.c
     parse/world.c
     parse/z-info.c

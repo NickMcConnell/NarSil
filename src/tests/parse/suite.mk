@@ -26,6 +26,7 @@ TESTPROGS += parse/a-info \
 	parse/r-info \
 	parse/sex-info \
 	parse/slay \
+	parse/ui_knowledge \
 	parse/v-info \
 	parse/warning \
 	parse/world \

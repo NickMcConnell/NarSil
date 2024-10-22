@@ -204,6 +204,10 @@ summon.txt
 tutorial.txt
   This defines the contents of the tutorial.
 
+ui_knowledge.txt
+  Handles some configuration of the knowledge menus, namely the layout of
+  the monster categories.
+
 female_entry_poetry.txt, male_entry_poetry.txt, throne_poetry.txt and
 ultimate_bug.txt define various messages that are given at special events in
 the game.

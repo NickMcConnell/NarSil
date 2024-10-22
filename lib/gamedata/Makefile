@@ -7,8 +7,8 @@ FILES = ability.txt artefact.txt body.txt blow_methods.txt \
  male_entry_poetry.txt monster.txt monster_base.txt monster_spell.txt \
  names.txt object.txt object_base.txt object_property.txt pain.txt \
  player_timed.txt projection.txt pursuit.txt race.txt sex.txt slay.txt \
- song.txt special.txt summon.txt terrain.txt trap.txt tutorial.txt vault.txt \
- visuals.txt warning.txt world.txt
+ song.txt special.txt summon.txt terrain.txt trap.txt tutorial.txt \
+ ui_knowledge.txt vault.txt visuals.txt warning.txt world.txt
 
 R1 = $(GAMEDATA_IN_LIB:true=$(FILES))
 DATA = $(R1:false=)
