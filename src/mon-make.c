@@ -1285,7 +1285,7 @@ void place_monster_by_flag(struct chunk *c, struct loc grid, int flg1, int flg2,
 {
 	bool got_race = false;
 	int tries = 0;
-	struct monster_race *race;
+	struct monster_race *race = NULL;
 	int depth = max_depth;
 	struct monster_group_info info = { 0, 0 };
 		
@@ -1326,7 +1326,7 @@ void place_monster_by_letter(struct chunk *c, struct loc grid, char ch,
 {
 	bool got_race = false;
 	int tries = 0;
-	struct monster_race *race;
+	struct monster_race *race = NULL;
 	int depth = max_depth;
 	char stmp[2] = { '\0', '\0' };
 	wchar_t wtmp[2];

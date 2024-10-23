@@ -1556,7 +1556,7 @@ static void display_hit(game_event_type type, game_event_data *data, void *user)
 static void pause_with_text(game_event_type type, game_event_data *data,
 							void *user)
 {
-	ang_file *fp;
+	ang_file *fp = NULL;
 	char buf[1024];
 	int row = data->verse.row;
 	int col = data->verse.col;

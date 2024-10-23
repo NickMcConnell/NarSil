@@ -2002,7 +2002,7 @@ static bool make_move_get_route_to_target(struct monster *mon,
 			if (!square_in_bounds_fully(cave, grid)) continue;
 
 			/* Grid is not passable */
-			if (!monster_entry_chance(cave, mon, grid1, &dummy)) continue;
+			if (!monster_entry_chance(cave, mon, grid, &dummy)) continue;
 
 			/* Grid will take me further away */
 			if ((right && (grid.x < mon->grid.x)) ||

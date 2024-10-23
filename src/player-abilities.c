@@ -396,7 +396,7 @@ void activate_ability(struct ability **set, struct ability *activate)
  */
 void remove_ability(struct ability **ability, struct ability *remove)
 {
-	struct ability *current = *ability, *prev = NULL, *next;
+	struct ability *current = *ability, *prev = NULL, *next = NULL;
 
 	/* Look for the ability to remove */
 	while (current) {

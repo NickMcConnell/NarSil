@@ -558,7 +558,7 @@ static bool make_artifact(struct object *obj, int lev)
 	if (OPT(player, birth_no_artifacts)) return false;
 
 	/* As more artefacts are generated, the chance for another decreases */
-	if (too_many_artefacts()) return NULL;
+	if (too_many_artefacts()) return false;
 
 	/* Check the artifact list (skip the "specials") */
 	for (i = 0; !obj->artifact && i < z_info->a_max; i++) {
