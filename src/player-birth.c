@@ -845,8 +845,6 @@ void do_cmd_choose_name(struct command *cmd)
 
 	/* Set player name */
 	my_strcpy(player->full_name, str, sizeof(player->full_name));
-
-	string_free((char *) str);
 }
 
 void do_cmd_choose_history(struct command *cmd)
@@ -860,8 +858,6 @@ void do_cmd_choose_history(struct command *cmd)
 	/* Get the new history */
 	cmd_get_arg_string(cmd, "history", &str);
 	player->history = string_make(str);
-
-	string_free((char *) str);
 }
 
 void do_cmd_accept_character(struct command *cmd)

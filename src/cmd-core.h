@@ -269,6 +269,9 @@ typedef void (*cmd_handler_fn)(struct command *cmd);
  * Command type functions
  * ------------------------------------------------------------------------ */
 
+void cmd_copy(struct command *dest, const struct command *src);
+void cmd_release(struct command *cmd);
+
 /* Return the verb that goes alongside the given command. */
 const char *cmd_verb(cmd_code cmd);
 
@@ -307,9 +310,11 @@ errr cmdq_push(cmd_code c);
 void cmdq_execute(cmd_context ctx);
 
 /**
- * Remove all commands from the queue.
+ * Remove all commands from the queue.  cmdq_release() also releases any
+ * resources allocated.
  */
 void cmdq_flush(void);
+void cmdq_release(void);
 
 /**
  * ------------------------------------------------------------------------
