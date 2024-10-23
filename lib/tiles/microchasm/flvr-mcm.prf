@@ -224,39 +224,6 @@ flavor:129:0x81:0x92
 flavor:130:0x81:0x93
 
 
-#Easter Eggs
-
-# Bright Red easter egg
-flavor:141:0x81:0x97
-
-# Bright Green easter egg
-flavor:142:0x81:0x98
-
-# Golden easter egg
-flavor:143:0x81:0x99
-
-# Sky Blue easter egg
-flavor:144:0x81:0x9A
-
-# Copper easter egg
-flavor:145:0x81:0x9B
-
-# Ruby easter egg
-flavor:146:0x81:0x9C
-
-# Pink easter egg
-flavor:147:0x81:0x9D
-
-# Orange easter egg
-flavor:148:0x81:0x9E
-
-# Violet easter egg
-flavor:149:0x81:0x9F
-
-# Bright Blue easter egg
-flavor:150:0x81:0x9G
-
-
 #Potions
 
 # Clear potion

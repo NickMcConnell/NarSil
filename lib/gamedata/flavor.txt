@@ -194,31 +194,6 @@ flavor:130:White:Pale
 #G:,:g1
 #D:Leafy
 
-flavor:141:Light Red:Bright Red
-
-flavor:142:Light Green:Bright Green
-
-flavor:143:Light Yellow:Golden
-
-flavor:144:Light Blue:Sky Blue
-
-flavor:145:Light Umber:Copper
-
-flavor:146:Red:Ruby
-
-flavor:147:Light Purple:Pink
-
-flavor:148:Orange:Orange
-
-flavor:149:Violet:Violet
-
-flavor:150:Deep Light Blue:Bright Blue
-
-
-
-
-
-
 ##### Potions #####
 
 kind:potion:!
