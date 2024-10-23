@@ -868,6 +868,10 @@ void run_step(int dir)
 	/* Prepare the next step */
 	if (player->upkeep->running) {
 		cmdq_push(CMD_RUN);
+		if (player->upkeep->running_withpathfind) {
+			/* Running is a side effect of pathfinding. */
+			cmdq_peek()->is_background_command = true;
+		}
 		cmd_set_arg_direction(cmdq_peek(), "direction", 0);
 	}
 }
