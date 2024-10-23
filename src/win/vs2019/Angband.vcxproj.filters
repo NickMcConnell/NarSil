@@ -62,6 +62,9 @@
     <ClCompile Include="src\cave.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\cave-fire.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\cave-map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -90,6 +93,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\cmd-wizard.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combat.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\datafile.c">
@@ -122,13 +128,7 @@
     <ClCompile Include="src\gen-cave.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gen-chunk.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\generate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gen-monster.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gen-room.c">
@@ -159,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\mon-blows.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mon-calcs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\mon-desc.c">
@@ -203,9 +206,6 @@
     <ClCompile Include="src\obj-chest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\obj-curse.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\obj-desc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -233,19 +233,19 @@
     <ClCompile Include="src\obj-pile.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\obj-power.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\obj-properties.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\obj-randart.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\obj-slays.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\obj-smith.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\obj-tval.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\obj-util.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\option.c">
@@ -257,6 +257,9 @@
     <ClCompile Include="src\player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\player-abilities.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\player-attack.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -264,9 +267,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\player-calcs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\player-class.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\player-history.c">
@@ -278,10 +278,7 @@
     <ClCompile Include="src\player-quest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\player-race.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\player-spell.c">
+    <ClCompile Include="src\player-skills.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\player-timed.c">
@@ -320,13 +317,13 @@
     <ClCompile Include="src\score.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\songs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\sound-core.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\source.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\store.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\target.c">
@@ -341,16 +338,19 @@
     <ClCompile Include="src\tutorial-init.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui-abilities.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\ui-birth.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui-combat.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-command.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-context.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui-curse.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-death.c">
@@ -410,9 +410,6 @@
     <ClCompile Include="src\ui-output.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ui-player-properties.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ui-player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -425,13 +422,16 @@
     <ClCompile Include="src\ui-signals.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ui-spell.c">
+    <ClCompile Include="src\ui-skills.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui-smith.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui-songs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-spoil.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui-store.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-target.c">
@@ -441,6 +441,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-tutorial.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui-visuals.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-wizard.c">
@@ -509,27 +512,6 @@
     <ClCompile Include="src\win\win-layout.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\obj-util.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui-entry.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui-entry-combiner.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui-entry-renderers.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui-equip-cmp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui-visuals.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\player-properties.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\alloc.h">
@@ -548,6 +530,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cmds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\config.h">
@@ -593,6 +578,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\list-bane-types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\list-dun-profiles.h">
@@ -658,13 +646,19 @@
     <ClInclude Include="src\list-projections.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\list-randart-properties.h">
+    <ClInclude Include="src\list-rooms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\list-room-flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\list-rooms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\list-room-flags.h">
+    <ClInclude Include="src\list-skills.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\list-smith-types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\list-square-flags.h">
@@ -688,9 +682,6 @@
     <ClInclude Include="src\list-tvals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\list-ui-entry-renderers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -698,6 +689,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\mon-blows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mon-calcs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\mon-desc.h">
@@ -745,9 +739,6 @@
     <ClInclude Include="src\obj-chest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\obj-curse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\obj-desc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -778,16 +769,13 @@
     <ClInclude Include="src\obj-pile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\obj-power.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\obj-properties.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\obj-randart.h">
+    <ClInclude Include="src\obj-slays.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\obj-slays.h">
+    <ClInclude Include="src\obj-smith.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\obj-tval.h">
@@ -803,6 +791,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\player-abilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\player-attack.h">
@@ -823,7 +814,7 @@
     <ClInclude Include="src\player-quest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\player-spell.h">
+    <ClInclude Include="src\player-skills.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\player-timed.h">
@@ -853,13 +844,13 @@
     <ClInclude Include="src\snd-win.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\songs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\source.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\store.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\target.h">
@@ -874,16 +865,19 @@
     <ClInclude Include="src\tutorial-init.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ui-abilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\ui-birth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui-combat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui-command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui-context.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui-curse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui-death.h">
@@ -943,9 +937,6 @@
     <ClInclude Include="src\ui-output.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui-player-properties.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ui-player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -958,13 +949,16 @@
     <ClInclude Include="src\ui-signals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui-spell.h">
+    <ClInclude Include="src\ui-skills.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui-smith.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui-songs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui-spoil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui-store.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui-target.h">
@@ -1054,27 +1048,9 @@
     <ClInclude Include="src\win\include\zlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui-entry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui-entry-combiner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui-entry-init.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui-entry-renderers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui-equip-cmp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\player-properties.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\win\angband.ico">
+    <Image Include="src\win\narsil.ico">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="lib\icons\luthien-16.png">
@@ -1112,7 +1088,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="src\win\angband.rc">
+    <ResourceCompile Include="src\win\narsil.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -1133,9 +1109,6 @@
       <Filter>Resource Files\customize</Filter>
     </None>
     <None Include="lib\customize\font-x11.prf">
-      <Filter>Resource Files\customize</Filter>
-    </None>
-    <None Include="lib\customize\keys-gcu.prf">
       <Filter>Resource Files\customize</Filter>
     </None>
     <None Include="lib\customize\message.prf">
@@ -1278,10 +1251,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="lib\gamedata\activation.txt">
+    <Text Include="lib\gamedata\ability.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\artifact.txt">
+    <Text Include="lib\gamedata\artefact.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\blow_effects.txt">
@@ -1299,28 +1272,28 @@
     <Text Include="lib\gamedata\chest_trap.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\class.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
     <Text Include="lib\gamedata\constants.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\curse.txt">
+    <Text Include="lib\gamedata\drop.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\dungeon_profile.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\ego_item.txt">
+    <Text Include="lib\gamedata\female_entry_poetry.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\flavor.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\hints.txt">
+    <Text Include="lib\gamedata\history.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\history.txt">
+    <Text Include="lib\gamedata\house.txt">
+      <Filter>Resource Files\gamedata</Filter>
+    </Text>
+    <Text Include="lib\gamedata\male_entry_poetry.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\monster.txt">
@@ -1344,19 +1317,7 @@
     <Text Include="lib\gamedata\object_property.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\old_class.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
-    <Text Include="lib\gamedata\p_race.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
     <Text Include="lib\gamedata\pain.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
-    <Text Include="lib\gamedata\pit.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
-    <Text Include="lib\gamedata\player_property.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\player_timed.txt">
@@ -1365,22 +1326,22 @@
     <Text Include="lib\gamedata\projection.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\quest.txt">
+    <Text Include="lib\gamedata\pursuit.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\realm.txt">
+    <Text Include="lib\gamedata\race.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\room_template.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
-    <Text Include="lib\gamedata\shape.txt">
+    <Text Include="lib\gamedata\sex.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\slay.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\store.txt">
+    <Text Include="lib\gamedata\song.txt">
+      <Filter>Resource Files\gamedata</Filter>
+    </Text>
+    <Text Include="lib\gamedata\special.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\summon.txt">
@@ -1389,28 +1350,28 @@
     <Text Include="lib\gamedata\terrain.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
+    <Text Include="lib\gamedata\throne_poetry.txt">
+      <Filter>Resource Files\gamedata</Filter>
+    </Text>
     <Text Include="lib\gamedata\trap.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\tutorial.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\ui_entry.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
-    <Text Include="lib\gamedata\ui_entry_base.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
-    <Text Include="lib\gamedata\ui_entry_renderer.txt">
-      <Filter>Resource Files\gamedata</Filter>
-    </Text>
     <Text Include="lib\gamedata\ui_knowledge.txt">
+      <Filter>Resource Files\gamedata</Filter>
+    </Text>
+    <Text Include="lib\gamedata\ultimate_bug.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\vault.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\visuals.txt">
+      <Filter>Resource Files\gamedata</Filter>
+    </Text>
+    <Text Include="lib\gamedata\warning.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\world.txt">
@@ -1441,6 +1402,9 @@
       <Filter>Resource Files\screens</Filter>
     </Text>
     <Text Include="lib\screens\news.txt">
+      <Filter>Resource Files\screens</Filter>
+    </Text>
+    <Text Include="lib\screens\retire.txt">
       <Filter>Resource Files\screens</Filter>
     </Text>
   </ItemGroup>
