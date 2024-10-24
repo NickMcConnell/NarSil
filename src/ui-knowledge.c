@@ -2691,9 +2691,6 @@ void textui_knowledge_init(void)
 
 	menu->title = "Display current knowledge";
 	menu->selections = all_letters_nohjkl;
-	/* Shortcuts to get the contents of the stores by number; does prevent
-	 * the normal use of 4 and 6 to go to the previous or next menu */
-	menu->cmd_keys = "12345678";
 
 	/* initialize other static variables */
 	if (run_parser(&ui_knowledge_parser) != PARSE_ERROR_NONE) {
