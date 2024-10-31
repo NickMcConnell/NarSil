@@ -440,7 +440,7 @@ static void chest_death(struct loc grid, struct object *chest)
 	}
 
 	/* Drop some objects (non-chests) */
-	level = chest->pval;
+	level = ABS(chest->pval);
 	theme = choose_chest_contents();
 	while (number > 0) {
 		int quality = randint1(level);
