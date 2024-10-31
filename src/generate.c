@@ -347,13 +347,21 @@ static enum parser_error parse_vault_d(struct parser *p) {
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 	desc = parser_getstr(p, "text");
 	if (!v->wid) {
-		v->wid = strlen(desc);
+		size_t wid = strlen(desc);
+
+		if (wid > 255) {
+			return PARSE_ERROR_VAULT_TOO_BIG;
+		}
+		v->wid = (uint8_t)wid;
 	}
 
 
 	if (strlen(desc) != v->wid) {
 		return PARSE_ERROR_VAULT_DESC_WRONG_LENGTH;
 	} else {
+		if (v->hgt == 255) {
+			return PARSE_ERROR_VAULT_TOO_BIG;
+		}
 		v->text = string_append(v->text, desc);
 		v->hgt++;
 		/* Note if there is a forge in the vault */
