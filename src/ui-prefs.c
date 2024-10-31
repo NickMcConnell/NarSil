@@ -527,6 +527,8 @@ static const char *process_pref_file_expr(char **sp, char *fp)
 				v = player->race->name;
 			else if (streq(b+1, "HOUSE"))
 				v = player->house->name;
+			else if (streq(b+1, "SEX"))
+				v = player->sex->name;
 		} else {
 			v = b;
 		}
