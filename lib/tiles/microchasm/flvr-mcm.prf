@@ -1,9 +1,7 @@
 #Rings
 
-#Serpentine ring may not be used, even though it is in the flavor.txt file
-#it is currently set to the pink error tile. 
 # Serpentine
-flavor:1:0x8x:0x94
+flavor:1:0x82:0x8E
 
 # Amethyst ring
 flavor:2:0x82:0x80
