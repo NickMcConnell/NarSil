@@ -828,19 +828,21 @@ bool player_saving_throw(struct player *p, struct monster *mon, int resistance)
 bool player_inc_check(struct player *p, int idx, bool lore)
 {
 	struct timed_effect_data *effect = &timed_effects[idx];
-	int resistance = (effect->fail != -1) ? p->state.flags[effect->fail]: 0;
 	struct monster *mon = cave->mon_current > 0 ?
 		cave_monster(cave, cave->mon_current) : NULL;
-
-	/* If we're only doing this for monster lore purposes */
-	if (lore) {
-		return (resistance == 0);
-	}
+	int resistance;
 
 	/* Special case for rage */
 	if ((idx == TMD_AFRAID) && p->timed[TMD_RAGE]) return false;
 
+	/* If we're only doing this for monster lore purposes */
+	if (lore) {
+		return (effect->fail != -1) ?
+			(p->known_state.flags[effect->fail] == 0) : true;
+	}
+
 	/* Check whether @ has resistance to this effect */
+	resistance = (effect->fail != -1) ? p->state.flags[effect->fail]: 0;
 	if (resistance) {
 		/* Possibly identify relevant items */
 		ident_flag(p, effect->fail);
