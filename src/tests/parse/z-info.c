@@ -41,6 +41,24 @@ static int test_negative(void *state) {
 	ok;
 }
 
+static int test_too_large(void *state) {
+	struct parser *p = (struct parser*) state;
+	errr r = parser_parse(p, "mon-play:mana-max:255");
+
+	eq(r, PARSE_ERROR_NONE);
+	r = parser_parse(p, "mon-play:mana-max:256");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	r = parser_parse(p, "mon-play:flee-range:255");
+	eq(r, PARSE_ERROR_NONE);
+	r = parser_parse(p, "mon-play:flee-range:256");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	r = parser_parse(p, "mon-play:wander-range:255");
+	eq(r, PARSE_ERROR_NONE);
+	r = parser_parse(p, "mon-play:wander-range:256");
+	eq(r, PARSE_ERROR_INVALID_VALUE);
+	ok;
+}
+
 static int test_baddirective(void *state) {
 	struct parser *p = (struct parser*) state;
 	errr r = parser_parse(state, "level-max:D:1");
@@ -125,6 +143,7 @@ TEST_CONSTANT(player_regen_period, "regen-period", "player")
 const char *suite_name = "parse/z-info";
 struct test tests[] = {
 	{ "negative", test_negative },
+	{ "too_large", test_too_large },
 	{ "baddirective", test_baddirective },
 	{ "monsters_max", test_level_monster_max },
 	{ "mon_chance", test_alloc_monster_chance },

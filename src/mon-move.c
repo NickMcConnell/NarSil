@@ -401,7 +401,7 @@ static int distance_squared(struct loc grid1, struct loc grid2)
 static void monster_find_range(struct monster *mon)
 {
 	/* Monsters will run up to z_info->flee_range grids out of sight */
-	int flee_range = z_info->max_sight + z_info->flee_range;
+	int flee_range = MIN(z_info->max_sight + z_info->flee_range, 255);
 
 	/* All "afraid" monsters will run away */
 	if (mon->stance == STANCE_FLEEING) {
@@ -438,9 +438,9 @@ static void monster_find_range(struct monster *mon)
 			mon->best_range = 2;
 		} else if (mon->mana >= z_info->mana_max / 5) {
 			/* Specialized ranged attackers will sit back */
-			mon->best_range += (mon->race->freq_ranged - 15) / 5;
-			mon->best_range = MIN(mon->best_range, 8);
-			mon->min_range = mon->best_range - 1;
+			mon->best_range = MAX(1, MIN(8, mon->best_range +
+				(mon->race->freq_ranged - 15) / 5));
+			mon->min_range = MAX(1, mon->best_range - 1);
 		}
 	}
 	
