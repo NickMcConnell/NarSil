@@ -65,11 +65,11 @@ struct angband_constants
 	/* Monster gameplay constants, read from constants.txt */
 	uint16_t repro_monster_rate;	/**< Monster reproduction rate-slower */
 	uint16_t mana_cost;			/**< Mana it costs a monster to cast a  spell */
-	uint16_t mana_max;			/**< Maximum amount of mana a monster can have*/
-	uint16_t flee_range;		/**< Monsters run this many grids out of view */
+	uint8_t mana_max;			/**< Maximum amount of mana a monster can have*/
+	uint8_t flee_range;		/**< Monsters run this many grids out of view */
 	uint16_t turn_range;		/**< Monsters turn to fight closer than this */
 	uint16_t hide_range;		/**< Monsters look for safety this far away */
-	uint16_t wander_range;		/**< Monsters wander this far */
+	uint8_t wander_range;		/**< Monsters wander this far */
 	uint16_t mon_regen_hp_period;/**< Monster turns for complete regeneration */
 	uint16_t mon_regen_sp_period;/**< Monster turns for complete regeneration */
 

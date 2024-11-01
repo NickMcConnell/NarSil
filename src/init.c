@@ -388,17 +388,26 @@ static enum parser_error parse_constants_mon_play(struct parser *p) {
 		z->repro_monster_rate = value;
 	else if (streq(label, "mana-cost"))
 		z->mana_cost = value;
-	else if (streq(label, "mana-max"))
-		z->mana_max = value;
-	else if (streq(label, "flee-range"))
-		z->flee_range = value;
-	else if (streq(label, "turn-range"))
+	else if (streq(label, "mana-max")) {
+		/* A monster's mana is stored and saved as a uint8_t. */
+		if (value > 255) return PARSE_ERROR_INVALID_VALUE;
+		z->mana_max = (uint8_t)value;
+	} else if (streq(label, "flee-range")) {
+		/*
+		 * Influences a monster's minimum range which is stored as a
+		 * uint8_t.
+		 */
+		if (value > 255) return PARSE_ERROR_INVALID_VALUE;
+		z->flee_range = (uint8_t)value;
+	} else if (streq(label, "turn-range"))
 		z->turn_range = value;
 	else if (streq(label, "hide-range"))
 		z->hide_range = value;
-	else if (streq(label, "wander-range"))
-		z->wander_range = value;
-	else if (streq(label, "regen-hp-period"))
+	else if (streq(label, "wander-range")) {
+		/* A monster's wandering distance is stored as a uint8_t. */
+		if (value > 255) return PARSE_ERROR_INVALID_VALUE;
+		z->wander_range = (uint8_t)value;
+	} else if (streq(label, "regen-hp-period"))
 		z->mon_regen_hp_period = value;
 	else if (streq(label, "regen-sp-period"))
 		z->mon_regen_sp_period = value;
