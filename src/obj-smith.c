@@ -489,7 +489,11 @@ bool object_is_mithril(const struct object *obj)
 
 bool melt_mithril_item(struct player *p, struct object *obj)
 {
-	int slots_needed = obj->weight / obj->kind->base->max_stack;
+	/*
+	 * Weights in [1, max_stack] need zero slots, weights in
+	 * [max_stack + 1, 2 * max_stack] need one slot, ...
+	 */
+	int slots_needed = (obj->weight - 1) / obj->kind->base->max_stack;
 	int empty_slots = z_info->pack_size - pack_slots_used(p);
 
 	/* Equipment needs an extra slot */
@@ -510,12 +514,11 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 		struct object_kind *kind = lookup_kind(TV_METAL,
 											   lookup_sval(TV_METAL,
 														   "Piece of Mithril"));
+		/* Remember the total pieces of mithril generated. */
+		int16_t pieces_remaining = obj->weight;
 
 		/* Prepare the base object for the mithril */
 		object_prep(new, kind, p->depth, RANDOMISE);
-
-		/* Set the appropriate quantity */
-		new->number = obj->weight;
 
 		/* Stop tracking item */
 		if (tracked_object_is(p->upkeep, obj))
@@ -529,11 +532,11 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 		cmd_disable_repeat();
 				
 		/* Give the mithril to the player, breaking it up if there's too much */
-		while (new->number > new->kind->base->max_stack) {
+		while (pieces_remaining > new->kind->base->max_stack) {
 			struct object *new2 = object_new();
 
 			/* Decrease the main stack */
-			new->number -= new->kind->base->max_stack;
+			pieces_remaining -= new->kind->base->max_stack;
 
 			/* Prepare the base object for the mithril */
 			object_prep(new2, kind, 0, MINIMISE);
@@ -546,6 +549,7 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 		}
 
 		/* Now give the last stack of mithril to the player */
+		new->number = (uint8_t)pieces_remaining;
 		inven_carry(p, new, false, false);
 
 		return true;
