@@ -916,7 +916,7 @@ void wr_history(void)
 
 void wr_monster_groups(void)
 {
-	size_t i;
+	uint16_t i;
 
 	/* Dump the group flow centres and wandering pauses */
 	for (i = 1; i < z_info->level_monster_max; i++) {
