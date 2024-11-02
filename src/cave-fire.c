@@ -565,10 +565,12 @@ errr vinfo_init(void)
 		/* Skip player grid */
 		if (e > 0) {
 			long slope_fire;
+			long slope_min = 0;
+			long slope_max = 999999L;
 
-			long tmp0 = 0;
-			long tmp1 = 0;
-			long tmp2 = 999999L;
+			uint8_t tmp0 = 0;
+			uint8_t tmp1 = 0;
+			uint8_t tmp2 = 0;
 
 			/* Determine LOF slope for this grid */
 			if (x == 0) slope_fire = SCALE;
@@ -592,13 +594,17 @@ errr vinfo_init(void)
 					}
 
 					/* Check for exact match with the LOF slope */
-					if (m == slope_fire) tmp0 = i;
-
-					/* Remember index of nearest LOS slope < than LOF slope */
-					else if ((m < slope_fire) && (m > tmp1)) tmp1 = i;
-
-					/* Remember index of nearest LOS slope > than LOF slope */
-					else if ((m > slope_fire) && (m < tmp2)) tmp2 = i;
+					if (m == slope_fire) {
+						tmp0 = i;
+					} else if ((m < slope_fire) && (m > slope_min)) {
+						/* Store index of nearest LOS slope < than LOF slope */
+						tmp1 = i;
+						slope_min = m;
+					} else if ((m > slope_fire) && (m < slope_max)) {
+						/* Store index of nearest LOS slope > than LOF slope */
+						tmp2 = i;
+						slope_max = m;
+					}
 				}
 			}
 
