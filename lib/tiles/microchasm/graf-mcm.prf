@@ -188,8 +188,7 @@ object:crown:Massive Iron Crown:0x85:0x9C
 
 ##### Armor #####
 
-# Reusing robe's tile here; should have its own.
-object:soft armor:Filthy Rag:0x85:0x84
+object:soft armor:Filthy Rag:0x90:0x82
 object:soft armor:Robe:0x85:0x84
 object:soft armor:Leather Armour:0x85:0x8C
 object:soft armor:Studded Leather:0x85:0x8D
@@ -212,13 +211,11 @@ object:shield:Mithril Shield:0x85:0x93
 
 ##### Edged Weapons #####
 
-# Reusing dagger's tile here; should have its own.
-object:sword:Broken Sword:0x86:0x80
+object:sword:Broken Sword:0x90:0x83
 object:sword:Dagger:0x86:0x80
 object:sword:Curved Sword:0x86:0x81
 object:sword:Shortsword:0x86:0x82
-# Reusing longsword's tile here; should have its own.
-object:sword:Deathblade:0x86:0x83
+object:sword:Deathblade:0x90:0x84
 object:sword:Longsword:0x86:0x83
 object:sword:Bastard Sword:0x86:0x87
 object:sword:Greatsword:0x86:0x85
@@ -244,8 +241,7 @@ object:polearm:Great Axe:0x86:0x8F
 
 object:hafted:Quarterstaff:0x86:0x88
 object:hafted:War Hammer:0x86:0x8C
-# Reusing aspen staff's tile; should have its own.
-object:hafted:Sceptre:0x84:0x8F
+object:hafted:Sceptre:0x90:0x85
 
 
 
@@ -264,8 +260,7 @@ object:helm:Great Helm:0x85:0x98
 object:helm:Dwarf Mask:0x85:0x9A
 object:helm:Mithril Helm:0x85:0x99
 object:crown:Crown:0x81:0x89
-# Reusing crown's tile here; should have its own.
-object:crown:Jewelled Crown:0x81:0x89
+object:crown:Jewelled Crown:0x90:0x81
 
 
 
@@ -456,7 +451,7 @@ monster:Ruby serpent:0x88:0x9D
 monster:Creeping horror:0x88:0x8D
 monster:Ringrauko:0x8A:0x85
 # Currently chosen to match the tile for the deathblade object.
-monster:Deathblade:0x86:0x83
+monster:Deathblade:0x90:0x84
 monster:Delthaur, Balrog of Terror:0x8A:0x8B
 monster:Nan, the Giant:0x89:0x94
 monster:Cave troll:0x89:0x8E
@@ -464,7 +459,7 @@ monster:Emerald serpent:0x88:0x9E
 monster:Oathwraith:0x87:0x94
 monster:Cat warrior:0x89:0x95
 # Currently chosen to match the tile for the deathblade object.
-monster:The Deathblade 'Delmereth':0x86:0x83
+monster:The Deathblade 'Delmereth':0x90:0x84
 monster:Amethyst serpent:0x88:0x9F
 monster:Kemenrauko:0x8A:0x86
 monster:Grotesque:0x86:0x99
