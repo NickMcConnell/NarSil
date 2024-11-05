@@ -840,22 +840,26 @@ void tutorial_prepare_section(const char *name, struct player *p)
 
 	/* Deal with the previous tutorial section. */
 	if (character_dungeon) {
-		assert(cave);
-		/* Deal with artifacts. */
-		for (grid.y = 0; grid.y < cave->height; ++grid.y) {
-			for (grid.x = 0; grid.x < cave->width; ++grid.x) {
-				struct object *obj;
+		if (p->cave) {
+			assert(cave);
+			/* Deal with artifacts. */
+			for (grid.y = 0; grid.y < cave->height; ++grid.y) {
+				for (grid.x = 0; grid.x < cave->width; ++grid.x) {
+					struct object *obj;
 
-				for (obj = square_object(cave, grid);
-						obj; obj = obj->next) {
-					if (!obj->artifact) continue;
-					history_lose_artifact(p, obj->artifact);
-					mark_artifact_created(
-						obj->artifact, true);
+					for (obj = square_object(cave, grid);
+							obj; obj = obj->next) {
+						if (!obj->artifact || !object_is_known_artifact(obj)) continue;
+						history_lose_artifact(p, obj->artifact);
+						mark_artifact_created(
+							obj->artifact, true);
+					}
 				}
 			}
-		}
 
+			cave_free(p->cave);
+			p->cave = NULL;
+		}
 		/* Mimic cave_clear() in generate.c. */
 		p->smithing_leftover = 0;
 		p->upkeep->knocked_back = false;
@@ -998,6 +1002,16 @@ void tutorial_prepare_section(const char *name, struct player *p)
 				}
 			}
 		}
+	}
+
+	/* Set up the player's version of the cave. */
+	p->cave = cave_new(cave->height, cave->width);
+	p->cave->depth = cave->depth;
+	p->cave->objects = mem_realloc(p->cave->objects,
+		(cave->obj_max + 1) * sizeof(struct object*));
+	p->cave->obj_max = cave->obj_max;
+	for (i = 0; i <= p->cave->obj_max; ++i) {
+		p->cave->objects[i] = NULL;
 	}
 
 	/* It's ready to go. */
