@@ -298,7 +298,7 @@ static void learn_brand_slay_helper(struct player *p, struct object *obj1,
 		b = &brands[i];
 		if (!b->resist_flag || !rf_has(mon->race->flags, b->resist_flag)) {
 			/* Learn the brand */
-			if (learn && !player_knows_brand(p, i)) {
+			if (!player_knows_brand(p, i)) {
 				player_learn_brand(p, i);
 				brand_message(b, mon);
 			}
@@ -340,7 +340,7 @@ static void learn_brand_slay_helper(struct player *p, struct object *obj1,
 			lore_learn_flag_if_visible(lore, mon, s->race_flag);
 			if (monster_is_visible(mon)) {
 				/* Learn the slay */
-				if (learn && !player_knows_slay(p, i)) {
+				if (!player_knows_slay(p, i)) {
 					char o_name[80];
 					object_desc(o_name, sizeof(o_name), obj1, ODESC_BASE, p);
 					msg("Your %s strikes truly.", o_name);
