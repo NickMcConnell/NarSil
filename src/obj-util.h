@@ -55,7 +55,6 @@ bool obj_can_fire(const struct object *obj);
 bool obj_is_throwing(const struct object *obj);
 bool obj_is_cursed(const struct object *obj);
 bool obj_is_broken(const struct object *obj);
-bool obj_is_known_artifact(const struct object *obj);
 bool obj_has_inscrip(const struct object *obj);
 bool obj_has_flag(const struct object *obj, int flag);
 bool obj_is_useable(const struct object *obj);
