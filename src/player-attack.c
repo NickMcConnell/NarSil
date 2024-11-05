@@ -544,18 +544,6 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 				do_knock_back = true;
 			}
 
-			/* Damage, check for death */
-			fatal_blow = mon_take_hit(mon, p, net_dam, NULL);
-
-			/* Display depending on whether knock back triggered */
-			if (do_knock_back) {
-				event_signal_hit(EVENT_HIT, net_dam, PROJ_SOUND, fatal_blow,
-								 grid);
-			} else {
-				event_signal_hit(EVENT_HIT, net_dam, PROJ_HURT, fatal_blow,
-								 grid);
-			}
-
 			/* If a slay, brand or flag was noticed, learn it */
 			if (slay || brand) {
 				learn_brand_slay_from_melee(p, obj, mon);
@@ -568,6 +556,18 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 					msg("Your %s %s.", o_name, desc);
 				}
 				player_learn_flag(p, flag);
+			}
+
+			/* Damage, check for death */
+			fatal_blow = mon_take_hit(mon, p, net_dam, NULL);
+
+			/* Display depending on whether knock back triggered */
+			if (do_knock_back) {
+				event_signal_hit(EVENT_HIT, net_dam, PROJ_SOUND, fatal_blow,
+								 grid);
+			} else {
+				event_signal_hit(EVENT_HIT, net_dam, PROJ_HURT, fatal_blow,
+								 grid);
 			}
 
 			/* Deal with killing blows */
