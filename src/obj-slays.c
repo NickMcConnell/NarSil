@@ -293,9 +293,10 @@ static void learn_brand_slay_helper(struct player *p, struct object *obj1,
 		if (obj2 && obj2->brands && obj2->brands[i]) {
 			learn = true;
 		}
+		if (!learn) continue;
 
 		b = &brands[i];
-		if (!rf_has(mon->race->flags, b->resist_flag)) {
+		if (!b->resist_flag || !rf_has(mon->race->flags, b->resist_flag)) {
 			/* Learn the brand */
 			if (learn && !player_knows_brand(p, i)) {
 				player_learn_brand(p, i);
@@ -303,7 +304,10 @@ static void learn_brand_slay_helper(struct player *p, struct object *obj1,
 			}
 
 			/* Learn about the monster. */
-			lore_learn_flag_if_visible(lore, mon, b->resist_flag);
+			if (b->resist_flag) {
+				lore_learn_flag_if_visible(lore, mon,
+					b->resist_flag);
+			}
 			if (b->vuln_flag) {
 				lore_learn_flag_if_visible(lore, mon,
 					b->vuln_flag);
@@ -311,10 +315,6 @@ static void learn_brand_slay_helper(struct player *p, struct object *obj1,
 		} else if (player_knows_brand(p, i)) {
 			/* Learn about the monster. */
 			lore_learn_flag_if_visible(lore, mon, b->resist_flag);
-			if (b->vuln_flag) {
-				lore_learn_flag_if_visible(lore, mon,
-					b->vuln_flag);
-			}
 		}
 	}
 
@@ -329,6 +329,9 @@ static void learn_brand_slay_helper(struct player *p, struct object *obj1,
 		}
 		if (obj2 && obj2->slays && obj2->slays[i]) {
 			learn = true;
+		}
+		if (!learn) {
+			continue;
 		}
 
 		s = &slays[i];
