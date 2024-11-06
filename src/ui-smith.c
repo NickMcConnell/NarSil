@@ -608,9 +608,9 @@ static void special_display(struct menu *menu, int oid, bool cursor, int row,
 	uint8_t attr = affordable_specials[oid] ? COLOUR_WHITE : COLOUR_SLATE;
 	if (cursor) {
 		create_special(smith_obj, choice[oid]);
+		know_smith_obj();
 		pval = pval_valid(smith_obj) ? smith_obj->pval : 0;
 		include_pval(smith_obj);
-		know_smith_obj();
 		show_smith_obj();
 		exclude_pval(smith_obj);
 	}
@@ -890,8 +890,8 @@ static void artefact_display(struct menu *menu, int oid, bool cursor, int row,
 	attr = smithing_art_cat_counts[oid] > 0 ?
 		(cursor ? COLOUR_L_BLUE : COLOUR_WHITE) : COLOUR_L_DARK;
 	if (cursor) {
-		include_pval(smith_obj);
 		know_smith_obj();
+		include_pval(smith_obj);
 		show_smith_obj();
 		exclude_pval(smith_obj);
 	}

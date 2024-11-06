@@ -1384,6 +1384,10 @@ static void create_smithing_item(struct object *obj, struct smithing_cost *cost)
 
 	/* Create the object */
 	object_copy(created, obj);
+	if (obj->known) {
+		created->known = object_new();
+		object_copy(created->known, obj->known);
+	}
 	
 	/* Identify the object */
 	object_flavor_aware(player, created);
