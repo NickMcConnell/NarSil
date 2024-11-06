@@ -1380,6 +1380,15 @@ static void create_smithing_item(struct object *obj, struct smithing_cost *cost)
 		aup_info[aidx].created = true;
 		aup_info[aidx].seen = true;
 		aup_info[aidx].everseen = true;
+
+		/*
+		 * Point the object at the permanent artifact record rather
+		 * than what is used when smithing.
+		 */
+		obj->artifact = &a_info[aidx];
+		if (obj->known) {
+			obj->known->artifact = obj->artifact;
+		}
 	}
 
 	/* Create the object */
