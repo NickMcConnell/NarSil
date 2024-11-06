@@ -1050,8 +1050,12 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	if (player_active_ability(p, "Two Weapon Fighting") && 
 		off && tval_is_weapon(off)) {
 		/* Remove main-hand specific bonuses */
-		state->offhand_mel_mod -= weapon->att + blade_bonus(p, weapon)
-			+ axe_bonus(p, weapon) + polearm_bonus(p, weapon);
+		if (weapon) {
+			state->offhand_mel_mod -= weapon->att
+				+ blade_bonus(p, weapon)
+				+ axe_bonus(p, weapon)
+				+ polearm_bonus(p, weapon);
+		}
 		if (player_active_ability(p, "Rapid Attack")) {
 			state->offhand_mel_mod += 3;
 		}
