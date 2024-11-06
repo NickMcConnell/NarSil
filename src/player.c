@@ -362,6 +362,10 @@ void player_cleanup_members(struct player *p)
 		mem_free(p->upkeep);
 		p->upkeep = NULL;
 	}
+	if (p->obj_k) {
+		object_free(p->obj_k);
+		p->obj_k = NULL;
+	}
 	mem_free(p->vaults);
 
 	/* Free the things that are only sometimes initialised */
