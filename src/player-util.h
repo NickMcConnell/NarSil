@@ -71,8 +71,6 @@ enum {
 
 int player_min_depth(struct player *p);
 int dungeon_get_next_level(struct player *p, int dlev, int added);
-void player_set_recall_depth(struct player *p);
-bool player_get_recall_depth(struct player *p);
 void dungeon_change_level(struct player *p, int dlev);
 int int_exp(int base, int power);
 void take_hit(struct player *p, int dam, const char *kb_str);
