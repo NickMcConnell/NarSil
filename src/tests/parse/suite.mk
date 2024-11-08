@@ -22,6 +22,7 @@ TESTPROGS += parse/a-info \
 	parse/parse \
 	parse/partrap \
 	parse/proj \
+	parse/ptimed \
 	parse/pursuit \
 	parse/r-info \
 	parse/sex-info \

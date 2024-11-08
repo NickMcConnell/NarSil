@@ -761,6 +761,7 @@ SET(ANGBAND_TEST_CASE_SOURCES
     parse/parse.c
     parse/partrap.c
     parse/proj.c
+    parse/ptimed.c
     parse/pursuit.c
     parse/r-info.c
     parse/sex-info.c
@@ -777,6 +778,7 @@ SET(ANGBAND_TEST_CASE_SOURCES
     player/inven-wield.c
     player/pathfind.c
     player/playerstat.c
+    player/timed.c
     trivial/trivial.c
     z-dice/dice.c
     z-dict/dict.c
