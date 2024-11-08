@@ -286,9 +286,9 @@ static enum parser_error parse_player_timed_change_grade(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
 	struct timed_change_grade *current = t->c_grade;
-	struct timed_change_grade *l = mem_zalloc(sizeof(*l));
 	const char *color = parser_getsym(p, "color");
 	int grade_max = parser_getint(p, "max");
+	struct timed_change_grade *l;
 	int attr;
 
 	assert(t);
@@ -315,6 +315,7 @@ static enum parser_error parse_player_timed_change_grade(struct parser *p)
 	}
 
 	/* Add the new one */
+	l = mem_zalloc(sizeof(*l));
 	current->next = l;
 	l->c_grade = current->c_grade + 1;
 
