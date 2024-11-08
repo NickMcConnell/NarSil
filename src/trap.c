@@ -1023,6 +1023,7 @@ void hit_trap(struct loc grid)
 			dungeon_change_level(player, next);
 			history_add(player, format("Fell through a %s", trap->kind->name),
 						HIST_FELL_DOWN_LEVEL);
+			return;
 		}
 
 		/* Some traps drop you onto them */

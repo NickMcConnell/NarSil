@@ -1852,15 +1852,18 @@ void move_player(int dir, bool disarm)
 				player_fall_in_chasm(player);
 			}
 
-			/* Update view */
-			update_view(cave, player);
-			cmdq_push(CMD_AUTOPICKUP);
-			/*
-			 * The autopickup is a side effect of the move:  whatever
-			 * command triggered the move will be the target for CMD_REPEAT
-			 * rather than repeating the autopickup.
-			 */
-			cmdq_peek()->is_background_command = true;
+			/* Check for having left the level by falling */
+			if (!player->upkeep->generate_level) {
+				/* Update view */
+				update_view(cave, player);
+				cmdq_push(CMD_AUTOPICKUP);
+				/*
+				 * The autopickup is a side effect of the move:  whatever
+				 * command triggered the move will be the target for CMD_REPEAT
+				 * rather than repeating the autopickup.
+				 */
+				cmdq_peek()->is_background_command = true;
+			}
 		}
 	}
 
