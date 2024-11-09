@@ -705,6 +705,7 @@ IF(SC_INSTALL)
         "${CMAKE_CURRENT_SOURCE_DIR}/lib"
         "Makefile"
         ".deps"
+        ".gitignore"
         COMMENT "Copying needed files"
         VERBATIM
     )
