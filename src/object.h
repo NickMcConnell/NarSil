@@ -305,6 +305,7 @@ struct artifact {
 
 	uint8_t level;			/* Artefact level */
 	uint8_t rarity;		/* Artefact rarity */
+	uint8_t d_attr;			/**< Display color */
 };
 
 /**

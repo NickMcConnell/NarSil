@@ -154,6 +154,7 @@ struct grid_data {
 	uint32_t m_idx;			/* Monster index */
 	uint32_t f_idx;			/* Feature index */
 	struct object_kind *first_kind;	/* The kind of the first item on the grid */
+	const struct artifact *first_art;	/* Artifact pointer for first item on the grid */
 	struct trap *trap;		/* Trap */
 	bool multiple_objects;	/* Is there more than one item there? */
 

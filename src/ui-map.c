@@ -227,7 +227,9 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 			c = object_kind_char(pile_kind);
 		} else {
 			/* Normal attr and char, check for glowing */
-			a = g->glow ? COLOUR_L_BLUE : object_kind_attr(g->first_kind);
+			a = g->glow ? COLOUR_L_BLUE :
+				((g->first_art) ? g->first_art->d_attr :
+				object_kind_attr(g->first_kind));
 			c = object_kind_char(g->first_kind);
 		}
 		if (g->rage) a = COLOUR_RED;
