@@ -114,7 +114,8 @@ wchar_t object_kind_char(const struct object_kind *kind)
  */
 uint8_t object_attr(const struct object *obj)
 {
-	return object_kind_attr(obj->kind);
+	return obj->artifact ?
+		obj->artifact->d_attr : object_kind_attr(obj->kind);
 }
 
 /**

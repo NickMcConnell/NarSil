@@ -156,6 +156,7 @@ static enum parser_error write_dummy_object_record(struct artifact *art, const c
 	/* Give the object default colours (these should be overwritten) */
 	dummy->d_char = '*';
 	dummy->d_attr = COLOUR_RED;
+	art->d_attr = dummy->d_attr;
 
 	/* Inherit the flags and element information of the tval */
 	of_copy(dummy->flags, kb_info[i].flags);
@@ -2284,6 +2285,9 @@ static enum parser_error parse_artifact_name(struct parser *p) {
 		a->el_info[i].flags |= EL_INFO_IGNORE;
 	}
 
+	/* Signal that the color has not been set */
+	a->d_attr = 255;
+
 	return PARSE_ERROR_NONE;
 }
 
@@ -2307,6 +2311,10 @@ static enum parser_error parse_artifact_base_object(struct parser *p) {
 		return write_dummy_object_record(a, sval_name);
 	}
 	a->sval = sval;
+	/* Use the base object's display color unless overridden. */
+	if (a->d_attr == 255) {
+		a->d_attr = lookup_kind(a->tval, a->sval)->d_attr;
+	}
 
 	return PARSE_ERROR_NONE;
 }
@@ -2319,12 +2327,16 @@ static enum parser_error parse_artifact_color(struct parser *p) {
 	if (!a) {
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 	}
+	if (strlen(color) > 1) {
+		a->d_attr = color_text_to_attr(color);
+	} else {
+		a->d_attr = color_char_to_attr(color[0]);
+	}
 	k = lookup_kind(a->tval, a->sval);
 	assert(k);
-	if (strlen(color) > 1) {
-		k->d_attr = color_text_to_attr(color);
-	} else {
-		k->d_attr = color_char_to_attr(color[0]);
+	if (kf_has(k->kind_flags, KF_INSTA_ART)) {
+		/* Align the color of the kind with that of the artifact. */
+		k->d_attr = a->d_attr;
 	}
 	return PARSE_ERROR_NONE;
 }
@@ -2349,6 +2361,7 @@ static enum parser_error parse_artifact_graphics(struct parser *p) {
 	} else {
 		k->d_attr = color_char_to_attr(color[0]);
 	}
+	a->d_attr = k->d_attr;
 	return PARSE_ERROR_NONE;
 }
 
@@ -2628,6 +2641,13 @@ static errr finish_parse_artifact(struct parser *p) {
 
 		memcpy(&a_info[aidx], a, sizeof(*a));
 		a_info[aidx].aidx = aidx;
+		if (a_info[aidx].d_attr == 255) {
+			/*
+			 * The color was not set (no base object set).  Use zero
+			 * as the color index.
+			 */
+			a_info[aidx].d_attr = 0;
+		}
 		n = a->next;
 		a_info[aidx].next = (aidx < z_info->a_max) ?
 			&a_info[aidx + 1] : NULL;
