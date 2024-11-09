@@ -46,6 +46,9 @@
  *    player doesn't know it).
  *  - g->first_kind is set to the object_kind of the first object in a grid
  *    that the player knows about, or NULL for no objects.
+ *  - g->first_art is set to the artifact pointer of the first object in a grid
+ *    that the player knows about, or NULL if there are no objects or the first
+ *    known object is not an artifact.
  *  - g->muliple_objects is true if there is more than one object in the
  *    grid that the player knows and cares about (to facilitate any special
  *    floor stack symbol that might be used).
@@ -88,6 +91,7 @@ void map_info(struct loc grid, struct grid_data *g)
 
 	/* Default "clear" values, others will be set later where appropriate. */
 	g->first_kind = NULL;
+	g->first_art = NULL;
 	g->trap = NULL;
 	g->multiple_objects = false;
 	g->glow = false;
@@ -152,6 +156,7 @@ void map_info(struct loc grid, struct grid_data *g)
 			/* Item stays hidden */
 		} else if (!g->first_kind) {
 			g->first_kind = obj->kind;
+			g->first_art = obj->artifact;
 			g->glow = weapon_glows(obj);
 		} else {
 			g->multiple_objects = true;

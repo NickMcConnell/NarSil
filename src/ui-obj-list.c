@@ -133,8 +133,8 @@ static void object_list_format_section(const object_list_t *list,
 			wchar_t c = L'*';
 
 			if (list->entries[entry_index].object->kind != NULL) {
-				a = object_kind_attr(list->entries[entry_index].object->kind);
-				c = object_kind_char(list->entries[entry_index].object->kind);
+				a = object_attr(list->entries[entry_index].object);
+				c = object_char(list->entries[entry_index].object);
 			}
 
 			textblock_append_pict(tb, a, c);
