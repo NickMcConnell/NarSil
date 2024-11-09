@@ -1409,8 +1409,7 @@ int textui_do_birth(void)
 				if (next == BIRTH_BACK)
 					next = BIRTH_SEX_CHOICE;
 
-				if (next != BIRTH_STAT_POINTS)
-					stat_points_stop();
+				stat_points_stop();
 
 				break;
 			}
