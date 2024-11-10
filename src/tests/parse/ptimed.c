@@ -74,6 +74,42 @@ static void clear_change_grades(struct timed_effect_data *t) {
 	t->c_grade = NULL;
 }
 
+static int test_missing_record_header0(void *state) {
+	struct parser *p = (struct parser*) state;
+	struct timed_effect_data *t = (struct timed_effect_data*) parser_priv(p);
+	enum parser_error r;
+
+	null(t);
+	r = parser_parse(p, "desc:haste");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "on-end:You feel yourself slow down.");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "on-increase:You are more confused!");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "on-decrease:You feel a little less confused.");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "change-inc:20:You have been badly poisoned.");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "change-dec:5:You can feel the poison weakening.");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "msgt:SPEED");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "fail:FREE_ACT");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p,
+		"grade:G:10000:Haste:You feel yourself moving faster!");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "change-grade:G:20:3:Poisoned");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "resist:ACID");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "este:1");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	r = parser_parse(p, "save:1");
+	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
+	ok;
+}
+
 static int test_name0(void *state) {
 	struct parser *p = (struct parser*) state;
 	enum parser_error r = parser_parse(p, "name:FOOD");
@@ -633,9 +669,12 @@ static int test_save0(void *state) {
 const char *suite_name = "parse/ptimed";
 
 /*
- * test_name0() has to be before any of the other tests besides test_badname0().
+ * test_missing_record_header0() has to be before test_name0().
+ * test_name0() has to be before any of the other tests besides
+ * test_missing_record_header0() and test_badname0().
  */
 struct test tests[] = {
+	{ "missing_record_header0", test_missing_record_header0 },
 	{ "name0", test_name0 },
 	{ "badname0", test_badname0 },
 	{ "desc0", test_desc0 },

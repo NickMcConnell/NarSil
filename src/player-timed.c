@@ -108,8 +108,10 @@ static enum parser_error parse_player_timed_name(struct parser *p)
 static enum parser_error parse_player_timed_desc(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	assert(t);
 
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	t->desc = string_append(t->desc, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
 }
@@ -117,8 +119,10 @@ static enum parser_error parse_player_timed_desc(struct parser *p)
 static enum parser_error parse_player_timed_end_message(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	assert(t);
 
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	t->on_end = string_append(t->on_end, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
 }
@@ -126,8 +130,10 @@ static enum parser_error parse_player_timed_end_message(struct parser *p)
 static enum parser_error parse_player_timed_increase_message(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	assert(t);
 
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	t->on_increase = string_append(t->on_increase, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
 }
@@ -135,8 +141,10 @@ static enum parser_error parse_player_timed_increase_message(struct parser *p)
 static enum parser_error parse_player_timed_decrease_message(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	assert(t);
 
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	t->on_decrease = string_append(t->on_decrease, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
 }
@@ -144,10 +152,14 @@ static enum parser_error parse_player_timed_decrease_message(struct parser *p)
 static enum parser_error parse_player_timed_change_increase(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	struct timed_change *current = t->increase;
-	assert(t);
+	struct timed_change *current;
+
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 
 	/* Make a zero change structure if there isn't one */
+	current = t->increase;
 	if (!current) {
 		t->increase = mem_zalloc(sizeof(struct timed_change));
 		current = t->increase;
@@ -172,8 +184,10 @@ static enum parser_error parse_player_timed_change_increase(struct parser *p)
 static enum parser_error parse_player_timed_change_decrease(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	assert(t);
 
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	t->decrease.max = parser_getint(p, "max");
 	string_free(t->decrease.msg);
 	t->decrease.msg = string_make(parser_getsym(p, "msg"));
@@ -183,13 +197,13 @@ static enum parser_error parse_player_timed_change_decrease(struct parser *p)
 static enum parser_error parse_player_timed_message_type(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	assert(t);
 
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	t->msgt = message_lookup_by_name(parser_getsym(p, "type"));
-
 	return t->msgt < 0 ?
-				PARSE_ERROR_INVALID_MESSAGE :
-				PARSE_ERROR_NONE;
+		PARSE_ERROR_INVALID_MESSAGE : PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_player_timed_fail(struct parser *p)
@@ -197,27 +211,30 @@ static enum parser_error parse_player_timed_fail(struct parser *p)
 	struct timed_effect_data *t = parser_priv(p);
 	const char *name = parser_getstr(p, "flag");
 	int flag = lookup_flag(obj_flags, name);
-	assert(t);
 
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	if (flag == FLAG_END) {
 		return PARSE_ERROR_INVALID_FLAG;
-	} else {
-		t->fail = flag;
 	}
-
+	t->fail = flag;
 	return PARSE_ERROR_NONE;
 }
 
 static enum parser_error parse_player_timed_grade(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	struct timed_grade *current = t->grade;
-	struct timed_grade *l = mem_zalloc(sizeof(*l));
-    const char *color = parser_getsym(p, "color");
-    int attr = 0;
-	assert(t);
+	const char *color = parser_getsym(p, "color");
+	struct timed_grade *current, *l;
+	int attr = 0;
+
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 
 	/* Make a zero grade structure if there isn't one */
+	current = t->grade;
 	if (!current) {
 		t->grade = mem_zalloc(sizeof(struct timed_grade));
 		current = t->grade;
@@ -229,17 +246,18 @@ static enum parser_error parse_player_timed_grade(struct parser *p)
 	}
 
 	/* Add the new one */
+	l = mem_zalloc(sizeof(*l));
 	current->next = l;
 	l->grade = current->grade + 1;
 
-    if (strlen(color) > 1) {
+	if (strlen(color) > 1) {
 		attr = color_text_to_attr(color);
-    } else {
+	} else {
 		attr = color_char_to_attr(color[0]);
 	}
-    if (attr < 0)
+	if (attr < 0)
 		return PARSE_ERROR_INVALID_COLOR;
-    l->color = attr;
+	l->color = attr;
 
 	l->max = parser_getint(p, "max");
 	l->name = string_make(parser_getsym(p, "name"));
@@ -285,13 +303,14 @@ static enum parser_error parse_player_timed_grade(struct parser *p)
 static enum parser_error parse_player_timed_change_grade(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
-	struct timed_change_grade *current = t->c_grade;
 	const char *color = parser_getsym(p, "color");
 	int grade_max = parser_getint(p, "max");
-	struct timed_change_grade *l;
+	struct timed_change_grade *current, *l;
 	int attr;
 
-	assert(t);
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 
 	/*
 	 * The maximum should be greater than zero so it does not interfere
@@ -304,6 +323,7 @@ static enum parser_error parse_player_timed_change_grade(struct parser *p)
 	}
 
 	/* Make a zero grade structure if there isn't one */
+	current = t->c_grade;
 	if (!current) {
 		t->c_grade = mem_zalloc(sizeof(struct timed_change_grade));
 		current = t->c_grade;
@@ -348,7 +368,9 @@ static enum parser_error parse_player_timed_resist(struct parser *p)
 	const char *name = parser_getsym(p, "elem");
 	int idx = (name) ? proj_name_to_idx(name) : -1;
 
-	assert(t);
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	if (idx < 0 || idx >= ELEM_MAX) return PARSE_ERROR_INVALID_VALUE;
 	t->temp_resist = idx;
 	return PARSE_ERROR_NONE;
@@ -358,7 +380,9 @@ static enum parser_error parse_player_timed_este(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
 
-	assert(t);
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	t->este = parser_getuint(p, "value") ? true : false;
 	return PARSE_ERROR_NONE;
 }
@@ -367,7 +391,9 @@ static enum parser_error parse_player_timed_save(struct parser *p)
 {
 	struct timed_effect_data *t = parser_priv(p);
 
-	assert(t);
+	if (!t) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
 	t->save = parser_getuint(p, "value") ? true : false;
 	return PARSE_ERROR_NONE;
 }
