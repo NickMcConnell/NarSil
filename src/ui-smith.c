@@ -430,6 +430,7 @@ static void sval_display(struct menu *menu, int oid, bool cursor, int row,
 	struct smithing_cost *cost = &local_cost;
 	if (cursor) {
 		obj = smith_obj;
+		known_obj = smith_obj_known;
 		cost = &current_cost;
 	}
 	create_base_object(choice[oid], obj);
