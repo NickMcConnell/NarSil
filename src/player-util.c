@@ -673,7 +673,7 @@ bool player_can_leap(struct player *p, struct loc grid, int dir)
 		/* Can't jump without a run up */
 		msg("You cannot leap without a run up.");
 		return false;
-	} else if (square_ismark(cave, end) && !square_ispassable(cave, end)) {
+	} else if (square_isknown(cave, end) && !square_ispassable(cave, end)) {
 		/* Need room to land */
 		msg("You cannot leap over as there is no room to land.");
 		return false;
@@ -1439,14 +1439,14 @@ static void search_square(struct player *p, struct loc grid, int dist,
 
 	/* If searching, discover unknown adjacent squares of interest */
 	if (searching) {
-		if ((dist == 1) && !square_ismark(cave, grid)) {
+		if ((dist == 1) && !square_isknown(cave, grid)) {
 			struct object *square_obj = square_object(cave, grid);
 
-			/* Mark all non-floor non-trap squares */
-            if (!(square_isfloor(cave, grid) ||
-				  square_issecrettrap(cave, grid))) {
-                sqinfo_on(square(cave, grid)->info, SQUARE_MARK);
-            }
+			/* Remember all non-floor non-trap squares */
+			if (!(square_isfloor(cave, grid) ||
+					square_issecrettrap(cave, grid))) {
+				square_memorize(cave, grid);
+			}
 			
 			/* Mark an object, but not the square it is in */
 			if (square_obj) {

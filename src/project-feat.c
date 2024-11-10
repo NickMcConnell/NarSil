@@ -144,68 +144,72 @@ static void project_feature_handler_KILL_WALL(project_feature_handler_context_t 
 	if (square_isrubble(cave, grid)) {
 		if (success) {
 			/* Message */
-			if (square_ismark(cave, grid)) {
+			if (square_isseen(cave, grid)) {
 				msg("The rubble is blown away!");
 				context->obvious = true;
 
 				/* Forget the rubble */
-				square_unmark(cave, grid);
+				square_forget(cave, grid);
+				square_light_spot(cave, grid);
 			}
 
 			/* Destroy the rubble */
 			square_destroy_rubble(cave, grid);
-		} else if (square_ismark(cave, grid)) {
+		} else if (square_isseen(cave, grid)) {
 			/* Message */
 			msg("You fail to blow hard enough to smash the rubble.");
 		}
 	} else if (square_iscloseddoor(cave, grid)) {
 		if (success) {
 			/* Message */
-			if (square_ismark(cave, grid)) {
+			if (square_isseen(cave, grid)) {
 				msg("The door is blown from its hinges!");
 				context->obvious = true;
 
 				/* Forget the door */
-				square_unmark(cave, grid);
+				square_forget(cave, grid);
+				square_light_spot(cave, grid);
 			}
 
 			/* Destroy the door */
 			square_destroy_door(cave, grid);
-		} else if (square_ismark(cave, grid)) {
+		} else if (square_isseen(cave, grid)) {
 			/* Message */
 			msg("You fail to blow hard enough to force the door open.");
 		}
 	} else if (square_isquartz(cave, grid)) {
 		if (success) {
 			/* Message */
-			if (square_ismark(cave, grid)) {
+			if (square_isseen(cave, grid)) {
 				msg("The vein shatters!");
 				context->obvious = true;
 
 				/* Forget the wall */
-				square_unmark(cave, grid);
+				square_forget(cave, grid);
+				square_light_spot(cave, grid);
 			}
 
 			/* Destroy the wall */
 			square_set_feat(cave, grid, FEAT_RUBBLE);
-		} else if (square_ismark(cave, grid)) {
+		} else if (square_isseen(cave, grid)) {
 			/* Message */
 			msg("You fail to blow hard enough to shatter the quartz.");
 		}
 	} else if (square_isgranite(cave, grid)) {
 		if (success) {
 			/* Message */
-			if (square_ismark(cave, grid)) {
+			if (square_isseen(cave, grid)) {
 				msg("The wall shatters!");
 				context->obvious = true;
 
 				/* Forget the wall */
-				square_unmark(cave, grid);
+				square_forget(cave, grid);
+				square_light_spot(cave, grid);
 			}
 
 			/* Destroy the wall */
 			square_set_feat(cave, grid, FEAT_RUBBLE);
-		} else if (square_ismark(cave, grid)) {
+		} else if (square_isseen(cave, grid)) {
 			/* Message */
 			msg("You fail to blow hard enough to shatter the wall.");
 		}

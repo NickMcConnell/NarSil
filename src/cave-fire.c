@@ -1221,7 +1221,7 @@ int project_path(struct chunk *c, struct loc *gp, int range, struct loc grid1,
 			//TODO see if this conditional is actually needed; I believe it's
 			//purpose is covered by the checks in projectable() - NRM
 			//if ((!require_strict_lof) || square_isfire(c, grid) ||
-			//   ((flg & (PROJECT_INVIS)) && !square_ismark(c, grid))) {
+			//   ((flg & (PROJECT_INVIS)) && !square_isknown(c, grid))) {
 			/* Store grid value */
 			tmp_grids[n_grids++] = grid_to_loc(g);
 				//}
@@ -1235,7 +1235,7 @@ int project_path(struct chunk *c, struct loc *gp, int range, struct loc grid1,
 		 * but the path cannot pass through them.
 		 */
 		if (!(flg & (PROJECT_PASS)) && square_iswall(c, grid)) {
-			if (!(flg & (PROJECT_INVIS)) || square_ismark(c, grid)) {
+			if (!(flg & (PROJECT_INVIS)) || square_isknown(c, grid)) {
 				/* Clear any lines of sight passing through this grid */
 				bits0 &= ~(point->bits_0);
 				bits1 &= ~(point->bits_1);
@@ -1293,7 +1293,7 @@ int project_path(struct chunk *c, struct loc *gp, int range, struct loc grid1,
 
 			/* Usually stop at wall grids */
 			if (!(flg & (PROJECT_PASS)) &&
-				(!(flg & (PROJECT_INVIS)) || square_ismark(c, grid))) {
+				(!(flg & (PROJECT_INVIS)) || square_isknown(c, grid))) {
 				if (!square_isprojectable(c, grid)) {
 					blockage[i] = 2;
 				}

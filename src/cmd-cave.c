@@ -1242,7 +1242,7 @@ void do_cmd_disarm(struct command *cmd)
 static bool do_cmd_bash_test(struct player *p, struct loc grid)
 {
 	/* Must have knowledge */
-	if (!square_ismark(cave, grid)) {
+	if (!square_isknown(cave, grid)) {
 		/* Message */
 		msg("You see nothing there.");
 
@@ -1449,8 +1449,8 @@ static void do_cmd_alter_aux(int dir)
 	if (square(cave, grid)->mon > 0) {
 		/* Attack monster */
 		py_attack(player, grid, ATT_MAIN);
-	} else if ((dir != DIR_NONE) && !square_ismark(cave, grid)) {
-		/* Deal with players who can't see the square */
+	} else if ((dir != DIR_NONE) && !square_isknown(cave, grid)) {
+		/* Deal with players who don't know what is there. */
 		if (square_isfloor(cave, grid)) {
 			msg("You strike, but there is nothing there.");
 		} else {
@@ -1536,7 +1536,7 @@ static bool confirm_leap(struct loc grid, int dir)
 	struct monster *mon = square_monster(cave, end);
 
 	/* Prompt for confirmation */
-	if (!(square_isseen(cave, end) || square_ismark(cave, end))) {
+	if (!(square_isseen(cave, end) || square_isknown(cave, end))) {
 		/* Confirm if the destination is unknown */
 		strnfmt(prompt, sizeof(prompt),
 				"Are you sure you wish to leap into the unknown? ");
@@ -1766,7 +1766,7 @@ void move_player(int dir, bool disarm)
 		bool step = true;
 
 		/* Check before walking on known traps/chasms on movement */
-		if (!confused && square_ismark(cave, grid)) {
+		if (!confused && square_isknown(cave, grid)) {
 			/* If the player hasn't already leapt */
 			if (square_ischasm(cave, grid)) {
 				/* Disturb the player */
