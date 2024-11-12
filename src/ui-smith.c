@@ -152,6 +152,7 @@ static void wipe_smithing_objects(void)
 static void know_smith_obj(void)
 {
 	object_copy(smith_obj_known, smith_obj);
+	smith_obj_known->known = NULL;
 	smith_obj->known = smith_obj_known;
 }
 
@@ -435,6 +436,7 @@ static void sval_display(struct menu *menu, int oid, bool cursor, int row,
 	}
 	create_base_object(choice[oid], obj);
 	object_copy(known_obj, obj);
+	known_obj->known = NULL;
 	obj->known = known_obj;
 	if (cursor) {
 		object_wipe(smith_obj_backup);
@@ -584,6 +586,7 @@ static int get_smithing_specials(struct object_kind *kind)
 		object_copy(&dummy_body, smith_obj);
 		create_special(&dummy_body, ego);
 		object_copy(&dummy_body_known, &dummy_body);
+		dummy_body_known.known = NULL;
 		dummy_body.known = &dummy_body_known;
 		pval = pval_valid(&dummy_body) ? dummy_body.pval : 0;
 		include_pval(&dummy_body);
