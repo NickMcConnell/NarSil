@@ -1393,16 +1393,18 @@ static void create_smithing_item(struct object *obj, struct smithing_cost *cost)
 
 	/* Create the object */
 	object_copy(created, obj);
+	created->known = object_new();
 	if (obj->known) {
-		created->known = object_new();
 		object_copy(created->known, obj->known);
+	} else {
+		object_set_base_known(player, created->known);
 	}
 	
 	/* Identify the object */
+	object_touch(player, created);
 	object_flavor_aware(player, created);
 	while (!object_runes_known(created)) {
 		object_learn_unknown_rune(player, created);
-		player_know_object(player, created);
 	}
 
 	/* Create description */
