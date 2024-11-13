@@ -400,7 +400,7 @@ int silmarils_possessed(struct player *p)
 			(obj->pval == 7)) {
 			silmarils += obj->number;
 		}
-		if (obj->artifact && streq(obj->artifact->name, "of Morgoth")) {
+		if (obj->artifact && streq(obj->kind->name, "Massive Iron Crown")) {
 			silmarils += obj->pval;
 		}
 	}
