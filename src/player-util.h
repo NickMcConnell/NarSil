@@ -87,6 +87,10 @@ void player_fall_in_pit(struct player *p, bool spiked);
 void player_falling_damage(struct player *p, bool stun);
 void player_fall_in_chasm(struct player *p);
 void player_flanking_or_retreat(struct player *p, struct loc grid);
+void player_opportunist_or_zone(struct player *p, struct loc grid1,
+								struct loc grid2, bool opp_only);
+void player_polearm_passive_attack(struct player *p, struct loc grid_from,
+								   struct loc grid_to);
 bool player_can_leap(struct player *p, struct loc grid, int dir);
 bool player_break_web(struct player *p);
 bool player_escape_pit(struct player *p);

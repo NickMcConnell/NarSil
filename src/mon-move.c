@@ -3474,19 +3474,8 @@ static void monster_turn(struct monster *mon)
 			}
 
 			/* If adjacent, player gets a chance for an opportunist attack,
-			 * which might kill them (skip_next_turn is there to stop the
-			 * player getting opportunist attacks afer knocking back) */
-			if (player_active_ability(player, "Opportunist") &&
-				monster_is_visible(mon) &&
-				!mon->skip_next_turn &&
-				(mon->alertness >= ALERTNESS_ALERT) && !player->truce &&
-				!player->timed[TMD_CONFUSED] &&
-				!player->timed[TMD_AFRAID] &&
-				!player->timed[TMD_ENTRANCED] &&
-				(player->timed[TMD_STUN] <= 100) &&
-				(distance(tgrid, player->grid) == 1)) {
-				py_attack_real(player, tgrid, ATT_OPPORTUNIST);
-			}
+			 * which might kill the monster */
+			player_opportunist_or_zone(player, tgrid, player->grid, true);
 
 			/* Removes the monster if it is still alive */
 			delete_monster(cave, tgrid);

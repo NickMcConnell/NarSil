@@ -627,6 +627,77 @@ void player_flanking_or_retreat(struct player *p, struct loc grid)
 }
 
 /**
+ * Does any opportunist or zone of control attack necessary when player moves
+ *
+ * Note the use of skip_next_turn to stop the player getting opportunist
+ * attacks afer knocking back
+ */
+void player_opportunist_or_zone(struct player *p, struct loc grid1,
+								struct loc grid2, bool opp_only)
+{
+	bool opp = player_active_ability(p, "Opportunist");
+	bool zone = player_active_ability(p, "Zone of Control") && !opp_only;
+
+	/* Monster */
+	char m_name[80];
+	struct monster *mon = square_monster(cave, grid1);
+
+	/* Handle Opportunist and Zone of Control */
+	if ((opp || zone) && monster_is_visible(mon) &&	!mon->skip_next_turn &&
+		!p->truce && !p->timed[TMD_CONFUSED] &&	!p->timed[TMD_AFRAID] &&
+		!p->timed[TMD_ENTRANCED] &&	(p->timed[TMD_STUN] < 100) &&
+		(distance(grid1, p->grid) == 1) &&
+		(!OPT(p, forgo_attacking_unwary) ||
+		 (mon->alertness >= ALERTNESS_ALERT))) {
+		monster_desc(m_name, sizeof(m_name), mon, MDESC_STANDARD);
+
+		/* Zone of control */
+		if (zone && (distance(grid2, p->grid) == 1)) {
+			msg("%s moves through your zone of control.", m_name);
+			py_attack_real(p, grid1, ATT_ZONE_OF_CONTROL);
+		}
+
+		/* Opportunist */
+		if (opp && (distance(grid2, p->grid) > 1)) {
+			msg("%s moves away from you.", m_name);
+			py_attack_real(p, grid1, ATT_OPPORTUNIST);
+		}
+	}
+}
+
+/**
+ * Does any polearm attack when a monster moves close to the player
+ */
+void player_polearm_passive_attack(struct player *p, struct loc grid_from,
+								struct loc grid_to)
+{
+	char m_name[80];
+	struct monster *mon = square_monster(cave, grid_to);
+	if (mon && monster_is_visible(mon)) {
+		struct object *obj = equipped_item_by_slot_name(p, "weapon");
+
+		if (!OPT(p, forgo_attacking_unwary) ||
+			(mon->alertness >= ALERTNESS_ALERT)) {
+			if ((distance(grid_from, p->grid) > 1) &&
+				(distance(grid_to, p->grid) == 1) &&
+				!p->truce && !p->timed[TMD_CONFUSED] &&
+				!p->timed[TMD_AFRAID] && of_has(obj->flags, OF_POLEARM)
+				&& p->focused) {
+				char o_name[80];
+
+				/* Get the basic name of the object */
+				object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
+
+				monster_desc(m_name, sizeof(m_name), mon, MDESC_STANDARD);
+
+				msg("%s comes into reach of your %s.", m_name, o_name);
+				py_attack_real(p, grid_to, ATT_POLEARM);
+			}
+		}
+	}
+}
+
+/**
  * Player is able to start a leap
  */
 bool player_can_leap(struct player *p, struct loc grid, int dir)

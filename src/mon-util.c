@@ -254,12 +254,63 @@ static void monster_fall_in_chasm(struct loc grid)
 }
 
 /**
+ * Does any opportunist or zone of control attack necessary when player moves
+ *
+ * Note the use of skip_next_turn to stop the player getting opportunist
+ * attacks after knocking back
+ */
+void monster_opportunist_or_zone(struct player *p, struct loc grid_to)
+{
+	int y, x;
+
+	/* Handle Opportunist and Zone of Control */
+	for (y = p->grid.y - 1; y <= p->grid.y + 1; y++) {
+		for (x = p->grid.x - 1; x <= p->grid.x + 1; x++) {
+			struct loc grid = loc(x, y);
+			char m_name[80];
+			struct monster *mon = square_monster(cave, grid);
+
+			if (mon && (mon->alertness >= ALERTNESS_ALERT) &&
+				!mon->m_timed[MON_TMD_CONF] && !mon->skip_next_turn &&
+				(mon->stance != STANCE_FLEEING) && !mon->skip_this_turn) {
+				bool opp = rf_has(mon->race->flags, RF_OPPORTUNIST);
+				bool zone = rf_has(mon->race->flags, RF_ZONE);
+				struct monster_lore *lore = get_lore(mon->race);
+
+				/* Opportunist */
+				if (opp && (distance(grid_to, grid) > 1)) {
+					monster_desc(m_name, sizeof(m_name), mon, MDESC_STANDARD);
+					msg("%s attacks you as you step away.", m_name);
+					make_attack_normal(mon, p);
+
+					/* Remember that the monster can do this */
+					if (monster_is_visible(mon)) {
+						rf_on(lore->flags, RF_OPPORTUNIST);
+					}
+				}
+
+				/* Zone of control */
+				if (zone && (distance(grid_to, p->grid) == 1)) {
+					monster_desc(m_name, sizeof(m_name), mon, MDESC_POSS);
+					msg("You move through %s zone of control.", m_name);
+					make_attack_normal(mon, p);
+
+					/* Remember that the monster can do this */
+					if (monster_is_visible(mon)) {
+						rf_on(lore->flags, RF_ZONE);
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
  * Swap the players/monsters (if any) at two locations.
  */
 void monster_swap(struct loc grid1, struct loc grid2)
 {
 	struct monster *mon;
-	char m_name[80];
 
 	/* Monsters */
 	int m1 = square(cave, grid1)->mon;
@@ -273,38 +324,15 @@ void monster_swap(struct loc grid1, struct loc grid2)
 
 	/* Monster 1 */
 	if (m1 > 0) {
-		bool opp = player_active_ability(player, "Opportunist");
-		bool zone = player_active_ability(player, "Zone of Control");
-
 		/* Monster */
 		m1_is_monster = true;
 		mon = cave_monster(cave, m1);
 
 		/* Handle Opportunist and Zone of Control */
-		if ((opp || zone) && monster_is_visible(mon) &&	!mon->skip_next_turn &&
-			!player->truce && !player->timed[TMD_CONFUSED] &&
-			!player->timed[TMD_AFRAID] && !player->timed[TMD_ENTRANCED] &&
-			(player->timed[TMD_STUN] < 100) &&
-			(distance(grid1, player->grid) == 1) &&
-			(!OPT(player, forgo_attacking_unwary) ||
-			 (mon->alertness >= ALERTNESS_ALERT))) {
-			monster_desc(m_name, sizeof(m_name), mon, MDESC_STANDARD);
+		player_opportunist_or_zone(player, grid1, grid2, false);
 
-			/* Zone of control */
-			if (zone && (distance(grid2, player->grid) == 1)) {
-				msg("%s moves through your zone of control.", m_name);
-				py_attack_real(player, grid1, ATT_ZONE_OF_CONTROL);
-			}
-
-			/* Opportunist */
-			if (opp && (distance(grid2, player->grid) > 1)) {
-				msg("%s moves away from you.", m_name);
-				py_attack_real(player, grid1, ATT_OPPORTUNIST);
-			}
-
-			/* Monster may be dead */
-			if (mon->hp <= 0) return;
-		}
+		/* Monster may be dead */
+		if (mon->hp <= 0) return;
 
 		/* Makes noise when moving */
 		if (mon->noise == 0) {
@@ -322,51 +350,11 @@ void monster_swap(struct loc grid1, struct loc grid2)
 		/* Redraw monster list */
 		player->upkeep->redraw |= (PR_MONLIST);
 	} else if (m1 < 0) {
-		int y, x;
-
 		/* Handle Opportunist and Zone of Control */
-		for (y = player->grid.y - 1; y <= player->grid.y + 1; y++) {
-			for (x = player->grid.x - 1; x <= player->grid.x + 1; x++) {
-				struct loc grid = loc(x, y);
-				mon = square_monster(cave, grid);
+		monster_opportunist_or_zone(player, grid2);
 
-				if (mon && (mon->alertness >= ALERTNESS_ALERT) &&
-					!mon->m_timed[MON_TMD_CONF] && !mon->skip_next_turn &&
-					(mon->stance != STANCE_FLEEING) && !mon->skip_this_turn) {
-					bool opp = rf_has(mon->race->flags, RF_OPPORTUNIST);
-					bool zone = rf_has(mon->race->flags, RF_ZONE);
-					struct monster_lore *lore = get_lore(mon->race);
-
-					/* Opportunist */
-					if (opp && (distance(grid2, mon->grid) > 1)) {
-						monster_desc(m_name, sizeof(m_name), mon,
-									 MDESC_STANDARD);
-						msg("%s attacks you as you step away.", m_name);
-						make_attack_normal(mon, player);
-
-						/* Remember that the monster can do this */
-						if (monster_is_visible(mon)) {
-							rf_on(lore->flags, RF_OPPORTUNIST);
-						}
-					}
-
-					/* Zone of control */
-					if (zone && (distance(grid2, player->grid) == 1)) {
-						monster_desc(m_name, sizeof(m_name), mon, MDESC_POSS);
-						msg("You move through %s zone of control.", m_name);
-						make_attack_normal(mon, player);
-
-						/* Remember that the monster can do this */
-						if (monster_is_visible(mon)) {
-							rf_on(lore->flags, RF_ZONE);
-						}
-					}
-
-					/* Player may be dead */
-					if (player->chp < 0) return;
-				}
-			}
-		}
+		/* Player may be dead */
+		if (player->chp < 0) return;
 
 		/* Move player */
 		player->grid = grid2;
@@ -425,30 +413,7 @@ void monster_swap(struct loc grid1, struct loc grid2)
 
 	/* Deal with set polearm attacks */
 	if (player_active_ability(player, "Polearm Mastery") && m1_is_monster) {
-		mon = square_monster(cave, grid2);
-		if (mon && monster_is_visible(mon)) {
-			struct object *obj = equipped_item_by_slot_name(player, "weapon");
-
-			if (!OPT(player, forgo_attacking_unwary) ||
-				(mon->alertness >= ALERTNESS_ALERT)) {
-				if ((distance(grid1, player->grid) > 1) &&
-					(distance(grid2, player->grid) == 1) &&
-					!player->truce && !player->timed[TMD_CONFUSED] &&
-					!player->timed[TMD_AFRAID] && of_has(obj->flags, OF_POLEARM)
-					&& player->focused) {
-					char o_name[80];
-
-					/* Get the basic name of the object */
-					object_desc(o_name, sizeof(o_name), obj, ODESC_BASE,
-								player);
-
-					monster_desc(m_name, sizeof(m_name), mon, MDESC_STANDARD);
-
-					msg("%s comes into reach of your %s.", m_name, o_name);
-					py_attack_real(player, grid2, ATT_POLEARM);
-				}
-			}
-		}
+		player_polearm_passive_attack(player, grid1, grid2);
 	}
 
 	/* Deal with falling down chasms */
