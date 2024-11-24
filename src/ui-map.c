@@ -227,12 +227,16 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 			c = object_kind_char(pile_kind);
 		} else {
 			/* Normal attr and char, check for glowing */
-			a = g->glow ? COLOUR_L_BLUE :
-				((g->first_art) ? g->first_art->d_attr :
-				object_kind_attr(g->first_kind));
+			a = (g->first_art) ? g->first_art->d_attr :
+				object_kind_attr(g->first_kind);
+			if (g->glow && (use_graphics == GRAPHICS_NONE
+					|| !(a & 0x80))) {
+				a = COLOUR_L_BLUE;
+			}
 			c = object_kind_char(g->first_kind);
 		}
-		if (g->rage) a = COLOUR_RED;
+		if (g->rage && (use_graphics == GRAPHICS_NONE
+				|| !(a & 0x80))) a = COLOUR_RED;
 	}
 
 	/* Handle monsters, the player and trap borders */
@@ -293,7 +297,8 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 				&& (mon->alertness < ALERTNESS_ALERT)) {
 				a = a + (MAX_COLORS * BG_DARK);
 			}
-			if (g->rage) a = COLOUR_RED;
+			if (g->rage && (use_graphics == GRAPHICS_NONE
+					|| !(a & 0x80))) a = COLOUR_RED;
 		}
 	} else if (g->is_player) {
 		struct monster_race *race = &r_info[0];
