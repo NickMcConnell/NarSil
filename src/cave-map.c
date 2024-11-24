@@ -155,9 +155,17 @@ void map_info(struct loc grid, struct grid_data *g)
 		if (ignore_known_item_ok(player, obj)) {
 			/* Item stays hidden */
 		} else if (!g->first_kind) {
+			/*
+			 * For glowing, need to test the base object, not just
+			 * what the player knows.
+			 */
+			struct object *base_obj = cave->objects[obj->oidx];
+
 			g->first_kind = obj->kind;
 			g->first_art = obj->artifact;
-			g->glow = weapon_glows(obj);
+			assert(base_obj);
+			g->glow = loc_eq(obj->grid, base_obj->grid)
+				&& weapon_glows(base_obj);
 		} else {
 			g->multiple_objects = true;
 			break;
