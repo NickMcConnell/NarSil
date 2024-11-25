@@ -15,8 +15,8 @@ NarSil allows you to change various aspects of the game to suit your tastes.  Th
 Except for the options, which are linked to the save file, and interface
 details, that are handled by the front end rather than the core of the game,
 you can save your preferences for these into files, which are called
-`user pref files`.  For the options, customize those using the ``=`` command
-while playing.
+`user pref files`.  For the options, customize those using the ``O`` or ``=``
+command while playing.
 
 
 User Pref Files
@@ -34,7 +34,7 @@ User pref files are NarSil's way of saving and loading certain settings.  They c
 
 They are simple text files with an easy to modify format, and the game has a set of pre-existing pref files in the lib/customize/ folder.  It's recommended you don't modify these.
 
-Several options menu (``=``) items allow you to load existing user pref files, create new user pref files, or save to a user pref file.
+Several options menu (``O`` or ``=``) items allow you to load existing user pref files, create new user pref files, or save to a user pref file.
 
 Where to find them
 ~~~~~~~~~~~~~~~~~~
@@ -157,7 +157,7 @@ Keymaps
 
 You can set up keymaps in NarSil, which allow you to map a single keypress to a series of keypresses.  For example you might map the key F1 to "Ea" (the keypresses to eat the first eat the first item available). This can speed up access to commonly-used features.  To bypass a keymap that's been assigned to a key, press ``\`` before pressing the key.
 
-To set up keymaps, go to the options menu (``=``) and select "Edit keymaps" (``e``).  There, you can check if a key triggers a keymap:  select "Query a keymap" (``c``) and then press the key to check.  You can also remove an existing keymap:  select "Remove a keymap" (``e``) and then press the key that triggers the keymap to be removed.  To add a new keymap (or overwrite an existing one), select "Create a keymap" (``d``), it will then prompt you for the key that triggers the keymap.  After pressing the trigger key, you'll be prompted for the keymap's action, the series of keypresses that'll be generated when the trigger key is pressed.  If you make a mistake while entering the keypresses for the action, press ``Control-u`` to erase the keypresses already entered for the action.  Once you've finished entering the keypresses for the action, press ``=`` to end the sequence; you'll then be prompted for whether to keep the newly entered keymap.
+To set up keymaps, go to the options menu (``O`` or ``=``) and select "Edit keymaps" (``e``).  There, you can check if a key triggers a keymap:  select "Query a keymap" (``c``) and then press the key to check.  You can also remove an existing keymap:  select "Remove a keymap" (``e``) and then press the key that triggers the keymap to be removed.  To add a new keymap (or overwrite an existing one), select "Create a keymap" (``d``), it will then prompt you for the key that triggers the keymap.  After pressing the trigger key, you'll be prompted for the keymap's action, the series of keypresses that'll be generated when the trigger key is pressed.  If you make a mistake while entering the keypresses for the action, press ``Control-u`` to erase the keypresses already entered for the action.  Once you've finished entering the keypresses for the action, press ``=`` to end the sequence; you'll then be prompted for whether to keep the newly entered keymap.
 
 Within the action for a keymap, it is frequently useful to temporarily suppress -more- prompts since they can swallow keypresses from the keymap.  To disable those prompts from within the action, include ``(``.  To reenable the prompts, include ``)``.  So, a typical action where -more- prompts could happen would look like this: ``(`` your keypresses here ``)``.
 
@@ -207,7 +207,7 @@ NarSil uses a few built-in keymaps.  These are for the movement keys (they are m
 Colours
 =======
 
-The "Interact with colors" options submenu (``=``, then ``c``) allows you to change how different colours are displayed.  Depending on what kind of computer you have, this may or may not have any effect.
+The "Interact with colors" options submenu (``O`` or ``=``, then ``c``) allows you to change how different colours are displayed.  Depending on what kind of computer you have, this may or may not have any effect.
 
 The interface is quite clunky.  You can move through the colours using ``n`` for 'next colour' and ``N`` for 'previous colour'.  Then upper and lower case ``r``, ``g`` and ``b`` will let you tweak the color.  You can then save the results to user pref file.
 
@@ -219,7 +219,7 @@ You can change how various in-game entities are displayed using the visuals edit
 
 If you are in graphics mode, you will be able to select a new tile for the entity.  If you are not, you will only be able to change its colours.
 
-Once you have made edits, you can save them from the options menu (``=``).  Press ``v`` for 'save visuals' and choose what you want to save.
+Once you have made edits, you can save them from the options menu (``O`` or ``=``).  Press ``v`` for 'save visuals' and choose what you want to save.
 
 
 Interface details
