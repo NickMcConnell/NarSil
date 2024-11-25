@@ -11,7 +11,7 @@ index of an inventory object. Commands are normally specified by typing a
 series of keypresses, from which the underlying command is extracted, along
 with any encoded arguments. You may choose how the standard "keyboard keys"
 are mapped to the "underlying commands" by choosing one of the two standard
-"keysets", the "original" keyset or the "roguelike" keyset.
+"keysets", the "original" keyset or the "Angband-like" keyset.
 
 The original keyset is very similar to the "underlying" command set, with a
 few additions (such as the ability to use the numeric "directions" to
@@ -62,14 +62,14 @@ specify that you wish to use the current "target", by pressing ``t`` or
 ``5``, or that you wish to select a new target, by pressing ``*`` (see
 "Target" below).
 
-        Original/Angband-like Keyset Directions
+        Directions with hjkl-movement off
                  =  =  =
                  7  8  9
                  4     6
                  1  2  3
                  =  =  =
 
-        Roguelike Keyset Directions
+        Directions with hjkl-movement on
                  =  =  =
                  y  k  u
                  h     l
