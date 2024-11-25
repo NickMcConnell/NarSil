@@ -728,7 +728,7 @@ static void calc_lighting(struct chunk *c, struct player *p)
 		}
 
 		/* Is it a glowing weapon? */
-		if (weapon_glows(obj)) {
+		if (weapon_glows(obj, 1)) {
 			light++;
 		}
 

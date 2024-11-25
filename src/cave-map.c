@@ -161,7 +161,7 @@ void map_info(struct loc grid, struct grid_data *g)
 		} else if (!g->first_kind) {
 			g->first_kind = obj->kind;
 			g->first_art = obj->artifact;
-			g->glow = weapon_glows(obj);
+			g->glow = weapon_glows(obj, 0);
 		} else {
 			g->multiple_objects = true;
 			break;
