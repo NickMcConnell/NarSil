@@ -532,29 +532,44 @@ static int hate_level(struct loc grid, int multiplier)
 
 /**
  * Determine whether a melee weapon is glowing in response to nearby enemies
+ *
+ * \param obj is the object to test; for most purposes you will want to use
+ * the base object and not the player's version of it.
+ * \param near affects the line of sight check.  If there's a grid in the
+ * player's line of sight that is in the square centered on the object with
+ * side length near + 1, then the glowing effect, if any, will be visible.
+ * near must be non-negative.
  */
-bool weapon_glows(struct object *obj)
+bool weapon_glows(struct object *obj, int near)
 {
 	int i, total_hate = 0;
 	struct loc grid, obj_grid;
-	bool viewable = false;
 
 	if (!character_dungeon) return false;
 
-	/* Must be a melee weapon */
-	if (!tval_is_melee_weapon(obj)) return false;
+	/* Must be a melee weapon with slays */
+	if (!tval_is_melee_weapon(obj) || !obj->slays) return false;
 
 	/* Use the player's position where needed */
 	obj_grid = loc_is_zero(obj->grid) ? player->grid : obj->grid;
 	
 	/* Out of LOS objects don't glow (or it can't be seen) */
-	for (grid.y = obj_grid.y - 1; grid.y <= obj_grid.y + 1; grid.y++) {
-		for (grid.x = obj_grid.x - 1; grid.x <= obj_grid.x + 1; grid.x++) {
-			if (!square_in_bounds(cave, grid)) continue;
-			if (square_isview(cave, grid)) viewable = true;
+	assert(near >= 0);
+	grid.x = obj_grid.x - near;
+	grid.y = obj_grid.y - near;
+	while (1) {
+		if (square_in_bounds(cave, grid) && square_isview(cave, grid)) {
+			break;
+		}
+		++grid.x;
+		if (grid.x > obj_grid.x + near) {
+			++grid.y;
+			if (grid.y > obj_grid.y + 1) {
+				return false;
+			}
+			grid.x = obj_grid.x - near;
 		}
 	}
-	if (!viewable) return false;
 
 	/* Create a 'flow' around the object */
 	cave->monster_noise.centre = obj_grid;
@@ -572,7 +587,7 @@ bool weapon_glows(struct object *obj)
 
 		/* Determine if a slay is applicable */
 		for (j = 0; j < z_info->slay_max; j++) {
-			if (obj->slays && obj->slays[j] &&
+			if (obj->slays[j] &&
 				rf_has(race->flags, slays[j].race_flag)) {
 				target = true;
 				break;
@@ -596,7 +611,7 @@ bool weapon_glows(struct object *obj)
 	for (i = 0; i < z_info->slay_max; i++) {
 		if (slays[i].race_flag == RF_SPIDER) break;
 	}
-	if (obj->slays && obj->slays[i]) {
+	if (i < z_info->slay_max && obj->slays[i]) {
 		for (grid.y = obj_grid.y - 2; grid.y <= obj_grid.y + 2; grid.y++) {
 			for (grid.x = obj_grid.x - 2; grid.x <= obj_grid.x + 2; grid.x++) {
 				if (square_in_bounds(cave, grid) &&
@@ -653,8 +668,8 @@ void calc_light(struct player *p)
 	}
 
 	/* Increase radius when the player's weapon glows */
-	if (main_weapon && weapon_glows(main_weapon)) new_light++;
-	if (second_weapon && weapon_glows(second_weapon)) new_light++;
+	if (main_weapon && weapon_glows(main_weapon, 0)) new_light++;
+	if (second_weapon && weapon_glows(second_weapon, 0)) new_light++;
 
 	/* Player is darkened */
 	if (p->timed[TMD_DARKENED] && (new_light > 0)) new_light--;

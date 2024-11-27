@@ -165,7 +165,7 @@ void map_info(struct loc grid, struct grid_data *g)
 			g->first_art = obj->artifact;
 			assert(base_obj);
 			g->glow = loc_eq(obj->grid, base_obj->grid)
-				&& weapon_glows(base_obj);
+				&& weapon_glows(base_obj, 0);
 		} else {
 			g->multiple_objects = true;
 			break;
