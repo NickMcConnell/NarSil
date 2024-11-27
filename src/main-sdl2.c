@@ -1070,6 +1070,8 @@ static void render_tile_font_scaled(const struct subwindow *subwindow,
 
 	int src_row = a & 0x7f;
 	int src_col = c & 0x7f;
+	bool alert = (a & GRAPHICS_ALERT_MASK);
+	bool glow = (a & GRAPHICS_GLOW_MASK);
 
 	src.x = src_col * src.w;
 	src.y = src_row * src.h;
@@ -1084,11 +1086,39 @@ static void render_tile_font_scaled(const struct subwindow *subwindow,
 		dst.h *= 2;
 		src.h *= 2;
 
+		/* For now, do not deal with glow for double-height tiles. */
 		SDL_RenderCopy(subwindow->window->renderer,
 				graphics->texture, &src, &dst);
+		if (alert) {
+			/*
+			 * The alert indicator is not double height; render
+			 * it to the top half.
+			 */
+			src.h = dst.h / 2;
+			src.x = (alert_x_char & 0x7f) * src.w;
+			src.y = (alert_x_attr & 0x7f) * src.h;
+			SDL_RenderCopy(subwindow->window->renderer,
+				graphics->texture, &src, &dst);
+		}
 	} else {
+		if (glow) {
+			SDL_Rect glow_src;
+
+			glow_src.x = (glow_x_char & 0x7f) * src.w;
+			glow_src.y = (glow_x_attr & 0x7f) * src.h;
+			glow_src.w = src.w;
+			glow_src.h = src.h;
+			SDL_RenderCopy(subwindow->window->renderer,
+				graphics->texture, &glow_src, &dst);
+		}
 		SDL_RenderCopy(subwindow->window->renderer,
 				graphics->texture, &src, &dst);
+		if (alert) {
+			src.x = (alert_x_char & 0x7f) * src.w;
+			src.y = (alert_x_attr & 0x7f) * src.h;
+			SDL_RenderCopy(subwindow->window->renderer,
+				graphics->texture, &src, &dst);
+		}
 	}
 }
 
