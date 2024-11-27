@@ -52,6 +52,10 @@ uint8_t *trap_x_attr[LIGHTING_MAX];
 wchar_t *trap_x_char[LIGHTING_MAX];
 uint8_t *flavor_x_attr;
 wchar_t *flavor_x_char;
+uint8_t alert_x_attr = 0;
+wchar_t alert_x_char = 0;
+uint8_t glow_x_attr = 0;
+wchar_t glow_x_char = 0;
 static size_t flavor_max = 0;
 
 /**
@@ -875,6 +879,29 @@ static enum parser_error parse_prefs_gf(struct parser *p)
 	return PARSE_ERROR_NONE;
 }
 
+static enum parser_error parse_prefs_gs(struct parser *p)
+{
+	struct prefs_data *d = parser_priv(p);
+	const char *name = parser_getsym(p, "type");
+	int x_attr = parser_getint(p, "attr");
+	int x_char = parser_getint(p, "char");
+
+	assert(d != NULL);
+	if (d->bypass) return PARSE_ERROR_NONE;
+
+	if (streq(name, "ALERT")) {
+		alert_x_attr = (uint8_t)x_attr;
+		alert_x_char = (wchar_t)x_char;
+	} else if (streq(name, "GLOW")) {
+		glow_x_attr = (uint8_t)x_attr;
+		glow_x_char = (wchar_t)x_char;
+	} else {
+		return PARSE_ERROR_UNRECOGNISED_PARAMETER;
+	}
+
+	return PARSE_ERROR_NONE;
+}
+
 static enum parser_error parse_prefs_flavor(struct parser *p)
 {
 	unsigned int idx;
@@ -1076,6 +1103,7 @@ static struct parser *init_parse_prefs(bool user)
 	parser_reg(p, "feat sym idx sym lighting int attr int char", parse_prefs_feat);
 	parser_reg(p, "trap sym idx sym lighting int attr int char", parse_prefs_trap);
 	parser_reg(p, "GF sym type sym direction uint attr uint char", parse_prefs_gf);
+	parser_reg(p, "GS sym type int attr int char", parse_prefs_gs);
 	parser_reg(p, "flavor uint idx int attr int char", parse_prefs_flavor);
 	parser_reg(p, "inscribe sym tval sym sval str text", parse_prefs_inscribe);
 	parser_reg(p, "keymap-act ?str act", parse_prefs_keymap_action);
@@ -1369,6 +1397,10 @@ void textui_prefs_init(void)
 			flavor_max = f->fidx;
 	flavor_x_attr = mem_zalloc((flavor_max + 1) * sizeof(uint8_t));
 	flavor_x_char = mem_zalloc((flavor_max + 1) * sizeof(wchar_t));
+	alert_x_attr = 0;
+	alert_x_char = 0;
+	glow_x_attr = 0;
+	glow_x_char = 0;
 
 	reset_visuals(false);
 }

@@ -5181,6 +5181,8 @@ static errr Term_pict_sdl(int col, int row, int n, const int *ap,
 
 	/* Blit 'em! (it) */
 	for (i = 0; i < n; i++) {
+		bool alert, glow;
+
 		/* Get the terrain tile */
 		j = (tap[i] & 0x7f);
 		src.x = (tcp[i] & 0x7F) * src.w;
@@ -5205,22 +5207,56 @@ static errr Term_pict_sdl(int col, int row, int n, const int *ap,
 		
 		/* Get the foreground tile */
 		j = (ap[i] & 0x7f);
+		alert = (ap[i] & GRAPHICS_ALERT_MASK);
+		glow = (ap[i] & GRAPHICS_GLOW_MASK);
 		src.x = (cp[i] & 0x7F) * src.w;
 		src.y = j * src.h;
 		
 		/* if we are using overdraw, draw the top rectangle */
 		if (overdraw && row > dhrclip &&
 				j >= overdraw && j <= overdraw_max) {
+			/*
+			 * For now, do not deal with glow for double-height
+			 * tiles.
+			 */
 			src.y -= rc.h;
 			rc.y -= rc.h;
 			rc.h = (rc.h << 1); /* double the height */
 			src.h = rc.h;
 			SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
 			rc.h = (rc.h >> 1); /* halve the height */
+			if (alert) {
+				/*
+				 * The alert indicator is not double height;
+				 * render it to the top half.
+				 */
+				src.h = rc.h;
+				src.x = (alert_x_char & 0x7f) * src.w;
+				src.y = (alert_x_attr & 0x7f) * src.h;
+				SDL_BlitSurface(win->tiles, &src, win->surface,
+					&rc);
+			}
 			rc.y += rc.h;
 			haddbl = true;
-		} else
+		} else {
+			if (glow) {
+				SDL_Rect glow_src;
+
+				glow_src.x = (glow_x_char & 0x7f) * src.w;
+				glow_src.y = (glow_x_attr & 0x7f) * src.h;
+				glow_src.w = src.w;
+				glow_src.h = src.h;
+				SDL_BlitSurface(win->tiles, &glow_src,
+					win->surface, &rc);
+			}
 			SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
+			if (alert) {
+				src.x = (alert_x_char & 0x7f) * src.w;
+				src.y = (alert_x_attr & 0x7f) * src.h;
+				SDL_BlitSurface(win->tiles, &src, win->surface,
+					&rc);
+			}
+		}
 	}
 
 	/* Update area */

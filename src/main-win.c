@@ -2270,6 +2270,9 @@ static errr Term_pict_win(int x, int y, int n,
 		y1 = row * h1;
 
 		if (hdcMask) {
+			bool alert = (a & GRAPHICS_ALERT_MASK);
+			bool glow = (a & GRAPHICS_GLOW_MASK);
+
 			x3 = (tcp[i] & 0x7F) * w1;
 			y3 = (tap[i] & 0x7F) * h1;
 
@@ -2279,12 +2282,37 @@ static errr Term_pict_win(int x, int y, int n,
 				BitBlt(hdc, x2, y2, tw2, th2, hdcSrc, x3, y3, SRCCOPY);
 
 				/* Only draw if terrain and overlay are different */
-				if ((x1 != x3) || (y1 != y3)) {
+				if ((x1 != x3) || (y1 != y3) || alert || glow) {
+					if (glow) {
+						int x4 = (glow_x_char & 0x7f)
+							* w1;
+						int y4 = (glow_x_attr & 0x7f)
+							* h1;
+
+						BitBlt(hdc, x2, y2, tw2, th2,
+							hdcMask, x4, y4,
+							SRCAND);
+						BitBlt(hdc, x2, y2, tw2, th2,
+							hdcSrc, x4, y4,
+							SRCPAINT);
+					}
+
 					/* Mask out the tile */
 					BitBlt(hdc, x2, y2, tw2, th2, hdcMask, x1, y1, SRCAND);
 
 					/* Draw the tile */
 					BitBlt(hdc, x2, y2, tw2, th2, hdcSrc, x1, y1, SRCPAINT);
+
+					if (alert) {
+						x1 = (alert_x_char & 0x7f) * w1;
+						y1 = (alert_x_attr & 0x7f) * h1;
+						BitBlt(hdc, x2, y2, tw2, th2,
+							hdcMask, x1, y1,
+							SRCAND);
+						BitBlt(hdc, x2, y2, tw2, th2,
+							hdcSrc, x1, y1,
+							SRCPAINT);
+					}
 				}
 
 			/* Need to stretch */
@@ -2297,7 +2325,21 @@ static errr Term_pict_win(int x, int y, int n,
 						   SRCCOPY);
 
 				/* Only draw if terrain and overlay are different */
-				if ((x1 != x3) || (y1 != y3)) {
+				if ((x1 != x3) || (y1 != y3) || alert || glow) {
+					if (glow) {
+						int x4 = (glow_x_char & 0x7f)
+							* w1;
+						int y4 = (glow_x_attr & 0x7f)
+							* h1;
+
+						StretchBlt(hdc, x2, y2, tw2,
+							th2, hdcMask, x4, y4,
+							w1, h1, SRCAND);
+						StretchBlt(hdc, x2, y2, tw2,
+							th2, hdcSrc, x4, y4,
+							w1, h1, SRCPAINT);
+					}
+
 					/* Mask out the tile */
 					StretchBlt(hdc, x2, y2, tw2, th2, hdcMask, x1, y1, w1, h1,
 							   SRCAND);
@@ -2305,6 +2347,17 @@ static errr Term_pict_win(int x, int y, int n,
 					/* Draw the tile */
 					StretchBlt(hdc, x2, y2, tw2, th2, hdcSrc, x1, y1, w1, h1,
 							   SRCPAINT);
+
+					if (alert) {
+						x1 = (alert_x_char & 0x7f) * w1;
+						y1 = (alert_x_attr & 0x7f) * h1;
+						StretchBlt(hdc, x2, y2, tw2,
+							th2, hdcMask, x1, y1,
+							w1, h1, SRCAND);
+						StretchBlt(hdc, x2, y2, tw2,
+							th2, hdcSrc, x1, y1,
+							w1, h1, SRCPAINT);
+					}
 				}
 			}
 		} else {
@@ -2529,16 +2582,49 @@ static errr Term_pict_win_alpha(int x, int y, int n,
 		}
 
 		/* Only draw if terrain and overlay are different */
-		if ((x1 != x3) || (y1 != y3))
+		if ((a != tap[i]) || (c != tcp[i]))
 		{
+			bool alert = (a & GRAPHICS_ALERT_MASK);
+			bool glow = (c & GRAPHICS_GLOW_MASK);
+
 			/* Copy the picture from the bitmap to the window */
 			if (overdraw && row >= overdraw && y > dhrclip &&
 					row <= overdrawmax) {
+				/*
+				 * For now, do not deal with glow for
+				 * double-height tiles.
+				 */
 				AlphaBlend(hdc, x2, y2-th2, tw2, th2*2, hdcSrc, x1, y1-h1, w1,
 						   h1*2, blendfn);
+				if (alert) {
+					/*
+					 * The alert indicator is not double
+					 * height; render it to the top half.
+					 */
+					x1 = (alert_x_char & 0x7f) * w1;
+					y1 = (alert_x_attr & 0x7f) * h1;
+					AlphaBlend(hdc, x2, y2 - th2, tw2, th2,
+						hdcSrc, x1, y1, w1, h1,
+						blendfn);
+				}
 			} else {
+				if (glow) {
+					int x4 = (glow_x_char & 0x7f) * w1;
+					int y4 = (glow_x_attr & 0x7f) * h1;
+
+					AlphaBlend(hdc, x2, y2, tw2, th2,
+						hdcSrc, x4, y4, w1, h1,
+						blendfn);
+				}
 				AlphaBlend(hdc, x2, y2, tw2, th2, hdcSrc, x1, y1, w1, h1,
 						   blendfn);
+				if (alert) {
+					x1 = (alert_x_char & 0x7f) * w1;
+					y1 = (alert_x_attr & 0x7f) * h1;
+					AlphaBlend(hdc, x1, y2, tw2, th2,
+						hdcSrc, x1, y1, w1, h1,
+						blendfn);
+				}
 			}
 		}
 	}
