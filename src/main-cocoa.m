@@ -234,12 +234,20 @@ struct TerminalCellChar {
     wchar_t glyph;
     int attr;
 };
+#define PICT_MASK_NONE (0x0)
+#define PICT_MASK_ALERT (0x1)
+#define PICT_MASK_GLOW (0x2)
 struct TerminalCellTile {
     /*
      * These are the coordinates, within the tile set, for the foreground
      * tile and background tile.
      */
     char fgdCol, fgdRow, bckCol, bckRow;
+    /*
+     * This is PICT_MASK_NONE or a bitwise-or of one or more of PICT_MASK_ALERT
+     * and PICT_MASK_GLOW.
+     */
+    unsigned char mask;
 };
 struct TerminalCellPadding {
        /*
@@ -431,6 +439,7 @@ static int hasSameBackground(const struct TerminalCell* c)
 	  foregroundRow:(char)fgdRow
        backgroundColumn:(char)bckCol
 	  backgroundRow:(char)bckRow
+	           mask:(unsigned char)m
 	      tileWidth:(int)w
 	     tileHeight:(int)h;
 
@@ -728,6 +737,7 @@ static int hasSameBackground(const struct TerminalCell* c)
 	  foregroundRow:(char)fgdRow
        backgroundColumn:(char)bckCol
 	  backgroundRow:(char)bckRow
+                   mask:(unsigned char)m
 	      tileWidth:(int)w
 	     tileHeight:(int)h
 {
@@ -739,6 +749,7 @@ static int hasSameBackground(const struct TerminalCell* c)
     cellsRow[icol].v.ti.fgdRow = fgdRow;
     cellsRow[icol].v.ti.bckCol = bckCol;
     cellsRow[icol].v.ti.bckRow = bckRow;
+    cellsRow[icol].v.ti.mask = m;
     cellsRow[icol].hscl = w;
     cellsRow[icol].vscl = h;
     cellsRow[icol].hoff_n = 0;
@@ -3047,7 +3058,7 @@ static int compare_nsrect_yorigin_greater(const void *ap, const void *bp)
 
 	/* Skip drawing the foreground if it is the same as the background. */
 	if (fgdRect.origin.x != bckRect.origin.x ||
-	    fgdRect.origin.y != bckRect.origin.y) {
+	    fgdRect.origin.y != bckRect.origin.y || pcell->v.ti.mask) {
 	    if (is_first_piece && dbl_height_fgd) {
 		if (simple_upper) {
 		    if (pcell->hoff_n == 0 && pcell->voff_n == 0 &&
@@ -3076,6 +3087,16 @@ static int compare_nsrect_yorigin_greater(const void *ap, const void *bp)
 			draw_image_tile(
 			    nsctx, ctx, pict_image, frect2, drect2,
 			    NSCompositeSourceOver);
+			if (pcell->v.ti.mask & PICT_MASK_ALERT) {
+			    NSRect alertRect = NSMakeRect(
+				graf_width * (alert_x_char & 0x7f),
+				graf_height * (alert_x_attr & 0x7f),
+				graf_width, graf_height);
+
+			    draw_image_tile(
+				nsctx, ctx, pict_image, alertRect, drect2,
+				NSCompositeSourceOver);
+			}
 		    }
 		} else {
 		    /* Render the upper half pieces. */
@@ -3114,9 +3135,38 @@ static int compare_nsrect_yorigin_greater(const void *ap, const void *bp)
 
 			draw_image_tile(nsctx, ctx, pict_image, frect2, drect2,
 					NSCompositeSourceOver);
+			if (pcell->v.ti.mask & PICT_MASK_ALERT) {
+			    NSRect alertRect = NSMakeRect(
+				graf_width * ((alert_x_char & 0x7f) +
+				    pcell2->hoff_n / (1.0 * pcell2->hoff_d)),
+				graf_height * ((alert_x_attr & 0x7f) +
+				    pcell2->voff_n / (1.0 * pcell2->voff_d)),
+				graf_width * pcell2->hscl /
+				    (1.0 * pcell2->hoff_d),
+				graf_height * pcell2->vscl /
+				    (1.0 * pcell2->voff_d));
+
+			    draw_image_tile(
+				nsctx, ctx, pict_image, alertRect, drect2,
+				NSCompositeSourceOver);
+			}
 			curs.col += pcell2->hscl;
 		    }
 		}
+	    }
+	    /* For now do not deal with glow for double-height tiles. */
+	    if ((pcell->v.ti.mask & PICT_MASK_GLOW) && !dbl_height_fgd) {
+		NSRect glowRect = NSMakeRect(
+		    graf_width * ((glow_x_char & 0x7f) +
+			pcell->hoff_n / (1.0 * pcell->hoff_d)),
+		    graf_height * ((glow_x_attr & 0x7f) +
+			pcell->voff_n / (1.0 * pcell->voff_d)),
+		    graf_width * pcell->hscl / (1.0 * pcell->hoff_d),
+		    graf_height * pcell->vscl / (1.0 * pcell->voff_d));
+
+		draw_image_tile(
+		    nsctx, ctx, pict_image, glowRect, destinationRect,
+		    NSCompositeSourceOver);
 	    }
 	    /*
 	     * Render the foreground (if a double height tile and the bottom
@@ -3126,6 +3176,32 @@ static int compare_nsrect_yorigin_greater(const void *ap, const void *bp)
 	    draw_image_tile(
 		nsctx, ctx, pict_image, fgdRect, destinationRect,
 		NSCompositeSourceOver);
+	    if (pcell->v.ti.mask & PICT_MASK_ALERT) {
+		NSRect alertRect = NSMakeRect(
+		    graf_width * ((alert_x_char & 0x7f) +
+			pcell->hoff_n / (1.0 * pcell->hoff_d)),
+		    graf_height * ((alert_x_attr & 0x7f) +
+			pcell->voff_n / (1.0 * pcell->voff_d)),
+		    graf_width * pcell->hscl / (1.0 * pcell->hoff_d),
+		    graf_height * pcell->vscl / (1.0 * pcell->voff_d));
+
+		if (!dbl_height_fgd) {
+		    draw_image_tile(
+			nsctx, ctx, pict_image, alertRect, destinationRect,
+			NSCompositeSourceOver);
+		} else if (is_first_piece && simple_upper &&
+			pcell->hoff_n == 0 && pcell->voff_n == 0 &&
+			pcell->hscl == pcell->hoff_d) {
+		    /*
+		     * The alert indicator for other double-height cases was
+		     * rendered above.
+		     */
+		    destinationRect.size.height -= pcell->vscl;
+		    draw_image_tile(
+			nsctx, ctx, pict_image, alertRect, destinationRect,
+			NSCompositeSourceOver);
+		}
+	    }
 	}
 	icol0 = [self.contents scanForTypeMaskInRow:irow mask:TERM_CELL_TILE
 		     col0:(icol0+pcell->hscl) col1:icol1];
@@ -4707,6 +4783,8 @@ static errr Term_pict_cocoa(int x, int y, int n, const int *ap,
 			   foregroundRow:fgdRow
 			   backgroundColumn:bckCol
 			   backgroundRow:bckRow
+			   mask:((a & GRAPHICS_ALERT_MASK) ? PICT_MASK_ALERT : PICT_MASK_NONE)
+				| ((a & GRAPHICS_GLOW_MASK) ? PICT_MASK_GLOW : PICT_MASK_NONE)
 			   tileWidth:tile_width
 			   tileHeight:tile_height];
 	    if (overdraw_row &&

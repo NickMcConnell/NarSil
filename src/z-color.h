@@ -89,6 +89,16 @@
 #define BG_DARK  2	/* The set number for the dark-background glyphs */
 #define BG_MAX   3	/* The max number of backgrounds */
 
+/*
+ * These are bits set in the attribute to trigger special rendering when using
+ * tiles.  These bits should not overlap with bits in 0x00 to 0xFF (either
+ * color indices with background values or tile indices).
+ */
+#define GRAPHICS_ALERT_MASK 0x100	/* used for alert monsters if the tiles
+						have an alert indicator */
+#define GRAPHICS_GLOW_MASK 0x200	/* used for glowing objects if the tiles
+						have a glow indicator */
+
 /**
  * A game color.
  */

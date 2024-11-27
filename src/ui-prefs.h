@@ -43,6 +43,10 @@ extern uint8_t *trap_x_attr[LIGHTING_MAX];
 extern wchar_t *trap_x_char[LIGHTING_MAX];
 extern uint8_t *flavor_x_attr;
 extern wchar_t *flavor_x_char;
+extern uint8_t alert_x_attr;
+extern wchar_t alert_x_char;
+extern uint8_t glow_x_attr;
+extern wchar_t glow_x_char;
 
 /**
  * Private data for pref file parsing.

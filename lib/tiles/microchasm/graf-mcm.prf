@@ -9,6 +9,13 @@
 # Adapted from the file "graf-new.prf" in Sil-q 1.5 along with the pixmap
 # file itself.
 
+##### Special attr/char values #####
+
+GS:ALERT:0x8C:0x8B
+GS:GLOW::0x8C:0x8E
+
+
+
 
 ##### Spell attr/char values #####
 

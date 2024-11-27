@@ -229,9 +229,13 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 			/* Normal attr and char, check for glowing */
 			a = (g->first_art) ? g->first_art->d_attr :
 				object_kind_attr(g->first_kind);
-			if (g->glow && (use_graphics == GRAPHICS_NONE
-					|| !(a & 0x80))) {
-				a = COLOUR_L_BLUE;
+			if (g->glow) {
+				if (use_graphics == GRAPHICS_NONE
+						|| !(a & 0x80)) {
+					a = COLOUR_L_BLUE;
+				} else if (glow_x_attr & 0x80) {
+					a |= GRAPHICS_GLOW_MASK;
+				}
 			}
 			c = object_kind_char(g->first_kind);
 		}
@@ -241,6 +245,8 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 
 	/* Handle monsters, the player and trap borders */
 	if (g->m_idx > 0) {
+		struct monster *mon = cave_monster(cave, g->m_idx);
+
 		if (g->hallucinate) {
 			if (g->m_idx < z_info->r_max) {
 				/* Show this monster's image race */
@@ -249,13 +255,11 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 				/* Just pick a random monster to display. */
 				image_monster(&a, &c);
 			}
-		} else if (monster_is_listened(cave_monster(cave, g->m_idx))) {
+		} else if (monster_is_listened(mon)) {
 			/* Simplest possible hack - NRM */
 			a = COLOUR_SLATE;
 			c = '*';
 		} else {
-			struct monster *mon = cave_monster(cave, g->m_idx);
-
 			uint8_t da;
 			wchar_t dc;
 
@@ -296,6 +300,12 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 			if (use_graphics == GRAPHICS_NONE && OPT(player, highlight_unwary)
 				&& (mon->alertness < ALERTNESS_ALERT)) {
 				a = a + (MAX_COLORS * BG_DARK);
+			}
+			if (use_graphics != GRAPHICS_NONE
+					&& (a & 0x80)
+					&& mon->alertness >= ALERTNESS_ALERT
+					&& alert_x_attr & 0x80) {
+				a |= GRAPHICS_ALERT_MASK;
 			}
 			if (g->rage && (use_graphics == GRAPHICS_NONE
 					|| !(a & 0x80))) a = COLOUR_RED;
