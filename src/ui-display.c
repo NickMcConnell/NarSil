@@ -1510,32 +1510,59 @@ static void hit_pict(int dam, int typ, bool fatal, uint8_t *a)
 
 static void display_hit(game_event_type type, game_event_data *data, void *user)
 {
-	int msec = player->opts.delay_factor;
+	/*
+	 * Sil 1.3 uses 25 * base delay for 125 in default case; use 3 * base
+	 * delay here for 120 in default case.
+	 */
+	int msec = 3 * player->opts.delay_factor;
 	int dam = data->hit.dam;
 	int dam_type = data->hit.dam_type;
 	bool fatal = data->hit.fatal;
 	int y = data->hit.grid.y;
 	int x = data->hit.grid.x;
-
-	uint8_t a;
-	wchar_t c;
+	int ones, tens;
 
 	/* do nothing unless the appropriate option is set */
 	if (!OPT(player, display_hits)) return; 
 
-	/* Obtain the hit colour */
-	hit_pict(dam, dam_type, fatal, &a);
+	if (dam <= 0) {
+		ones = 0;
+		tens = 0;
+	} else if (dam < 100) {
+		ones = dam % 10;
+		tens = dam / 10;
+	} else {
+		/* Display everything greater than 99 as 99. */
+		ones = 9;
+		tens = 9;
+	}
 
-	/* Print the 'ones' digit */
-	c = '0' + (dam % 10);
-	print_rel(c, a, y, x);
-	move_cursor_relative(y, x);
+	if (damage_x_attr[0] & 0x80) {
+		print_rel(damage_x_char[ones], damage_x_attr[ones], y, x);
+		move_cursor_relative(y, x);
+		if (dam >= 10) {
+			print_rel(damage_x_char[tens], damage_x_attr[tens],
+				y, x - 1);
+			move_cursor_relative(y, x - 1);
+		}
+	} else {
+		uint8_t a;
+		wchar_t c;
 
-	/* Print the 'tens' digit if needed (assumes damage less than 100) */
-	if (dam >= 10) {
-		c = '0' + (dam / 10);
-		print_rel(c, a, y, x - 1);
-		move_cursor_relative(y, x - 1);
+		/* Obtain the hit colour */
+		hit_pict(dam, dam_type, fatal, &a);
+
+		/* Print the 'ones' digit */
+		c = '0' + ones;
+		print_rel(c, a, y, x);
+		move_cursor_relative(y, x);
+
+		/* Print the 'tens' digit if needed */
+		if (dam >= 10) {
+			c = '0' + tens;
+			print_rel(c, a, y, x - 1);
+			move_cursor_relative(y, x - 1);
+		}
 	}
 
 	Term_fresh();

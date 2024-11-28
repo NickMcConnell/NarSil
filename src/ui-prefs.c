@@ -56,6 +56,8 @@ uint8_t alert_x_attr = 0;
 wchar_t alert_x_char = 0;
 uint8_t glow_x_attr = 0;
 wchar_t glow_x_char = 0;
+uint8_t damage_x_attr[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+wchar_t damage_x_char[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static size_t flavor_max = 0;
 
 /**
@@ -896,7 +898,16 @@ static enum parser_error parse_prefs_gs(struct parser *p)
 		glow_x_attr = (uint8_t)x_attr;
 		glow_x_char = (wchar_t)x_char;
 	} else {
-		return PARSE_ERROR_UNRECOGNISED_PARAMETER;
+		char *ep;
+		long l = strtol(name, &ep, 10);
+
+		if (l >= 0 && l <= 9 && contains_only_spaces(ep)
+				&& !contains_only_spaces(name)) {
+			damage_x_attr[l] = (uint8_t)x_attr;
+			damage_x_char[l] = (wchar_t)x_char;
+		} else {
+			return PARSE_ERROR_UNRECOGNISED_PARAMETER;
+		}
 	}
 
 	return PARSE_ERROR_NONE;
@@ -1135,6 +1146,18 @@ static errr finish_parse_prefs(struct parser *p)
 			d->window_flags[i] = window_flag[i];
 	}
 	subwindows_set_flags(d->window_flags, ANGBAND_TERM_MAX);
+
+	/*
+	 * If all of the damage indicators have not been set, ensure
+	 * damage_x_attr[0] is zero so that can be tested to choose between
+	 * plain digits or tiles for the damage indicators.
+	 */
+	for (i = 0; i < 10; ++i) {
+		if (!(damage_x_attr[i] & 0x80)) {
+			damage_x_attr[0] = 0;
+			break;
+		}
+	}
 
 	return PARSE_ERROR_NONE;
 }
@@ -1401,6 +1424,10 @@ void textui_prefs_init(void)
 	alert_x_char = 0;
 	glow_x_attr = 0;
 	glow_x_char = 0;
+	for (i = 0; i < 10; ++i) {
+		damage_x_attr[i] = 0;
+		damage_x_char[i] = 0;
+	}
 
 	reset_visuals(false);
 }
