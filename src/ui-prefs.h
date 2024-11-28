@@ -47,6 +47,8 @@ extern uint8_t alert_x_attr;
 extern wchar_t alert_x_char;
 extern uint8_t glow_x_attr;
 extern wchar_t glow_x_char;
+extern uint8_t damage_x_attr[10];
+extern wchar_t damage_x_char[10];
 
 /**
  * Private data for pref file parsing.
