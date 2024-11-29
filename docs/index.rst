@@ -9,7 +9,7 @@ It is also one of very few games that stays true to the writings of Tolkien. Car
 
 NarSil is a very complex game, and it may be difficult to grasp everything at first, especially if you have never played a roguelike game before.  A key resource for NarSil players is the `forum`_, where you can ask for help, and also post compliments, complaints, suggestions, bug reports, and interesting experiences.  Don't be shy!
 
-.. _forum: http://angband.oook.cz
+.. _forum: https://angband.live/forums/
 
 
 

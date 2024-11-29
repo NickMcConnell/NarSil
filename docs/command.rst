@@ -576,7 +576,7 @@ Save screen dump (|``)``|)
 
   - html, suitable for viewing in a web browser.
   - forum embedded html for vBulletin, suitable for pasting in
-    web forums like http://angband.oook.cz/forums.
+    web forums like https://angband.live/forums/.
 	
 Special Keys
 ============

@@ -1585,7 +1585,7 @@ static void show_about(const struct window *window)
 	const char *about_text[] = {
 		buildid,
 		"See http://www.rephial.org",
-		"Visit our forum at http://angband.oook.cz/forum"
+		"Visit our forum at http://angband.live/forums"
 	};
 
 	struct { SDL_Rect rect; const char *text; } elems[N_ELEMENTS(about_text)];

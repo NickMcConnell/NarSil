@@ -870,7 +870,7 @@ void monster_death(struct monster *mon, struct player *p, bool by_player,
 			p->morgoth_slain = true;
 			msg("BUG: Morgoth has been defeated in combat.");
 			msg("But this is not possible within the fates Illuvatar has decreed.");
-			msg("Please post an 'ultimate bug-report' on http://angband.oook.cz/forum/ explaining how this happened.");
+			msg("Please post an 'ultimate bug-report' on http://angband.live/forums/ explaining how this happened.");
 			msg("But for now, let's run with it, since it's undeniably impressive.");
 
 			/* Display the ultimate bug text */

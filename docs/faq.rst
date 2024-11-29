@@ -75,5 +75,5 @@ Non-code activities are different. Documentation can be written on the wiki, or 
 
 .. _GitHub: https://github.com/NickMcConnell/NarSil/
 .. _Beleriand: https://github.com/NickMcConnell/Beleriand/
-.. _Angband forum: http://angband.oook.cz/forum
-.. _Sil section: http://angband.oook.cz/forum/forumdisplay.php?f=12
+.. _Angband forum: http://angband.live/forums
+.. _Sil section: http://angband.live/forums/forum/angband/sil
