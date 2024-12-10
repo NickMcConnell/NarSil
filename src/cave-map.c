@@ -438,8 +438,13 @@ void wiz_dark(struct chunk *c, struct player *p)
 
 			/* Forget all objects */
 			while (obj) {
+				struct object *base = cave->objects[obj->oidx];
 				struct object *next = obj->next;
+				assert(base && base->known == obj);
+				square_excise_object(p->cave, grid, obj);
 				delist_object(p->cave, obj);
+				object_delete(p->cave, NULL, &obj);
+				base->known = NULL;
 				obj = next;
 			}
 
