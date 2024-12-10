@@ -203,7 +203,7 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 	/* Get the colour for ASCII */
 	if (use_graphics == GRAPHICS_NONE) {
 		grid_get_attr(g, &a);
-		if (g->rage) a = COLOUR_RED + (MAX_COLORS * (a / MAX_COLORS));
+		if (g->rage) a = COLOUR_RED + (MULT_BG * (a / MULT_BG));
 	}
 
 	/* Save the terrain info for the transparency effects */
@@ -299,7 +299,7 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 
 			if (use_graphics == GRAPHICS_NONE && OPT(player, highlight_unwary)
 				&& (mon->alertness < ALERTNESS_ALERT)) {
-				a = a + (MAX_COLORS * BG_DARK);
+				a = a + (MULT_BG * BG_DARK);
 			}
 			if (use_graphics != GRAPHICS_NONE
 					&& (a & 0x80)
