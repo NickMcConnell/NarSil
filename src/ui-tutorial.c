@@ -158,9 +158,9 @@ static void textui_tutorial_textblock_append_feature_symbol(textblock *tb,
 
 	if (use_graphics == GRAPHICS_NONE && feat_is_wall(feat)) {
 		if (OPT(player, hybrid_walls)) {
-			attr += (MAX_COLORS * BG_DARK);
+			attr += (MULT_BG * BG_DARK);
 		} else if (OPT(player, solid_walls)) {
-			attr += (MAX_COLORS * BG_SAME);
+			attr += (MULT_BG * BG_SAME);
 		}
 	}
 	textblock_append(tb, "('");
