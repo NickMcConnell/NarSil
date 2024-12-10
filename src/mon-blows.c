@@ -455,6 +455,7 @@ static void melee_effect_handler_DARK(melee_effect_handler_context_t *context)
 	
 	/* Take damage */
 	(void) monster_damage_target(context, true);
+	equip_learn_element(context->p, PROJ_DARK);
 }
 
 /**
@@ -502,6 +503,7 @@ static void melee_effect_handler_POISON(melee_effect_handler_context_t *context)
 	if (player_inc_timed(context->p, TMD_POISONED, context->damage, true,
 			true, true))
 		context->obvious = true;
+	equip_learn_element(context->p, PROJ_POIS);
 }
 
 /**
