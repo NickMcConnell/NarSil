@@ -530,6 +530,7 @@ static struct object const OBJECT_NULL = {
 	.used = 0,
 	.number = 0,
 	.notice = 0,
+	.pseudo = 0,
 	.held_m_idx = 0,
 	.origin = 0,
 	.origin_depth = 0,
