@@ -593,25 +593,26 @@ int mithril_carried(struct player *p)
 
 static void use_mithril(struct player *p, int cost)
 {
-	struct object *obj;
-		struct object_kind *kind = lookup_kind(TV_METAL,
-											   lookup_sval(TV_METAL,
-														   "Piece of Mithril"));
+	struct object *obj = p->gear;
+	struct object_kind *kind = lookup_kind(TV_METAL,
+		lookup_sval(TV_METAL, "Piece of Mithril"));
 	int to_go = cost;
 	
-	for (obj = p->gear; obj; obj = obj->next) {
+	while (obj && to_go) {
 		if (obj->kind == kind) {
 			int amount = MIN(to_go, obj->number);
 			bool none_left = false;
-			struct object *used = gear_object_for_use(p, obj, amount, true,
-													  &none_left);
+			struct object *src = obj, *used;
+
+			obj = obj->next;
+			used = gear_object_for_use(p, src, amount, true,
+				&none_left);
 			object_delete(cave, &used);
 			to_go -= amount;
+		} else {
+			obj = obj->next;
 		}
-		if (!to_go) break;
 	}
-	
-	return;
 }
 
 
