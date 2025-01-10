@@ -307,7 +307,8 @@ static bool describe_misc_magic(textblock *tb, const bitflag flags[OF_SIZE])
 		if (!prop || ((prop->subtype != OFT_MISC) &&
 					  (prop->subtype != OFT_MELEE) &&
 					  (prop->subtype != OFT_BAD))) continue;
-		if (of_has(flags, prop->index)) {
+		if (of_has(flags, prop->index) && prop->desc &&
+				!contains_only_spaces(prop->desc)) {
 			textblock_append(tb, "%s.  ", prop->desc);
 			printed = true;
 		}
