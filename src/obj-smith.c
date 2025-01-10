@@ -511,6 +511,7 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 
 	if (get_check("Are you sure you wish to melt this item down? ")) {
 		struct object *new = object_new();
+		struct object *new_k = object_new();
 		struct object_kind *kind = lookup_kind(TV_METAL,
 											   lookup_sval(TV_METAL,
 														   "Piece of Mithril"));
@@ -536,6 +537,7 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 		/* Give the mithril to the player, breaking it up if there's too much */
 		while (pieces_remaining > new->kind->base->max_stack) {
 			struct object *new2 = object_new();
+			struct object *new2_k = object_new();
 
 			/* Decrease the main stack */
 			pieces_remaining -= new->kind->base->max_stack;
@@ -546,12 +548,20 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 			/* Increase the new stack */
 			new2->number = new->kind->base->max_stack;
 
+			/* Set up the player's version of the mithril */
+			object_copy(new2_k, new2);
+			new2->known = new2_k;
+			object_touch(p, new2);
+
 			/* Give it to the player */
 			inven_carry(p, new2, false, false);
 		}
 
 		/* Now give the last stack of mithril to the player */
 		new->number = (uint8_t)pieces_remaining;
+		object_copy(new_k, new);
+		new->known = new_k;
+		object_touch(p, new);
 		inven_carry(p, new, false, false);
 
 		return true;

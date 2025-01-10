@@ -1072,12 +1072,8 @@ static void melt_menu(const char *name, int row)
 	/* Fill the melt menu */
 	for (obj = player->gear; obj; obj = obj->next) {
 		if (object_is_mithril(obj)) {
-			if (count) {
-				melt_menu_info = mem_realloc(melt_menu_info,
-											 count * sizeof(struct object*));
-			} else {
-				melt_menu_info = mem_zalloc(sizeof(struct object*));
-			}
+			melt_menu_info = mem_realloc(melt_menu_info,
+				(count + 1) * sizeof(struct object*));
 			melt_menu_info[count++] = obj;
 		}
 	}
