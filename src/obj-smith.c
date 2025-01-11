@@ -554,7 +554,7 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 			object_touch(p, new2);
 
 			/* Give it to the player */
-			inven_carry(p, new2, false, false);
+			inven_carry(p, new2, true, false);
 		}
 
 		/* Now give the last stack of mithril to the player */
@@ -562,7 +562,7 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 		object_copy(new_k, new);
 		new->known = new_k;
 		object_touch(p, new);
-		inven_carry(p, new, false, false);
+		inven_carry(p, new, true, false);
 
 		return true;
 	}
