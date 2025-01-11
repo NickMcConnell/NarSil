@@ -545,12 +545,12 @@ bool melt_mithril_item(struct player *p, struct object *obj)
 			new2->number = new->kind->base->max_stack;
 
 			/* Give it to the player */
-			inven_carry(p, new2, false, false);
+			inven_carry(p, new2, true, false);
 		}
 
 		/* Now give the last stack of mithril to the player */
 		new->number = (uint8_t)pieces_remaining;
-		inven_carry(p, new, false, false);
+		inven_carry(p, new, true, false);
 
 		return true;
 	}
