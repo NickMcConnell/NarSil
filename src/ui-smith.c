@@ -1089,6 +1089,7 @@ static void melt_menu(const char *name, int row)
 
 	/* Select an entry */
 	menu_select(&menu, 0, false);
+	mem_free(melt_menu_info);
 
 	return;
 }
