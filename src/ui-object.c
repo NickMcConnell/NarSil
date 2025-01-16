@@ -1232,6 +1232,7 @@ void display_object_kind_recall(struct object_kind *kind)
 	object_prep(&object, kind, 0, EXTREMIFY);
 
 	display_object_recall(&object);
+	object_wipe(&object);
 }
 
 /**
