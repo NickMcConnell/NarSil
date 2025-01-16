@@ -1443,15 +1443,20 @@ struct object *textui_smith_object(struct smithing_cost *cost)
 				   ROW_SMT2 - ROW_SMT1};
 	/* Deal with previous interruptions */
 	if (player->smithing_leftover > 0) {
-		/* Add the cost */
-		*cost = current_cost;
+		if (square_isforge(cave, player->grid)) {
+			/* Add the cost */
+			*cost = current_cost;
 
-		/* Return the smithing item */
-		return smith_obj;
-	} else {
-		/* Otherwise wipe the smithing item and artefact */
-		wipe_smithing_objects();
+			/* Return the smithing item */
+			return smith_obj;
+		}
+		if (!get_check(format("A forge has an unfinished %s.  Abandon it to see smithing options? ", smith_obj->artifact ? "artifact" : "item"))) {
+			return NULL;
+		}
+		player->smithing_leftover = 0;
 	}
+	/* Otherwise wipe the smithing item and artefact */
+	wipe_smithing_objects();
 
 	screen_save();
 	clear_from(0);
