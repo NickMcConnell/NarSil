@@ -343,7 +343,7 @@ static size_t obj_desc_combat(const struct object *obj, char *buf, size_t max,
 	int ps = obj->ps == SPECIAL_VALUE ? 0 : obj->ps;
 
 	/* Display damage dice for weapons */
-	if (kf_has(obj->kind->kind_flags, KF_SHOW_DICE)) {
+	if (obj->kind && kf_has(obj->kind->kind_flags, KF_SHOW_DICE)) {
 		ds += hand_and_a_half_bonus((struct player *) p, obj);
 		strnfcat(buf, max, &end, " (%+d,%dd%d)", att, obj->dd, ds);
 	} else if (tval_is_ammo(obj) && att) {

@@ -1228,10 +1228,16 @@ void display_object_recall(struct object *obj)
  */
 void display_object_kind_recall(struct object_kind *kind)
 {
-	struct object object = OBJECT_NULL;
+	struct object object = OBJECT_NULL, known_obj = OBJECT_NULL;
 	object_prep(&object, kind, 0, EXTREMIFY);
+	if (kind->aware || !kind->flavor) {
+		object_copy(&known_obj, &object);
+	}
+	object.known = &known_obj;
 
 	display_object_recall(&object);
+	object_wipe(&known_obj);
+	object_wipe(&object);
 }
 
 /**
