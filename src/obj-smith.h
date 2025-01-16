@@ -120,6 +120,7 @@ int ps_valid(struct object *obj);
 int ps_max(struct object *obj, bool assume_artistry);
 int ps_min(struct object *obj);
 int pval_valid(struct object *obj);
+int pval_default(struct object *obj);
 int pval_max(struct object *obj);
 int pval_min(struct object *obj);
 int wgt_valid(struct object *obj);

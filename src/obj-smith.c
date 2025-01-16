@@ -333,11 +333,33 @@ int pval_valid(struct object *obj)
 
 
 /**
+ * Determines the default (starting) pval for an item.
+ */
+int pval_default(struct object *obj)
+{
+	/*
+	 * Do not want to use a light's radius as the basis for the special
+	 * value during smithing.
+	 */
+	int pval = tval_is_light(obj) ? 0 : obj->kind->pval;
+
+	if (obj->ego && obj->ego->pval > 0) {
+		pval += obj_is_cursed(obj) ? -1 : 1;
+	}
+	return pval;
+}
+
+
+/**
  * Determines the maximum legal pval for an item.
  */
 int pval_max(struct object *obj)
 {
-	int pval = obj->kind->pval;
+	/*
+	 * Do not want to use a light's radius as the basis for the special
+	 * value during smithing.
+	 */
+	int pval = tval_is_light(obj) ? 0 : obj->kind->pval;
 
 	/* Artefacts have pvals that are mostly unlimited  */
 	if (obj->artifact) {
@@ -365,7 +387,11 @@ int pval_max(struct object *obj)
  */
 int pval_min(struct object *obj)
 {
-	int pval = obj->kind->pval;
+	/*
+	 * Do not want to use a light's radius as the basis for the special
+	 * value during smithing.
+	 */
+	int pval = tval_is_light(obj) ? 0 : obj->kind->pval;
 
 	/* Artefacts have pvals that are mostly unlimited  */
 	if (obj->artifact) {
@@ -380,7 +406,7 @@ int pval_min(struct object *obj)
 		if (obj_is_cursed(obj)) {
 			if (obj->ego->pval > 0) pval -= obj->ego->pval;
 		} else if (obj->ego->pval > 0) {
-			pval -= 1;
+			pval += 1;
 		}
 	}
 
@@ -1083,9 +1109,16 @@ void create_base_object(struct object_kind *kind, struct object *obj)
 	/* Set the pval to 1 if needed (and evasion/accuracy for rings) */
 	set_base_values(obj);
 
-	/* Lanterns are empty */
-	if (tval_is_light(obj) && of_has(obj->flags, OF_TAKES_FUEL)) {
-		obj->timeout = 0;
+	if (tval_is_light(obj)) {
+		/*
+		 * While smithing, use pval for the special bonus rather than
+		 * light radius; restore it when finalizing the smithed item
+		 */
+		obj->pval = 0;
+		/* Lanterns are empty */
+		if (of_has(obj->flags, OF_TAKES_FUEL)) {
+			obj->timeout = 0;
+		}
 	}
 
 	/* Create arrows by the two dozen */
@@ -1429,13 +1462,22 @@ static void create_smithing_item(struct object *obj, struct smithing_cost *cost)
 		}
 	}
 
-	/* Create the object */
+	/*
+	 * Create the object; since lights use pval for the radius, reset
+	 * that to what the kind has
+	 */
 	object_copy(created, obj);
 	created->known = object_new();
 	if (obj->known) {
 		object_copy(created->known, obj->known);
 	} else {
 		object_set_base_known(player, created->known);
+	}
+	if (tval_is_light(created)) {
+		created->pval = created->kind->pval;
+		if (obj->known) {
+			created->known->pval = created->kind->pval;
+		}
 	}
 	
 	/* Identify the object */

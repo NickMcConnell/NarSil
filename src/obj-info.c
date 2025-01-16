@@ -510,14 +510,15 @@ static void get_known_flags(const struct object *obj, const oinfo_detail_t mode,
 							bitflag flags[OF_SIZE])
 {
 	/* Grab the object flags */
-	if (mode & OINFO_EGO) {
-			object_flags(obj, flags);
+	if ((mode & OINFO_EGO) || (mode & OINFO_SPOIL)
+			|| (mode & OINFO_SMITH)) {
+		object_flags(obj, flags);
 	} else {
 		object_flags_known(obj, flags);
-
-		/* Don't include base flags when terse */
-		if (mode & OINFO_TERSE)
-			of_diff(flags, obj->kind->base->flags);
+	}
+	/* Don't include base flags when terse */
+	if (mode & OINFO_TERSE) {
+		of_diff(flags, obj->kind->base->flags);
 	}
 }
 
@@ -534,7 +535,8 @@ static void get_known_elements(const struct object *obj,
 	/* Grab the element info */
 	for (i = 0; i < ELEM_MAX; i++) {
 		/* Report fake egos or known element info */
-		if (player->obj_k->el_info[i].res_level || (mode & OINFO_SPOIL))
+		if (player->obj_k->el_info[i].res_level || (mode & OINFO_SPOIL)
+				|| (mode & OINFO_SMITH))
 			el_info[i].res_level = obj->known->el_info[i].res_level;
 		else
 			el_info[i].res_level = 0;
@@ -566,7 +568,8 @@ static void get_known_elements(const struct object *obj,
  * includes it not actually being a light source).
  */
 static bool obj_known_light(const struct object *obj, oinfo_detail_t mode,
-							int *intensity, bool *uses_fuel, int *refuel_turns)
+		const bitflag flags[OF_MAX], int *intensity, bool *uses_fuel,
+		int *refuel_turns)
 {
 	bool no_fuel;
 	bool is_light = tval_is_light(obj);
@@ -574,15 +577,21 @@ static bool obj_known_light(const struct object *obj, oinfo_detail_t mode,
 	if (!is_light)
 		return false;
 
-	/* Work out intensity */
-	*intensity = obj->pval;
+	/*
+	 * Work out intensity; smithing can use pval for the special bonus so
+	 * look at the kind's pval for the radius in that case
+	 */
+	*intensity = (mode & OINFO_SMITH) ? obj->kind->pval : obj->pval;
+	if (of_has(flags, OF_LIGHT)) {
+		++*intensity;
+	}
 
 	/* Prevent unidentified objects (especially artifact lights) from showing
 	 * bad intensity and refueling info. */
 	if (*intensity == 0)
 		return false;
 
-	no_fuel = of_has(obj->flags, OF_NO_FUEL) ? true : false;
+	no_fuel = of_has(flags, OF_NO_FUEL) ? true : false;
 
 	if (no_fuel || obj->artifact) {
 		*uses_fuel = false;
@@ -590,7 +599,7 @@ static bool obj_known_light(const struct object *obj, oinfo_detail_t mode,
 		*uses_fuel = true;
 	}
 
-	if (is_light && of_has(obj->flags, OF_TAKES_FUEL)) {
+	if (is_light && of_has(flags, OF_TAKES_FUEL)) {
 		*refuel_turns = z_info->fuel_lamp;
 	} else {
 		*refuel_turns = 0;
@@ -603,14 +612,14 @@ static bool obj_known_light(const struct object *obj, oinfo_detail_t mode,
  * Describe things that look like lights.
  */
 static bool describe_light(textblock *tb, const struct object *obj,
-						   oinfo_detail_t mode)
+		oinfo_detail_t mode, const bitflag flags[OF_SIZE])
 {
 	int intensity = 0;
 	bool uses_fuel = false;
 	int refuel_turns = 0;
 	bool terse = mode & OINFO_TERSE ? true : false;
 
-	if (!obj_known_light(obj, mode, &intensity, &uses_fuel, &refuel_turns))
+	if (!obj_known_light(obj, mode, flags, &intensity, &uses_fuel, &refuel_turns))
 		return false;
 
 	if (tval_is_light(obj)) {
@@ -794,7 +803,7 @@ static textblock *object_info_out(const struct object *obj, int mode)
 	if (describe_abilities(tb, obj, mode)) something = true;
 	if (describe_archery(tb, obj)) something = true;
 	if (describe_throwing(tb, obj)) something = true;
-	if (describe_light(tb, obj, mode)) something = true;
+	if (describe_light(tb, obj, mode, flags)) something = true;
 	if (describe_ignores(tb, el_info)) something = true;
 	if (describe_hates(tb, el_info)) something = true;
 	if (something) textblock_append(tb, "\n");
