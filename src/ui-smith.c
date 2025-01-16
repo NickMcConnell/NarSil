@@ -154,7 +154,7 @@ static void reset_smithing_objects(struct object_kind *kind)
 	create_base_object(kind, smith_obj);
 	object_know(smith_obj);
 	object_copy(smith_obj_backup, smith_obj);
-	pval = pval_valid(smith_obj) ? smith_obj->kind->pval : 0;
+	pval = pval_valid(smith_obj) ? pval_default(smith_obj) : 0;
 }
 
 /**
@@ -495,7 +495,7 @@ static bool tval_action(struct menu *m, const ui_event *event, int oid)
 	/* Set the new value appropriately */
 	if (evt.type == EVT_SELECT) {
 		smith_obj->kind = smithing_svals[menu.cursor];
-		pval = pval_valid(smith_obj) ? smith_obj->kind->pval : 0;
+		pval = pval_valid(smith_obj) ? pval_default(smith_obj) : 0;
 		selected = true;
 	}
 	menu_refresh(smithing_menu, false);
@@ -565,7 +565,7 @@ static int get_smithing_specials(struct object_kind *kind)
 		object_copy(&dummy_body, smith_obj);
 		create_special(&dummy_body, ego);
 		object_know(&dummy_body);
-		pval = pval_valid(&dummy_body) ? dummy_body.pval : 0;
+		pval = pval_valid(&dummy_body) ? pval_valid(&dummy_body) : 0;
 		include_pval(&dummy_body);
 		(void)object_difficulty(&dummy_body, &dummy_cost);
 		affordable_specials[count] = smith_affordable(&dummy_body,
