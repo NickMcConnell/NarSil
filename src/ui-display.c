@@ -968,7 +968,8 @@ static size_t prt_terrain(int row, int col)
 	char buf[30];
 	uint8_t attr;
 
-	if (trap && !square_isinvis(cave, player->grid)) {
+	if (trap && !square_isinvis(cave, player->grid) &&
+		!square_isforge(cave, player->grid)) {
 		my_strcpy(buf, trap->kind->name, sizeof(buf));
 		attr = trap->kind->d_attr;
 	} else {

@@ -628,6 +628,7 @@ static bool aux_trap(struct chunk *c, struct player *p,
 	const char *lphrase3;
 
 	if (!square_isvisibletrap(c, auxst->grid)) return false;
+	if (square_isforge(c, auxst->grid)) return false;
 
 	/* A trap */
 	trap = square(c, auxst->grid)->trap;
