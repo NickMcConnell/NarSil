@@ -41,8 +41,6 @@ static int test_missing_record_header0(void *state)
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	r = parser_parse(p, "dice:1");
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
-	r = parser_parse(p, "smith-difficulty:5");
-	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	ok;
 }
 
@@ -59,7 +57,6 @@ static int test_code0(void *state) {
 	null(s->name);
 	eq(s->race_flag, 0);
 	eq(s->dice, 0);
-	eq(s->smith_difficulty, 0);
 	ok;
 }
 
@@ -112,26 +109,13 @@ static int test_dice0(void *state) {
 	ok;
 }
 
-static int test_smith_difficulty0(void *state) {
-	struct parser *p = (struct parser*) state;
-	enum parser_error r = parser_parse(p, "smith-difficulty:5");
-	struct slay *s;
-
-	eq(r, PARSE_ERROR_NONE);
-	s = (struct slay*) parser_priv(p);
-	notnull(s);
-	eq(s->smith_difficulty, 5);
-	ok;
-}
-
 static int test_combined0(void *state) {
 	struct parser *p = (struct parser*) state;
 	const char *lines[] = {
 		"code:SPIDER_1",
 		"name:spiders",
 		"race-flag:SPIDER",
-		"dice:1",
-		"smith-difficulty:6"
+		"dice:1"
 	};
 	struct slay *s;
 	int i;
@@ -149,7 +133,6 @@ static int test_combined0(void *state) {
 	require(streq(s->name, "spiders"));
 	eq(s->race_flag, RF_SPIDER);
 	eq(s->dice, 1);
-	eq(s->smith_difficulty, 6);
 	ok;
 }
 
@@ -167,7 +150,6 @@ struct test tests[] = {
 	{ "race_flag0", test_race_flag0 },
 	{ "race_flag_bad0", test_race_flag_bad0 },
 	{ "dice0", test_dice0 },
-	{ "smith_difficulty0", test_smith_difficulty0 },
 	{ "combined0", test_combined0 },
 	{ NULL, NULL }
 };

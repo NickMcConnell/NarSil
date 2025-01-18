@@ -6,8 +6,8 @@
 # same type of creature should all use the same name.  Changes to the
 # code will require changes to the other data files (artefact.txt,
 # object_base.txt, object_property.txt, and special.txt) that may have used
-# the code.  Changes to the race-flag, dice, and smith-difficulty can affect
-# balance.  The race flag has to match one in list-mon-race-flags.h
+# the code.  Changes to the race-flag and dice can affect balance.  The race
+# flag has to match one in list-mon-race-flags.h
 
 # Fields:
 # code: code for slay to use in other data files (artefact.txt,
@@ -19,46 +19,38 @@
 #     list-mon-race-flags.h; can not be used with another race-flag directive
 #     for the same slay
 # dice: number of bonus dice given by the slay
-# smith-difficulty: difficulty cost to smith an item with this slay
 
 code:ORC_1
 name:orcs
 race-flag:ORC
 dice:1
-smith-difficulty:5
 
 code:WOLF_1
 name:wolves
 race-flag:WOLF
 dice:1
-smith-difficulty:6
 
 code:SPIDER_1
 name:spiders
 race-flag:SPIDER
 dice:1
-smith-difficulty:6
 
 code:UNDEAD_1
 name:undead
 race-flag:UNDEAD
 dice:1
-smith-difficulty:6
 
 code:RAUKO_1
 name:raukar
 race-flag:RAUKO
 dice:1
-smith-difficulty:7
 
 code:DRAGON_1
 name:dragons
 race-flag:DRAGON
 dice:1
-smith-difficulty:7
 
 code:TROLL_1
 name:trolls
 race-flag:TROLL
 dice:1
-smith-difficulty:5

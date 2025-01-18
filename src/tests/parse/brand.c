@@ -42,8 +42,6 @@ static int test_missing_record_header0(void *state) {
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	r = parser_parse(p, "vuln-dice:2");
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
-	r = parser_parse(p, "smith-difficulty:24");
-	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	r = parser_parse(p, "resist-flag:RES_FIRE");
 	eq(r, PARSE_ERROR_MISSING_RECORD_HEADER);
 	r = parser_parse(p, "vuln-flag:HURT_FIRE");
@@ -67,7 +65,6 @@ static int test_code0(void *state) {
 	eq(b->vuln_flag, 0);
 	eq(b->dice, 0);
 	eq(b->vuln_dice, 0);
-	eq(b->smith_difficulty, 0);
 	ok;
 }
 
@@ -132,18 +129,6 @@ static int test_vuln_dice0(void *state) {
 	ok;
 }
 
-static int test_smith_difficulty0(void *state) {
-	struct parser *p = (struct parser*) state;
-	enum parser_error r = parser_parse(p, "smith-difficulty:24");
-	struct brand *b;
-
-	eq(r, PARSE_ERROR_NONE);
-	b = (struct brand*) parser_priv(p);
-	notnull(b);
-	eq(b->smith_difficulty, 24);
-	ok;
-}
-
 static int test_resist_flag0(void *state) {
 	struct parser *p = (struct parser*) state;
 	enum parser_error r = parser_parse(p, "resist-flag:RES_FIRE");
@@ -192,7 +177,6 @@ static int test_combined0(void *state) {
 		"dice:1",
 		"vuln-dice:2",
 		"desc:freezes {name}",
-		"smith-difficulty:20",
 		"resist-flag:RES_COLD",
 		"vuln-flag:HURT_COLD"
 	};
@@ -214,7 +198,6 @@ static int test_combined0(void *state) {
 	require(streq(b->desc, "freezes {name}"));
 	eq(b->dice, 1);
 	eq(b->vuln_dice, 2);
-	eq(b->smith_difficulty, 20);
 	eq(b->resist_flag, RF_RES_COLD);
 	eq(b->vuln_flag, RF_HURT_COLD);
 	ok;
@@ -234,7 +217,6 @@ struct test tests[] = {
 	{ "desc0", test_desc0 },
 	{ "dice0", test_dice0 },
 	{ "vuln_dice0", test_vuln_dice0 },
-	{ "smith_difficulty0", test_smith_difficulty0 },
 	{ "resist_flag0", test_resist_flag0 },
 	{ "resist_flag_bad0", test_resist_flag_bad0 },
 	{ "vuln_flag0", test_vuln_flag0 },

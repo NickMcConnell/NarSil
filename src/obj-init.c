@@ -800,16 +800,6 @@ static enum parser_error parse_slay_dice(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-static enum parser_error parse_slay_smith_difficulty(struct parser *p) {
-	struct slay *slay = parser_priv(p);
-
-	if (!slay) {
-		return PARSE_ERROR_MISSING_RECORD_HEADER;
-	}
-	slay->smith_difficulty = parser_getuint(p, "diff");
-	return PARSE_ERROR_NONE;
-}
-
 static struct parser *init_parse_slay(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
@@ -817,7 +807,6 @@ static struct parser *init_parse_slay(void) {
 	parser_reg(p, "name str name", parse_slay_name);
 	parser_reg(p, "race-flag sym flag", parse_slay_race_flag);
 	parser_reg(p, "dice uint dice", parse_slay_dice);
-	parser_reg(p, "smith-difficulty uint diff", parse_slay_smith_difficulty);
 	return p;
 }
 
@@ -936,16 +925,6 @@ static enum parser_error parse_brand_vuln_dice(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-static enum parser_error parse_brand_smith_difficulty(struct parser *p) {
-	struct brand *brand = parser_priv(p);
-
-	if (!brand) {
-		return PARSE_ERROR_MISSING_RECORD_HEADER;
-	}
-	brand->smith_difficulty = parser_getuint(p, "diff");
-	return PARSE_ERROR_NONE;
-}
-
 static enum parser_error parse_brand_resist_flag(struct parser *p) {
 	int flag;
 	struct brand *brand = parser_priv(p);
@@ -984,7 +963,6 @@ static struct parser *init_parse_brand(void) {
 	parser_reg(p, "desc str desc", parse_brand_desc);
 	parser_reg(p, "dice uint dice", parse_brand_dice);
 	parser_reg(p, "vuln-dice uint dice", parse_brand_vuln_dice);
-	parser_reg(p, "smith-difficulty uint diff", parse_brand_smith_difficulty);
 	parser_reg(p, "resist-flag sym flag", parse_brand_resist_flag);
 	parser_reg(p, "vuln-flag sym flag", parse_brand_vuln_flag);
 	return p;
