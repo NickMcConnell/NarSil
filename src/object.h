@@ -96,7 +96,6 @@ struct brand {
 	int vuln_flag;
 	int dice;
 	int vuln_dice;
-	int smith_difficulty;
 	struct brand *next;
 };
 
@@ -108,7 +107,6 @@ struct slay {
 	char *name;
 	int race_flag;
 	int dice;
-	int smith_difficulty;
 	struct slay *next;
 };
 
