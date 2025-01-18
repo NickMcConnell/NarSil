@@ -110,19 +110,6 @@ struct slay {
 	struct slay *next;
 };
 
-/**
- * Curse type
- */
-struct curse {
-	struct curse *next;
-	char *name;
-	bool *poss;
-	struct object *obj;
-	char *conflict;
-	bitflag conflict_flags[OF_SIZE];
-	char *desc;
-};
-
 enum {
 	EL_INFO_HATES = 0x01,
 	EL_INFO_IGNORE = 0x02,
