@@ -179,6 +179,9 @@ struct obj_property {
 	int smith_diff;			/* difficulty for smithing */
 	int smith_cost_type;	/* cost type for smithing (XP, stats, etc) */
 	int smith_cost;			/* cost for smithing */
+	bool smith_exclude_base;	/* whether or not the property on the
+						base smithed item is excluded
+						from the difficulty and cost */
 	char *name;				/* property name */
 	char *adjective;		/* adjective for property */
 	char *neg_adj;			/* adjective for negative of property */

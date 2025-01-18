@@ -290,6 +290,8 @@ void ego_apply_magic(struct object *obj, bool smithing)
 
 	/* Bonuses apply differently for smithed objects */
 	if (smithing) {
+		bool flip_sign;
+
 		/* Apply extra ego bonuses */
 		if (ego->att) obj->att += 1;
 		if (ego->evn) obj->evn += 1;
@@ -298,26 +300,68 @@ void ego_apply_magic(struct object *obj, bool smithing)
 		if (ego->pd) obj->pd += 1;
 		if (ego->ps) obj->ps += 1;
 
+		obj->pval = extract_kind_pval(obj->kind, AVERAGE, &flip_sign);
 		if (ego->pval > 0) {
-			if (of_has(ego->flags, OF_CURSED)) {
-				obj->pval = -1;
-			} else {
-				obj->pval = 1;
-			}
+			obj->pval += (of_has(ego->flags, OF_CURSED)) ? -1 : 1;
 		}
 
-		/* Apply modifiers */
+		/*
+		 * Mark any modifiers that are changed by the ego or can be
+		 * non-zero in the base object with a non-zero value so that
+		 * smithing knows which modifiers must change when the special
+		 * bonus is changed.  The value used will be negative when
+		 * smithing should set that modifier to the value of the
+		 * special bonus with its sign flipped.
+		 */
 		for (i = 0; i < OBJ_MOD_MAX; i++) {
-			obj->modifiers[i] = ego->modifiers[i] != 0 ? obj->pval : 0;
-			/* Hackish, deal with shadow cloaks */
-			if (obj->kind->modifiers[i].base && !tval_is_jewelry(obj)) {
-				obj->modifiers[i] += obj->kind->modifiers[i].base;
+			int min_m = randcalc(obj->kind->modifiers[i],
+				0, MINIMISE);
+			int max_m = randcalc(obj->kind->modifiers[i],
+				z_info->dun_depth, MAXIMISE);
+
+			if (min_m == SPECIAL_VALUE) {
+				min_m = randcalc(obj->kind->special1,
+					0, MINIMISE);
+				if (!min_m && obj->kind->special2) {
+					min_m = obj->kind->special2;
+				}
+			}
+			if (max_m == SPECIAL_VALUE) {
+				max_m = randcalc(obj->kind->special1,
+					z_info->dun_depth, MAXIMISE);
+				if (!max_m && obj->kind->special2) {
+					max_m = obj->kind->special2;
+				}
+			}
+			if (min_m || max_m) {
+				if (min_m >= 0) {
+					obj->modifiers[i] = MAX(1, obj->pval);
+				} else if (max_m > 0) {
+					if (obj->pval) {
+						obj->modifiers[i] =
+							(max_m >= -min_m) ?
+							obj->pval : -obj->pval;
+					} else {
+						obj->modifiers[i] =
+							(max_m >= -min_m) ?
+							1 : -1;
+					}
+				} else {
+					obj->modifiers[i] = MIN(-1, -obj->pval);
+				}
+				if (flip_sign) {
+					obj->modifiers[i] *= -1;
+				}
+			} else if (ego->modifiers[i]) {
+				obj->modifiers[i] = (ego->modifiers[i] > 0) ?
+					MAX(1, obj->pval) :
+					MIN(-1, -obj->pval);
+				if (flip_sign) {
+					obj->modifiers[i] *= -1;
+				}
 			}
 		}
 	} else {
-		/* Remember pval for lights */
-		int light_pval = tval_is_light(obj) ? obj->pval : 0;
-
 		/* Apply extra ego bonuses */
 		if (ego->att) obj->att += randint1(ego->att);
 		if (ego->evn) obj->evn += randint1(ego->evn);
@@ -326,21 +370,69 @@ void ego_apply_magic(struct object *obj, bool smithing)
 		if (ego->pd) obj->pd += randint1(ego->pd);
 		if (ego->ps) obj->ps += randint1(ego->ps);
 
-		if (of_has(ego->flags, OF_CURSED) && ego->pval) {
-			obj->pval -= randint1(ego->pval);
-		} else if (ego->pval) {
-			obj->pval += randint1(ego->pval);
-		}
+		/*
+		 * Change any modifiers that could be non-zero in the kind
+		 * or are affected by the ego.  Note that if the kind allows
+		 * allows a range of values for a modifier that variation will
+		 * be suppressed by applying an ego that adjusts modifiers.
+		 * That is to mimic Sil's behavior where all non-zero modifiers
+		 * are either -pval or +pval where pval is what Sil stores in
+		 * the object's pval field.
+		 */
+		if (ego->pval > 0) {
+			bool flip_sign;
+			int pval = extract_kind_pval(obj->kind, AVERAGE,
+				&flip_sign);
 
-		/* Apply modifiers */
-		for (i = 0; i < OBJ_MOD_MAX; i++) {
-			obj->modifiers[i] = ego->modifiers[i] != 0 ? obj->pval : 0;
-			/* Hackish, deal with shadow cloaks */
-			if (obj->kind->modifiers[i].base && !tval_is_jewelry(obj)) {
-				obj->modifiers[i] += obj->kind->modifiers[i].base;
+			if (of_has(ego->flags, OF_CURSED)) {
+				pval -= randint1(ego->pval);
+			} else {
+				pval += randint1(ego->pval);
+			}
+
+			for (i = 0; i < OBJ_MOD_MAX; i++) {
+				int min_m = randcalc(obj->kind->modifiers[i],
+					0, MINIMISE);
+				int max_m = randcalc(obj->kind->modifiers[i],
+					z_info->dun_depth, MAXIMISE);
+
+				if (min_m == SPECIAL_VALUE) {
+					min_m = randcalc(obj->kind->special1,
+						0, MINIMISE);
+					if (!min_m && obj->kind->special2) {
+						min_m = obj->kind->special2;
+					}
+				}
+				if (max_m == SPECIAL_VALUE) {
+					max_m = randcalc(obj->kind->special1,
+						z_info->dun_depth, MAXIMISE);
+					if (!max_m && obj->kind->special2) {
+						max_m = obj->kind->special2;
+					}
+				}
+
+				if (min_m || max_m) {
+					if (min_m >= 0) {
+						obj->modifiers[i] = pval;
+					} else if (max_m > 0) {
+						obj->modifiers[i] =
+							(max_m >= -min_m) ?
+							pval : -pval;
+					} else {
+						obj->modifiers[i] = -pval;
+					}
+					if (flip_sign) {
+						obj->modifiers[i] *= -1;
+					}
+				} else if (ego->modifiers[i]) {
+					obj->modifiers[i] = (ego->modifiers[i]
+						> 0) ? pval : -pval;
+					if (flip_sign) {
+						obj->modifiers[i] *= -1;
+					}
+				}
 			}
 		}
-		obj->pval = light_pval;
 	}
 
 	/* Apply flags */
@@ -1284,6 +1376,164 @@ struct object *make_object(struct chunk *c, int lev, bool good, bool great,
 	apply_magic(new_obj, lev, true, good, great);
 
 	return new_obj;
+}
+
+
+/**
+ * Map NarSil's modifier values to Sil's pval.
+ *
+ * \param kind is the kind of object to be queried.
+ * \param rand_aspect controls whether a starting (rand_aspect == AVERAGE),
+ * minimum (rand_aspect == MINIMISE) or maximum (rand_aspect == MAXIMISE) pval
+ * is desired.  If rand_aspect is not AVERAGE, MINIMISE, or MAXIMISE, the
+ * result will be the same as if rand_aspect was equal to AVERAGE.
+ * \param flip_sign_out will, if not NULL, be referenced and set to true or
+ * false.  That value can be used by the caller in this fashion to determine
+ * whether to substitute -pval or pval for a modifier that can be non-zero:
+ *     if (modifier's minimum possible value != 0 || modifier's maximum
+ *             possible value != 0) {
+ *         if (modifier's minimum possible value >= 0) {
+ *             modifier's current value = pval;
+ *         } else if (modifier's maximum possible value > 0) {
+ *             if (modifier's maximum possible value >= -1 * modifier's
+ *                     minimum possible value) {
+ *                 modifier's current value = pval;
+ *             } else {
+ *                 modifier's current value = -pval;
+ *             }
+ *         } else {
+ *             modifier's current value = -pval;
+ *         }
+ *         if (*flip_sign_out) {
+ *             modifier's current value *= -1;
+ *         }
+ *     }
+ *
+ * NarSil allows different non-zero values for the modifiers.  For Sil, those
+ * enchantments are either -pval or +pval where pval is the value that Sil
+ * stores in the object's pval field.  This function looks through a kind's
+ * modifiers and extracts something appropriate to use as the value for
+ * that single value.
+ *
+ * If a kind is to be used in smithing or with specials that affect modifiers,
+ * it will work better if it has only one non-zero modifier or all the non-zero
+ * modifiers will take the same value ignoring the sign.  Some accomodations
+ * are made for modifiers with a range of values, but those will work better
+ * if there is a single such modifier or all such modifiers have the same
+ * range up to flipping the signs on the bounds of the range.
+ */
+int extract_kind_pval(const struct object_kind *kind, aspect rand_aspect,
+		bool *flip_sign_out)
+{
+	int pval_l = 0, pval_s = 0, pval_h = 0, i;
+	bool all_zero = true, all_mixed_signs = true, all_negative = true,
+		all_mixed_more_neg = true, flip_sign;
+
+	for (i = 0; i < OBJ_MOD_MAX; ++i) {
+		int min_m = randcalc(kind->modifiers[i], 0, MINIMISE);
+		int max_m = randcalc(kind->modifiers[i], z_info->dun_depth,
+			MAXIMISE);
+
+		if (min_m == SPECIAL_VALUE) {
+			min_m = randcalc(kind->special1, 0, MINIMISE);
+			if (!min_m && kind->special2) {
+				min_m = kind->special2;
+			}
+		}
+		if (max_m == SPECIAL_VALUE) {
+			max_m = randcalc(kind->special1, z_info->dun_depth,
+				MAXIMISE);
+			if (!max_m && kind->special2) {
+				max_m = kind->special2;
+			}
+		}
+		if (min_m || max_m) {
+			int this_l, this_s, this_h;
+
+			assert(max_m >= min_m);
+			if (min_m >= 0) {
+				all_negative = false;
+				all_mixed_signs = false;
+				this_l = min_m;
+				this_s = MAX(1, min_m);
+				this_h = max_m;
+			} else if (max_m > 0) {
+				all_negative = false;
+				this_s = 1;
+				/*
+				 * Flip the sign as necessary so the reported
+				 * range has a positive part at least as big
+				 * as the negative part.
+				 */
+				if (max_m >= -min_m) {
+					all_mixed_more_neg = false;
+					this_l = min_m;
+					this_h = max_m;
+				} else {
+					this_l = -max_m;
+					this_h = -min_m;
+				}
+			} else {
+				all_mixed_signs = false;
+				this_l = -max_m;
+				this_s = MAX(1, -max_m);
+				this_h = -min_m;
+			}
+			if (all_zero) {
+				all_zero = false;
+				pval_l = this_l;
+				pval_s = this_s;
+				pval_h = this_h;
+			} else {
+				if (all_mixed_signs) {
+					assert(pval_s == 1 && this_s == 1);
+					/*
+					 * If the ranges are not compatible,
+					 * use the part common to both.
+					 */
+					if (pval_h != this_h ||
+							pval_l != this_l) {
+						if (pval_h > this_h) {
+							pval_h = this_h;
+						}
+						if (pval_l < this_l) {
+							pval_l = this_l;
+						}
+					}
+				} else {
+					if (pval_h > this_h) {
+						pval_h = this_h;
+					}
+					if (pval_s > this_s) {
+						pval_s = this_s;
+					}
+					if (this_l >= 0 && pval_l > this_l) {
+						pval_l = this_l;
+					}
+				}
+			}
+		}
+	}
+
+	/*
+	 * If all the non-zero modifiers are negative or all have ranges that
+	 * span zero and those ranges all have more negative values than
+	 * positive ones, flip signs since that works better with a cursed
+	 * special:  such a special subtracts from the pval if it adjusts the
+	 * modifiers.
+	 */
+	flip_sign = !all_zero && (all_negative
+		|| (all_mixed_signs && all_mixed_more_neg));
+	if (flip_sign_out) {
+		*flip_sign_out = flip_sign;
+	}
+	if (rand_aspect == MINIMISE) {
+		return (flip_sign) ? -pval_h : pval_l;
+	}
+	if (rand_aspect == MAXIMISE) {
+		return (flip_sign) ? -pval_l : pval_h;
+	}
+	return (flip_sign) ? -pval_s : pval_s;
 }
 
 

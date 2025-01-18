@@ -7,23 +7,59 @@
 # id-type: how a property is identified, currently only used by flags
 # code: a code for the object property, which is used to associate it with its
 #       index among the other properties of that type
+# smith-cat: is the name for the category in smithing's Artifice menu that
+#            will include the property; if smith-cat is omitted for a property
+#            the property can not be added to a smithed artifact; the name
+#            of the category must be stat, sustain, skill, melee, slay,
+#            resist, curse, or misc
+# smith-difficulty: sets the additional smithing difficulty, an integer, to
+#                   include this property on smithed item; if the property is a
+#                   flag, resist, slay, or brand, the difficulty is simply
+#                   added to the total difficuly for the item when the item
+#                   has the property; if the property is a stat, skill, or
+#                   mod, the additional difficulty from adjusting the
+#                   stat/skill/mod by v is zero if v is less than or equal to
+#                   zero or v * difficulty value + (1 +
+#                   ((difficulty value - 1) / 5)) * v * (v - 1) when v is
+#                   greater than zero; if smith-difficulty is omitted for
+#                   a property, adding the property does not increase the
+#                   difficulty of the smithed item; note that a smithed
+#                   item could get a property from the base item, an
+#                   enchantment (i.e. from special.txt), or from a property
+#                   added for an artifact so the difficulty could be relevant
+#                   even if smith-cat is not set
+# smith-cost: sets the cost, in addition to the added difficulty for including
+#             the property on a smithed item; if smith-cost is omitted for a
+#             property, including the property on a smithed item incurs no
+#             additional cost; takes two parameters; the first is the name
+#             of the attribute that incurs the cost; that name must be the
+#             either be the name of a statistic (STR, DEX, CON, or GRA) or
+#             EXP; the latter indicates that the cost is extracted from the
+#             player's unspent experience pool; the second parameter is the
+#             integer value of the cost; for a flag, resist, slay, or brand,
+#             the cost is used as is when the property is included; if the
+#             property is a stat, skill, or mod the cost for adjusting the
+#             stat/skill/mod by v is v times the cost
+# smith-exclude-base: sets whether the additional difficulty or cost for
+#                     including a property on a smithed non-jewelry item will
+#                     include whether or not the base item has the property;
+#                     the costs and difficulty of smithed jewelry always
+#                     includes the properties of the base item; if a
+#                     property has smith-exclude-base:yes, the difficulty and
+#                     cost will not be increased by the presence of the
+#                     property on the base item (for a stat, skill, or mod,
+#                     additional levels beyond what is present on the base
+#                     item can affect the difficulty and cost); if a property
+#                     has smith-exclude-base:no or does not specify
+#                     smith-exclude-base, the presence of the property
+#                     on the base item will be included in the difficulty and
+#                     cost
 # adjective: adjective describing the property as a player attribute, currently
 #            only used by stats
 # neg-adjective: adjective describing the opposite of the property as a player
 #                attribute, currently only used by stats
 # msg: message printed on noticing a property, currently used for flags which
 #      are identified after time or on an effect
-# bindui: Binds the property to a user interface element in ui_entry.txt.
-#         Takes two additional integer parameters.  The first, if nonzero,
-#         specifies that the value bound be passed as an auxiliary value (a
-#         sustain for a stat, for instance).  The second is optional and is
-#         the value to pass when the object has the property (either on as a
-#         flag or a nonzero value for a modifier or resistance).  When not set,
-#         the value (0 for off flag, 1 for on flag, value for modifier,
-#         resistance level for a resistance) is sent.  bindui is currently only
-#         used for parts of the second character screen and the equippable
-#         comparison.  This field can appear multiple times to bind a property
-#         to more than one user interface element.
 # desc: an extra piece of descriptive text used in object information
 
 name:strength
@@ -128,6 +164,7 @@ code:TUNNEL
 smith-cat:melee
 smith-difficulty:10
 smith-cost:STR:1
+smith-exclude-base:yes
 
 name:light
 type:flag
@@ -136,6 +173,7 @@ code:LIGHT
 smith-cat:misc
 smith-difficulty:8
 smith-cost:GRA:1
+smith-exclude-base:yes
 desc:Lights the dungeon around you
 
 name:sustain strength
@@ -146,6 +184,7 @@ code:SUST_STR
 smith-cat:sustain
 smith-difficulty:3
 smith-cost:STR:1
+smith-exclude-base:yes
 msg:Your {name} glows.
 
 name:sustain dexterity
@@ -156,6 +195,7 @@ code:SUST_DEX
 smith-cat:sustain
 smith-difficulty:3
 smith-cost:DEX:1
+smith-exclude-base:yes
 msg:Your {name} glows.
 
 name:sustain constitution
@@ -166,6 +206,7 @@ code:SUST_CON
 smith-cat:sustain
 smith-difficulty:3
 smith-cost:CON:1
+smith-exclude-base:yes
 msg:Your {name} glows.
 
 name:sustain grace
@@ -176,6 +217,7 @@ code:SUST_GRA
 smith-cat:sustain
 smith-difficulty:3
 smith-cost:GRA:1
+smith-exclude-base:yes
 msg:Your {name} glows.
 
 name:protection from fear
@@ -185,6 +227,7 @@ subtype:protection
 id-type:on effect
 smith-cat:resist
 smith-difficulty:3
+smith-exclude-base:yes
 msg:Your {name} fills you with courage.
 desc:fear
 
@@ -195,6 +238,7 @@ subtype:protection
 id-type:on effect
 smith-cat:resist
 smith-difficulty:6
+smith-exclude-base:yes
 msg:Your {name} protects your sight.
 desc:blindness
 
@@ -205,6 +249,7 @@ subtype:protection
 id-type:on effect
 smith-cat:resist
 smith-difficulty:6
+smith-exclude-base:yes
 msg:Your {name} fills you with calm.
 desc:confusion
 
@@ -215,6 +260,7 @@ subtype:protection
 id-type:on effect
 smith-cat:resist
 smith-difficulty:3
+smith-exclude-base:yes
 msg:Your {name} fills you with calm.
 desc:stunning
 
@@ -225,6 +271,7 @@ subtype:protection
 id-type:on effect
 smith-cat:resist
 smith-difficulty:3
+smith-exclude-base:yes
 msg:Your {name} protects your sight.
 desc:hallucination
 
@@ -235,6 +282,7 @@ id-type:timed
 code:SLOW_DIGEST
 smith-cat:misc
 smith-difficulty:4
+smith-exclude-base:yes
 msg:You realise your {name} is slowing your metabolism.
 desc:Reduces your need for food
 
@@ -246,6 +294,7 @@ code:REGEN
 smith-cat:misc
 smith-difficulty:8
 smith-cost:CON:1
+smith-exclude-base:yes
 msg:You note that your {name} is speeding up your recovery.
 desc:Speeds your regeneration (which also increases your hunger)
 
@@ -256,6 +305,7 @@ id-type:on wield
 code:SEE_INVIS
 smith-cat:misc
 smith-difficulty:8
+smith-exclude-base:yes
 desc:Grants the ability to see invisible things
 
 name:free action
@@ -265,6 +315,7 @@ id-type:on effect
 code:FREE_ACT
 smith-cat:misc
 smith-difficulty:8
+smith-exclude-base:yes
 msg:Your {name} glows softly.
 desc:Grants you freedom of movement
 
@@ -276,6 +327,7 @@ code:SPEED
 smith-cat:misc
 smith-difficulty:30
 smith-cost:CON:5
+smith-exclude-base:yes
 msg:Your {name} quickens your steps.
 desc:Grants you great speed
 
@@ -287,6 +339,7 @@ code:RADIANCE
 smith-cat:misc
 smith-difficulty:8
 smith-cost:GRA:1
+smith-exclude-base:yes
 msg:Your {name} glows.
 desc:Creates a path of light
 
@@ -298,6 +351,7 @@ code:SHARPNESS
 smith-cat:melee
 smith-difficulty:20
 smith-cost:STR:2
+smith-exclude-base:yes
 desc:Sharp
 slay-msg:cuts deeply
 
@@ -317,6 +371,7 @@ code:VAMPIRIC
 smith-cat:melee
 smith-difficulty:10
 smith-cost:STR:2
+smith-exclude-base:yes
 desc:Vampiric
 slay-msg:drains life from {name}
 
@@ -345,6 +400,7 @@ id-type:timed
 code:DANGER
 smith-cat:curse
 smith-difficulty:-5
+smith-exclude-base:yes
 desc:Makes you encounter more dangerous creatures (even when not worn)
 
 name:darkness
@@ -354,6 +410,7 @@ id-type:on wield
 code:DARKNESS
 smith-cat:curse
 smith-difficulty:-5
+smith-exclude-base:yes
 desc:Creates an unnatural darkness
 
 name:cowardice
@@ -363,6 +420,7 @@ id-type:on wield
 code:COWARDICE
 smith-cat:curse
 smith-difficulty:0
+smith-exclude-base:yes
 desc:Causes you to panic in combat
 
 name:hunger
@@ -372,6 +430,7 @@ id-type:on wield
 code:HUNGER
 smith-cat:curse
 smith-difficulty:0
+smith-exclude-base:yes
 desc:Increases your hunger
 
 name:wrath
@@ -381,6 +440,7 @@ id-type:timed
 code:AGGRAVATE
 smith-cat:curse
 smith-difficulty:0
+smith-exclude-base:yes
 msg:You notice your {name} aggravating things around you.
 desc:Enrages nearby creatures
 
@@ -391,6 +451,7 @@ id-type:timed
 code:HAUNTED
 smith-cat:curse
 smith-difficulty:0
+smith-exclude-base:yes
 msg:You sense your {name} is draining your life.
 desc:Draws wraiths to your level
 
@@ -401,6 +462,7 @@ id-type:on wield
 code:CURSED
 smith-cat:curse
 smith-difficulty:0
+smith-exclude-base:yes
 desc:Is cursed
 
 name:power 1 digging

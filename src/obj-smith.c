@@ -337,11 +337,7 @@ int pval_valid(struct object *obj)
  */
 int pval_default(struct object *obj)
 {
-	/*
-	 * Do not want to use a light's radius as the basis for the special
-	 * value during smithing.
-	 */
-	int pval = tval_is_light(obj) ? 0 : obj->kind->pval;
+	int pval = extract_kind_pval(obj->kind, AVERAGE, NULL);
 
 	if (obj->ego && obj->ego->pval > 0) {
 		pval += obj_is_cursed(obj) ? -1 : 1;
@@ -355,11 +351,7 @@ int pval_default(struct object *obj)
  */
 int pval_max(struct object *obj)
 {
-	/*
-	 * Do not want to use a light's radius as the basis for the special
-	 * value during smithing.
-	 */
-	int pval = tval_is_light(obj) ? 0 : obj->kind->pval;
+	int pval = extract_kind_pval(obj->kind, MAXIMISE, NULL);
 
 	/* Artefacts have pvals that are mostly unlimited  */
 	if (obj->artifact) {
@@ -387,11 +379,7 @@ int pval_max(struct object *obj)
  */
 int pval_min(struct object *obj)
 {
-	/*
-	 * Do not want to use a light's radius as the basis for the special
-	 * value during smithing.
-	 */
-	int pval = tval_is_light(obj) ? 0 : obj->kind->pval;
+	int pval = extract_kind_pval(obj->kind, MINIMISE, NULL);
 
 	/* Artefacts have pvals that are mostly unlimited  */
 	if (obj->artifact) {
@@ -735,7 +723,12 @@ int object_difficulty(struct object *obj, struct smithing_cost *smithing_cost)
 	int dif_mult = 100;
 	int drain = player->state.skill_use[SKILL_SMITHING] +
 		square_forge_bonus(cave, player->grid);
-    int cat = 0;
+	int cat = 0;
+	/*
+	 * Jewelry gets special treatment: namely no exclusion of base item
+	 * properties from difficulty and cost.
+	 */
+	bool jewelry = tval_is_jewelry(obj);
 
 	/* Reset smithing costs */
 	smithing_cost->stat[STAT_STR] = 0;
@@ -767,11 +760,8 @@ int object_difficulty(struct object *obj, struct smithing_cost *smithing_cost)
 		} else if (strstr(obj->kind->name, "Blasting")) {
 			smithing_cost->stat[STAT_CON] += 1;
 		}
-	} else if (!tval_is_jewelry(obj)) {
+	} else if (!jewelry) {
 		dif_inc += kind->level / 2;
-		/* We need to ignore the flags that are basic to the object type
-		 * and focus on the special/artefact ones. */
-		of_diff(flags, kind->flags);
 	}
 
 	/* Unusual weight */
@@ -819,6 +809,11 @@ int object_difficulty(struct object *obj, struct smithing_cost *smithing_cost)
 			case OBJ_PROPERTY_SKILL:
 			case OBJ_PROPERTY_MOD: {
 				diff = obj->modifiers[prop->index];
+				if (!jewelry && prop->smith_exclude_base) {
+					diff -= randcalc(
+						obj->kind->modifiers[prop->index],
+						0, AVERAGE);
+				}
 				if (diff != 0) {
 					dif_mod(diff, prop->smith_diff, &dif_inc);
 					adjust_smithing_cost(diff, prop, smithing_cost);
@@ -826,7 +821,10 @@ int object_difficulty(struct object *obj, struct smithing_cost *smithing_cost)
 				break;
 			}
 			case OBJ_PROPERTY_FLAG: {
-				if (of_has(flags, prop->index)) {
+				if (of_has(flags, prop->index)
+						&& (jewelry
+						|| !prop->smith_exclude_base
+						|| !of_has(kind->flags, prop->index))) {
 					if (prop->smith_diff > 0) {
 						dif_inc += prop->smith_diff;
 						adjust_smithing_cost(1, prop, smithing_cost);
@@ -837,20 +835,31 @@ int object_difficulty(struct object *obj, struct smithing_cost *smithing_cost)
 				break;
 			}
 			case OBJ_PROPERTY_RESIST: {
-				if (obj->el_info[prop->index].res_level == 1) {
+				if (obj->el_info[prop->index].res_level == 1
+						&& (jewelry
+						|| !prop->smith_exclude_base
+						|| kind->el_info[prop->index].res_level == 0)) {
 					dif_inc += prop->smith_diff;
 					adjust_smithing_cost(1, prop, smithing_cost);
 				}
 				break;	
 			}
 			case OBJ_PROPERTY_SLAY: {
-				if (obj->slays && (obj->slays[prop->index])) {
+				if (obj->slays && obj->slays[prop->index]
+						&& (jewelry
+						|| !prop->smith_exclude_base
+						|| !(kind->slays
+						&& kind->slays[prop->index]))) {
 					dif_inc += prop->smith_diff;
 				}
 				break;
 			}
 			case OBJ_PROPERTY_BRAND: {
-				if (obj->brands && (obj->brands[prop->index])) {
+				if (obj->brands && obj->brands[prop->index]
+						&& (jewelry
+						|| !prop->smith_exclude_base
+						|| !(kind->brands
+						&& kind->brands[prop->index]))) {
 					dif_inc += prop->smith_diff;
 					adjust_smithing_cost(1, prop, smithing_cost);
 					smith_brands++;
@@ -1372,12 +1381,56 @@ void add_object_property(struct obj_property *prop, struct object *obj,
 void remove_object_property(struct obj_property *prop, struct object *obj)
 {
 	int idx = prop ? prop->index : -1;
+	int min_m, max_m;
+
 	assert(idx >= 0);
 	switch (prop->type) {
 		case OBJ_PROPERTY_STAT:
 		case OBJ_PROPERTY_SKILL:
 		case OBJ_PROPERTY_MOD: {
-			obj->modifiers[idx] = 0;
+			/*
+			 * If the object's kind allows for a non-zero modifier,
+			 * removing the property will not prevent adjustment
+			 * of the modifier:  it will still fluctuate with the
+			 * value set for the special bonus.
+			 */
+			min_m = randcalc(obj->kind->modifiers[idx],
+				0, MINIMISE);
+			max_m = randcalc(obj->kind->modifiers[idx],
+				z_info->dun_depth, MAXIMISE);
+			if (min_m == SPECIAL_VALUE) {
+				min_m = randcalc(obj->kind->special1,
+					0, MINIMISE);
+				if (!min_m && obj->kind->special2) {
+					min_m = obj->kind->special2;
+				}
+			}
+			if (max_m == SPECIAL_VALUE) {
+				max_m = randcalc(obj->kind->special1,
+					z_info->dun_depth, MAXIMISE);
+				if (!max_m && obj->kind->special2) {
+					max_m = obj->kind->special2;
+				}
+			}
+			if (min_m || max_m) {
+				bool flip_sign;
+
+				if (min_m >= 0) {
+					obj->modifiers[idx] = 1;
+				} else if (max_m > 0) {
+					obj->modifiers[idx] =
+						(max_m >= -min_m) ? 1 : -1;
+				} else {
+					obj->modifiers[idx] = -1;
+				}
+				(void)extract_kind_pval(obj->kind, AVERAGE,
+					&flip_sign);
+				if (flip_sign) {
+					obj->modifiers[idx] *= -1;
+				}
+			} else {
+				obj->modifiers[idx] = 0;
+			}
 			break;
 		}
 		case OBJ_PROPERTY_FLAG: {

@@ -2951,6 +2951,23 @@ static enum parser_error parse_object_property_smith_cost(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
+static enum parser_error parse_object_property_smith_exclude_base(struct parser *p) {
+	struct obj_property *prop = parser_priv(p);
+	const char *yesno = parser_getstr(p, "yesno");
+
+	if (!prop) {
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	}
+	if (streq(yesno, "yes")) {
+		prop->smith_exclude_base = true;
+	} else if (streq(yesno, "no")) {
+		prop->smith_exclude_base = false;
+	} else {
+		return PARSE_ERROR_INVALID_OPTION;
+	}
+	return PARSE_ERROR_NONE;
+}
+
 static enum parser_error parse_object_property_adjective(struct parser *p) {
 	struct obj_property *prop = parser_priv(p);
 	const char *adj = parser_getstr(p, "adj");
@@ -3021,6 +3038,8 @@ static struct parser *init_parse_object_property(void) {
 			   parse_object_property_smith_diff);
 	parser_reg(p, "smith-cost sym type int cost",
 			   parse_object_property_smith_cost);
+	parser_reg(p, "smith-exclude-base str yesno",
+			   parse_object_property_smith_exclude_base);
 	parser_reg(p, "type str type", parse_object_property_type);
 	parser_reg(p, "subtype str subtype", parse_object_property_subtype);
 	parser_reg(p, "id-type str id", parse_object_property_id_type);

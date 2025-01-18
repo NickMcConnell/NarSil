@@ -908,6 +908,9 @@ void do_cmd_accept_character(struct command *cmd)
 	finalise_stats(player);
 	finalise_skills();
 
+	/* Hack - player knows the tunneling rune. */
+	player->obj_k->modifiers[OBJ_MOD_TUNNEL] = 1;
+
 	/* This is actually just a label for the file of self-made artefacts */
 	seed_randart = randint0(0x10000000);
 
