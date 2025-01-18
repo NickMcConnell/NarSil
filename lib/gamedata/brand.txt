@@ -7,7 +7,7 @@
 # that element in projection.txt.  Changes to the code will require changes to
 # the other data files (artefact.txt, object_base.txt, object_property.txt,
 # and special.txt) that may have used the code.  Changes to dice, vuln-dice,
-# smith-difficulty, resist-flag, and vuln-flag can affect balance.
+# resist-flag, and vuln-flag can affect balance.
 
 # Fields:
 # code: code for brand to use in other data files (artefact.txt,
@@ -17,7 +17,6 @@
 # vuln-dice: number of bonus dice given by the brand if the monster is
 #     especially vulnerable
 # desc: description used when a susceptible monster is hit
-# smith-difficulty: difficulty cost to smith an item with this brand
 # resist-flag: monster race flag for resistance to the brand element; has
 #     to match the first argument to one of the RF() macros in
 #     list-mon-race-flags.h
@@ -35,7 +34,6 @@ name:fire
 dice:1
 vuln-dice:1
 desc:burns {name} with an inner fire
-smith-difficulty:24
 resist-flag:RES_FIRE
 vuln-flag:HURT_FIRE
 
@@ -44,7 +42,6 @@ name:cold
 dice:1
 vuln-dice:1
 desc:freezes {name}
-smith-difficulty:20
 resist-flag:RES_COLD
 vuln-flag:HURT_COLD
 
@@ -52,5 +49,4 @@ code:POIS_1
 name:poison
 dice:1
 desc:poisons {name}
-smith-difficulty:16
 resist-flag:RES_POIS
