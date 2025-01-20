@@ -568,7 +568,7 @@ static void get_known_elements(const struct object *obj,
  * includes it not actually being a light source).
  */
 static bool obj_known_light(const struct object *obj, oinfo_detail_t mode,
-		const bitflag flags[OF_MAX], int *intensity, bool *uses_fuel,
+		const bitflag flags[OF_SIZE], int *intensity, bool *uses_fuel,
 		int *refuel_turns)
 {
 	bool no_fuel;
