@@ -286,8 +286,13 @@ static void melee_effect_elemental(melee_effect_handler_context_t *context,
 	}
 
 	take_hit(context->p, context->net_dam, context->ddesc);
-	inven_damage(context->p, type, MIN((context->net_dam / 10) + 1, 3), res);
-	equip_learn_element(context->p, type);
+	if (!context->p->is_dead) {
+		if (type == PROJ_ACID) {
+			minus_ac(context->p);
+		}
+		inven_damage(context->p, type, MIN((context->net_dam / 10) + 1, 3), res);
+		equip_learn_element(context->p, type);
+	}
 }
 
 /**
