@@ -588,6 +588,7 @@ void start_tutorial(void)
 				 * be an issue if the birth process allows
 				 * artifacts in the starting kit.
 				 */
+				object_free(curr->known);
 				object_free(curr);
 				curr = next;
 			}
@@ -611,6 +612,8 @@ void start_tutorial(void)
 					continue;
 				}
 				obj->origin = ORIGIN_BIRTH;
+				obj->known = object_new();
+				object_set_base_known(player, obj);
 				object_flavor_aware(player, obj);
 				if (kit->equipped) {
 					/*
@@ -644,6 +647,7 @@ void start_tutorial(void)
 								obj->artifact,
 								false);
 						}
+						object_free(obj->known);
 						object_free(obj);
 						continue;
 					}
