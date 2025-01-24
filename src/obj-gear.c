@@ -352,6 +352,7 @@ bool minus_ac(struct player *p)
 		if (slot_type_is(p, i, EQUIP_RING)) continue;
 		if (slot_type_is(p, i, EQUIP_AMULET)) continue;
 		if (slot_type_is(p, i, EQUIP_LIGHT)) continue;
+		if (slot_type_is(p, i, EQUIP_QUIVER)) continue;
 
 		/* Add */
 		count++;
@@ -365,6 +366,7 @@ bool minus_ac(struct player *p)
 		if (slot_type_is(p, i, EQUIP_RING)) continue;
 		if (slot_type_is(p, i, EQUIP_AMULET)) continue;
 		if (slot_type_is(p, i, EQUIP_LIGHT)) continue;
+		if (slot_type_is(p, i, EQUIP_QUIVER)) continue;
 
 		if (one_in_(count--)) break;
 	}
