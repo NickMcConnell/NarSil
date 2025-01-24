@@ -13,9 +13,9 @@
 #            of the category must be stat, sustain, skill, melee, slay,
 #            resist, curse, or misc
 # smith-difficulty: sets the additional smithing difficulty, an integer, to
-#                   include this property on smithed item; if the property is a
-#                   flag, resist, slay, or brand, the difficulty is simply
-#                   added to the total difficuly for the item when the item
+#                   include this property on a smithed item; if the property is
+#                   a flag, resist, slay, or brand, the difficulty is simply
+#                   added to the total difficulty for the item when the item
 #                   has the property; if the property is a stat, skill, or
 #                   mod, the additional difficulty from adjusting the
 #                   stat/skill/mod by v is zero if v is less than or equal to
@@ -32,14 +32,14 @@
 #             the property on a smithed item; if smith-cost is omitted for a
 #             property, including the property on a smithed item incurs no
 #             additional cost; takes two parameters; the first is the name
-#             of the attribute that incurs the cost; that name must be the
-#             either be the name of a statistic (STR, DEX, CON, or GRA) or
-#             EXP; the latter indicates that the cost is extracted from the
-#             player's unspent experience pool; the second parameter is the
-#             integer value of the cost; for a flag, resist, slay, or brand,
-#             the cost is used as is when the property is included; if the
-#             property is a stat, skill, or mod the cost for adjusting the
-#             stat/skill/mod by v is v times the cost
+#             of the attribute that incurs the cost; that name must either
+#             be the name of a statistic (STR, DEX, CON, or GRA) or EXP; the
+#             latter indicates that the cost is extracted from the player's
+#             unspent experience pool; the second parameter is the integer
+#             value of the cost; for a flag, resist, slay, or brand, the cost
+#             is used as is when the property is included; if the property is
+#             a stat, skill, or mod the cost for adjusting the stat/skill/mod
+#             by v is v times the cost
 # smith-exclude-base: sets whether the additional difficulty or cost for
 #                     including a property on a smithed non-jewelry item will
 #                     include whether or not the base item has the property;

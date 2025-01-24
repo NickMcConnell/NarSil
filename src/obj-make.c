@@ -373,7 +373,7 @@ void ego_apply_magic(struct object *obj, bool smithing)
 		/*
 		 * Change any modifiers that could be non-zero in the kind
 		 * or are affected by the ego.  Note that if the kind allows
-		 * allows a range of values for a modifier that variation will
+		 * a range of values for a modifier that variation will
 		 * be suppressed by applying an ego that adjusts modifiers.
 		 * That is to mimic Sil's behavior where all non-zero modifiers
 		 * are either -pval or +pval where pval is what Sil stores in
@@ -1387,7 +1387,7 @@ struct object *make_object(struct chunk *c, int lev, bool good, bool great,
  * minimum (rand_aspect == MINIMISE) or maximum (rand_aspect == MAXIMISE) pval
  * is desired.  If rand_aspect is not AVERAGE, MINIMISE, or MAXIMISE, the
  * result will be the same as if rand_aspect was equal to AVERAGE.
- * \param flip_sign_out will, if not NULL, be referenced and set to true or
+ * \param flip_sign_out will, if not NULL, be dereferenced and set to true or
  * false.  That value can be used by the caller in this fashion to determine
  * whether to substitute -pval or pval for a modifier that can be non-zero:
  *     if (modifier's minimum possible value != 0 || modifier's maximum
@@ -1417,7 +1417,7 @@ struct object *make_object(struct chunk *c, int lev, bool good, bool great,
  *
  * If a kind is to be used in smithing or with specials that affect modifiers,
  * it will work better if it has only one non-zero modifier or all the non-zero
- * modifiers will take the same value ignoring the sign.  Some accomodations
+ * modifiers will take the same value ignoring the sign.  Some accommodations
  * are made for modifiers with a range of values, but those will work better
  * if there is a single such modifier or all such modifiers have the same
  * range up to flipping the signs on the bounds of the range.
