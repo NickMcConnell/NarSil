@@ -386,7 +386,8 @@ bool minus_ac(struct player *p)
 		} else if ((obj->ps <= 0) && (obj->evn <= 0)) {
 			bool none_left;
 			struct object *destroyed = gear_object_for_use(p, obj, 1, false, &none_left);
-			object_delete(NULL, NULL, &destroyed);
+			object_delete(p->cave, NULL, &destroyed->known);
+			object_delete(cave, p->cave, &destroyed);
 			msg("Your %s is destroyed!", o_name);
 		} else {
 			msg("Your %s is damaged!", o_name);
@@ -1215,6 +1216,7 @@ bool inven_destroy(struct object *obj, int amt)
 	}
 
 	/* Destroy it */
+	object_delete(player->cave, NULL, &destroyed->known);
 	object_delete(cave, player->cave, &destroyed);
 
 	/* Sound for quiver objects */
