@@ -136,10 +136,7 @@ void object_list_reset(object_list_t *list)
 static bool object_list_should_ignore_object(const struct player *p,
 		const struct object *obj)
 {
-	struct object *base_obj = cave->objects[obj->oidx];
-
 	assert(obj->kind);
-	assert(base_obj);
 
 	if (ignore_known_item_ok(p, obj))
 		return true;
