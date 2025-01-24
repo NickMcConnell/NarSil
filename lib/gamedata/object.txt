@@ -756,7 +756,8 @@ attack:-3:2d2
 defence:0:0d0
 alloc:5:3
 alloc:12:3
-flags:DIG_1 | TWO_HANDED
+flags:TWO_HANDED
+values:TUNNEL[1]
 desc:It can be equipped as a weapon and allows you to dig through rubble.
 
 
@@ -772,7 +773,8 @@ cost:700
 attack:-5:5d2
 defence:0:0d0
 alloc:10:3
-flags:DIG_2 | TWO_HANDED
+flags:TWO_HANDED
+values:TUNNEL[2]
 desc:It can be equipped as a weapon and (usually) allows you to dig through
 desc: rubble or quartz.
 

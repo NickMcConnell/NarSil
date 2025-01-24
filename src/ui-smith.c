@@ -110,15 +110,19 @@ static bool pval_included = false;
 
 static void include_pval(struct object *obj)
 {
-	int i;
 	if (!pval_included) {
 		object_wipe(smith_obj_backup);
 		object_copy(smith_obj_backup, smith_obj);
 	}
 	if (pval_valid(obj)) {
+		int i;
+
 		obj->pval = pval;
 		for (i = 0; i < OBJ_MOD_MAX; i++) {
-			if (ABS(obj->modifiers[i]) <= 1) obj->modifiers[i] = pval * ABS(obj->modifiers[i]);
+			if (obj->modifiers[i]) {
+				obj->modifiers[i] = (obj->modifiers[i] < 0) ?
+					-pval : pval;
+			}
 		}
 	}
 	pval_included = true;

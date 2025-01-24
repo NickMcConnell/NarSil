@@ -45,5 +45,7 @@ bool kind_is_good(const struct object_kind *kind);
 struct object_kind *get_obj_num(int level);
 struct object *make_object(struct chunk *c, int lev, bool good, bool great,
 		struct drop *drop);
+int extract_kind_pval(const struct object_kind *kind, aspect rand_aspect,
+		bool *flip_sign_out);
 
 #endif /* OBJECT_MAKE_H */
