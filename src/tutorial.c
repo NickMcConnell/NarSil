@@ -1316,6 +1316,11 @@ struct object *tutorial_create_object(const struct tutorial_item *item)
 			break;
 		}
 	}
+	/* Identify ordinary weapons/armour like apply_magic() does. */
+	if (!obj->ego && tval_has_variable_power(obj)
+			&& !tval_is_jewelry(obj)) {
+		object_know(obj);
+	}
 	return obj;
 }
 
