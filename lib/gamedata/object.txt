@@ -164,96 +164,6 @@ graphics:$:w
 # special 'base names' (such as 'Necklace').
 
 
-# The Ring of Barahir
-#
-# The word 'Serpentine' should be just a flavor,
-# but I can get it to work like that yet.
-# Putting it here works almost as well.
-
-# Index 1
-name:& Serpentine Ring~
-#graphics:=:t
-#type:ring
-#depth:1
-#weight:1
-#cost:65000
-#attack:0:0d0
-#defence:0:0d0
-#flags:INSTA_ART
-
-
-# The Ring of Melian
-
-# Index 2
-#name:& Ring~
-#graphics:=:D
-#type:ring
-#depth:1
-#weight:1
-#cost:65000
-#attack:0:0d0
-#defence:0:0d0
-#flags:INSTA_ART
-
-
-# The Amulet of Tinfang Gelion
-
-# Index 3
-#name:& Amulet~
-#graphics:":D
-#type:amulet
-#depth:1
-#weight:1
-#cost:65000
-#attack:0:0d0
-#defence:0:0d0
-#flags:INSTA_ART
-
-
-# The Pearl 'Nimphelos'
-
-# Index 4
-#name:& Pearl~
-#graphics:":w
-#type:amulet
-#pval:1
-#depth:1
-#weight:1
-#cost:100000
-#attack:0:0d0
-#defence:0:0d0
-#flags:INSTA_ART
-
-
-# The Jewel 'Elessar'
-
-# Index 5
-#name:& Jewel~
-#graphics:":g
-#type:amulet
-#pval:1
-#depth:1
-#weight:1
-#cost:50000
-#attack:0:0d0
-#defence:0:0d0
-#flags:INSTA_ART
-
-
-# The Necklace of the Dwarves
-
-# Index 6
-#name:& Necklace~
-#graphics:":y
-#type:amulet
-#pval:1
-#depth:1
-#weight:1
-#cost:75000
-#attack:0:0d0
-#defence:0:0d0
-#flags:INSTA_ART
-
 
 # A base ring for self-made artifacts
 
@@ -281,34 +191,6 @@ cost:1000
 attack:0:0d0
 defence:0:0d0
 flags:INSTA_ART | SMITH_ART
-
-
-# The Mighty Hammer 'Grond'
-
-# Index 19
-#name:& Mighty Hammer~
-#graphics:\:D
-#type:hafted
-#depth:20
-#weight:1000
-#cost:1000
-#attack:-7:6d5
-#defence:0:0d0
-#flags:INSTA_ART | TWO_HANDED
-
-
-# The Massive Iron Crown of Morgoth
-
-# Index 20
-#name:& Massive Iron Crown~
-#graphics:]:D
-#type:crown
-#depth:20
-#weight:4000
-#cost:1000
-#attack:0:0d0
-#defence:0:0d0
-#flags:INSTA_ART
 
 
 ##### The Normal Item Types #####
@@ -1412,18 +1294,6 @@ alloc:13:3
 values:DAMAGE_SIDES[99]
 special:-1+m10:-1
 
-
-## Index 161
-#name:True Sight
-#G:=:d
-#type:ring
-#depth:13
-#weight:1
-#cost:340
-#attack:0:0d0
-#defence:0:0d0
-#alloc:13:3
-#F:SEE_INVIS | RES_BLIND | RES_HALLU | EASY_KNOW
 
 
 # Index 162
