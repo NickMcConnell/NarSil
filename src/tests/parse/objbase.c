@@ -379,7 +379,7 @@ int teardown_tests(void *state) {
 		} else {
 			if (kb_info[test_tv1.tval].el_info[i].flags) {
 				if (verbose) {
-					(void) printf("%s delayed check for "
+					(void) printf("%s: delayed check for "
 						"element %d failed at line "
 						"%d\n", suite_name, i,
 						__LINE__ - 5);
@@ -444,15 +444,15 @@ int teardown_tests(void *state) {
 		}
 		if (kb_info[test_tv2.tval].el_info[i].res_level != 0) {
 			if (verbose) {
-				(void) printf("%s delayed check for element %d "
-					"failed at line %d\n", suite_name, i,
+				(void) printf("%s: delayed check for element "
+					"%d failed at line %d\n", suite_name, i,
 					__LINE__ - 4);
 			}
 			r = 1;
 		}
 		if (kb_info[test_tv2.tval].el_info[i].flags) {
 			if (verbose) {
-				(void) printf("%s delayed check for element "
+				(void) printf("%s: delayed check for element "
 					"%d failed at line %d\n", suite_name, i,
 					__LINE__ - 4);
 			}
@@ -460,7 +460,7 @@ int teardown_tests(void *state) {
 		}
 		if (kb_info[test_tv2.tval].smith_el_info[i].res_level) {
 			if (verbose) {
-				(void) printf("%s delayed check for smithing "
+				(void) printf("%s: delayed check for smithing "
 					"element %d failed at line %d\n",
 					suite_name, i, __LINE__ - 4);
 			}
@@ -468,7 +468,7 @@ int teardown_tests(void *state) {
 		}
 		if (kb_info[test_tv2.tval].smith_el_info[i].flags) {
 			if (verbose) {
-				(void) printf("%s delayed check for smithing "
+				(void) printf("%s: delayed check for smithing "
 					"element %d failed at line %d\n",
 					suite_name, i, __LINE__ - 4);
 			}
@@ -479,7 +479,7 @@ int teardown_tests(void *state) {
 		if (i == OBJ_MOD_WILL) {
 			if (kb_info[test_tv1.tval].smith_modifiers[i] != 1) {
 				if (verbose) {
-					(void) printf("%s delayed check for "
+					(void) printf("%s: delayed check for "
 						"smithing modifier %d failed "
 						"at line %d\n", suite_name, i,
 						__LINE__ - 5);
@@ -489,7 +489,7 @@ int teardown_tests(void *state) {
 		} else {
 			if (kb_info[test_tv1.tval].smith_modifiers[i]) {
 				if (verbose) {
-					(void) printf("%s delayed check for "
+					(void) printf("%s: delayed check for "
 						"smithing modifier %d failed "
 						"at line %d\n", suite_name, i,
 						__LINE__ - 5);
@@ -499,7 +499,7 @@ int teardown_tests(void *state) {
 		}
 		if (kb_info[test_tv2.tval].smith_modifiers[i]) {
 			if (verbose) {
-				(void) printf("%s delayed check for smithing "
+				(void) printf("%s: delayed check for smithing "
 					"modifier %d failed at line %d\n",
 					suite_name, i, __LINE__ - 4);
 			}
