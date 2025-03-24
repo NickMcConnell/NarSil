@@ -763,7 +763,7 @@ static bool get_move_find_safety(struct monster *mon, struct loc *tgrid)
 	/* Work outward from the monster's current position */
 	for (d = 0; d < range; d++) {
 		for (y = range - d; y <= range + d; y++) {
-			for (x = range - d; x <= range + d;) {
+			for (x = range - d; x <= range + d; x++) {
 				struct loc grid = loc(x, y);
 				int x_tmp;
 
