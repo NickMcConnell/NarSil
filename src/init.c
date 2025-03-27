@@ -134,7 +134,7 @@ static const char *terrain_flags[] =
 
 static const char *player_info_flags[] =
 {
-#define PF(a, b) #a,
+	#define PF(a, b) #a,
 	#include "list-player-flags.h"
 	#undef PF
 	NULL

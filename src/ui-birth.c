@@ -280,8 +280,7 @@ static void race_help(int i, void *db, const region *l)
 	}
 	for (j = 0; j < PF_MAX; j++) {
 		if (pf_has(r->pflags, j)) {
-			text_out_c(COLOUR_GREEN, "%s proficiency\n",
-					   list_player_flag_names[j]);
+			text_out_c(COLOUR_GREEN, "%s\n", list_player_flag_names[j]);
 		}
 	}
 
@@ -330,18 +329,8 @@ static void house_help(int i, void *db, const region *l)
 		}
 	}
 	for (j = 0; j < PF_MAX; j++) {
-		if (pf_has(h->pflags, j)) {
-			if (pf_has(r->pflags, j)) {
-				text_out_c(COLOUR_L_GREEN, "%s mastery\n",
-						   list_player_flag_names[j]);
-			} else {
-				text_out_c(COLOUR_GREEN, "%s proficiency\n",
-						   list_player_flag_names[j]);
-			}
-		}
 		if (pf_has(r->pflags, j)) {
-			text_out_c(COLOUR_GREEN, "%s proficiency\n",
-					   list_player_flag_names[j]);
+			text_out_c(COLOUR_GREEN, "%s\n", list_player_flag_names[j]);
 		}
 	}
 

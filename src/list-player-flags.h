@@ -11,5 +11,5 @@
  */
 
 PF(NONE, "")
-PF(BLADE_PROFICIENCY, "Blade")
-PF(AXE_PROFICIENCY,   "Axe")
+PF(BLADE_PROFICIENCY, "Blade proficiency")
+PF(AXE_PROFICIENCY,   "Axe proficiency")
