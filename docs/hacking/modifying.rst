@@ -385,7 +385,7 @@ list-mon-race-flags.h  list-projections.h         list-tvals.h
 Beyond this, you will have to have some knowledge of the C programming
 language, and can start making changes to the way the game runs or appears.
 Many people have done this - there are over 100 variants of Angband:
-http://angbandplus.github.io/AngbandPlus/
+https://nickmcconnell.github.io/AngbandPlus/
 Should you get to this point, the best thing to do is to discuss your ideas on
 the Angband forums at https://live/angband.live/forums/.  The people there are
 typically keen to hear new ideas and ways to play.
