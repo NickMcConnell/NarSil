@@ -46,10 +46,10 @@ run : build
 .c.o :
 	@$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
-$(TESTPROGS) : ../narsil.o test-utils.o unit-test.o
+$(TESTPROGS) : ../narsil.a test-utils.o unit-test.o
 .o.exe :
 	@$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $< \
-		../narsil.o test-utils.o unit-test.o \
+		test-utils.o unit-test.o ../narsil.a \
 		$(LDFLAGS) $(LDADD) $(LIBS)
 	@echo "  CC $@"
 
