@@ -411,7 +411,7 @@ static struct monster_base TEST_DATA test_rb_info = {
 	.next = NULL,
 	.name = townsfolk_name,
 	.text = townsfolk_desc,
-	.flags = "\0\0\0\0\0\0\0\0\0\0",
+	.flags = { '\0', '\0', '\0' },
 	.d_char = 116,
 	.pain = NULL,
 	
@@ -616,8 +616,8 @@ static monster_lore TEST_DATA test_lore = {
 
 	.blows = &test_blow[0],
 
-	.flags = "\0\0\0\0\0\0\0\0\0\0",
-	.spell_flags = "\0\0\0",
+	.flags = { '\0', '\0', '\0' },
+	.spell_flags = { '\0', '\0', '\0' },
 	.drops = NULL,
 	.all_known = false,
 	.blow_known = &test_blows_known[0],

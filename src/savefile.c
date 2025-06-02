@@ -78,7 +78,7 @@ bool character_saved;
  * Magic bits at beginning of savefile
  */
 static const uint8_t savefile_magic[4] = { 83, 97, 118, 101 };
-static const uint8_t savefile_name[4] = "USIL";
+static const uint8_t savefile_name[4] = { 'U', 'S', 'I', 'L' };
 
 /* Some useful types */
 typedef int (*loader_t)(void);
