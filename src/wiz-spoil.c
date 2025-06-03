@@ -473,6 +473,7 @@ void spoil_mon_desc(const char *fname)
 	char health[80];
 	char prot[80];
 	char graphics[80];
+	char *mbbuf;
 
 	uint16_t *who;
 
@@ -510,11 +511,14 @@ void spoil_mon_desc(const char *fname)
 	/* Sort the array by dungeon depth of monsters */
 	sort(who, n, sizeof(*who), cmp_monsters);
 
+	mbbuf = mem_alloc(text_wcsz() + 1);
+
 	/* Scan again */
 	for (i = 0; i < n; i++) {
 		struct monster_race *race = &r_info[who[i]];
 		const char *name = race->name;
 		size_t u8len;
+		int n_mbbuf;
 
 		/* Get the "name" */
 		if (rf_has(race->flags, RF_QUESTOR))
@@ -537,8 +541,16 @@ void spoil_mon_desc(const char *fname)
 		strnfmt(prot, sizeof(prot), "%d:%dd%d", race->evn, race->pd, race->ps);
 
 		/* Hack -- use visual instead */
-		strnfmt(graphics, sizeof(graphics), "%s '%c'",
-				attr_to_text(race->d_attr), race->d_char);
+		n_mbbuf = text_wctomb(mbbuf, race->d_char);
+		if (n_mbbuf > 0) {
+			mbbuf[n_mbbuf] = '\0';
+			strnfmt(graphics, sizeof(graphics), "%s '%s'",
+				attr_to_text(race->d_attr), mbbuf);
+		} else {
+			strnfmt(graphics, sizeof(graphics),
+				"%s (invalid character)",
+				attr_to_text(race->d_attr));
+		}
 
 		/*
 		 * Dump the info.  The rationale for handling the first column
@@ -560,6 +572,8 @@ void spoil_mon_desc(const char *fname)
 
 	/* End it */
 	file_putf(fh, "\n");
+
+	mem_free(mbbuf);
 
 	/* Free the "who" array */
 	mem_free(who);
@@ -593,6 +607,7 @@ void spoil_mon_info(const char *fname)
 	uint16_t *who;
 	int count = 0;
 	textblock *tb = NULL;
+	char *mbbuf;
 
 	/* Open the file */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
@@ -624,11 +639,15 @@ void spoil_mon_info(const char *fname)
 
 	sort(who, count, sizeof(*who), cmp_monsters);
 
+	mbbuf = mem_alloc(text_wcsz() + 1);
+
 	/* List all monsters in order. */
 	for (n = 0; n < count; n++) {
 		int r_idx = who[n];
 		const struct monster_race *race = &r_info[r_idx];
 		const struct monster_lore *lore = &l_list[r_idx];
+		int n_mbbuf;
+
 		tb = textblock_new();
 
 		/* Line 1: prefix, name, color, and symbol */
@@ -644,7 +663,13 @@ void spoil_mon_info(const char *fname)
 		textblock_append(tb, "%s", race->name);
 		textblock_append(tb, "  (");	/* ---)--- */
 		textblock_append(tb, "%s", attr_to_text(race->d_attr));
-		textblock_append(tb, " '%c')\n", race->d_char);
+		n_mbbuf = text_wctomb(mbbuf, race->d_char);
+		if (n_mbbuf > 0) {
+			mbbuf[n_mbbuf] = '\0';
+			textblock_append(tb, " '%s')\n", mbbuf);
+		} else {
+			textblock_append(tb, " (invalid character))\n");
+		}
 
 		/* Line 2: number, level, rarity, speed, HP, AC, exp */
 		textblock_append(tb, "=== ");
@@ -668,6 +693,8 @@ void spoil_mon_info(const char *fname)
 		textblock_free(tb);
 		tb = NULL;
 	}
+
+	mem_free(mbbuf);
 
 	/* Free the "who" array */
 	mem_free(who);
