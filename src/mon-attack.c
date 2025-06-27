@@ -416,7 +416,7 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 			act_allocated = false;
 		}
 
-		/* Hack -- assume all attacks are obvious */
+		/* Assume all attacks are obvious */
 		obvious = true;
 
 		/* Determine critical-hit bonus dice (if any)
@@ -503,7 +503,7 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 			do_stun = false;
 		}
 
-		/* Hack -- only one of cut or stun */
+		/* Only one of cut or stun */
 		if (do_cut && do_stun) {
 			if (one_in_(2)) {
 				/* Cancel cut */

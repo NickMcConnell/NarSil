@@ -771,10 +771,10 @@ int rd_player(void)
 	rd_s16b(&player->max_depth);
 	rd_u16b(&player->staircasiness);
 
-	/* Hack -- Repair maximum dungeon level */
+	/* Repair maximum dungeon level */
 	if (player->max_depth < 0) player->max_depth = 1;
 
-	/* Hack -- Reset cause of death */
+	/* Reset cause of death */
 	if (player->chp >= 0)
 		my_strcpy(player->died_from, "(alive and well)",
 				  sizeof(player->died_from));

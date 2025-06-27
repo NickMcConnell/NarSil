@@ -335,7 +335,7 @@ static bool do_autopickup(struct player *p)
 		if (!ignore_item_ok(p, obj)) {
 			int auto_num;
 
-			/* Hack -- disturb */
+			/* Disturb */
 			disturb(p, false);
 
 			/* Automatically pick up items into the backpack */

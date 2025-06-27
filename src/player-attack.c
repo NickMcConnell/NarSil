@@ -1186,7 +1186,7 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 	/* Calculate the path */
 	path_n = project_path(cave, path_g, range, grid, &target, 0);
 
-	/* Hack -- Handle stuff */
+	/* Handle stuff */
 	handle_stuff(p);
 
 	/* If the bow has 'radiance', then light the starting square */
