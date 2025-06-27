@@ -187,7 +187,7 @@
 #include <wingdi.h>
 
 /**
- * Hack -- Fake declarations from "dos.h" XXX XXX XXX
+ * Fake declarations from "dos.h" XXX XXX XXX
  */
 #define INVALID_FILE_NAME (DWORD)0xFFFFFFFF
 
@@ -263,7 +263,7 @@ bool use_graphics_nice;
 static term_data data[MAX_TERM_DATA];
 
 /**
- * Hack -- global "window creation" pointer
+ * Global "window creation" pointer
  */
 static term_data *my_td;
 
@@ -464,7 +464,7 @@ static void show_win_error(void)
 
 
 /**
- * Hack -- given a simple filename, extract the "font size" info
+ * Given a simple filename, extract the "font size" info
  *
  * Return a pointer to a static buffer holding the capitalized base name.
  */
@@ -1488,7 +1488,7 @@ static errr term_force_font(term_data *td, const char *path)
 	                         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 	                         FIXED_PITCH | FF_DONTCARE, base);
 
-	/* Hack -- Unknown size */
+	/* Unknown size */
 	if (!wid || !hgt)
 	{
 		HDC hdcDesktop;
@@ -1586,7 +1586,7 @@ static void windows_map_aux(void);
 
 
 /**
- * Hack -- redraw a term_data
+ * Redraw a term_data
  */
 static void term_data_redraw(term_data *td)
 {
@@ -1607,7 +1607,7 @@ static void term_data_redraw(term_data *td)
 
 
 /**
- * Hack -- redraw a term_data
+ * Redraw a term_data
  */
 static void term_data_redraw_section(term_data *td, int x1, int y1,
 									 int x2, int y2)
@@ -1796,7 +1796,7 @@ static errr Term_xtra_win_react(void)
 			/* Activate */
 			Term_activate(&td->t);
 
-			/* Hack -- Resize the term */
+			/* Resize the term */
 			Term_resize(td->cols, td->rows);
 
 			/* Redraw the contents */
@@ -1862,7 +1862,7 @@ static errr Term_xtra_win_flush(void)
 
 
 /**
- * Hack -- clear the screen
+ * Clear the screen
  *
  * Make this more efficient XXX XXX XXX
  */
@@ -1890,7 +1890,7 @@ static errr Term_xtra_win_clear(void)
 
 
 /**
- * Hack -- make a noise
+ * Make a noise
  */
 static errr Term_xtra_win_noise(void)
 {
@@ -3489,7 +3489,7 @@ static void process_menus(WORD wCmd)
 		{
 			if (game_in_progress && character_generated
 					&& inkey_flag && !in_tutorial()) {
-				/* Hack -- Forget messages */
+				/* Forget messages */
 				msg_flag = false;
 
 				/* Save the game */
@@ -3512,7 +3512,7 @@ static void process_menus(WORD wCmd)
 					break;
 				}
 
-				/* Hack -- Forget messages */
+				/* Forget messages */
 				msg_flag = false;
 
 				/* Save the game */
@@ -3581,7 +3581,7 @@ static void process_menus(WORD wCmd)
 			term_change_font(td);
 
 			if (use_graphics_nice) {
-			        /* Hack -- Force redraw */
+			        /* Force redraw */
 			        Term_key_push(KTRL('R'));
 			}
 
@@ -3790,7 +3790,7 @@ static void process_menus(WORD wCmd)
 				/* React to changes */
 				Term_xtra_win_react();
 
-				/* Hack -- Force redraw */
+				/* Force redraw */
 				Term_key_push(KTRL('R'));			
 			}
 
@@ -3810,7 +3810,7 @@ static void process_menus(WORD wCmd)
 			/* React to changes */
 			Term_xtra_win_react();
 
-			/* Hack -- Force redraw */
+			/* Force redraw */
 			Term_key_push(KTRL('R'));
 			
 			break;
@@ -3923,7 +3923,7 @@ static void process_menus(WORD wCmd)
 			/* React to changes */
 			Term_xtra_win_react();
 
-			/* Hack -- Force redraw */
+			/* Force redraw */
 			Term_key_push(KTRL('R'));
 
 			break;
@@ -4177,7 +4177,7 @@ static void process_menus(WORD wCmd)
 					/* React to changes */
 					Term_xtra_win_react();
 
-					/* Hack -- Force redraw */
+					/* Force redraw */
 					Term_key_push(KTRL('R'));
 				}
 			}
@@ -4545,7 +4545,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 					return 0;
 				}
 
-				/* Hack -- Forget messages */
+				/* Forget messages */
 				msg_flag = false;
 				save_game();
 				close_game(true);
@@ -5195,7 +5195,7 @@ static void init_stuff(void)
 	/* Init the file paths */
 	init_file_paths(path, path, path);
 
-	/* Hack -- Validate the paths */
+	/* Validate the paths */
 	validate_dir(ANGBAND_DIR_GAMEDATA);
 	validate_dir(ANGBAND_DIR_CUSTOMIZE);
 	validate_dir(ANGBAND_DIR_HELP);
@@ -5213,13 +5213,13 @@ static void init_stuff(void)
 	/* Build the filename */
 	path_build(path, sizeof(path), ANGBAND_DIR_SCREENS, "news.txt");
 
-	/* Hack -- Validate the "news.txt" file */
+	/* Validate the "news.txt" file */
 	validate_file(path);
 
 	/* Build the filename */
 	path_build(path, sizeof(path), ANGBAND_DIR_FONTS, DEFAULT_FONT);
 
-	/* Hack -- Validate the basic font */
+	/* Validate the basic font */
 	validate_file(path);
 
 	/* Validate the "graf" directory */

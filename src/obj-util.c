@@ -121,7 +121,7 @@ static void flavor_assign_random(uint8_t tval)
  * can happen is when the current title has 6 letters and the new word
  * has 8 letters, which would result in a 6 letter scroll title.
  *
- * Hack -- make sure everything stays the same for each saved game
+ * Make sure everything stays the same for each saved game
  * This is accomplished by the use of a saved "random seed", as in
  * "town_gen()".  Since no other functions are called while the special
  * seed is in effect, so this function is pretty "safe".
@@ -130,10 +130,10 @@ void flavor_init(void)
 {
 	int i;
 
-	/* Hack -- Use the "simple" RNG */
+	/* Use the "simple" RNG */
 	Rand_quick = true;
 
-	/* Hack -- Induce consistant flavors */
+	/* Induce consistent flavors */
 	Rand_value = seed_flavor;
 
 	/* Scrub all flavors and re-parse for new players */
@@ -159,7 +159,7 @@ void flavor_init(void)
 	flavor_assign_random(TV_HERB);
 	flavor_assign_random(TV_POTION);
 
-	/* Hack -- Use the "complex" RNG */
+	/* Use the "complex" RNG */
 	Rand_quick = false;
 
 	/* Analyze every object */
@@ -751,7 +751,7 @@ void distribute_charges(struct object *source, struct object *dest, int amt,
 		bool dest_new)
 {
 	/*
-	 * Hack -- If rods, staves, or wands are dropped, the total maximum
+	 * If rods, staves, or wands are dropped, the total maximum
 	 * timeout or charges need to be allocated between the two stacks.
 	 * If all the items are being dropped, it makes for a neater message
 	 * to leave the original stack's pval alone. -LM-
