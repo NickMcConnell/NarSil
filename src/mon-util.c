@@ -1003,7 +1003,7 @@ void monster_death(struct monster *mon, struct player *p, bool by_player,
 /**
  * Decreases a monster's hit points by `dam` and handle monster death.
  *
- * Hack -- we "delay" fear messages by passing around a "fear" flag.\\TODO??
+ * We "delay" fear messages by passing around a "fear" flag.\\TODO??
  *
  * We announce monster death (using an optional "death message" (`note`)
  * if given, and a otherwise a generic killed/destroyed message).

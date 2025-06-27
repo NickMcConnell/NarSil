@@ -56,7 +56,7 @@ int inven_damage(struct player *p, int type, int perc, int resistance)
 			continue;
 		}
 
-		/* Hack -- for now, skip artifacts */
+		/* For now, skip artifacts */
 		if (obj->artifact) {
 			obj = next;
 			continue;
@@ -304,7 +304,7 @@ static const project_object_handler_f object_handlers[] = {
  * Note that this function determines if the player can see anything that
  * happens by taking into account: blindness, line-of-sight, and illumination.
  *
- * Hack -- effects on objects which are memorized but not in view are also seen.
+ * Effects on objects which are memorized but not in view are also seen.
  */
 bool project_o(struct loc grid, int typ, const struct object *protected_obj)
 {

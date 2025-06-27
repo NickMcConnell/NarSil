@@ -1144,7 +1144,7 @@ static void update_bonuses(struct player *p)
 		}
 	}
 
-	/* Hack -- See Invis Change */
+	/* See Invis Change */
 	if (state.flags[OF_SEE_INVIS] != p->state.flags[OF_SEE_INVIS])
 		/* Update monster visibility */
 		p->upkeep->update |= (PU_MONSTERS);
