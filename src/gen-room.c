@@ -428,7 +428,7 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 				grid.y = centre.y - (v->hgt / 2) + ay;
 			}
 
-			/* Hack -- skip "non-grids" */
+			/* Skip "non-grids" */
 			if (*t == ' ') continue;
 
 			/* Analyze the symbol */

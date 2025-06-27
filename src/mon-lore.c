@@ -584,7 +584,7 @@ void lore_append_kills(textblock *tb, const struct monster_race *race,
 
 	/* Treat by whether unique, then by whether they have any player kills */
 	if (rf_has(known_flags, RF_UNIQUE)) {
-		/* Hack -- Determine if the unique is "dead" */
+		/* Determine if the unique is "dead" */
 		bool dead = (race->max_num == 0) ? true : false;
 
 		/* We've been killed... */
@@ -773,7 +773,7 @@ void lore_append_movement(textblock *tb, const struct monster_race *race,
 		/* Adjective */
 		textblock_append(tb, " erratically");
 
-		/* Hack -- Occasional conjunction */
+		/* Occasional conjunction */
 		if (race->speed != 2) textblock_append(tb, ", and");
 	}
 

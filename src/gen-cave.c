@@ -222,7 +222,7 @@ static int dungeon_pieces(void)
  */
 static bool build_streamer(struct chunk *c, int feat)
 {
-	/* Hack -- Choose starting point */
+	/* Choose starting point */
 	struct loc grid = rand_loc(loc(c->width / 2, c->height / 2), 15, 10);
 
 	/* Choose a random direction */
