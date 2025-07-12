@@ -264,7 +264,6 @@ struct ability *lookup_ability(int skill, const char *name)
 		}
 		ability = ability->next;
 	}
-	//msg("Could not find %s %s ability!", skill_names[skill], name);
 	return NULL;
 }
 

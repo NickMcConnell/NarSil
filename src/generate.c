@@ -148,9 +148,6 @@ static enum parser_error parse_profile_room(struct parser *p) {
 	if (!r) {
 		c->room_profiles = mem_zalloc(sizeof(struct room_profile));
 		r = c->room_profiles;
-		/* First profile is empty */
-		//r->next = mem_zalloc(sizeof(struct room_profile));
-		//r = r->next;
 	} else {
 		while (r->next)
 			r = r->next;

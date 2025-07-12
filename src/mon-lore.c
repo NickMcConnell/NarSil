@@ -747,8 +747,6 @@ void lore_append_movement(textblock *tb, const struct monster_race *race,
 		textblock_append(tb, " cannot move");
 	} else if (rf_has(known_flags, RF_HIDDEN_MOVE)) {
 		textblock_append(tb, " never moves when you are looking");
-		//} else if ((race->speed != 2) || rf_has(known_flags, RF_RAND_25) ||
-		//	   rf_has(known_flags, RF_RAND_50)) {
 	} else {
 		textblock_append(tb, " moves");
 	}
@@ -1036,8 +1034,6 @@ void lore_append_abilities(textblock *tb, const struct monster_race *race,
 	/* Describe special things */
 	create_mon_flag_mask(current_flags, RFT_NOTE, RFT_MAX);
 	rf_inter(current_flags, known_flags);
-	//strnfmt(start, sizeof(start), "%s ", initial_pronoun);
-	//lore_append_clause(tb, current_flags, COLOUR_WHITE, start, "and", ".  ");
 	for (flag = rf_next(current_flags, FLAG_START); flag;
 		 flag = rf_next(current_flags, flag + 1)) {
 		textblock_append(tb, "%s %s.  ", initial_pronoun,

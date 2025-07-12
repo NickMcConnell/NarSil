@@ -319,7 +319,7 @@ int equipped_item_slot(struct player_body body, struct object *item)
  * Put the player's inventory and quiver into easily accessible arrays.  The
  * pack may be overfull by one item
  */
-void calc_inventory(struct player *p)//TODO make two quivers (= quiver slots?)
+void calc_inventory(struct player *p)
 {
 	int old_inven_cnt = p->upkeep->inven_cnt;
 	int n_max = 1 + z_info->pack_size + p->body.count;

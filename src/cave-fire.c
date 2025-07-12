@@ -1023,9 +1023,6 @@ int project_path(struct chunk *c, struct loc *gp, int range, struct loc grid1,
 	/* Projections are either vertical or horizontal */
 	bool vertical = false;
 
-	/* Require projections to be strictly LOF when possible  XXX XXX */
-	//bool require_strict_lof = false;
-
 	/* Count of grids in LOF, storage of LOF grids */
 	struct loc tmp_grids[80];
 
@@ -1047,12 +1044,6 @@ int project_path(struct chunk *c, struct loc *gp, int range, struct loc grid1,
 
 	/* Handle projections of zero length */
 	if ((range <= 0) || loc_eq(grid1, *grid2)) return 0;
-
-	/* Note that the character is the source or target of the projection */
-	//if (loc_eq(grid1, player->grid) || loc_eq(*grid2, player->grid)) {
-		/* Require strict LOF */
-	//	require_strict_lof = true;
-	//}
 
 	/* Get position change (signed) */
 	dy = (*grid2).y - grid1.y;
@@ -1217,14 +1208,8 @@ int project_path(struct chunk *c, struct loc *gp, int range, struct loc grid1,
 				break;
 			}
 
-			/* Optionally, require strict line of fire */
-			//TODO see if this conditional is actually needed; I believe it's
-			//purpose is covered by the checks in projectable() - NRM
-			//if ((!require_strict_lof) || square_isfire(c, grid) ||
-			//   ((flg & (PROJECT_INVIS)) && !square_ismark(c, grid))) {
 			/* Store grid value */
 			tmp_grids[n_grids++] = grid_to_loc(g);
-				//}
 
 			/* Remember previous coordinates */
 			old_grid = grid;

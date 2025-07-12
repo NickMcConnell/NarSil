@@ -468,19 +468,11 @@ void modify_numbers(struct object *obj, int choice, int *pval)
 		case SMITH_NUM_INC_PS:		obj->ps++;			break;
 		case SMITH_NUM_DEC_PS:		obj->ps--;			break;
 		case SMITH_NUM_INC_PVAL: {
-			//if (*pval == -1) {
-			//	*pval = 1;
-			//} else {
-				(*pval)++;
-				//}
+			(*pval)++;
 			break;
 		}
 		case SMITH_NUM_DEC_PVAL: {
-			//if (*pval == 1) {
-			//	*pval = -1;
-			//} else {
-				(*pval)--;
-				//}
+			(*pval)--;
 			break;
 		}
 		case SMITH_NUM_INC_WGT:	obj->weight += 5;	break;

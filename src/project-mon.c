@@ -156,9 +156,6 @@ static void project_monster_hurt_only(project_monster_handler_context_t *context
 static void project_monster_breath(project_monster_handler_context_t *context, int flag)
 {
 	if (rsf_has(context->mon->race->spell_flags, flag)) {
-		/* Learn about breathers through resistance */
-		//if (context->seen) rsf_on(context->lore->spell_flags, flag);
-
 		context->hurt_msg = MON_MSG_RESIST;
 		context->dam = 0;
 	}

@@ -304,9 +304,6 @@ static void prt_arc(int row, int col)
 
 		if (player_active_ability(player, "Rapid Fire")) {
 			c_put_str(COLOUR_UMBER, "2x", row, col);
-			//} else {
-			//strnfmt(buf, sizeof(buf), "            ");
-			//put_str("            ", row, col);
 		}
 	}
 }
@@ -2018,9 +2015,6 @@ static void update_player_compact_subwindow(game_event_type type,
 
 	/* Empty row */
 	row++;
-
-	/* Armor */
-	//prt_ac(row++, col);
 
 	/* Hitpoints */
 	prt_hp(row++, col);
