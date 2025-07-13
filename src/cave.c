@@ -43,14 +43,14 @@ const int16_t ddd[9] =
 { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
 /**
- * Hack -- allow quick "cycling" through the legal directions
+ * Allow quick "cycling" through the legal directions
  */
 const uint8_t cycle[] =
 { 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
 
 
 /**
- * Hack -- map each direction into the "middle" of the "cycle[]" array
+ * Map each direction into the "middle" of the "cycle[]" array
  */
 const uint8_t chome[] =
 { 0, 8, 9, 10, 7, 0, 11, 6, 5, 4 };

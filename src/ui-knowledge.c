@@ -1635,7 +1635,7 @@ static void desc_art_fake(int a_idx)
 			object_copy(known_obj, obj);
 	}
 
-	/* Hack -- Handle stuff */
+	/* Handle stuff */
 	handle_stuff(player);
 
 	tb = object_info(obj, OINFO_NONE);
@@ -1952,7 +1952,7 @@ static void desc_obj_fake(int k_idx)
 		object_copy(known_obj, obj);
 	obj->known = known_obj;
 
-	/* Hack -- Handle stuff */
+	/* Handle stuff */
 	handle_stuff(player);
 
 	tb = object_info(obj, OINFO_FAKE);
