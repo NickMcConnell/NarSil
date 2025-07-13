@@ -1628,7 +1628,7 @@ static void desc_art_fake(int a_idx)
 			object_know(obj);
 	}
 
-	/* Hack -- Handle stuff */
+	/* Handle stuff */
 	handle_stuff(player);
 
 	tb = object_info(obj, OINFO_NONE);
@@ -1943,7 +1943,7 @@ static void desc_obj_fake(int k_idx)
 	if (kind->aware || !kind->flavor)
 		object_know(obj);
 
-	/* Hack -- Handle stuff */
+	/* Handle stuff */
 	handle_stuff(player);
 
 	tb = object_info(obj, OINFO_FAKE);
