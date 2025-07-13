@@ -396,7 +396,7 @@ static const project_feature_handler_f feature_handlers[] = {
  * Note that this function determines if the player can see anything that
  * happens by taking into account: blindness, line-of-sight, and illumination.
  *
- * Hack -- effects on grids which are memorized but not in view are also seen.
+ * Effects on grids which are memorized but not in view are also seen.
  */
 bool project_f(struct source origin, struct loc grid, int dif, int typ)
 {
