@@ -627,7 +627,7 @@ bool dump_save(const char *path)
 #define INFO_SCREENS 2 /* Number of screens in character info mode */
 
 /**
- * Hack -- change name
+ * Change name
  */
 void do_cmd_change_name(void)
 {

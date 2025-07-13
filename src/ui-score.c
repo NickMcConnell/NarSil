@@ -106,7 +106,7 @@ void display_single_score(const struct high_score *score, int row, int place,
 	h = player_id2house(atoi(score->p_h));
 	s = player_id2sex(atoi(score->p_s));
 
-	/* Hack -- extract the gold and such */
+	/* Extract the gold and such */
 	for (user = score->uid; isspace((unsigned char)*user); user++)
 		/* loop */;
 	for (when = score->day; isspace((unsigned char)*when); when++)
@@ -269,7 +269,7 @@ static void display_scores_aux(const struct high_score scores[], int from,
 	if (to < 0) to = allow_scrolling ? 5 : 10;
 	if (to > MAX_HISCORES) to = MAX_HISCORES;
 
-	/* Hack -- Count the high scores */
+	/* Count the high scores */
 	for (count = 0; count < MAX_HISCORES; count++)
 		if (!scores[count].what[0])
 			break;
