@@ -514,23 +514,23 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 
 			/* Determine the player's score for knocking an opponent backwards
 			 * if they have the ability */
-            /* First calculate their strength including modifiers for this
+			/* First calculate their strength including modifiers for this
 			 * attack */
-            effective_strength = p->state.stat_use[STAT_STR];
+			effective_strength = p->state.stat_use[STAT_STR];
 			if (charge) effective_strength += 3;
 			if (rapid_attack) effective_strength -= 3;
 			if (off_hand_blow) effective_strength -= 3;
 
-            /* Cap the value by the weapon weight */
+			/* Cap the value by the weapon weight */
 			if (effective_strength > weight / 10) {
 				effective_strength = weight / 10;
 			} else if ((effective_strength < 0) &&
 					   (-effective_strength > weight / 10)) {
 				effective_strength = -(weight / 10);
-            }
+			}
 
-            /* Give an extra +2 bonus for using a weapon two-handed */
-            if (two_handed_melee(p)) {
+			/* Give an extra +2 bonus for using a weapon two-handed */
+			if (two_handed_melee(p)) {
 				effective_strength += 2;
 			}
 
@@ -552,7 +552,7 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 				char o_name[80];
 				char desc[80];
 				object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
-				if (flag_slay_message(flag, m_name, desc, strlen(desc))) {
+				if (flag_slay_message(flag, m_name, desc, sizeof(desc))) {
 					msg("Your %s %s.", o_name, desc);
 				}
 				player_learn_flag(p, flag);
@@ -583,7 +583,7 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 							object_desc(o_name, sizeof(o_name), obj,
 										ODESC_BASE, p);
 							if (flag_slay_message(OF_VAMPIRIC, m_name, desc,
-												  strlen(desc))) {
+												  sizeof(desc))) {
 								msg("Your %s %s.", o_name, desc);
 							}
 							player_learn_flag(p, OF_VAMPIRIC);
@@ -606,7 +606,7 @@ void py_attack_real(struct player *p, struct loc grid, int attack_type)
 			} else {
 				/* deal with knock back ability if it triggered */
 				if (do_knock_back) {
-                    knocked = knock_back(p->grid, grid);
+					knocked = knock_back(p->grid, grid);
  				}
 
 				/* Morgoth drops his iron crown if he is hit for 10 or more
@@ -1027,7 +1027,7 @@ static struct attack_result make_ranged_shot(struct player *p,
 		char o_name[80];
 		char desc[80];
 		object_desc(o_name, sizeof(o_name), ammo, ODESC_BASE, p);
-		if (flag_slay_message(arrow_flag, m_name, desc, strlen(desc))) {
+		if (flag_slay_message(arrow_flag, m_name, desc, sizeof(desc))) {
 			msg("Your %s %s.", o_name, desc);
 		}
 		player_learn_flag(p, arrow_flag);
@@ -1132,7 +1132,7 @@ static struct attack_result make_ranged_throw(struct player *p,
 
 		monster_desc(m_name, sizeof(m_name), mon, MDESC_DEFAULT);
 		object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
-		if (flag_slay_message(flag, m_name, desc, strlen(desc))) {
+		if (flag_slay_message(flag, m_name, desc, sizeof(desc))) {
 			msg("Your %s %s.", o_name, desc);
 		}
 		player_learn_flag(p, flag);
