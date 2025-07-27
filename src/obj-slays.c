@@ -125,8 +125,10 @@ void copy_brands(bool **dest, bool *source)
 }
 
 /**
- * Count a set of brands
- * \param brands The brands to count.
+ * Return the number of brands present
+ *
+ * \param brands_on is an array of z_info->brand_max booleans indicating
+ * whether each brand is present
  */
 int brand_count(const bool *brands_on)
 {
@@ -144,8 +146,10 @@ int brand_count(const bool *brands_on)
 
 
 /**
- * Count a set of slays
- * \param slays The slays to count.
+ * Return the number of slays present
+ *
+ * \param slays_on is an array of z_info->slay_max booleans indicating whether
+ * each slay is present
  */
 int slay_count(const bool *slays_on)
 {
@@ -183,9 +187,13 @@ bool react_to_slay(struct slay *slay, const struct monster *mon)
 /**
  * Extract the bonus dice from a given object hitting a given monster.
  *
- * \param player is the player performing the attack
+ * \param p is the player performing the attack
  * \param obj is the object being used to attack
  * \param mon is the monster being attacked
+ * \param slay is, if any slay affects the result, dereferenced and set to the
+ * index of the last slay affecting the result
+ * \param brand is, if any brand affects the result, dereferenced and set to
+ * index of the last brand affecting the result
  */
 int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
 			   int *slay, int *brand)
@@ -245,7 +253,8 @@ int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
  * Print a message when a brand is identified by use.
  *
  * \param brand is the brand being noticed
- * \param name is the monster name 
+ * \param mon is the monster being attacked
+ * \return true if a message was printed; otherwise, return false
  */
 static bool brand_message(struct brand *brand, const struct monster *mon)
 {
@@ -271,9 +280,6 @@ static bool brand_message(struct brand *brand, const struct monster *mon)
  * \param obj1 is an object directly involved in the attack.
  * \param obj2 is an auxiliary object (i.e. a launcher) involved in the attack.
  * \param mon is the monster being attacked.
- * \param allow_off is whether to include brands or slays from equipment that
- * isn't a weapon or launcher.
- * \param allow_temp is whether to include temporary brands or slays.
  */
 static void learn_brand_slay_helper(struct player *p, struct object *obj1,
 		struct object *obj2, const struct monster *mon)
@@ -395,9 +401,7 @@ void learn_brand_slay_from_launch(struct player *p, struct object *missile,
  * from a ranged attack with a thrown object.
  *
  * \param p is the player learning from the experience.
- * \param missile is the missile used in the attack.  Must not be NULL.
- * \param launcher is the launcher used in the attack; this is a parameter
- * to allow for body types with multiple equipped launchers.
+ * \param missile is the thrown object used in the attack.  Must not be NULL.
  * \param mon is the monster being attacked.
  */
 void learn_brand_slay_from_throw(struct player *p, struct object *missile,

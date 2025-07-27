@@ -355,7 +355,9 @@ void object_delete(struct chunk *c, struct chunk *p_c,
 /**
  * Free an entire object pile
  * \param c is the chunk holding the pile; should be NULL for piles held by
- * players or stores.
+ * players.
+ * \param p_c is the player's view of the chunk holding the pile; should be NULL
+ * when excising a pile in the player's view or for piles held by players.
  * \param obj is the pointer to the start of the pile to excise.
  */
 void object_pile_free(struct chunk *c, struct chunk *p_c, struct object *obj)

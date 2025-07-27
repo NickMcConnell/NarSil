@@ -715,6 +715,7 @@ static bool describe_origin(textblock *tb, const struct object *obj, bool terse)
  * \param obj is the object we are describing.
  * \param ego is whether we're describing an ego template (as opposed to a
  * real object)
+ * \param smith is whether we're describing an object for smithing
  */
 static void describe_flavor_text(textblock *tb, const struct object *obj,
 								 bool ego, bool smith)
