@@ -124,8 +124,10 @@ void copy_brands(bool **dest, bool *source)
 }
 
 /**
- * Count a set of brands
- * \param brands The brands to count.
+ * Return the number of brands present
+ *
+ * \param brands_on is an array of z_info->brand_max booleans indicating
+ * whether each brand is present
  */
 int brand_count(const bool *brands_on)
 {
@@ -143,8 +145,10 @@ int brand_count(const bool *brands_on)
 
 
 /**
- * Count a set of slays
- * \param slays The slays to count.
+ * Return the number of slays present
+ *
+ * \param slays_on is an array of z_info->slay_max booleans indicating whether
+ * each slay is present
  */
 int slay_count(const bool *slays_on)
 {
@@ -182,9 +186,13 @@ bool react_to_slay(struct slay *slay, const struct monster *mon)
 /**
  * Extract the bonus dice from a given object hitting a given monster.
  *
- * \param player is the player performing the attack
+ * \param p is the player performing the attack
  * \param obj is the object being used to attack
  * \param mon is the monster being attacked
+ * \param slay is, if any slay affects the result, dereferenced and set to the
+ * index of the last slay affecting the result
+ * \param brand is, if any brand affects the result, dereferenced and set to
+ * index of the last brand affecting the result
  */
 int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
 			   int *slay, int *brand)
@@ -244,7 +252,11 @@ int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
  * Print a message when a brand is identified by use.
  *
  * \param brand is the brand being noticed
- * \param name is the monster name 
+ * \param name is the monster name
+ * \param message points to the string to fill
+ * \param len is the maximum number of bytes, including the terminating null,
+ * to write to message
+ * \return true if message was filled; otherwise, return false
  */
 bool brand_message(int brand, char *name, char *message, int len)
 {
