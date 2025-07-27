@@ -336,7 +336,7 @@ void object_delete(struct chunk *c, struct object **obj_address)
 /**
  * Free an entire object pile
  * \param c is the chunk holding the pile; should be NULL for piles held by
- * players or stores.
+ * players.
  * \param obj is the pointer to the start of the pile to excise.
  */
 void object_pile_free(struct chunk *c, struct object *obj)

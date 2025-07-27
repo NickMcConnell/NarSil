@@ -137,11 +137,14 @@ void flag_message(int flag, char *name)
 }
 
 /**
- * Return a string when an object flag is identified by use.
- * Note that this makes a string which must be freed.
+ * Fill a string when an object flag is identified by use.
  *
  * \param flag is the flag being noticed
  * \param name is the object (or monster) name 
+ * \param message points to the string to fill
+ * \param len is the maximum number of bytes, including the terminating null,
+ * to write to message
+ * \return true if the string was filled; otherwise, return false
  */
 bool flag_slay_message(int flag, char *name, char *message, int len)
 {
