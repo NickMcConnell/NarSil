@@ -263,8 +263,6 @@ static bool monster_damage_target(melee_effect_handler_context_t *context,
  *
  * \param context is information for the current attack.
  * \param type is the PROJ_ constant for the element.
- * \param pure_element should be true if no side effects (mostly a hack
- * for poison).
  */
 static void melee_effect_elemental(melee_effect_handler_context_t *context,
 								   int type)
@@ -301,10 +299,6 @@ static void melee_effect_elemental(melee_effect_handler_context_t *context,
  * \param context is the information for the current attack.
  * \param type is the TMD_ constant for the effect.
  * \param amount is the amount that the timer should be increased by.
- * \param of_flag is the OF_ flag that is passed on to monster learning for
- * this effect.
- * \param attempt_save indicates if a saving throw should be attempted for
- * this effect.
  * \param save_msg is the message that is displayed if the saving throw is
  * successful.
  */
