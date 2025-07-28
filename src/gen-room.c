@@ -55,6 +55,7 @@
  * Chooses a vault of a particular kind at random.
  * \param depth the current depth, for vault bound checking
  * \param typ vault type
+ * \param forge whether we are forcing a forge
  * \return a pointer to the vault template
  */
 struct vault *random_vault(int depth, const char *typ, bool forge)
@@ -232,6 +233,7 @@ void fill_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat,
  * \param x2 inclusive room boundaries
  * \param feat the terrain feature
  * \param flag the SQUARE_* flag we are marking with
+ * \param overwrite_perm whether to overwrite features already marked as
  * permanent
  */
 void draw_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat,
@@ -298,8 +300,7 @@ static void generate_plus(struct chunk *c, int y1, int x1, int y2, int x2,
 /**
  * Place a square of granite with a flag
  * \param c the current chunk
- * \param y the square co-ordinates
- * \param x the square co-ordinates
+ * \param grid the square co-ordinates
  * \param flag the SQUARE_* flag we are marking with
  */
 void set_marked_granite(struct chunk *c, struct loc grid, int flag)
@@ -313,6 +314,8 @@ void set_marked_granite(struct chunk *c, struct loc grid, int flag)
  * \param c the chunk the room is being built in
  * \param centre the room centre; out of chunk centre invokes find_space()
  * \param v pointer to the vault template
+ * \param flip whether or not to diagonally flip (interchange x and y) the
+ * vault template
  * \return success
  */
 bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
@@ -333,20 +336,20 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 				return false;
 			}
 
-            /* Chasms can't occur at 950 ft */
+			/* Chasms can't occur at 950 ft */
 			if ((*t == '7') && (c->depth >= z_info->dun_depth - 1)) {
 				return false;
 			}
 		}
 	}
 
-    /* Reflections */
-    if ((c->depth > 0) && (c->depth < z_info->dun_depth)) {
-        /* Reflect it vertically half the time */
-        if (one_in_(2)) flip_v = true;
+	/* Reflections */
+	if ((c->depth > 0) && (c->depth < z_info->dun_depth)) {
+		/* Reflect it vertically half the time */
+		if (one_in_(2)) flip_v = true;
 		/* Reflect it horizontally half the time */
-        if (one_in_(2)) flip_h = true;
-    }
+		if (one_in_(2)) flip_h = true;
+	}
 
 	/* Place dungeon features and objects */
 	for (t = data, y = 0; y < v->hgt && *t; y++) {
@@ -356,10 +359,10 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 			struct loc grid;
 
 			/* Extract the location, flipping diagonally if requested */
-            if (flip) {
-                grid.x = centre.x - (v->hgt / 2) + ay;
-                grid.y = centre.y - (v->wid / 2) + ax;
-            } else {
+			if (flip) {
+				grid.x = centre.x - (v->hgt / 2) + ay;
+				grid.y = centre.y - (v->wid / 2) + ax;
+			} else {
 				grid.x = centre.x - (v->wid / 2) + ax;
 				grid.y = centre.y - (v->hgt / 2) + ay;
 			}
@@ -417,10 +420,10 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 			struct monster_group_info info = { 0, 0 };
 
 			/* Extract the location, flipping diagonally if requested */
-            if (flip) {
-                grid.x = centre.x - (v->hgt / 2) + ay;
-                grid.y = centre.y - (v->wid / 2) + ax;
-            } else {
+			if (flip) {
+				grid.x = centre.x - (v->hgt / 2) + ay;
+				grid.y = centre.y - (v->wid / 2) + ax;
+			} else {
 				grid.x = centre.x - (v->wid / 2) + ax;
 				grid.y = centre.y - (v->hgt / 2) + ay;
 			}
@@ -721,10 +724,10 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 			int mult;
 
 			/* Extract the location, flipping diagonally if requested */
-            if (flip) {
-                grid.x = centre.x - (v->hgt / 2) + ay;
-                grid.y = centre.y - (v->wid / 2) + ax;
-            } else {
+			if (flip) {
+				grid.x = centre.x - (v->hgt / 2) + ay;
+				grid.y = centre.y - (v->wid / 2) + ax;
+			} else {
 				grid.x = centre.x - (v->wid / 2) + ax;
 				grid.y = centre.y - (v->hgt / 2) + ay;
 			}
@@ -732,32 +735,32 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v, bool flip)
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
 
-            /* Some vaults are always lit */
-            if (roomf_has(v->flags, ROOMF_LIGHT)) {
-                sqinfo_on(square(c, grid)->info, SQUARE_GLOW);
-            }
+			/* Some vaults are always lit */
+			if (roomf_has(v->flags, ROOMF_LIGHT)) {
+				sqinfo_on(square(c, grid)->info, SQUARE_GLOW);
+			}
 
-            /* Traps are usually 5 times as likely in vaults,
+			/* Traps are usually 5 times as likely in vaults,
 			 * but are 10 times as likely if the TRAPS flag is set */
-            mult = roomf_has(v->flags, ROOMF_TRAPS) ? 10 : 5;
+			mult = roomf_has(v->flags, ROOMF_TRAPS) ? 10 : 5;
 
-            /* Another chance to place traps, with 4 times the normal chance
+			/* Another chance to place traps, with 4 times the normal chance
 			 * so traps in interesting rooms and vaults are a total of 5 times
 			 * more likely */
-            if (randint1(1000) <= trap_placement_chance(c, grid) * (mult - 1)) {
-                square_add_trap(c, grid);
-            } else if (roomf_has(v->flags, ROOMF_WEBS) && one_in_(20)) {
+			if (randint1(1000) <= trap_placement_chance(c, grid) * (mult - 1)) {
+				square_add_trap(c, grid);
+			} else if (roomf_has(v->flags, ROOMF_WEBS) && one_in_(20)) {
 				/* Webbed vaults also have a large chance of receiving webs */
-                square_add_web(c, grid);
+				square_add_web(c, grid);
 
-                /* Hide it half the time */
-                if (one_in_(2)) {
+				/* Hide it half the time */
+				if (one_in_(2)) {
 					struct trap *trap = square_trap(c, grid);
-                    trf_on(trap->flags, TRF_INVISIBLE);
-                }
-            }
-        }
-    }
+					trf_on(trap->flags, TRF_INVISIBLE);
+				}
+			}
+		}
+	}
 
 	return true;
 }
@@ -780,22 +783,22 @@ static bool build_vault_type(struct chunk *c, struct loc centre,
 		return false;
 	}
 
-    /* Choose whether to rotate (flip diagonally) if allowed */
-    flip_d = one_in_(3) && !roomf_has(v->flags, ROOMF_NO_ROTATION);
+	/* Choose whether to rotate (flip diagonally) if allowed */
+	flip_d = one_in_(3) && !roomf_has(v->flags, ROOMF_NO_ROTATION);
 
-    if (flip_d) {
-        /* Determine the coordinates with height/width flipped */
-        y1 = centre.y - (v->wid / 2);
-        x1 = centre.x - (v->hgt / 2);
-        y2 = y1 + v->wid - 1;
-        x2 = x1 + v->hgt - 1;
-    } else {
-        /* Determine the coordinates */
-        y1 = centre.y - (v->hgt / 2);
-        x1 = centre.x - (v->wid / 2);
-        y2 = y1 + v->hgt - 1;
-        x2 = x1 + v->wid - 1;
-    }
+	if (flip_d) {
+		/* Determine the coordinates with height/width flipped */
+		y1 = centre.y - (v->wid / 2);
+		x1 = centre.x - (v->hgt / 2);
+		y2 = y1 + v->wid - 1;
+		x2 = x1 + v->hgt - 1;
+	} else {
+		/* Determine the coordinates */
+		y1 = centre.y - (v->hgt / 2);
+		x1 = centre.x - (v->wid / 2);
+		y2 = y1 + v->hgt - 1;
+		x2 = x1 + v->wid - 1;
+	}
 
 	/* Make sure that the location is within the map bounds */
 	if ((y1 <= 3) || (x1 <= 3) || (y2 >= c->height - 3) ||(x2 >= c->width - 3)){
@@ -1175,18 +1178,8 @@ bool build_gates(struct chunk *c, struct loc centre)
  * Attempt to build a room of the given type at the given block
  *
  * \param c the chunk the room is being built in
- * \param by0 block co-ordinates of the top left block
- * \param bx0 block co-ordinates of the top left block
  * \param profile the profile of the rooom we're trying to build
- * \param finds_own_space whether we are allowing the room to place itself
  * \return success
- *
- * Note that this code assumes that profile height and width are the maximum
- * possible grid sizes, and then allocates a number of blocks that will always
- * contain them.
- *
- * Note that we restrict the number of pits/nests to reduce
- * the chance of overflowing the monster list during level creation.
  */
 bool room_build(struct chunk *c, struct room_profile profile)
 {
