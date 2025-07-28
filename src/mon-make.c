@@ -193,28 +193,30 @@ static struct monster_race *get_mon_race_aux(long total,
 /**
  * Chooses a monster race that seems appropriate to the given level
  *
- * \param generated_level is the level to use when choosing the race.
- * \param current_level is the level where the monster will be placed - used
- * for checks on an out-of-depth monster.
+ * \param level is the starting point for the level to use when choosing the
+ * race.  If special is false, that starting point may be modified by
+ * context-specific factors.
+ * \param special will, if true, cause level to be used as is, cause vault
+ * to be ignored, and allow for monsters whose native level is less than
+ * level and more than level / 2 to appear.  One use for that is when
+ * choosing escorts for a leader.  In that case, level would customarily be
+ * the native level for the leader.
+ * \param allow_non_smart will, if true, allow selection of monster races
+ * that lack both the SMART and TERRITORIAL flags.  Generally, allow_non_smart
+ * is true when choosing monsters to populate a newly created level or for
+ * handling a specific summons and is false when choosing monsters that arrive
+ * on a level while the player is there.
+ * \param vault will, if true, disable most of the modifications to level
+ * that are possible when special is false.  That is intended for use when
+ * selecting the denizens of a vault.  vault is ignored when special is true.
  *
  * This function uses the "prob2" field of the monster allocation table,
  * and various local information, to calculate the "prob3" field of the
  * same table, which is then used to choose an appropriate monster, in
  * a relatively efficient manner.
  *
- * Note that town monsters will *only* be created in the town, and
- * "normal" monsters will *never* be created in the town, unless the
- * level is modified, for example, by polymorph or summoning.
- *
- * There is a small chance (1/25) of boosting the given depth by
- * a small amount (up to four levels), except in the town.
- *
- * It is (slightly) more likely to acquire a monster of the given level
- * than one of a lower level.  This is done by choosing several monsters
- * appropriate to the given level and keeping the deepest one.
- *
  * Note that if no monsters are appropriate, then this function will
- * fail, and return zero, but this should *almost* never happen.
+ * fail, and return NULL, but this should *almost* never happen.
  */
 struct monster_race *get_mon_num(int level, bool special, bool allow_non_smart,
 								 bool vault)
@@ -254,9 +256,9 @@ struct monster_race *get_mon_num(int level, bool special, bool allow_non_smart,
 			}
 
 			/* Most of the time use a small distribution */
-            if (pursuing_monster) {
+			if (pursuing_monster) {
 				/* Leave as is */
-            } else if (level == player->depth) {
+			} else if (level == player->depth) {
 				/* Modify the effective level by a small random amount:
 				 * [1, 4, 6, 4, 1] */
 				generation_level += damroll(2, 2) - damroll(2, 2);
