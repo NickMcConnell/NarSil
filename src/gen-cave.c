@@ -214,7 +214,6 @@ static int dungeon_pieces(void)
  *
  * \param c is the current chunk
  * \param feat is the base feature (FEAT_MAGMA or FEAT_QUARTZ)
- * \param chance is the number of regular features per one gold
  *
  * Note that their are actually six different terrain features used to
  * represent streamers. Three each of magma and quartz, one for basic vein, one
