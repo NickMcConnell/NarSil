@@ -555,7 +555,9 @@ static void project_m_apply_side_effects(project_monster_handler_context_t *cont
  * \param r is the distance from the centre of the effect
  * \param y the coordinates of the grid being handled
  * \param x the coordinates of the grid being handled
- * \param dam is the "damage" from the effect at distance r from the centre
+ * \param dd is the number of dice of "damage" from the effect at a distance
+ * r from the centre
+ * \param ds is the number of sides for the damage dice
  * \param typ is the projection (PROJ_) type
  * \param flg consists of any relevant PROJECT_ flags
  * \return whether the effects were obvious
@@ -604,7 +606,7 @@ static void project_m_apply_side_effects(project_monster_handler_context_t *cont
  *
  * Hack -- effects on grids which are memorized but not in view are also seen.
  */
-void project_m(struct source origin, int r, struct loc grid, int dam, int ds,
+void project_m(struct source origin, int r, struct loc grid, int dd, int ds,
 			   int dif, int typ, int flg, bool *did_hit, bool *was_obvious)
 {
 	struct monster *mon;
@@ -616,6 +618,8 @@ void project_m(struct source origin, int r, struct loc grid, int dam, int ds,
 
 	/* Is the effect obvious? */
 	bool obvious = false;
+
+	int dam = damroll(dd, ds);
 
 	/* Are we trying to id the source of this effect? */
 	bool id = (origin.what == SRC_PLAYER) ? !obvious : false;
