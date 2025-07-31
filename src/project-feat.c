@@ -388,6 +388,8 @@ static const project_feature_handler_f feature_handlers[] = {
  *
  * \param origin is the origin of the effect
  * \param grid the coordinates of the grid being handled
+ * \param dif is the difficulty for defending against the attack (i.e. what
+ * is passed to the third argument of skill_check() if a defense is allowed)
  * \param typ is the projection (PROJ_) type
  * \return whether the effects were obvious
  *
