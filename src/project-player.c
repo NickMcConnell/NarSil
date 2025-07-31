@@ -49,9 +49,10 @@ typedef struct project_player_handler_context_s {
  * Adjust damage according to resistance or vulnerability.
  *
  * \param p is the player
+ * \param dd is the unadjusted number of dice for that attack's damage
+ * \param ds is the unadjusted number of sides for each of the attack's
+ * damage dice
  * \param type is the attack type we are checking.
- * \param dam is the unadjusted damage.
- * \param resist is the degree of resistance (-1 = vuln, 3 = immune).
  */
 int adjust_dam(struct player *p, int dd, int ds, int type)
 {
@@ -321,11 +322,10 @@ static const project_player_handler_f player_handlers[] = {
  * Called for projections with the PROJECT_PLAY flag set, which includes
  * bolt, beam, ball and breath effects.
  *
- * \param src is the origin of the effect
- * \param r is the distance from the centre of the effect
- * \param y the coordinates of the grid being handled
- * \param x the coordinates of the grid being handled
- * \param dam is the "damage" from the effect at distance r from the centre
+ * \param origin describes what generated the projection
+ * \param grid is the coordinates of the grid being handled
+ * \param dd is the number of dice of "damage" from the effect
+ * \param ds is the number of sides for each of the damage dice
  * \param typ is the projection (PROJ_) type
  * \return whether the effects were obvious
  *

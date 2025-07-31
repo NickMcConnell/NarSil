@@ -70,7 +70,6 @@ typedef void (*project_monster_handler_f)(project_monster_handler_context_t *);
  *
  * \param context is the project_m context.
  * \param flag is the RF_ flag that the monster must have.
- * \param factor is the divisor for the base damage.
  */
 static void project_monster_resist_element(project_monster_handler_context_t *context, int flag)
 {
@@ -151,7 +150,6 @@ static void project_monster_hurt_only(project_monster_handler_context_t *context
  *
  * \param context is the project_m context.
  * \param flag is the RSF_ flag that the monster must have.
- * \param factor is the multiplier for the base damage.
  */
 static void project_monster_breath(project_monster_handler_context_t *context, int flag)
 {
@@ -553,14 +551,21 @@ static void project_m_apply_side_effects(project_monster_handler_context_t *cont
  *
  * \param origin is the monster list index of the caster
  * \param r is the distance from the centre of the effect
- * \param y the coordinates of the grid being handled
- * \param x the coordinates of the grid being handled
+ * \param grid is the coordinates of the grid being handled
  * \param dd is the number of dice of "damage" from the effect at a distance
  * r from the centre
  * \param ds is the number of sides for the damage dice
+ * \param dif is the difficulty for defending against the attack (i.e. what
+ * is passed to the third argument of skill_check() if a defense is allowed)
  * \param typ is the projection (PROJ_) type
  * \param flg consists of any relevant PROJECT_ flags
- * \return whether the effects were obvious
+ * \param did_hit is dereferenced and set to true if there is a monster in
+ * grid and the projection could affect it (note that does not account for
+ * things like a monster resistance).  Otherwise, did_hit is dereferenced and
+ * set to false.
+ * \param was_obvious is dereferenced and set to true if the effects of the
+ * projection on a monster in grid were obvious to the player.  Otherwise,
+ * was_obvious is dereferenced and set to false.
  *
  * Note that this routine can handle "no damage" attacks (like teleport) by
  * taking a zero damage, and can even take parameters to attacks (like
