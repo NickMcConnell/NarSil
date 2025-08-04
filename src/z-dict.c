@@ -37,11 +37,12 @@ struct dict_impl {
 /**
  * Recurse through the dictionary depth first.
  *
+ * \param d is the dictionary to examine.
  * \param element_visitor is a pointer to a function to call for each key/value
  * pair in the dictionary.  It must take three arguments:  the dictionary,
  * a pointer to the structure holding the key/value pair, and a void*.  The
  * latter is the element_closure argument passed to dict_depth_first_recurse().
- * \param element_closure is passed as is as the second argument to
+ * \param element_closure is passed as is as the third argument to
  * element_visitor.
  */
 static void dict_depth_first_recurse(dict_type d,
@@ -128,6 +129,7 @@ void dict_destroy(dict_type d)
 /**
  * Insert a key value pair into a dictionary.
  *
+ * \param d is the dictionary to modify.
  * \param key is the key.
  * \param value is the value.  This must not be NULL.
  * \return true if the key is not already present in the dictionary and the
@@ -169,6 +171,7 @@ bool dict_insert(dict_type d, void *key, void *value)
 /**
  * Get the corresponding value in a dictionary for the given key.
  *
+ * \param d is the dictionary to examine.
  * \param key is the key to look for.
  * \return the value corresponding to key.  If key is not present, the
  * return value will be NULL.

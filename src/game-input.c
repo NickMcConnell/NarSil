@@ -129,6 +129,7 @@ bool get_rep_dir(int *dir, bool allow_none)
  * Get an "aiming" direction from the user.
  *
  * \param dir is a pointer to an integer representing the chosen direction
+ * \param range is the maximum range to allow for "aiming"
  * \return true if a direction was chosen, otherwise return false.
  */
 bool get_aim_dir(int *dir, int range)
