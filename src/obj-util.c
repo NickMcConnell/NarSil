@@ -1009,7 +1009,15 @@ void write_self_made_artefact_entries(ang_file *fff)
 		/* Output graphics if necessary */
 		if (kind->kidx >= z_info->ordinary_kind_max) {
 			const char *attr = attr_to_text(kind->d_attr);
-			file_putf(fff, "graphics:%c:%s\n", kind->d_char, attr);
+			char *d_char = mem_alloc(text_wcsz() + 1);
+			int nbyte = text_wctomb(d_char, kind->d_char);
+
+			if (nbyte > 0) {
+				d_char[nbyte] = '\0';
+				file_putf(fff, "graphics:%s:%s\n", d_char,
+					attr);
+			}
+			mem_free(d_char);
 		}
 
 		/* Output pval, level, weight and cost */
