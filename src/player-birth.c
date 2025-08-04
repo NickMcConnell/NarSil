@@ -402,7 +402,8 @@ void wield_all(struct player *p)
  * Initialize the global player as if the full birth process happened.
  * \param nrace Is the name of the race to use.  It may be NULL to use *races.
  * \param nhouse Is the name of the house to use.  It may be NULL to use
- * *housees.
+ * *houses.
+ * \param nsex Is the name of the sex to use.  It may be NULL to use *sexes.
  * \param nplayer Is the name to use for the player.  It may be NULL.
  * \return The return value will be true if the full birth process will be
  * successful.  It will be false if the process failed.  One reason for that
