@@ -92,7 +92,7 @@ static struct visuals_color_cycle *visuals_color_cycle_new(const char *name,
 /**
  * Deallocate a color cycle.
  *
- * \param cycle The color cycle to deallocate.
+ * \param ccycle The color cycle to deallocate.
  */
 static void visuals_color_cycle_free(struct visuals_color_cycle *ccycle)
 {
@@ -162,7 +162,7 @@ static struct visuals_color_cycle *visuals_color_cycle_copy(struct visuals_color
 /**
  * Return the next color in the cycle for a given frame.
  *
- * \param cycle The color cycle to select a color from.
+ * \param ccycle The color cycle to select a color from.
  * \param frame An arbitrary value used to select the color step.
  * \return A color or \c BASIC_COLORS if an error occurred.
  */
