@@ -214,9 +214,10 @@ void start_tutorial(void)
 		if (a->v.archetype.race_name) {
 			if (streq(a->v.archetype.race_name, "*")) {
 				/* Choose one at random. */
-				const struct player_race *rc = races;
-				int nr = 0;
+				const struct player_race *rc = races->next;
+				int nr = 1;
 
+				rpick = races;
 				while (rc) {
 					++nr;
 					if (one_in_(nr)) {
@@ -315,9 +316,10 @@ void start_tutorial(void)
 
 			if (streq(a->v.archetype.sex_name, "*")) {
 				/* Choose one at random. */
-				const struct player_sex *sc = sexes;
-				int ns = 0;
+				const struct player_sex *sc = sexes->next;
+				int ns = 1;
 
+				spick = sexes;
 				while (sc) {
 					++ns;
 					if (one_in_(ns)) {
