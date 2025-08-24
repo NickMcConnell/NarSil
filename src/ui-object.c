@@ -831,7 +831,7 @@ static struct object *item_menu(cmd_code cmd, int prompt_size, int mode)
 	menu_setpriv(m, num_obj, items);
 	m->selections = all_letters_nohjkl;
 	m->switch_keys = "/|-";
-	m->flags = (MN_PVT_TAGS | MN_INSCRIP_TAGS);
+	m->flags = (MN_PVT_TAGS | MN_INSCRIP_TAGS | MN_KEYMAP_ESC);
 
 	/* Get inscriptions */
 	m->inscriptions = mem_zalloc(10 * sizeof(char));
