@@ -163,6 +163,17 @@ bool flag_slay_message(int flag, char *name, char *message, int len)
 	char buf[1024] = "\0";
 
 	/* See if we have a message */
+	if (!prop) {
+		if (flag < 0 || flag >= OF_MAX) {
+			msg("Bug: invalid flag index, %d, passed to "
+				"flag_slay_message().", flag);
+		} else {
+			msg("Bug: flag '%s' (index %d) noticed but has "
+				"no entry in object_property.txt.",
+				list_obj_flag_names[flag], flag);
+		}
+		return false;
+	}
 	if (!prop->slay_msg) return false;
 
 	/* Insert */
@@ -187,6 +198,18 @@ void element_message(int elem, char *name, bool vuln)
 	if (vuln) prop = lookup_obj_property(OBJ_PROPERTY_VULN, elem);
 
 	/* See if we have a message */
+	if (!prop) {
+		if (elem < 0 || elem >= ELEM_MAX) {
+			msg("Bug: invalid element index, %d, passed to "
+				"element_message().", elem);
+		} else {
+			msg("Bug: %s to '%s' (index %d) noticed but has no "
+				"entry in object_property.txt.",
+				(vuln) ? "vulnerability" : "resistance",
+				list_element_names[elem], elem);
+		}
+		return;
+	}
 	if (!prop->msg) return;
 
 	/* Insert */
