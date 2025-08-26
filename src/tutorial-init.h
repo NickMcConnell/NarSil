@@ -32,11 +32,11 @@ enum tutorial_item_tweak_kind {
 	TWEAK_PVAL
 };
 struct tutorial_item_tweak {
-	char *dice; /* only used for PVAL */
-	random_value value; /* not used for FLAG, SLAY, BRAND, ELEM_IGNORE,
+	char *dice; /**< only used for PVAL */
+	random_value value; /**< not used for FLAG, SLAY, BRAND, ELEM_IGNORE,
 				ELEM_HATE, PVAL */
 	enum tutorial_item_tweak_kind kind;
-	int idx; /* not used for PVAL */
+	int idx; /**< not used for PVAL */
 };
 struct tutorial_item {
 	union {
@@ -58,8 +58,9 @@ struct tutorial_kit_item {
 
 struct tutorial_area_flag {
 	bitflag flags[SQUARE_SIZE];
-	struct loc ul, lr;
-	bool clear;
+	struct loc ul; /**< upper left corner of the area to mark */
+	struct loc lr; /**< lower right corner of the area to mark */
+	bool clear; /**< if true, clear the indicated flags rather than set them */
 };
 
 enum tutorial_section_sym_kind {
@@ -68,14 +69,15 @@ enum tutorial_section_sym_kind {
 	#undef TSYM
 };
 
-/*
+/**
  * Apply a layer of type checking for the generic dictionary type to get
  * the symbol table for tutorial section layouts.
  */
 struct tutorial_section_sym_table { dict_type d; };
 struct tutorial_section_sym_key {
-	char symbol[5]; /* UTF-8 for single code point plus terminating null */
-	int x, y; /* Use -1, -1 for the symbol when the location isn't set. */
+	char symbol[5]; /**< UTF-8 for single code point plus terminating null */
+	int x; /**< use -1 when the symbol's location is not set */
+	int y; /**< use -1 when the symbol's location is not set */
 };
 struct tutorial_section_sym_val {
 	union {
@@ -90,10 +92,10 @@ struct tutorial_section_sym_val {
 		struct { int feat, power; } door;
 		struct { int feat, uses; } forge;
 		struct { char *dest; char *note; int feat; } gate;
-		char *name; /* for a note, trigger, or starting position;
+		char *name; /**< for a note, trigger, or starting position;
 				for starting position, set when wrapping up
 				parsing */
-		int feat; /* most predefined symbols */
+		int feat; /**< most predefined symbols */
 	} v;
 	bool is_predefined;
 	enum tutorial_section_sym_kind kind;
@@ -122,7 +124,7 @@ enum trigger_op_kind {
 struct trigger_compiled_op {
 	enum trigger_op_kind kind;
 	int tval, sval, idx;
-	char *name; /* ability name for TRIGGER_OP_ABILITY or grade name for
+	char *name; /**< ability name for TRIGGER_OP_ABILITY or grade name for
 			TRIGGER_OP_TIMED_ABOVE or TRIGGER_OP_TIMED_BELOW */
 };
 
@@ -131,14 +133,14 @@ struct trigger_compiled_expr {
 	int n_op, n_stack;
 };
 
-/*
+/**
  * Apply a layer of type checking for the generic dictionary type to get
  * something to hold all the tutorial components.
  */
 struct tutorial_dict_type { dict_type d; };
 struct tutorial_dict_key_type { char *name; enum tutorial_component comp; };
 struct tutorial_dict_val_type {
-	/* Hold, but do not manage, a pointer to the key. */
+	/** Hold, but do not manage, a pointer to the key. */
 	struct tutorial_dict_key_type *key;
 	union {
 		struct {
