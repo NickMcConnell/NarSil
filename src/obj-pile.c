@@ -517,7 +517,8 @@ void object_origin_combine(struct object *obj1, const struct object *obj2)
  *
 * These assumptions are enforced by the "object_mergeable()" code.
  */
-static void object_absorb_merge(struct object *obj1, const struct object *obj2)
+static void object_absorb_merge(struct object *obj1, const struct object *obj2,
+		bool combine_charges)
 {
 	int total;
 
@@ -528,10 +529,12 @@ static void object_absorb_merge(struct object *obj1, const struct object *obj2)
 	if (obj2->note)
 		obj1->note = obj2->note;
 
-	/* Combine pvals for staves */
-	if (tval_can_have_charges(obj1)) {
-		total = obj1->pval + obj2->pval;
-		obj1->pval = total >= MAX_PVAL ? MAX_PVAL : total;
+	if (combine_charges) {
+		/* Combine pvals for staves */
+		if (tval_can_have_charges(obj1)) {
+			total = obj1->pval + obj2->pval;
+			obj1->pval = total >= MAX_PVAL ? MAX_PVAL : total;
+		}
 	}
 
 	/* Combine origin data as best we can */
@@ -555,10 +558,11 @@ void object_absorb_partial(struct object *obj1, struct object *obj2)
 	newsz1 = largest + difference;
 	newsz2 = smallest - difference;
 
+	distribute_charges(obj2, obj1, obj2->number - newsz2, false);
 	obj1->number = newsz1;
 	obj2->number = newsz2;
 
-	object_absorb_merge(obj1, obj2);
+	object_absorb_merge(obj1, obj2, false);
 }
 
 /**
@@ -571,7 +575,7 @@ void object_absorb(struct object *obj1, struct object *obj2)
 	/* Add together the item counts */
 	obj1->number = MIN(total, obj1->kind->base->max_stack);
 
-	object_absorb_merge(obj1, obj2);
+	object_absorb_merge(obj1, obj2, true);
 	object_delete(cave, &obj2);
 }
 
@@ -657,7 +661,7 @@ struct object *object_split(struct object *src, int amt)
 	assert(src->number > amt);
 
 	/* Distribute charges of wands, staves, or rods */
-	distribute_charges(src, dest, amt);
+	distribute_charges(src, dest, amt, true);
 
 	/* Modify quantity */
 	dest->number = amt;

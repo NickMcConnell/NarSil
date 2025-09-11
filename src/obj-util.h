@@ -63,7 +63,8 @@ struct effect *object_effect(const struct object *obj);
 bool obj_needs_aim(const struct object *obj);
 bool obj_allows_vertical_aim(const struct object *obj);
 
-void distribute_charges(struct object *source, struct object *dest, int amt);
+void distribute_charges(struct object *source, struct object *dest, int amt,
+		bool dest_new);
 void uncurse_object(struct object *obj);
 bool verify_object(const char *prompt, const struct object *obj,
 		const struct player *p);
