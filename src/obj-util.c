@@ -744,8 +744,11 @@ bool obj_allows_vertical_aim(const struct object *obj)
  * \param source is the source item
  * \param dest is the target item, must be of the same type as source
  * \param amt is the number of items that are transfered
+ * \param dest_new will, if true, ignore whatever charges dest has (i.e.
+ * treat it as a new stack).
  */
-void distribute_charges(struct object *source, struct object *dest, int amt)
+void distribute_charges(struct object *source, struct object *dest, int amt,
+		bool dest_new)
 {
 	/*
 	 * Hack -- If rods, staves, or wands are dropped, the total maximum
@@ -754,10 +757,16 @@ void distribute_charges(struct object *source, struct object *dest, int amt)
 	 * to leave the original stack's pval alone. -LM-
 	 */
 	if (tval_can_have_charges(source)) {
-		dest->pval = source->pval * amt / source->number;
+		int change = source->pval * amt / source->number;
 
-		if (amt < source->number)
-			source->pval -= dest->pval;
+		if (dest_new) {
+			dest->pval = change;
+		} else {
+			dest->pval += change;
+		}
+		if (amt < source->number) {
+			source->pval -= change;
+		}
 	}
 }
 
