@@ -117,14 +117,14 @@ can optionally build (GCU, SDL, SDL2, and X11) using arguments to configure
 such as --enable-sdl, --disable-x11, etc. Each front end has different
 dependencies (e.g. ncurses, SDL libraries, etc).
 
-If your source files are from a "Source code" link on the github releases page
-or from cloning the git repository, you'll first need to run this to create
-the configure script::
+Some sets of source code will contain a "configure" script in the root
+directory of the unpacked files, while other filesets (e.g. the "Source code
+(tar.gz)" links on the Releases pages) will not contain the "configure" script.
+
+If the code you download doesn't contain the "configure" script, then you'll
+first need to run the following command to create that script::
 
     ./autogen.sh
-
-That is not necessary for source files that are from the github releases page
-but not from a "Source code" link on that page.
 
 To build NarSil to be run in-place, then run this::
 
