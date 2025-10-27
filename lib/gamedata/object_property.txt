@@ -366,7 +366,7 @@ slay-msg:cuts effortlessly
 name:vampiric
 type:flag
 subtype:melee
-id-type:on wield
+id-type:on effect
 code:VAMPIRIC
 smith-cat:melee
 smith-difficulty:10
