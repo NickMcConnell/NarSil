@@ -509,9 +509,6 @@ static void run_init(int dir)
 	bool deepleft, deepright;
 	bool shortleft, shortright;
 
-	/* Mark that we're starting a run */
-	player->upkeep->running_firststep = true;
-
 	/* Save the direction */
 	run_cur_dir = dir;
 
