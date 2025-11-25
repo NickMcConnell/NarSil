@@ -685,7 +685,6 @@ static struct player_upkeep TEST_DATA test_player_upkeep = {
 
 	.running = 0,
 	.running_withpathfind = 0,
-	.running_firststep = 0,
 
 	.inven = NULL,
 

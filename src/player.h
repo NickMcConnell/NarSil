@@ -436,7 +436,6 @@ struct player_upkeep {
 	int resting;			/* Resting counter */
 	int running;				/* Running counter */
 	bool running_withpathfind;	/* Are we using the pathfinder ? */
-	bool running_firststep;		/* Is this our first step running? */
 
 	struct object **inven;	/* Inventory objects */
 	int total_weight;		/* Total weight being carried */
