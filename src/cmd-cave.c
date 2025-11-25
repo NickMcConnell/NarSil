@@ -1866,8 +1866,6 @@ void move_player(int dir, bool disarm)
 			}
 		}
 	}
-
-	player->upkeep->running_firststep = false;
 }
 
 /**
