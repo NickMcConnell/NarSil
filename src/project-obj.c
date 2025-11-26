@@ -197,7 +197,7 @@ static void project_object_handler_ACID(project_object_handler_context_t *contex
 /* Sound -- potions and flasks */
 static void project_object_handler_SOUND(project_object_handler_context_t *context)
 {
-	project_object_elemental(context, PROJ_SOUND, "shatters", "shatter");
+	project_object_elemental(context, ELEM_COLD, "shatters", "shatter");
 }
 
 static void project_object_handler_FORCE(project_object_handler_context_t *context)
@@ -232,9 +232,10 @@ static void project_object_handler_FEAR(project_object_handler_context_t *contex
 {
 }
 
+/* EARTHQUAKE -- potions and flasks */
 static void project_object_handler_EARTHQUAKE(project_object_handler_context_t *context)
 {
-	project_object_elemental(context, PROJ_SOUND, "shatters", "shatter");
+	project_object_elemental(context, ELEM_COLD, "shatters", "shatter");
 }
 
 static void project_object_handler_DARK_WEAK(project_object_handler_context_t *context)
