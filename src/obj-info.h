@@ -32,7 +32,7 @@ typedef enum {
 	OINFO_EGO    = 0x04, /* Describe an ego template */
 	OINFO_FAKE   = 0x08, /* Describe any template */
 	OINFO_SPOIL  = 0x10, /* Description is for spoilers */
-	OINFO_SMITH  = 0x10, /* Description is for smithing */
+	OINFO_SMITH  = 0x20, /* Description is for smithing */
 } oinfo_detail_t;
 
 
