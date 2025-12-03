@@ -59,7 +59,6 @@
  * variable power between individual items
  */
 
-static int randarts = 0;
 static int no_selling = 0;
 static uint32_t num_runs = 1;
 static bool quiet = false;
@@ -867,11 +866,6 @@ static int stats_dump_info(void)
 	err = stats_db_exec(sql_buf);
 	if (err) return err;
 
-	strnfmt(sql_buf, 256, "INSERT INTO metadata VALUES('randarts',%d);",
-		randarts);
-	err = stats_db_exec(sql_buf);
-	if (err) return err;
-
 	strnfmt(sql_buf, 256, "INSERT INTO metadata VALUES('no_selling',%d);",
 		no_selling);
 	err = stats_db_exec(sql_buf);
@@ -1444,9 +1438,6 @@ static void stats_cleanup_angband_run(void)
 static errr run_stats(void)
 {
 	uint32_t run;
-	struct artifact *a_info_save;
-	struct artifact_upkeep *aup_info_save;
-	unsigned int i;
 	int err;
 	bool status; 
 
@@ -1455,19 +1446,6 @@ static errr run_stats(void)
 	prep_output_dir();
 	create_indices();
 	alloc_memory();
-	if (randarts) {
-		a_info_save = mem_zalloc(z_info->a_max * sizeof(struct artifact));
-		aup_info_save = mem_zalloc(z_info->a_max
-			* sizeof(*aup_info_save));
-		for (i = 0; i < z_info->a_max; i++) {
-			if (!a_info[i].name) continue;
-
-			memcpy(&a_info_save[i], &a_info[i],
-				sizeof(struct artifact));
-			memcpy(&aup_info_save[i], &aup_info[i],
-				sizeof(struct artifact_upkeep));
-		}
-	}
 
 	if (!quiet) printf("Creating the database and dumping info...\n");
 	status = stats_prep_db();
@@ -1481,15 +1459,6 @@ static errr run_stats(void)
 	start = time(NULL);
 	for (run = 1; run <= num_runs; run++) {
 		if (!quiet) progress_bar(run - 1, start);
-
-		if (randarts) {
-			for (i = 0; i < z_info->a_max; i++) {
-				memcpy(&a_info[i], &a_info_save[i],
-					sizeof(struct artifact));
-				memcpy(&aup_info[i], &aup_info_save[i],
-					sizeof(struct artifact_upkeep));
-			}
-		}
 
 		initialize_character();
 		unkill_uniques();
@@ -1523,10 +1492,6 @@ static errr run_stats(void)
 	stats_db_close();
 	if (err) quit_fmt("Problems writing to database!  sqlite3 errno %d.", err);
 
-	if (randarts) {
-		mem_free(aup_info_save);
-		mem_free(a_info_save);
-	}
 	free_stats_memory();
 	cleanup_angband();
 	if (!quiet) printf("Done!\n");
@@ -1664,7 +1629,6 @@ const char help_stats[] = "Stats mode, subopts -q(uiet) -r(andarts) -n(# of runs
  * angband -mstats -- [-q] [-r] [-nNNNN] [-s]
  *
  *   -q      Quiet mode (turn off progress messages)
- *   -r      Turn on randarts
  *   -nNNNN  Make NNNN runs through the dungeon (default: 1)
  *   -s      Turn on no-selling
  */
@@ -1674,10 +1638,6 @@ errr init_stats(int argc, char *argv[]) {
 
 	/* Skip over argv[0] */
 	for (i = 1; i < argc; i++) {
-		if (streq(argv[i], "-r")) {
-			randarts = 1;
-			continue;
-		}
 		if (streq(argv[i], "-q")) {
 			quiet = true;
 			continue;
