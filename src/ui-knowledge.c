@@ -3376,11 +3376,17 @@ int cmp_monsters(const void *a, const void *b)
  *
  * Todo: Should this take the user's pref files into account?
  */
-static void lookup_symbol(char sym, char *buf, size_t max)
+static void lookup_symbol(keycode_t key, char *buf, size_t max)
 {
+	char key_utf8[5];
 	int i;
 	struct monster_base *base;
 	struct monster_race *race;
+
+	if (!utf32_to_utf8(key_utf8, sizeof(key_utf8), &key, 1, NULL)) {
+		key_utf8[0] = '?';
+		key_utf8[1] = '\0';
+	}
 
 	/* Look through items */
 	/* Note: We currently look through all items, and grab the tval when we
@@ -3388,8 +3394,9 @@ static void lookup_symbol(char sym, char *buf, size_t max)
 	 * It would make more sense to loop through tvals, but then we need to
 	 * associate a display character with each tval. */
 	for (i = 0; i < z_info->k_max; i++) {
-		if (char_matches_key(k_info[i].d_char, sym)) {
-			strnfmt(buf, max, "%c - %s.", sym, tval_find_name(k_info[i].tval));
+		if (char_matches_key(k_info[i].d_char, key)) {
+			strnfmt(buf, max, "%s - %s.", key_utf8,
+				tval_find_name(k_info[i].tval));
 			return;
 		}
 	}
@@ -3398,8 +3405,8 @@ static void lookup_symbol(char sym, char *buf, size_t max)
 	/* Note: We need a better way of doing this. Currently '#' matches secret
 	 * door, and '^' matches trap door (instead of the more generic "trap"). */
 	for (i = 1; i < FEAT_MAX; i++) {
-		if (char_matches_key(f_info[i].d_char, sym)) {
-			strnfmt(buf, max, "%c - %s.", sym, f_info[i].name);
+		if (char_matches_key(f_info[i].d_char, key)) {
+			strnfmt(buf, max, "%s - %s.", key_utf8, f_info[i].name);
 			return;
 		}
 	}
@@ -3408,8 +3415,8 @@ static void lookup_symbol(char sym, char *buf, size_t max)
 	for (base = rb_info; base; base = base->next) {
 		/* Slight hack - P appears twice */
 		if (streq(base->name, "Morgoth")) continue;
-		if (char_matches_key(base->d_char, sym)) {
-			strnfmt(buf, max, "%c - %s.", sym, base->text);
+		if (char_matches_key(base->d_char, key)) {
+			strnfmt(buf, max, "%s - %s.", key_utf8, base->text);
 			return;
 		}
 	}
@@ -3418,15 +3425,15 @@ static void lookup_symbol(char sym, char *buf, size_t max)
 	for (race = r_info; race; race = race->next) {
 		/* Slight hack - P appears twice */
 		if (streq(race->name, "Morgoth")) continue;
-		if (char_matches_key(race->d_char, sym)) {
-			strnfmt(buf, max, "%c - %s.", sym, race->name);
+		if (char_matches_key(race->d_char, key)) {
+			strnfmt(buf, max, "%s - %s.", key_utf8, race->name);
 			return;
 		}
 	}
 
 	/* No matches */
-        if (isprint(sym)) {
-			strnfmt(buf, max, "%c - Unknown Symbol.", sym);
+        if (utf32_isprint(key)) {
+			strnfmt(buf, max, "%s - Unknown Symbol.", key_utf8);
         } else {
 			strnfmt(buf, max, "? - Unknown Symbol.");
         }
@@ -3451,7 +3458,7 @@ void do_cmd_query_symbol(void)
 	int idx, num;
 	char buf[128];
 
-	char sym;
+	ui_event sym;
 	struct keypress query;
 
 	bool all = false;
@@ -3463,21 +3470,23 @@ void do_cmd_query_symbol(void)
 	uint16_t *who;
 
 	/* Get a character, or abort */
-	if (!get_com("Enter character to be identified, or control+[ANU]: ", &sym))
+	if (!get_com_ex("Enter character to be identified, or control+[ANU]: ",
+			&sym) || sym.type == EVT_MOUSE) {
 		return;
+	}
 
 	/* Describe */
-	if (sym == KTRL('A')) {
+	if (sym.key.code == KTRL('A')) {
 		all = true;
 		my_strcpy(buf, "Full monster list.", sizeof(buf));
-	} else if (sym == KTRL('U')) {
+	} else if (sym.key.code == KTRL('U')) {
 		all = uniq = true;
 		my_strcpy(buf, "Unique monster list.", sizeof(buf));
-	} else if (sym == KTRL('N')) {
+	} else if (sym.key.code == KTRL('N')) {
 		all = norm = true;
 		my_strcpy(buf, "Non-unique monster list.", sizeof(buf));
 	} else {
-		lookup_symbol(sym, buf, sizeof(buf));
+		lookup_symbol(sym.key.code, buf, sizeof(buf));
 	}
 
 	/* Display the result */
@@ -3502,7 +3511,9 @@ void do_cmd_query_symbol(void)
 		if (uniq && !rf_has(race->flags, RF_UNIQUE)) continue;
 
 		/* Collect "appropriate" monsters */
-		if (all || char_matches_key(race->d_char, sym)) who[num++] = idx;
+		if (all || char_matches_key(race->d_char, sym.key.code)) {
+			who[num++] = idx;
+		}
 	}
 
 	/* No monsters to recall */
