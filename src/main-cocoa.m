@@ -2095,7 +2095,7 @@ static BOOL initialized = NO;
 
 - (void)requestRedraw
 {
-    if (! self->terminal) return;
+    if (!self->terminal || !self->terminal->mapped_flag) return;
     
     term *old = Term;
     
@@ -4298,12 +4298,6 @@ static void Term_init_cocoa(term *t)
 	if (autosaveName) [window setFrameAutosaveName:autosaveName];
 
 	/*
-	 * Tell it about its term. Do this after we've sized it so that the
-	 * sizing doesn't trigger redrawing and such.
-	 */
-	[context setTerm:t];
-
-	/*
 	 * Only order front if it's the first term. Other terms will be ordered
 	 * front from AngbandUpdateWindowVisibility(). This is to work around a
 	 * problem where Angband aggressively tells us to initialize terms that
@@ -4314,8 +4308,11 @@ static void Term_init_cocoa(term *t)
 
 	NSEnableScreenUpdates();
 
-	/* Set "mapped" flag */
-	t->mapped_flag = true;
+	/*
+	 * Tell it about its term. Do this after we've sized it so that the
+	 * sizing doesn't trigger redrawing and such.
+	 */
+	[context setTerm:t];
     }
 }
 
