@@ -485,7 +485,7 @@ bool make_attack_normal(struct monster *mon, struct player *p)
 			obvious = context.obvious;
 			do_stun = context.stun;
 			do_cut = context.cut;
-			net_dam = context.damage;
+			net_dam = context.net_dam;
 
 			event_signal_combat_damage(EVENT_COMBAT_DAMAGE,
 									   dd + crit_bonus_dice + elem_bonus_dice,
