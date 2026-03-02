@@ -750,7 +750,8 @@ bool effect_handler_IDENTIFY(effect_handler_context_t *context)
  */
 bool effect_handler_RECHARGE(effect_handler_context_t *context)
 {
-	int num = context->value.base;
+	int num = context->value.base
+		+ damroll(context->value.dice, context->value.sides);
 	int itemmode = (USE_INVEN | USE_FLOOR);
 	struct object *obj;
 	bool used = false;
