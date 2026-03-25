@@ -509,7 +509,7 @@ AS_IF([test "x$with_gamedata_in_lib" = "xyes"],
 AS_IF([test "x$wsetgid" = "xyes"],
 	[echo "  (as group ${SETEGID})"],
 	[AS_IF([test "x$with_private_dirs" = "xyes" && test ! "x$enable_win" = "xyes"],
-		[echo "  (with private save and score files in ~/.angband/Angband/)"])])
+		[echo "  (with private save and score files in ~/.angband/NarSil/)"])])
 AS_IF([test "x$with_sphinx" = "xyes"],
 	[echo "  documentation:                          Yes"],
 	[echo "  documentation:                          No"])
