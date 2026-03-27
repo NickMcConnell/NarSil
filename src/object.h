@@ -386,6 +386,7 @@ enum {
 	OBJ_NOTICE_IMAGINED = 0x08,
 	OBJ_NOTICE_PICKUP = 0x10,
 	OBJ_NOTICE_EMPTY = 0x20,
+	OBJ_NOTICE_IN_USE = 0x40, /** temporary; skip knowledge message about stack when on */
 };
 
 /**
