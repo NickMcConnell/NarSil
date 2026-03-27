@@ -25,9 +25,22 @@ struct player;
 struct monster;
 
 struct attack_result {
-    int hit;
-    int dmg;
+	/**
+	 * If a brand or slay was noticed during the attack, bobj1 is the object
+	 * directly involved and is not NULL.  bobj2 is the secondary object
+	 * involved and may be NULL when bobj1 is not NULL.
+	 */
+	struct object *bobj1, *bobj2;
+	/**
+	 * If a flag was noticed during the attack, fobj will not be NULL and
+	 * is the object with the flag.
+	 */
+	struct object *fobj;
+	int hit;
+	int dmg;
 	int crit_dice;
+	/** A flag with this index on fobj was noticed during the attack. */
+	int flag;
 	bool pierce;
 };
 
