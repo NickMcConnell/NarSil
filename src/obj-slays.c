@@ -252,24 +252,30 @@ int slay_bonus(struct player *p, struct object *obj, const struct monster *mon,
 /**
  * Print a message when a brand is identified by use.
  *
+ * \param p is the player performing the attack.
+ * \param obj is the object directly involved in the attack
  * \param brand is the brand being noticed
  * \param mon is the monster being attacked
  * \return true if a message was printed; otherwise, return false
  */
-static bool brand_message(struct brand *brand, const struct monster *mon)
+static bool brand_message(const struct player *p, const struct object *obj,
+		struct brand *brand, const struct monster *mon)
 {
 	char buf[1024] = "\0";
-	char m_name[80];
-
-	/* Extract monster name (or "it") */
-	monster_desc(m_name, sizeof(m_name), mon, MDESC_TARG);
+	char o_name[80], m_name[80];
 
 	/* See if we have a message */
 	if (!brand->desc) return false;
 
+	object_desc(o_name, sizeof(o_name), obj,
+		ODESC_BASE | ODESC_SINGULAR, p);
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, sizeof(m_name), mon, MDESC_TARG);
+
 	/* Insert */
 	insert_name(buf, 1024, brand->desc, m_name);
-	msg("%s", buf);
+	msg("Your %s %s.", o_name, buf);
 	return true;
 }
 
@@ -305,8 +311,8 @@ static void learn_brand_slay_helper(struct player *p, struct object *obj1,
 		if (!b->resist_flag || !rf_has(mon->race->flags, b->resist_flag)) {
 			/* Learn the brand */
 			if (!player_knows_brand(p, i)) {
+				brand_message(p, obj1, b, mon);
 				player_learn_brand(p, i);
-				brand_message(b, mon);
 			}
 
 			/* Learn about the monster. */

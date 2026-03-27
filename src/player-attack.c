@@ -929,7 +929,7 @@ static struct attack_result make_ranged_shot(struct player *p,
 											 bool undo_rapid,
 											 bool attack_penalty, bool one_shot)
 {
-	struct attack_result result = {0, 0, 0, false};
+	struct attack_result result = {NULL, NULL, NULL, 0, 0, 0, 0, false};
 	struct object *bow = equipped_item_by_slot_name(p, "shooting");
 	struct monster_race *race = mon->race;
 	int attack_mod = p->state.skill_use[SKILL_ARCHERY] + ammo->att;
@@ -1019,18 +1019,14 @@ static struct attack_result make_ranged_shot(struct player *p,
 	/* Monster description */
 	monster_desc(m_name, sizeof(m_name), mon, MDESC_DEFAULT);
 
-	/* If a slay, brand or flag was noticed, then identify the weapon */
+	/* Communicate to the caller what may have been noticed. */
 	if (bow_slay || bow_brand || arrow_slay || arrow_brand) {
-		learn_brand_slay_from_launch(p, ammo, bow, mon);
+		result.bobj1 = ammo;
+		result.bobj2 = bow;
 	}
 	if (arrow_flag) {
-		char o_name[80];
-		char desc[80];
-		object_desc(o_name, sizeof(o_name), ammo, ODESC_BASE, p);
-		if (flag_slay_message(arrow_flag, m_name, desc, sizeof(desc))) {
-			msg("Your %s %s.", o_name, desc);
-		}
-		player_learn_flag(p, arrow_flag);
+		result.fobj = ammo;
+		result.flag = arrow_flag;
 	}
 
 	event_signal_combat_damage(EVENT_COMBAT_DAMAGE, total_dd, total_ds,
@@ -1050,7 +1046,7 @@ static struct attack_result make_ranged_throw(struct player *p,
 											  bool attack_penalty,
 											  bool one_shot)
 {
-	struct attack_result result = {0, 0, 0, false};
+	struct attack_result result = {NULL, NULL, NULL, 0, 0, 0, 0, false};
 	struct object *weapon = equipped_item_by_slot_name(p, "weapon");
 	struct monster_race *race = mon->race;
 	int attack_mod = p->state.skill_use[SKILL_MELEE] + obj->att;
@@ -1121,21 +1117,13 @@ static struct attack_result make_ranged_throw(struct player *p,
 	prt = (prt * prt_percent) / 100;
 	result.dmg = MAX(0, dam - prt);
 
-	/* If a slay, brand or flag was noticed, then identify the weapon */
+	/* Communicate to the caller what was noticed. */
 	if (slay || brand) {
-		learn_brand_slay_from_throw(p, obj, mon);
+		result.bobj1 = obj;
 	}
 	if (flag) {
-		char m_name[80];
-		char o_name[80];
-		char desc[80];
-
-		monster_desc(m_name, sizeof(m_name), mon, MDESC_DEFAULT);
-		object_desc(o_name, sizeof(o_name), obj, ODESC_BASE, p);
-		if (flag_slay_message(flag, m_name, desc, sizeof(desc))) {
-			msg("Your %s %s.", o_name, desc);
-		}
-		player_learn_flag(p, flag);
+		result.fobj = obj;
+		result.flag = flag;
 	}
 
 	event_signal_combat_damage(EVENT_COMBAT_DAMAGE, total_dd, total_ds,
@@ -1325,7 +1313,7 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 				result = attack(p, obj, mon, rapid_fire, attack_penalty,
 								shots == 1);
 				if (result.hit > 0) {
-					char o_name[80];
+					char o_name[80], m_name[80];
 					bool fatal_blow = false;
 
 					/* Note the collision */
@@ -1334,15 +1322,16 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 					/* Mark the monster as attacked by the player */
 					mflag_on(mon->mflag, MFLAG_HIT_BY_RANGED);
 
-					/* Describe the object (have up-to-date knowledge now) */
+					/* Describe the object and monster */
 					object_desc(o_name, sizeof(o_name), obj,
-								ODESC_FULL | ODESC_SINGULAR, p);
+						ODESC_FULL | ODESC_SINGULAR, p);
+					monster_desc(m_name, sizeof(m_name),
+						mon, MDESC_OBJE);
 
 					if (!visible) {
 						/* Invisible monster */
 						msgt(MSG_SHOOT_HIT, "The %s finds a mark.", o_name);
 					} else {
-						char m_name[80];
 						char punct[20];
 
 						/* Determine the punctuation for the attack
@@ -1350,7 +1339,6 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 						attack_punctuation(punct, sizeof(punct), result.dmg,
 										   result.crit_dice);
 
-						monster_desc(m_name, sizeof(m_name), mon, MDESC_OBJE);
 
 						if (result.pierce) {
 							msgt(MSG_SHOOT_HIT, "The %s pierces %s%s", o_name,
@@ -1377,6 +1365,45 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 
 						/* Monster could have been healed*/
 						if (pdam < 0) pdam = 0;
+					}
+
+					/*
+					 * Brand, slay, or flag messaging
+					 * logically happens after the hit
+					 * message.  Set OBJ_NOTICE_IN_USE
+					 * to avoid nearly duplicate messages
+					 * (one possible from learning; the
+					 * other below from the
+					 * *object_for_use() call) about the
+					 * stack of missiles.
+					 */
+					if (result.bobj1) {
+						result.bobj1->notice |=
+							OBJ_NOTICE_IN_USE;
+						if (result.bobj2) {
+							learn_brand_slay_from_launch(p, result.bobj1, result.bobj2, mon);
+						} else {
+							learn_brand_slay_from_throw(p, result.bobj1, mon);
+						}
+						result.bobj1->notice &=
+							~OBJ_NOTICE_IN_USE;
+					}
+					if (result.fobj) {
+						char desc[80];
+
+						if (flag_slay_message(
+								result.flag,
+								m_name, desc,
+								sizeof(desc))) {
+							msg("Your %s %s.",
+								o_name, desc);
+						}
+						result.fobj->notice |=
+							OBJ_NOTICE_IN_USE;
+						player_learn_flag(p,
+							result.flag);
+						result.fobj->notice &=
+							~OBJ_NOTICE_IN_USE;
 					}
 
 					/* Hit the monster, unless there's a potion effect */

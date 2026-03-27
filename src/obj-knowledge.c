@@ -875,7 +875,7 @@ void player_know_object(struct player *p, struct object *obj)
 	}
 
 	/* Report on new stuff */
-	if (!seen) {
+	if (!seen && !(obj->notice & OBJ_NOTICE_IN_USE)) {
 		char o_name[80];
 
 		/* Describe the object if it's available */
