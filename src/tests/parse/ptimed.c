@@ -429,13 +429,13 @@ static int test_grade0(void *state) {
 			if (one_in_(3)) {
 				for (j = 0; color[j]; ++j) {
 					if (isupper(color[j])) {
-						color[j] = tolower(color[j]);
+						color[j] = tolower((unsigned char)color[j]);
 					}
 				}
 			} else if (one_in_(3)) {
 				for (j = 0; color[j]; ++j) {
 					if (islower(color[j])) {
-						color[j] = toupper(color[j]);
+						color[j] = toupper((unsigned char)color[j]);
 					}
 				}
 			}
@@ -554,13 +554,13 @@ static int test_changegrade0(void *state) {
 			if (one_in_(3)) {
 				for (j = 0; color[j]; ++j) {
 					if (isupper(color[j])) {
-						color[j] = tolower(color[j]);
+						color[j] = tolower((unsigned char)color[j]);
 					}
 				}
 			} else if (one_in_(2)) {
 				for (j = 0; color[j]; ++j) {
 					if (islower(color[j])) {
-						color[j] = toupper(color[j]);
+						color[j] = toupper((unsigned char)color[j]);
 					}
 				}
 			}
