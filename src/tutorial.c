@@ -341,10 +341,12 @@ static void append_with_case_sensitive_first(textblock *tb, const char *src,
 		if (capital) {
 			textblock_append(tb, "%s", src);
 		} else {
-			textblock_append(tb, "%c%s", tolower(src[0]), src + 1);
+			textblock_append(tb, "%c%s",
+				tolower((unsigned char)src[0]), src + 1);
 		}
 	} else if (capital) {
-		textblock_append(tb, "%c%s", toupper(src[0]), src + 1);
+		textblock_append(tb, "%c%s", toupper((unsigned char)src[0]),
+			src + 1);
 	} else {
 		textblock_append(tb, "%s", src);
 	}
