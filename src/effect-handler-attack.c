@@ -98,8 +98,8 @@ static bool project_aimed(struct source origin, int typ, int dir, int dd,
  * Heal the player by a given percentage of their wounds, or a minimum
  * amount, whichever is larger.
  *
- * context->value.base should be the minimum, and
- * context->value.m_bonus the percentage
+ * context->value.base, context->value.dice, and context->value.sides set
+ * the minimum.  context->value.m_bonus sets the percentage.
  */
 bool effect_handler_HEAL_HP(effect_handler_context_t *context)
 {
