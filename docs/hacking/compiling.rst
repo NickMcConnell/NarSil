@@ -174,9 +174,9 @@ The compilation process with CMake requires a version greater than 3,
 by default the compilation process uses the X11 front end unless
 one or more of the other graphical front ends are selected. The graphical front
 ends are: GCU, SDL, SDL2 and X11.  All of the following generate a
-self-contained directory, build, that you can move elsewhere or rename.  To
-run the result, change directories to build (or whatever you renamed it to) and
-run ./NarSil .
+self-contained directory, build/game, that you can move elsewhere or rename.  To
+run the result, change directories to build/game (or whatever you renamed it to) and
+run ./narsil .
 
 To build NarSil with the X11 front end::
 
@@ -305,40 +305,29 @@ TODO: most of the --with or --enable options for configure are not appropriate
 when using --enable-win.  The ones that are okay are --with-private-dirs (on
 by default), --with-gamedata-in-lib (has no effect), and --enable-release.
 
-A build using Mingw cross-compiler is also possible with CMake.  You will
-need to have a toolchain file appropriate for Mingw on your system.  Some
-information on toolchain files can be found at https://cmake.org/cmake/help/book/mastering-cmake/chapter/Cross%20Compiling%20With%20CMake.html .
-On a Debian 11 system using Mingw from the gcc-mingw-w64 package (that puts
-the Mingw executables in /usr/bin with the prefix, i686-w64-mingw32-, and
-has the other files for cross-compiling in /usr/i686-w64-mingw32), this
-worked as the contents of a minimal toolchain file::
+A build using Mingw cross-compiler is also possible with CMake.  CMake's
+documentation for cross-compiling is available `here <https://cmake.org/cmake/help/book/mastering-cmake/chapter/Cross%20Compiling%20With%20CMake.html>`__.
+``toolchains/linux-i686-mingw32-cross.cmake`` is an example of a toolchain file
+set up to build for Windows using MinGW as it is installed on recent versions
+of Debian and Ubuntu (tool names prefixed with ``i686-w64-mingw32-`` and
+relevant files placed withing ``/usr/i686-w64-mingw32``).  If your installation
+is not compatible with that, create a copy of that toolchain file, edit the
+names or paths in it to match what your installation expects, and use that
+copy instead of ``../toolchians/linux-i686-mingw32-cross.cmake`` in the example
+below.
 
-	set(CMAKE_SYSTEM_NAME Windows)
-	set(CMAKE_C_COMPILER i686-w64-mingw32-gcc)
-	set(CMAKE_RC_COMPILER i686-w64-mingw32-windres)
-	set(CMAKE_FIND_ROOT_PATH /usr/i686-w64-mingw32)
-	set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-	set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-	set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
-With Wine installed on that system, you could add this to the toolchain file::
-
-	set(CMAKE_CROSSCOMPILING_EMULATOR wine)
-
-so the unit test cases could be run from cmake (for instance with
-"cmake --build . --target allunittests").
-
-If the toolchain file was saved as /home/user/mingw-cross.cmake, then you could
-use this to perform the build::
+To perform the build::
 
 	mkdir build && cd build
-	cmake -DCMAKE_TOOLCHAIN_FILE=/home/user/mingw-cross.cmake ..
+	cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/linux-i686-mingw32-cross.cmake \
+		-DSUPPORT_BUNDLED_PNG=ON ..
 	cmake --build .
 
-That will leave an NarSil.exe and the needed .dll files in the directory
+That will leave narsil.exe and the needed .dll files in the game subdirectory
 where cmake was run.  That executable can be run with wine:
 
-	wine NarSil.exe
+	cd game
+	wine narsil.exe
 
 Debug build
 ~~~~~~~~~~~
