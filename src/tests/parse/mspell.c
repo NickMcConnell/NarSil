@@ -455,7 +455,7 @@ static int test_misplaced_effect_xtra_deps0(void *state) {
 	const struct monster_spell *s = parser_priv(p);
 	enum parser_error r;
 
-	require(s && !s->effect);
+	require(s && !s->effect_xtra);
 	r = parser_parse(p, "dice-xtra:-10");
 	eq(r, PARSE_ERROR_NONE);
 	r = parser_parse(p, "expr-xtra:D:SPELL_POWER:* 2 - 5");
@@ -548,7 +548,7 @@ static int test_dice_xtra0(void *state) {
 	struct monster_spell *s = parser_priv(p);
 	struct { const char *s; int base, ndice, nsides, mbonus; }
 			test_cases[] = {
-		{ "dice-xtra:-1", -3, 0, 0, 0 },
+		{ "dice-xtra:-1", -1, 0, 0, 0 },
 		{ "dice-xtra:12", 12, 0, 0, 0 },
 		{ "dice-xtra:d8", 0, 1, 8, 0 },
 		{ "dice-xtra:-1+d5", -1, 1, 5, 0 },
@@ -571,7 +571,7 @@ static int test_dice_xtra0(void *state) {
 		eq(r, PARSE_ERROR_NONE);
 		notnull(e->dice);
 		require(dice_test_values(e->dice, test_cases[i].base,
-			test_cases[i].ndice, test_cases[i].nsides, 0));
+			test_cases[i].ndice, test_cases[i].nsides, test_cases[i].mbonus));
 	}
 	ok;
 }
