@@ -587,10 +587,10 @@ errr vinfo_init(void)
 					/* Add it to the LOS slope set */
 					switch (i / 32)
 					{
-						case 3: vinfo[e].bits_3 |= (1L << (i % 32)); break;
-						case 2: vinfo[e].bits_2 |= (1L << (i % 32)); break;
-						case 1: vinfo[e].bits_1 |= (1L << (i % 32)); break;
-						case 0: vinfo[e].bits_0 |= (1L << (i % 32)); break;
+						case 3: vinfo[e].bits_3 |= ((uint32_t)1 << (i % 32)); break;
+						case 2: vinfo[e].bits_2 |= ((uint32_t)1 << (i % 32)); break;
+						case 1: vinfo[e].bits_1 |= ((uint32_t)1 << (i % 32)); break;
+						case 0: vinfo[e].bits_0 |= ((uint32_t)1 << (i % 32)); break;
 					}
 
 					/* Check for exact match with the LOF slope */
@@ -896,19 +896,19 @@ void update_fire(struct chunk *c, struct player *p)
 				while (true) {
 					switch (i / 32) {
 						case 3: {
-							if (bits3 & (1L << (i % 32))) line_fire = true;
+							if (bits3 & ((uint32_t)1 << (i % 32))) line_fire = true;
 							break;
 						}
 						case 2: {
-							if (bits2 & (1L << (i % 32))) line_fire = true;
+							if (bits2 & ((uint32_t)1 << (i % 32))) line_fire = true;
 							break;
 						}
 						case 1: {
-							if (bits1 & (1L << (i % 32))) line_fire = true;
+							if (bits1 & ((uint32_t)1 << (i % 32))) line_fire = true;
 							break;
 						}
 						case 0: {
-							if (bits0 & (1L << (i % 32))) line_fire = true;
+							if (bits0 & ((uint32_t)1 << (i % 32))) line_fire = true;
 							break;
 						}
 					}
@@ -1169,26 +1169,26 @@ int project_path(struct chunk *c, struct loc *gp, int range, struct loc grid1,
 		while (true) {
 			switch (i / 32) {
 				case 3: {
-					if (bits3 & (1L << (i % 32))) {
-						if (point->bits_3 & (1L << (i % 32))) line_fire = true;
+					if (bits3 & ((uint32_t)1 << (i % 32))) {
+						if (point->bits_3 & ((uint32_t)1 << (i % 32))) line_fire = true;
 					}
 					break;
 				}
 				case 2: {
-					if (bits2 & (1L << (i % 32))) {
-						if (point->bits_2 & (1L << (i % 32))) line_fire = true;
+					if (bits2 & ((uint32_t)1 << (i % 32))) {
+						if (point->bits_2 & ((uint32_t)1 << (i % 32))) line_fire = true;
 					}
 					break;
 				}
 				case 1: {
-					if (bits1 & (1L << (i % 32))) {
-						if (point->bits_1 & (1L << (i % 32))) line_fire = true;
+					if (bits1 & ((uint32_t)1 << (i % 32))) {
+						if (point->bits_1 & ((uint32_t)1 << (i % 32))) line_fire = true;
 					}
 					break;
 				}
 				case 0: {
-					if (bits0 & (1L << (i % 32))) {
-						if (point->bits_0 & (1L << (i % 32))) line_fire = true;
+					if (bits0 & ((uint32_t)1 << (i % 32))) {
+						if (point->bits_0 & ((uint32_t)1 << (i % 32))) line_fire = true;
 					}
 					break;
 				}
