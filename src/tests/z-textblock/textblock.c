@@ -42,11 +42,11 @@ static int test_colour(void *state) {
 	textblock *tb = textblock_new();
 
 	const char text[] = "two";
-	const uint8_t attrs[] = { COLOUR_L_GREEN, COLOUR_L_GREEN, COLOUR_L_GREEN };
+	const int attrs[] = { COLOUR_L_GREEN, COLOUR_L_GREEN, COLOUR_L_GREEN };
 
 	textblock_append_c(tb, COLOUR_L_GREEN, text);
 
-	require(!memcmp(textblock_attrs(tb), attrs, 3));
+	require(!memcmp(textblock_attrs(tb), attrs, sizeof(attrs)));
 
 	textblock_free(tb);
 
@@ -82,7 +82,7 @@ static int test_length(void *state) {
 }
 
 static int test_append_textblock(void *state) {
-	const uint8_t attrs[] = { COLOUR_L_BLUE, COLOUR_L_BLUE, COLOUR_L_BLUE,
+	const int attrs[] = { COLOUR_L_BLUE, COLOUR_L_BLUE, COLOUR_L_BLUE,
 		COLOUR_L_GREEN, COLOUR_L_GREEN, COLOUR_L_GREEN, COLOUR_L_GREEN };
 	textblock *tb1 = textblock_new();
 	textblock *tb2 = textblock_new();
