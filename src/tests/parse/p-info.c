@@ -263,7 +263,7 @@ static int test_equip_bad0(void *state) {
 static int test_desc0(void *state) {
 	struct parser *p = (struct parser*) state;
 	enum parser_error r = parser_parse(p,
-		"desc: The dwarves are stone-hard and stubborn, ");
+		"desc:The dwarves are stone-hard and stubborn, ");
 	struct player_race *pr;
 
 	eq(r, PARSE_ERROR_NONE);
