@@ -534,6 +534,44 @@ and run::
 	export TERM=
 	./narsil.exe -uPLAYER
 
+Using MSYS2 (with MinGW64 and CMake)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Install the dependencies by::
+
+	pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja
+
+Additional dependency for the native Windows client is::
+
+        pacman -S mingw-w64-x86_64-libpng
+
+Additional dependencies for the SDL2 client are::
+
+	pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image \
+		mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_mixer
+
+Then run the following to compile for native Windows::
+
+        mkdir build && cd build
+        cmake -G Ninja -DSUPPORT_WINDOWS_FRONTEND=ON \
+            -DSUPPORT_STATIC_LINKING=ON \
+            ..
+        ninja
+
+For SDL2, do::
+
+        mkdir build && cd build
+        cmake -G Ninja -DSUPPORT_SDL2_FRONTEND=ON \
+            -DSUPPORT_SDL2_SOUND=ON \
+            -DSUPPORT_STATIC_LINKING=ON \
+            ..
+        ninja
+
+Once built, go to game/ subdirectory and start angband by::
+
+        cd game
+        ./angband
+
 Using eclipse (Indigo) on Windows (with MinGW)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
