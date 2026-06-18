@@ -66,8 +66,8 @@ extern int teardown_tests(void *data);
 				showfail(); \
 				printf("    %s:%d: requirement '%s' failed\n", \
 			           suite_name, __LINE__, #x); \
-			return 1; \
 			}  \
+			return 1; \
 		} \
 	} while (0)
 
