@@ -337,7 +337,7 @@ static void tutorial_section_place_custom_door(struct chunk *c, struct loc grid,
 static void append_with_case_sensitive_first(textblock *tb, const char *src,
 		bool capital)
 {
-	if (isupper(src[0])) {
+	if (isupper((unsigned char)src[0])) {
 		if (capital) {
 			textblock_append(tb, "%s", src);
 		} else {
