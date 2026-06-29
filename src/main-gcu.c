@@ -1322,7 +1322,8 @@ errr init_gcu(int argc, char **argv) {
 
 	/* Require standard size screen */
 	if (LINES < MIN_TERM0_LINES || COLS < MIN_TERM0_COLS) 
-		quit("Angband needs at least an 80x24 'curses' screen");
+		quit_fmt("%s needs at least an 80x24 'curses' screen",
+			VERSION_NAME);
 
 #ifdef A_COLOR
 	/* Do we have color, and enough color, available? */
