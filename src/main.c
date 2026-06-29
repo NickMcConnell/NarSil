@@ -17,6 +17,7 @@
  */
 
 #include "angband.h"
+#include "buildid.h"
 #include "init.h"
 #include "savefile.h"
 #include "ui-birth.h"
@@ -479,7 +480,7 @@ int main(int argc, char *argv[])
 	if (setlocale(LC_CTYPE, "")) {
 		/* Require UTF-8 */
 		if (!streq(nl_langinfo(CODESET), "UTF-8"))
-			quit("Angband requires UTF-8 support");
+			quit_fmt("%s requires UTF-8 support", VERSION_NAME);
 	}
 #endif
 
