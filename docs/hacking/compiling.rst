@@ -276,15 +276,15 @@ If your source files are from a "Source code" link on the github releases page
 or from cloning the git repository, you'll first need to run this to create the
 configure script::
 
-        ./autogen.sh
+    ./autogen.sh
 
 That is not necessary for source files that are from the github releases page
 but not from a "Source code" link on that page.
 
 Then configure the cross-compilation and perform the compilation itself::
 
-	./configure --enable-win --build=i686-pc-linux-gnu --host=i686-w64-mingw32
-	make install
+    ./configure --enable-win --build=i686-pc-linux-gnu --host=i686-w64-mingw32
+    make install
 
 You may need to change the --build and --host options there to match your
 system. Mingw installs commands like 'i686-w64-mingw32-gcc'. The value of --host
@@ -295,7 +295,7 @@ gory details of how these triplets are arrived at).
 
 To run the result, you can use wine like this::
 
-	wine narsil.exe
+    wine narsil.exe
 
 TODO: most of the --with or --enable options for configure are not appropriate
 when using --enable-win.  The ones that are okay are --with-private-dirs (on
@@ -314,16 +314,16 @@ below.
 
 To perform the build::
 
-	mkdir build && cd build
-	cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/linux-i686-mingw32-cross.cmake \
-		-DSUPPORT_BUNDLED_PNG=ON ..
-	cmake --build .
+    mkdir build && cd build
+    cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/linux-i686-mingw32-cross.cmake \
+        -DSUPPORT_BUNDLED_PNG=ON ..
+    cmake --build .
 
 That will leave narsil.exe and the needed .dll files in the game subdirectory
-where cmake was run.  That executable can be run with wine:
+where cmake was run.  That executable can be run with wine::
 
-	cd game
-	wine narsil.exe
+    cd game
+    wine narsil.exe
 
 Debug build
 ~~~~~~~~~~~
@@ -388,7 +388,7 @@ directory after running configure::
 That cleans the directories (removing object files, intermediates generated
 for code coverage, and coverage reports), rebuilds the game with code coverage
 profiling enabled, runs the unit tests, generates coverage reports for
-individual source files (*.gcov in the src directory), and then writes a
+individual source files (.gcov in the src directory), and then writes a
 summary of those reports to standard output.  The gen-coverage Perl script in
 the src directory is what is used to generate the summary.
 
@@ -396,11 +396,11 @@ If you use CMake, have perl, and have either gcc and gcov or clang and
 llvm-cov, then you can configure code coverage support by including
 -DSUPPORT_COVERAGE=ON in the options to cmake.  That adds three targets for
 manipulating coverage results.  "make reportcoverage" generates per-file
-coverage reports (*.gcov in the directory where you are building) using
+coverage reports (.gcov in the directory where you are building) using
 the current accumulated coverage data and then writes a summary of those
 reports to standard output.  The gen-coverage Perl script in the src directory
 is what is used to generate the summary.  "make resetcoverage" removes the
-accumulated coverage data (*.gcda files) and any per-file coverage reports.
+accumulated coverage data (.gcda files) and any per-file coverage reports.
 "make coverage" is equivalent to "make resetcoverage; make alltests;
 make reportcverage":  clear accumulated coverage information, run the unit
 tests (and, if -DSUPPORT_TEST_FRONTEND=ON was supplied to cmake, the end-to-end
@@ -466,119 +466,119 @@ If your source files are from a "Source code" link on the github releases
 page or from cloning the git repository, you'll first need to run this in the
 directory to create the configure script::
 
-        ./autogen.sh
+    ./autogen.sh
 
 That is not necessary for source files that are from the github releases page
 but not from a "Source code" link on that page.
 
 Then run these commands::
 
-	./configure --enable-win --host=i686-pc-mingw32
-	make install
+    ./configure --enable-win --host=i686-pc-mingw32
+    make install
 
 If you want to build the Unix version of NarSil that uses X11 or
 Curses and run it under Cygwin, then follow the native build
 instructions (./autogen.sh; ./configure; make; make install).
 
-Using MSYS2 (with MinGW64) 
+Using MSYS2 (with MinGW64)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Install the dependencies by::
 
-	pacman -S make mingw-w64-x86_64-gcc
+    pacman -S make mingw-w64-x86_64-gcc
 
 The additional dependency for ncurses is::
 
-	pacman -S mingw-w64-x86_64-ncurses
+    pacman -S mingw-w64-x86_64-ncurses
 
 Additional dependencies for the SDL2 client are::
 
-	pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image \
-		mingw-w64-x86_64-SDL2_ttf
+    pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image \
+        mingw-w64-x86_64-SDL2_ttf
 
 Then run the following to compile with ncurses::
 
-	cd src
-	make -f Makefile.msys2
+    cd src
+    make -f Makefile.msys2
 
 For SDL2, do::
 
-	cd src
-	make -f Makefile.msys2.sdl2
+    cd src
+    make -f Makefile.msys2.sdl2
 
 Very recent versions of Makefile.msys2.sdl2 allow use of SDL2 sound; to build
 with that you'll need SDL2_mixer installed in addition to the other SDL2
 libraries mentioned above::
 
-	pacman -S mingw-w64-x86_64-SDL2_mixer
+    pacman -S mingw-w64-x86_64-SDL2_mixer
 
 Then the executable with SDL2 sound support can be built with::
 
-	cd src
-	make -f Makefile.msys2.sdl2 SOUND=yes
+    cd src
+    make -f Makefile.msys2.sdl2 SOUND=yes
 
 Once built, go to the root of the source directory and start NarSil by::
 
-	./narsil.exe -uPLAYER
+    ./narsil.exe -uPLAYER
 
 The ncurses client may not be able to start properly from msys2 shell, try::
 
-	start bash
+    start bash
 
 and run::
 
-	export TERM=
-	./narsil.exe -uPLAYER
+    export TERM=
+    ./narsil.exe -uPLAYER
 
 Using MSYS2 (with MinGW64 and CMake)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Install the dependencies by::
 
-	pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja
+    pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja
 
 Additional dependency for the native Windows client is::
 
-        pacman -S mingw-w64-x86_64-libpng
+    pacman -S mingw-w64-x86_64-libpng
 
 The additional dependency for ncurses is::
 
-        pacman -S mingw-w64-x86_64-ncurses
+    pacman -S mingw-w64-x86_64-ncurses
 
 Additional dependencies for the SDL2 client are::
 
-	pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image \
-		mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_mixer
+    pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image \
+        mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_mixer
 
 Then run the following to compile for native Windows::
 
-        mkdir build && cd build
-        cmake -G Ninja -DSUPPORT_WINDOWS_FRONTEND=ON \
-            -DSUPPORT_STATIC_LINKING=ON \
-            ..
-        ninja
+    mkdir build && cd build
+    cmake -G Ninja -DSUPPORT_WINDOWS_FRONTEND=ON \
+        -DSUPPORT_STATIC_LINKING=ON \
+        ..
+    ninja
 
 For ncurses, do::
 
-        mkdir build && cd build
-        cmake -G Ninja -DSUPPORT_GCU_FRONTEND=ON \
-            -DSUPPORT_STATIC_LINKING=ON \
-            ..
-        ninja
+    mkdir build && cd build
+    cmake -G Ninja -DSUPPORT_GCU_FRONTEND=ON \
+        -DSUPPORT_STATIC_LINKING=ON \
+        ..
+    ninja
 
 For SDL2, do::
 
-        mkdir build && cd build
-        cmake -G Ninja -DSUPPORT_SDL2_FRONTEND=ON \
-            -DSUPPORT_SDL2_SOUND=ON \
-            -DSUPPORT_STATIC_LINKING=ON \
-            ..
-        ninja
+    mkdir build && cd build
+    cmake -G Ninja -DSUPPORT_SDL2_FRONTEND=ON \
+        -DSUPPORT_SDL2_SOUND=ON \
+        -DSUPPORT_STATIC_LINKING=ON \
+        ..
+    ninja
 
 Once built, go to game/ subdirectory and start angband by::
 
-        cd game
-        ./angband
+    cd game
+    ./angband
 
 Using eclipse (Indigo) on Windows (with MinGW)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -672,7 +672,7 @@ and, unless you change the theme in the documentation configuration, the
 sphinx-better-theme ( https://pypi.org/project/sphinx-better-theme/ ; which
 can be installed via pip using::
 
-	pip install sphinx-better-theme
+    pip install sphinx-better-theme
 
 ).
 
@@ -681,7 +681,7 @@ including ``--with-sphinx`` in the options to configure.  If you want to
 override the default theme, specify the theme's name in the DOC_HTML_THEME
 variable.  For instance, running this at the top level of the distribution::
 
-        ./configure --with-no-install --with-sphinx DOC_HTML_THEME=alabaster
+    ./configure --with-no-install --with-sphinx DOC_HTML_THEME=alabaster
 
 would use one of the themes always included with Sphinx and avoid the need
 to install the sphinx-better-theme.  When running make or ``make manual``
@@ -693,9 +693,9 @@ If you are using CMake, you can tell it to build the manual in HTML by including
 default theme, specify the theme's name in the DOC_HTML_THEME variable.  For
 instance running this at the top level of the distribution::
 
-        mkdir build
-        cd build
-        cmake -DBUILD_DOC=ON -DDOC_HTML_THEME=alabaster ..
+    mkdir build
+    cd build
+    cmake -DBUILD_DOC=ON -DDOC_HTML_THEME=alabaster ..
 
 would behave much like the earlier example using configure.  After building
 with CMake (i.e. ``cmake --build .`` or ``cmake --build . -t OurManual``), the
@@ -704,7 +704,7 @@ generated user manual will be in manual-output-html in the build directory.
 To build the user manual without configure or CMake, make sure sphinx-build
 is in your path and then run::
 
-	make html
+    make html
 
 in the docs subdirectory of the top-level directory in the source files.
 That will generate a _build/html directory with the result of the conversion;
@@ -712,7 +712,7 @@ _build/html/index.html is the top-level help with links to everything else.
 
 Other output formats besides HTML are possible.  Run::
 
-	make
+    make
 
 without any arguments in the docs subdirectory to see the formats that Sphinx
 can generate.
