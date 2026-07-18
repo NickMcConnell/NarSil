@@ -755,6 +755,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	struct object *launcher = equipped_item_by_slot_name(p, "shooting");
 	struct object *weapon = equipped_item_by_slot_name(p, "weapon");
 	struct object *off = equipped_item_by_slot_name(p, "arm");
+	struct object *obj;
 	bitflag f[OF_SIZE];
 	int armour_weight = 0;
 	struct song *song;
@@ -784,9 +785,17 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	/* Base pflags */
 	pf_copy(state->pflags, p->race->pflags);
 
+	/* All carried objects cause danger */
+	for (obj = p->gear; obj; obj = obj->next) {
+		/* Skip equipment which is dealt with later */
+		if (object_is_equipped(p->body, obj)) continue;
+		if (of_has(obj->flags, OF_DANGER))
+			state->flags[OF_DANGER]++;
+	}
+
 	/* Analyze equipment */
 	for (i = 0; i < p->body.count; i++) {
-		struct object *obj = slot_object(p, i);
+		obj = slot_object(p, i);
 
 		if (obj) {
 			/* Extract the item flags */
