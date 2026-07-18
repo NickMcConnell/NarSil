@@ -360,7 +360,6 @@ struct player_state {
 	int skill_use[SKILL_MAX];		/**< Current modified skills */
 
 	int speed;			/**< Current speed */
-	int hunger;			/**< Current hunger rate */
 
 	int ammo_tval;		/**< Ammo variety */
 

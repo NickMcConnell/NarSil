@@ -472,12 +472,12 @@ static void melee_effect_handler_HUNGER(melee_effect_handler_context_t *context)
 
 			/* Modify the hunger caused by the player's hunger rate
 			 * but go up/down by factors of 1.5 rather than 3 */
-			if (context->p->state.hunger < 0) { 
-				amount *= int_exp(2, -(context->p->state.hunger));
-				amount /= int_exp(3, -(context->p->state.hunger));
-			} else if (context->p->state.hunger > 0) { 
-				amount *= int_exp(3, context->p->state.hunger);
-				amount /= int_exp(2, context->p->state.hunger);
+			if (context->p->state.flags[OF_HUNGER] < 0) {
+				amount *= int_exp(2, -(context->p->state.flags[OF_HUNGER]));
+				amount /= int_exp(3, -(context->p->state.flags[OF_HUNGER]));
+			} else if (context->p->state.flags[OF_HUNGER] > 0) {
+				amount *= int_exp(3, context->p->state.flags[OF_HUNGER]);
+				amount /= int_exp(2, context->p->state.flags[OF_HUNGER]);
 			}
 
 			/* Reduce food counter, but not too much. */
