@@ -330,12 +330,12 @@ void player_digest(struct player *p)
 	int i = 1;
 
 	/* Slow hunger rates are done statistically */
-	if (p->state.hunger < 0) {
-		if (!one_in_(int_exp(3, -(p->state.hunger)))) {
+	if (p->state.flags[OF_HUNGER] < 0) {
+		if (!one_in_(int_exp(3, -(p->state.flags[OF_HUNGER])))) {
 			i = 0;
 		}
-	} else if (p->state.hunger > 0) {
-		i *= int_exp(3, p->state.hunger);
+	} else if (p->state.flags[OF_HUNGER] > 0) {
+		i *= int_exp(3, p->state.flags[OF_HUNGER]);
 	}
 
 	/* Digest quickly when gorged */
