@@ -118,6 +118,12 @@ static int frames_per_second;
 /** Force a new game or not? */
 static enum game_mode_type game_mode = GAME_LOAD;
 
+/**
+ * When an input flush is requested, ignore repeats of a key pressed before the
+ * flush.
+ */
+static BOOL ignore_repeated_key = NO;
+
 @class AngbandView;
 
 /**
@@ -4578,7 +4584,7 @@ static errr Term_xtra_cocoa(int n, int v)
         case TERM_XTRA_FLUSH:
 	    /* Flush all events */
 	    while (check_events(CHECK_EVENTS_DRAIN)) /* loop */;
-
+	    ignore_repeated_key = YES;
 	    break;
 
 	    /* Change the "soft level" */
@@ -5171,6 +5177,13 @@ static BOOL send_event(NSEvent *event)
             {
                 [NSApp sendEvent:event];
                 break;
+            }
+
+            if (ignore_repeated_key) {
+                if ([event isARepeat]) {
+                    break;
+                }
+                ignore_repeated_key = NO;
             }
 
             /* Extract some modifiers */
