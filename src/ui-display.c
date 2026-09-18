@@ -1864,7 +1864,7 @@ static void update_messages_subwindow(game_event_type type,
 		Term_locate(&x, &y);
 
 		/* Clear to end of line */
-		Term_erase(x, y, 255);
+		Term_erase(x, y, w - x);
 	}
 
 	Term_fresh();
@@ -2356,7 +2356,7 @@ static void splashscreen_note(game_event_type type, game_event_data *data,
 		if (++y >= 24) y = 2;
 	} else {
 		char *s = format("[%s]", data->message.msg);
-		Term_erase(0, (Term->hgt - 23) / 5 + 23, 255);
+		Term_erase(0, (Term->hgt - 23) / 5 + 23, Term->wid);
 		Term_putstr((Term->wid - strlen(s)) / 2, (Term->hgt - 23) / 5 + 23, -1,
 					COLOUR_WHITE, s);
 	}
