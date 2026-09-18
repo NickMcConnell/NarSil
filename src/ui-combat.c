@@ -264,10 +264,7 @@ void display_combat_rolls(game_event_type type, game_event_data *data, void *use
 	int res = 1;   /* a default value to soothe compilation warnings */
 
 	/* Clear the window */
-	for (i = 0; i < Term->hgt; i++) {
-		/* Erase the line */
-		Term_erase(0, i, 255);
-	}
+	(void)Term_clear();
 
 	for (round = 0; round < 2; round++) {
 		/* initialise some things */
