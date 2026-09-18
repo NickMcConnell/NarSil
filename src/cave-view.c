@@ -437,15 +437,16 @@ bool los(struct chunk *c, struct loc grid1, struct loc grid2)
  */
 static void mark_wasseen(struct chunk *c)
 {
-	int x, y;
+	struct loc grid;
+
 	/* Save the old "view" grids for later */
-	for (y = 0; y < c->height; y++) {
-		for (x = 0; x < c->width; x++) {
-			struct loc grid = loc(x, y);
-			if (square_isseen(c, grid))
+	for (grid.y = 0; grid.y < c->height; grid.y++) {
+		for (grid.x = 0; grid.x < c->width; grid.x++) {
+			if (square_isseen(c, grid)) {
 				sqinfo_on(square(c, grid)->info, SQUARE_WASSEEN);
+				sqinfo_off(square(c, grid)->info, SQUARE_SEEN);
+			}
 			sqinfo_off(square(c, grid)->info, SQUARE_VIEW);
-			sqinfo_off(square(c, grid)->info, SQUARE_SEEN);
 			sqinfo_off(square(c, grid)->info, SQUARE_CLOSE_PLAYER);
 		}
 	}
@@ -661,21 +662,20 @@ static void add_light(struct chunk *c, struct player *p, struct loc sgrid,
  */
 static void calc_lighting(struct chunk *c, struct player *p)
 {
-	int k, x, y;
+	struct loc grid;
+	int k;
 	int light = p->upkeep->cur_light, radius = ABS(light);
 	int old_light = square_light(c, p->grid);
 
 	/* Starting values based on permanent light */
-	for (y = 0; y < c->height; y++) {
-		for (x = 0; x < c->width; x++) {
-			struct loc grid = loc(x, y);
-
+	for (grid.y = 0; grid.y < c->height; grid.y++) {
+		for (grid.x = 0; grid.x < c->width; grid.x++) {
 			if (square_isglow(c, grid) &&
 					(square_allowslos(c, grid) ||
 					glow_can_light_wall(c, p, grid))) {
-				c->squares[y][x].light = 1;
+				c->squares[grid.y][grid.x].light = 1;
 			} else {
-				c->squares[y][x].light = 0;
+				c->squares[grid.y][grid.x].light = 0;
 			}
 		}
 	}
@@ -767,9 +767,6 @@ static void calc_lighting(struct chunk *c, struct player *p)
 static void become_viewable(struct chunk *c, struct loc grid, struct player *p,
 							bool close)
 {
-	int x = grid.x;
-	int y = grid.y;
-
 	/* Already viewable, nothing to do */
 	if (square_isview(c, grid)) return;
 
@@ -784,9 +781,13 @@ static void become_viewable(struct chunk *c, struct loc grid, struct player *p,
 	if (square_islit(c, grid)) {
 		if (!square_allowslos(c, grid)) {
 			/* For walls, check for a lit grid closer to the player */
-			int xc = (x < p->grid.x) ? (x + 1) : (x > p->grid.x) ? (x - 1) : x;
-			int yc = (y < p->grid.y) ? (y + 1) : (y > p->grid.y) ? (y - 1) : y;
-			if (square_islit(c, loc(xc, yc))) {
+			struct loc gc;
+
+			gc.x = (grid.x < p->grid.x) ? (grid.x + 1)
+				: (grid.x > p->grid.x) ? (grid.x - 1) : grid.x;
+			gc.y = (grid.y < p->grid.y) ? (grid.y + 1)
+				: (grid.y > p->grid.y) ? (grid.y - 1) : grid.y;
+			if (square_islit(c, gc)) {
 				sqinfo_on(square(c, grid)->info, SQUARE_SEEN);
 			}
 		} else {
@@ -865,23 +866,30 @@ static void update_view_one(struct chunk *c, struct loc grid, struct player *p)
  */
 static void update_one(struct chunk *c, struct loc grid, struct player *p)
 {
+	bool is_seen;
+
 	/* Remove view if blind */
 	if (p->timed[TMD_BLIND]) {
 		sqinfo_off(square(c, grid)->info, SQUARE_SEEN);
 		sqinfo_off(square(c, grid)->info, SQUARE_CLOSE_PLAYER);
+		is_seen = false;
+	} else {
+		is_seen = square_isseen(c, grid);
 	}
 
-	/* Square went from unseen -> seen */
-	if (square_isseen(c, grid) && !square_wasseen(c, grid)) {
-		square_note_spot(c, grid);
+	if (is_seen) {
+		if (!square_wasseen(c, grid)) {
+			/* Square went from unseen -> seen */
+			square_note_spot(c, grid);
+			square_light_spot(c, grid);
+		} else {
+			sqinfo_off(square(c, grid)->info, SQUARE_WASSEEN);
+		}
+	} else if (square_wasseen(c, grid)) {
+		/* Square went from seen -> unseen */
 		square_light_spot(c, grid);
+		sqinfo_off(square(c, grid)->info, SQUARE_WASSEEN);
 	}
-
-	/* Square went from seen -> unseen */
-	if (!square_isseen(c, grid) && square_wasseen(c, grid))
-		square_light_spot(c, grid);
-
-	sqinfo_off(square(c, grid)->info, SQUARE_WASSEEN);
 }
 
 /**
@@ -889,7 +897,7 @@ static void update_one(struct chunk *c, struct loc grid, struct player *p)
  */
 void update_view(struct chunk *c, struct player *p)
 {
-	int x, y;
+	struct loc grid;
 
 	/* Record the current view */
 	mark_wasseen(c);
@@ -904,15 +912,18 @@ void update_view(struct chunk *c, struct player *p)
 		sqinfo_on(square(c, p->grid)->info, SQUARE_CLOSE_PLAYER);
 	}
 
-	/* Squares we have LOS to get marked as in the view, and perhaps seen */
-	for (y = 0; y < c->height; y++)
-		for (x = 0; x < c->width; x++)
-			update_view_one(c, loc(x, y), p);
+	for (grid.y = 0; grid.y < c->height; grid.y++) {
+		for (grid.x = 0; grid.x < c->width; grid.x++) {
+			/*
+			 * A square we have LOS to gets marked as in the view,
+			 * and perhaps seen
+			 */
+			update_view_one(c, grid, p);
 
-	/* Update each grid */
-	for (y = 0; y < c->height; y++)
-		for (x = 0; x < c->width; x++)
-			update_one(c, loc(x, y), p);
+			/* Update the grid */
+			update_one(c, grid, p);
+		}
+	}
 
 	/* Update field-of-fire (using the old view algorithm for now - NRM) */
 	update_fire(c, p);
