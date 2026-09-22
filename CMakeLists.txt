@@ -824,6 +824,7 @@ set(ANGBAND_TEST_CASE_SOURCES
     player/playerstat.c
     player/timed.c
     trivial/trivial.c
+    z-bitflag/bitflag.c
     z-dice/dice.c
     z-dict/dict.c
     z-expression/expression.c
