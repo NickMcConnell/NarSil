@@ -85,6 +85,7 @@
 void map_info(struct loc grid, struct grid_data *g)
 {
 	struct object *obj;
+	int16_t m_idx;
 
 	assert(grid.x < cave->width);
 	assert(grid.y < cave->height);
@@ -97,42 +98,48 @@ void map_info(struct loc grid, struct grid_data *g)
 	g->glow = false;
 	g->lighting = LIGHTING_LIT;
 
-	/* Use real feature (remove later) */
-	g->f_idx = square(cave, grid)->feat;
+	/* Use known feature */
+	g->f_idx = square(player->cave, grid)->feat;
 	if (f_info[g->f_idx].mimic)
 		g->f_idx = (uint32_t) (f_info[g->f_idx].mimic - f_info);
 
-	g->in_view = (square_isseen(cave, grid)) ? true : false;
-	g->is_player = (square(cave, grid)->mon < 0) ? true : false;
-	g->m_idx = (g->is_player) ? 0 : square(cave, grid)->mon;
 	g->hallucinate = player->timed[TMD_IMAGE] ? true : false;
 	g->rage = player->timed[TMD_RAGE] ? true : false;
 
-	if (square_isglow(cave, grid)) {
-		g->lighting = LIGHTING_LIT;
+	/* Monsters and player */
+	m_idx = square(cave, grid)->mon;
+	if (m_idx > 0) {
+		/* If the monster isn't "visible", make sure we don't list it.*/
+		struct monster *mon = cave_monster(cave, m_idx);
+
+		g->m_idx = (monster_is_visible(mon)
+			|| monster_is_listened(mon)) ? m_idx : 0;
+		g->is_player = false;
+	} else {
+		g->m_idx = 0;
+		g->is_player = (m_idx < 0);
 	}
-	if (g->in_view) {
+
+	/* Visibility and lighting */
+	if (square_isseen(cave, grid)) {
 		bool lit = square_islit(cave, grid);
 
+		g->in_view = true;
 		if (lit) {
 			g->lighting = LIGHTING_LOS;
 		}
 
 		/* Remember seen feature */
 		square_memorize(cave, grid);
-	} else if (g->rage) {
-		/* Rage shows nothing out of view */
-		g->f_idx = FEAT_NONE;
-		g->m_idx = 0;
-		return;
-	} else if (!square_isknown(cave, grid)) {
-		g->f_idx = FEAT_NONE;
+	} else {
+		g->in_view = false;
+		if (g->rage) {
+			/* Rage shows nothing out of view */
+			g->f_idx = FEAT_NONE;
+			g->m_idx = 0;
+			return;
+		}
 	}
-
-	/* Use known feature */
-	g->f_idx = square(player->cave, grid)->feat;
-	if (f_info[g->f_idx].mimic)
-		g->f_idx = (uint32_t) (f_info[g->f_idx].mimic - f_info);
 
 	/* There is a known trap in this square */
 	if (square_trap(player->cave, grid) && square_isknown(cave, grid)) {
@@ -148,7 +155,7 @@ void map_info(struct loc grid, struct grid_data *g)
 			}
 			trap = trap->next;
 		}
-    }
+	}
 
 	/* Objects */
 	for (obj = square_object(player->cave, grid); obj; obj = obj->next) {
@@ -172,13 +179,6 @@ void map_info(struct loc grid, struct grid_data *g)
 		}
 	}
 
-	/* Monsters */
-	if (g->m_idx > 0) {
-		/* If the monster isn't "visible", make sure we don't list it.*/
-		struct monster *mon = cave_monster(cave, g->m_idx);
-		if (!monster_is_visible(mon) && !monster_is_listened(mon)) g->m_idx = 0;
-	}
-
 	/* Rare random hallucination on non-outer walls */
 	if (g->hallucinate && g->m_idx == 0 && g->first_kind == 0) {
 		if (one_in_(128) && (int) g->f_idx != FEAT_PERM)
@@ -190,10 +190,9 @@ void map_info(struct loc grid, struct grid_data *g)
 			g->hallucinate = false;
 	}
 
-	assert((int) g->f_idx < FEAT_MAX);
-	if (!g->hallucinate)
-		assert((int)g->m_idx < cave->mon_max);
-	/* All other g fields are 'flags', mostly booleans. */
+	assert((int)g->f_idx < FEAT_MAX);
+	assert(g->lighting >= 0 && g->lighting < LIGHTING_MAX);
+	assert(g->hallucinate || (int)g->m_idx < cave->mon_max);
 }
 
 
