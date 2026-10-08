@@ -475,18 +475,21 @@ static void lore_append_clause(textblock *tb, bitflag *f, int attr,
 	bool comma = count > 2;
 
 	if (count) {
-		int flag;
+		int start_flag = rf_next(f, FLAG_START), flag, next_flag;
+
 		textblock_append(tb, "%s", start);
-		for (flag = rf_next(f, FLAG_START); flag; flag = rf_next(f, flag + 1)) {
+		for (flag = start_flag; flag; flag = next_flag) {
+			next_flag = rf_next(f, flag + 1);
 			/* First entry starts immediately */
-			if (flag != rf_next(f, FLAG_START)) {
+			if (flag != start_flag) {
 				if (comma) {
 					textblock_append(tb, ",");
 				}
 				/* Last entry */
-				if (rf_next(f, flag + 1) == FLAG_END) {
+				if (next_flag == FLAG_END) {
 					textblock_append(tb, " ");
-					textblock_append(tb, "%s", conjunction);
+					textblock_append(tb, "%s",
+						conjunction);
 				}
 				textblock_append(tb, " ");
 			}
@@ -518,20 +521,21 @@ static void lore_append_spell_clause(textblock *tb, bitflag *f,
 	bool comma = count > 2;
 
 	if (count) {
-		int spell;
-		for (spell = rsf_next(f, FLAG_START); spell;
-			 spell = rsf_next(f, spell + 1)) {
-			random_value damage = mon_spell_lore_damage(spell);
-            int archery_bonus = 0;
-            archery_bonus = mon_spell_lore_archery_bonus(spell, race);
+		int start_spell = rsf_next(f, FLAG_START), spell, next_spell;
 
+		for (spell = start_spell; spell; spell = next_spell) {
+			random_value damage = mon_spell_lore_damage(spell);
+			int archery_bonus = mon_spell_lore_archery_bonus(spell,
+				race);
+
+			next_spell = rsf_next(f, spell + 1);
 			/* First entry starts immediately */
-			if (spell != rsf_next(f, FLAG_START)) {
+			if (spell != start_spell) {
 				if (comma) {
 					textblock_append(tb, ",");
 				}
 				/* Last entry */
-				if (rsf_next(f, spell + 1) == FLAG_END) {
+				if (next_spell == FLAG_END) {
 					textblock_append(tb, " or");
 				}
 				textblock_append(tb, " ");
@@ -567,7 +571,7 @@ void lore_append_kills(textblock *tb, const struct monster_race *race,
 					   const struct monster_lore *lore,
 					   const bitflag known_flags[RF_SIZE])
 {
-	monster_sex_t msex = MON_SEX_NEUTER;
+	monster_sex_t msex;
 	bool out = true;
 
 	assert(tb && race && lore);
@@ -801,15 +805,13 @@ void lore_append_toughness(textblock *tb, const struct monster_race *race,
 						   const struct monster_lore *lore,
 						   bitflag known_flags[RF_SIZE])
 {
-	monster_sex_t msex = MON_SEX_NEUTER;
-
 	assert(tb && race && lore);
-
-	/* Extract a gender (if applicable) */
-	msex = lore_monster_sex(race);
 
 	/* Describe monster "toughness" */
 	if (lore->armour_known) {
+		/* Extract a gender (if applicable) */
+		monster_sex_t msex = lore_monster_sex(race);
+
 		/* Hitpoints */
 		textblock_append(tb, "%s has ", lore_pronoun_nominative(msex, true));
 
@@ -851,7 +853,7 @@ void lore_append_exp(textblock *tb, const struct monster_race *race,
 					 bitflag known_flags[RF_SIZE])
 {
 	long exp;
-	monster_sex_t msex = MON_SEX_NEUTER;
+	monster_sex_t msex;
 
 	/* Check legality and that this is a placeable monster */
 	assert(tb && race && lore);
@@ -926,19 +928,18 @@ void lore_append_drop(textblock *tb, const struct monster_race *race,
 					  bitflag known_flags[RF_SIZE])
 {
 	int n = 0;
-	monster_sex_t msex = MON_SEX_NEUTER;
 
 	assert(tb && race && lore);
 	if (!lore->drop_known) return;
-
-	/* Extract a gender (if applicable) */
-	msex = lore_monster_sex(race);
 
 	/* Count maximum drop */
 	n = mon_create_drop_count(race, true);
 
 	/* Drops gold and/or items */
 	if (n > 0) {
+		/* Extract a gender (if applicable) */
+		monster_sex_t msex = lore_monster_sex(race);
+
 		if (rf_has(race->flags, RF_TERRITORIAL)) {
 			textblock_append(tb, "%s may be found with",
 							 lore_pronoun_nominative(msex, true));
@@ -995,7 +996,7 @@ void lore_append_abilities(textblock *tb, const struct monster_race *race,
 	char start[40];
 	const char *initial_pronoun;
 	bitflag current_flags[RF_SIZE];
-	monster_sex_t msex = MON_SEX_NEUTER;
+	monster_sex_t msex;
 
 	assert(tb && race && lore);
 
@@ -1088,16 +1089,14 @@ void lore_append_skills(textblock *tb, const struct monster_race *race,
 						   const struct monster_lore *lore,
 						   bitflag known_flags[RF_SIZE])
 {
-	monster_sex_t msex = MON_SEX_NEUTER;
-
 	assert(tb && race && lore);
-
-	/* Extract a gender (if applicable) */
-	msex = lore_monster_sex(race);
 
 	/* Do we know how aware it is? */
 	if (lore->sleep_known) {
 		const char *aware = lore_describe_awareness(race->sleep);
+		/* Extract a gender (if applicable) */
+		monster_sex_t msex = lore_monster_sex(race);
+
 		textblock_append(tb, "%s has %d Will,",
 						 lore_pronoun_nominative(msex, true), race->wil);
 		if (player_active_ability(player, "Listen")) {
@@ -1128,7 +1127,7 @@ void lore_append_spells(textblock *tb, const struct monster_race *race,
 						const struct monster_lore *lore,
 						bitflag known_flags[RF_SIZE])
 {
-	monster_sex_t msex = MON_SEX_NEUTER;
+	monster_sex_t msex;
 	const char *initial_pronoun;
 	bitflag current_flags[RSF_SIZE];
 	const struct monster_race *old_ref;
@@ -1191,7 +1190,7 @@ void lore_append_attack(textblock *tb, const struct monster_race *race,
 						bitflag known_flags[RF_SIZE])
 {
 	int i, known_attacks = 0, described_count = 0;
-	monster_sex_t msex = MON_SEX_NEUTER;
+	monster_sex_t msex;
 
 	assert(tb && race && lore);
 
